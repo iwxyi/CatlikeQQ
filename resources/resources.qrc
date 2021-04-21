@@ -1,7 +1,20 @@
 <RCC>
-    <qresource prefix="/icons">
+    <qresource prefix="/">
         <file>icons/application.png</file>
         <file>icons/auxiliary.png</file>
         <file>icons/settings.png</file>
+        <file>icons/account.png</file>
+        <file>icons/port.png</file>
+        <file>icons/animation.png</file>
+        <file>icons/banner.png</file>
+        <file>icons/bubble.png</file>
+        <file>icons/care.png</file>
+        <file>icons/group.png</file>
+        <file>icons/startup.png</file>
+        <file>icons/ai.png</file>
+        <file>icons/model.png</file>
+        <file>icons/reply.png</file>
+        <file>icons/statistical.png</file>
+        <file>icons/history_message.png</file>
     </qresource>
 </RCC>

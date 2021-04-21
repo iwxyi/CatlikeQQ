@@ -15,6 +15,10 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName(APPLICATION_NAME);
     QCoreApplication::setApplicationVersion(VERSION_CODE);
 
+    QFont font(a.font());
+    font.setFamily("微软雅黑");
+    a.setFont(font);
+
     MainWindow w;
     w.show();
     return a.exec();

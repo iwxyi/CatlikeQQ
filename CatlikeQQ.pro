@@ -56,6 +56,7 @@ HEADERS += \
     third_party/utils/pinyinutil.h \
     third_party/utils/stringutil.h \
     third_party/utils/textinputdialog.h \
+    widgets/customtabstyle.h \
     widgets/lefttabwidget.h
 
 FORMS += \
@@ -70,7 +71,12 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES += \
-    qxtglobalshortcut5/qxt.pri
+    qxtglobalshortcut5/qxt.pri \
+    resources/icons/account.png \
+    resources/icons/application.png \
+    resources/icons/auxiliary.png \
+    resources/icons/port.png \
+    resources/icons/settings.png
 
 RESOURCES += \
     resources/resources.qrc

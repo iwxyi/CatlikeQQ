@@ -119,7 +119,7 @@
        </property>
        <property name="icon">
         <iconset resource="resources/resources.qrc">
-         <normaloff>:/icons/icons/settings.png</normaloff>:/icons/icons/settings.png</iconset>
+         <normaloff>:/icons/settings.png</normaloff>:/icons/settings.png</iconset>
        </property>
       </item>
       <item>
@@ -128,7 +128,7 @@
        </property>
        <property name="icon">
         <iconset resource="resources/resources.qrc">
-         <normaloff>:/icons/icons/auxiliary.png</normaloff>:/icons/icons/auxiliary.png</iconset>
+         <normaloff>:/icons/auxiliary.png</normaloff>:/icons/auxiliary.png</iconset>
        </property>
       </item>
       <item>
@@ -137,7 +137,7 @@
        </property>
        <property name="icon">
         <iconset resource="resources/resources.qrc">
-         <normaloff>:/icons/icons/application.png</normaloff>:/icons/icons/application.png</iconset>
+         <normaloff>:/icons/application.png</normaloff>:/icons/application.png</iconset>
        </property>
       </item>
      </widget>
@@ -163,19 +163,16 @@ QTabWidget::pane
 QTabBar::tab
 {
 	background-color: transparent;
-	max-width: 75px;
-	min-width:75px;
-	min-height:25px;
 	border-color: transparent;
 	border-width: 0px;
+	padding: 12px;
+	padding-top: 25px;
+	padding-bottom: 20px;
 }
 
 QTabBar::tab:selected
 {
 	background: white;
-	max-width: 75px;
-	min-width:75px;
-	min-height:25px;
 	border: none;
 }
 
