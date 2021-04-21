@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QSystemTrayIcon>
 #include "global.h"
 
 QT_BEGIN_NAMESPACE
@@ -16,15 +17,20 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    ~MainWindow() override;
 
 private slots:
+    void trayAction(QSystemTrayIcon::ActivationReason reason);
     void on_sideButtons_currentRowChanged(int currentRow);
 
 private:
     void loadSettingsTabs();
     void loadAuxiliaryTabs();
     void loadDataTabs();
+    void initTray();
+
+protected:
+    void closeEvent(QCloseEvent* e) override;
 
 private:
     Ui::MainWindow *ui;

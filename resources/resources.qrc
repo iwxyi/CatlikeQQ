@@ -17,5 +17,8 @@
         <file>icons/statistical.png</file>
         <file>icons/history_message.png</file>
         <file>icons/data.png</file>
+        <file alias="appicon">icons/cat_chat.png</file>
+        <file>icons/quit.png</file>
+        <file>icons/silent.png</file>
     </qresource>
 </RCC>

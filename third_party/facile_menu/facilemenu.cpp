@@ -550,6 +550,11 @@ void FacileMenu::exec(QPoint pos)
     main_vlayout->setEnabled(true);
     main_vlayout->activate(); // 先调整所有控件大小
 
+    // setAttribute(Qt::WA_DontShowOnScreen); // 会触发 setMouseGrabEnabled 错误
+    show();
+    // hide(); // 直接显示吧
+    // setAttribute(Qt::WA_DontShowOnScreen, false);
+
     int x = pos.x() + 1;
     int y = pos.y() + 1;
     int w = width() + 1;

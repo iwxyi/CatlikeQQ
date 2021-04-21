@@ -1,7 +1,9 @@
 #include <QDebug>
+#include "facilemenu.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "widgets/customtabstyle.h"
+#include "usersettings.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -14,6 +16,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->tabWidget->tabBar()->setStyle(new CustomTabStyle);
 
     ui->sideButtons->setCurrentRow(0);
+
+    initTray();
 }
 
 MainWindow::~MainWindow()
@@ -55,6 +59,64 @@ void MainWindow::loadDataTabs()
 
     ui->tabWidget->addTab(new QWidget(), QIcon("://icons/history_message.png"), "历史消息");
     ui->tabWidget->addTab(new QWidget(), QIcon("://icons/statistical.png"), "数据统计");
+}
+
+void MainWindow::initTray()
+{
+    QSystemTrayIcon* tray = new QSystemTrayIcon(this);
+    tray->setIcon(QIcon("://appicon"));
+    tray->setToolTip(APPLICATION_NAME);
+    tray->show();
+
+    connect(tray,SIGNAL(activated(QSystemTrayIcon::ActivationReason)),this,SLOT(trayAction(QSystemTrayIcon::ActivationReason)));
+}
+
+void MainWindow::trayAction(QSystemTrayIcon::ActivationReason reason)
+{
+    switch(reason)
+    {
+    case QSystemTrayIcon::Trigger:
+        if (!this->isHidden())
+            this->hide();
+        else
+            this->showNormal();
+        break;
+    case QSystemTrayIcon::MiddleClick:
+
+        break;
+    case QSystemTrayIcon::Context:
+    {
+        FacileMenu* menu = new FacileMenu;
+        menu->addAction(QIcon("://icons/silent.png"), "静默", [=] {
+
+        });
+        menu->addAction(QIcon("://icons/quit.png"), "退出", [=] {
+            qApp->quit();
+        });
+        menu->exec(QCursor::pos());
+    }
+        break;
+    default:
+        break;
+    }
+}
+
+void MainWindow::closeEvent(QCloseEvent *e)
+{
+    us->setValue("mainwindow/geometry", this->saveGeometry());
+
+#if defined(ENABLE_TRAY)
+    e->ignore();
+    this->hide();
+
+    QTimer::singleShot(5000, [=]{
+        if (!this->isHidden())
+            return ;
+        us->setValue("mainwindow/autoShow", false);
+    });
+#else
+    QMainWindow::closeEvent(e);
+#endif
 }
 
 void MainWindow::on_sideButtons_currentRowChanged(int currentRow)
