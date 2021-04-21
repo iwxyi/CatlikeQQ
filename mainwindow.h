@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QSystemTrayIcon>
 #include "global.h"
+#include "cqhttpservice.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -24,15 +25,21 @@ private slots:
     void on_sideButtons_currentRowChanged(int currentRow);
 
 private:
+    void initView();
+    void initTray();
+    void initService();
+
     void loadSettingsTabs();
     void loadAuxiliaryTabs();
     void loadDataTabs();
-    void initTray();
+
+    void startMessageLoop();
 
 protected:
     void closeEvent(QCloseEvent* e) override;
 
 private:
     Ui::MainWindow *ui;
+    CqhttpService* service;
 };
 #endif // MAINWINDOW_H

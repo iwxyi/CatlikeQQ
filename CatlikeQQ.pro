@@ -1,4 +1,4 @@
-QT       += core gui network
+QT       += core gui network websockets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -21,36 +21,44 @@ INCLUDEPATH += third_party/color_octree/\
     third_party/facile_menu/\
     third_party/interactive_buttons/\
     third_party/utils/\
+    global/\
+    notification/\
+    web_service/
 
 SOURCES += \
+    web_service/cqhttpservice.cpp \
     third_party/color_octree/coloroctree.cpp \
     third_party/color_octree/imageutil.cpp \
     third_party/facile_menu/facilemenu.cpp \
     third_party/facile_menu/facilemenuitem.cpp \
-    global.cpp \
+    global/global.cpp \
     third_party/interactive_buttons/interactivebuttonbase.cpp \
     main.cpp \
     mainwindow.cpp \
-    notificationbubble.cpp \
-    notificationcard.cpp \
-    runtime.cpp \
-    usersettings.cpp \
+    notification/notificationbubble.cpp \
+    notification/notificationcard.cpp \
+    global/runtime.cpp \
+    global/usersettings.cpp \
     third_party/utils/fileutil.cpp \
     third_party/utils/stringutil.cpp \
-    third_party/utils/textinputdialog.cpp
+    third_party/utils/textinputdialog.cpp \
+    widgets/settings/accountwidget.cpp
 
 HEADERS += \
+    global/signaltransfer.h \
+    third_party/utils/mysettings.h \
+    web_service/cqhttpservice.h \
     third_party/color_octree/coloroctree.h \
     third_party/third_party/color_octree/imageutil.h \
     third_party/facile_menu/facilemenu.h \
     third_party/facile_menu/facilemenuitem.h \
-    global.h \
+    global/global.h \
     third_party/interactive_buttons/interactivebuttonbase.h \
     mainwindow.h \
-    notificationbubble.h \
-    notificationcard.h \
-    runtime.h \
-    usersettings.h \
+    notification/notificationbubble.h \
+    notification/notificationcard.h \
+    global/runtime.h \
+    global/usersettings.h \
     third_party/utils/dlog.h \
     third_party/utils/fileutil.h \
     third_party/utils/myjson.h \
@@ -59,13 +67,15 @@ HEADERS += \
     third_party/utils/stringutil.h \
     third_party/utils/textinputdialog.h \
     widgets/customtabstyle.h \
-    widgets/lefttabwidget.h
+    widgets/lefttabwidget.h \
+    widgets/settings/accountwidget.h
 
 FORMS += \
     mainwindow.ui \
-    notificationbubble.ui \
-    notificationcard.ui \
-    third_party/utils/textinputdialog.ui
+    notification/notificationbubble.ui \
+    notification/notificationcard.ui \
+    third_party/utils/textinputdialog.ui \
+    widgets/settings/accountwidget.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

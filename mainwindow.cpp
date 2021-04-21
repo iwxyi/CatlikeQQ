@@ -4,6 +4,7 @@
 #include "ui_mainwindow.h"
 #include "widgets/customtabstyle.h"
 #include "usersettings.h"
+#include "widgets/settings/accountwidget.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -11,18 +12,25 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    ui->tabWidget->setAttribute(Qt::WA_StyledBackground);
-    ui->tabWidget->setTabPosition(QTabWidget::West);
-    ui->tabWidget->tabBar()->setStyle(new CustomTabStyle);
-
-    ui->sideButtons->setCurrentRow(0);
-
+    initView();
     initTray();
+    initService();
+
+    startMessageLoop();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::initView()
+{
+    ui->tabWidget->setAttribute(Qt::WA_StyledBackground);
+    ui->tabWidget->setTabPosition(QTabWidget::West);
+    ui->tabWidget->tabBar()->setStyle(new CustomTabStyle);
+
+    ui->sideButtons->setCurrentRow(0);
 }
 
 void MainWindow::loadSettingsTabs()
@@ -31,7 +39,7 @@ void MainWindow::loadSettingsTabs()
         ui->tabWidget->widget(i)->deleteLater();
     ui->tabWidget->clear();
 
-    ui->tabWidget->addTab(new QWidget(), QIcon("://icons/account.png"), "账号绑定");
+    ui->tabWidget->addTab(new AccountWidget(this), QIcon("://icons/account.png"), "账号绑定");
     ui->tabWidget->addTab(new QWidget(), QIcon("://icons/group.png"), "群组消息");
     ui->tabWidget->addTab(new QWidget(), QIcon("://icons/care.png"), "特别关心");
     ui->tabWidget->addTab(new QWidget(), QIcon("://icons/banner.png"), "横幅通知");
@@ -59,6 +67,14 @@ void MainWindow::loadDataTabs()
 
     ui->tabWidget->addTab(new QWidget(), QIcon("://icons/history_message.png"), "历史消息");
     ui->tabWidget->addTab(new QWidget(), QIcon("://icons/statistical.png"), "数据统计");
+}
+
+void MainWindow::startMessageLoop()
+{
+    if (!us->host.isEmpty())
+    {
+        emit sig->hostChanged(us->host);
+    }
 }
 
 void MainWindow::initTray()
@@ -99,6 +115,11 @@ void MainWindow::trayAction(QSystemTrayIcon::ActivationReason reason)
     default:
         break;
     }
+}
+
+void MainWindow::initService()
+{
+    service = new CqhttpService(this);
 }
 
 void MainWindow::closeEvent(QCloseEvent *e)
