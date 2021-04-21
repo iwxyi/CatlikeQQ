@@ -21,18 +21,25 @@ struct MsgBean
     MsgBean(qint64 senderId, QString nickname, QString message, qint64 messageId, QString subType)
         : senderId(senderId), nickname(nickname), message(message), messageId(messageId), subType(subType)
     {
+        if (nickname.isEmpty())
+            nickname = QString::number(senderId);
     }
 
-    MsgBean(qint64 senderId)
-        : senderId(senderId)
+    MsgBean(qint64 senderId, QString nickname)
+        : senderId(senderId), nickname(nickname)
     {
+        if (nickname.isEmpty())
+            nickname = QString::number(senderId);
     }
 
-    MsgBean& group(qint64 groupId, QString card = "")
+    MsgBean& group(qint64 groupId, QString groupName, QString card = "")
     {
         this->groupId = groupId;
+        this->groupName = groupName;
         if (!card.isEmpty())
             nickname = card;
+        if (groupName.isEmpty())
+            groupName = QString::number(groupId);
         return *this;
     }
 

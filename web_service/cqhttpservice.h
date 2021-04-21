@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QtWebSockets/QWebSocket>
+#include <QHash>
 #include "global.h"
 #include "usersettings.h"
 #include "msgbean.h"
@@ -19,11 +20,10 @@ public:
 
 private:
     void initWS();
-    void initLoopData();
+    void loopStarted();
 
 signals:
-    void signalMessage(MsgBean msg);
-    void signalReceivedGroupMessage(MsgBean msg);
+    void signalMessage(const MsgBean& msg);
 
 public slots:
     void openHost(QString host);
@@ -31,12 +31,16 @@ public slots:
     void messageReceived(const QString &message);
 
 private:
+    void parseEchoMessage(const MyJson& json);
     void parsePrivateMessage(const MyJson& json);
     void parseGroupMessage(const MyJson& json);
     void parseGroupUpload(const MyJson& json);
 
 private:
     QWebSocket* socket = nullptr;
+
+    QHash<qint64, QString> friendHash;
+    QHash<qint64, QString> groupHash;
 };
 
 #endif // CQHTTPSERVICE_H

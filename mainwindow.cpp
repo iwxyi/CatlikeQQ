@@ -77,6 +77,11 @@ void MainWindow::startMessageLoop()
     }
 }
 
+void MainWindow::showNotification(const MsgBean &msg)
+{
+
+}
+
 void MainWindow::initTray()
 {
     QSystemTrayIcon* tray = new QSystemTrayIcon(this);
@@ -120,6 +125,8 @@ void MainWindow::trayAction(QSystemTrayIcon::ActivationReason reason)
 void MainWindow::initService()
 {
     service = new CqhttpService(this);
+
+    connect(service, SIGNAL(signalMessage(const MsgBean&)), this, SLOT(showNotification(const MsgBean&)));
 }
 
 void MainWindow::closeEvent(QCloseEvent *e)

@@ -35,6 +35,9 @@ private:
 
     void startMessageLoop();
 
+public slots:
+    void showNotification(const MsgBean& msg);
+
 protected:
     void closeEvent(QCloseEvent* e) override;
 
