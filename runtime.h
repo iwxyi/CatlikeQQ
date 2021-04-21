@@ -12,6 +12,11 @@ public:
 signals:
 
 public slots:
+
+
+public:
+    QString APP_PATH;
+    QString DATA_PATH;
 };
 
 #endif // RUNTIME_H

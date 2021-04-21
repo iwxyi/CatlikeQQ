@@ -3,6 +3,10 @@
 
 class UserSettings;
 class Runtime;
+class QString;
+
+extern QString APPLICATION_NAME;
+extern QString VERSION_CODE;
 
 extern UserSettings* us;
 extern Runtime* rt;

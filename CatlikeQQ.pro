@@ -55,7 +55,8 @@ HEADERS += \
     third_party/utils/netutil.h \
     third_party/utils/pinyinutil.h \
     third_party/utils/stringutil.h \
-    third_party/utils/textinputdialog.h
+    third_party/utils/textinputdialog.h \
+    widgets/lefttabwidget.h
 
 FORMS += \
     mainwindow.ui \
