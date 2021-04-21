@@ -5,6 +5,7 @@
 #include <QtWebSockets/QWebSocket>
 #include "global.h"
 #include "usersettings.h"
+#include "msgbean.h"
 
 #define SKT_DEB if (1) qDebug()
 
@@ -18,8 +19,11 @@ public:
 
 private:
     void initWS();
+    void initLoopData();
 
 signals:
+    void signalMessage(MsgBean msg);
+    void signalReceivedGroupMessage(MsgBean msg);
 
 public slots:
     void openHost(QString host);
@@ -27,7 +31,9 @@ public slots:
     void messageReceived(const QString &message);
 
 private:
-    void receivedPrivate(const MyJson& json);
+    void parsePrivateMessage(const MyJson& json);
+    void parseGroupMessage(const MyJson& json);
+    void parseGroupUpload(const MyJson& json);
 
 private:
     QWebSocket* socket = nullptr;

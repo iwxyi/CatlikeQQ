@@ -66,6 +66,7 @@ HEADERS += \
     third_party/utils/pinyinutil.h \
     third_party/utils/stringutil.h \
     third_party/utils/textinputdialog.h \
+    web_service/msgbean.h \
     widgets/customtabstyle.h \
     widgets/lefttabwidget.h \
     widgets/settings/accountwidget.h
