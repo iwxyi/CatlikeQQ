@@ -39,8 +39,10 @@ private:
 private:
     QWebSocket* socket = nullptr;
 
-    QHash<qint64, QString> friendHash;
-    QHash<qint64, QString> groupHash;
+    qint64 myId = 0; // 自己的QQ号
+    QString myNickname; // 自己的昵称
+    QHash<qint64, QString> friendHash; // 好友列表
+    QHash<qint64, QString> groupHash; // 群列表
 };
 
 #endif // CQHTTPSERVICE_H

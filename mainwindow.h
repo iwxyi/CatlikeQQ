@@ -5,6 +5,8 @@
 #include <QSystemTrayIcon>
 #include "global.h"
 #include "cqhttpservice.h"
+#include "notificationcard.h"
+#include "notificationbubble.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -44,5 +46,8 @@ protected:
 private:
     Ui::MainWindow *ui;
     CqhttpService* service;
+
+    QList<NotificationCard*> notificationCards;
+    QList<NotificationBubble*> notificationBubbles;
 };
 #endif // MAINWINDOW_H

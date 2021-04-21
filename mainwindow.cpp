@@ -79,6 +79,14 @@ void MainWindow::startMessageLoop()
 
 void MainWindow::showNotification(const MsgBean &msg)
 {
+    // 判断现有的有没有
+    foreach (auto card, notificationCards)
+    {
+        if (card->append(msg))
+            return ;
+    }
+
+    // 没有现有的，新建一个卡片
 
 }
 

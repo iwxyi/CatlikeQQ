@@ -28,6 +28,13 @@ void CqhttpService::initWS()
 /// 连接socket时初始化一些数据
 void CqhttpService::loopStarted()
 {
+    // 获取登录号信息
+    {
+        MyJson json;
+        json.insert("action", "get_login_info");
+        json.insert("echo", "get_login_info");
+        socket->sendTextMessage(json.toBa());
+    }
     // 获取好友列表
     {
         MyJson json;
@@ -116,7 +123,14 @@ void CqhttpService::parseEchoMessage(const MyJson &json)
         return ;
     }
     JS(json, echo);
-    if (echo == "get_friend_list")
+    if (echo == "get_login_info")
+    {
+        JL(json, user_id);
+        JS(json, nickname);
+        myId = user_id;
+        myNickname = nickname;
+    }
+    else if (echo == "get_friend_list")
     {
         json.each("data", [=](MyJson fri) {
             JS(fri, nickname);
