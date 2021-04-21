@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>QQ悬浮消息</string>
   </property>
   <property name="styleSheet">
    <string notr="true">#MainWindow
@@ -52,21 +52,101 @@
       </property>
       <property name="maximumSize">
        <size>
-        <width>64</width>
+        <width>60</width>
         <height>16777215</height>
        </size>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
       </property>
       <property name="styleSheet">
        <string notr="true">#sideButtons
 {
 	background: #e0e0e0;
 	border: none;
+}
+
+#sideButtons::item
+{
+	padding-top: 6px;
+	padding-bottom: 6px;
+	padding-left: 11px;
+	padding-right: 11px;
+	color: #444444;
+	background: transparent;
+}
+
+#sideButtons::item:hover
+{
+	background: #e8e8e8;
+}
+
+#sideButtons::item:selected
+{
+	background: #f0f0f0;
 }</string>
       </property>
+      <property name="showDropIndicator" stdset="0">
+       <bool>false</bool>
+      </property>
+      <property name="dragDropMode">
+       <enum>QAbstractItemView::NoDragDrop</enum>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>32</width>
+        <height>32</height>
+       </size>
+      </property>
+      <property name="horizontalScrollMode">
+       <enum>QAbstractItemView::ScrollPerPixel</enum>
+      </property>
+      <property name="movement">
+       <enum>QListView::Static</enum>
+      </property>
+      <property name="layoutMode">
+       <enum>QListView::SinglePass</enum>
+      </property>
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="viewMode">
+       <enum>QListView::IconMode</enum>
+      </property>
+      <item>
+       <property name="text">
+        <string>设置</string>
+       </property>
+       <property name="icon">
+        <iconset resource="resources/resources.qrc">
+         <normaloff>:/icons/icons/settings.png</normaloff>:/icons/icons/settings.png</iconset>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>辅助</string>
+       </property>
+       <property name="icon">
+        <iconset resource="resources/resources.qrc">
+         <normaloff>:/icons/icons/auxiliary.png</normaloff>:/icons/icons/auxiliary.png</iconset>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>数据</string>
+       </property>
+       <property name="icon">
+        <iconset resource="resources/resources.qrc">
+         <normaloff>:/icons/icons/application.png</normaloff>:/icons/icons/application.png</iconset>
+       </property>
+      </item>
      </widget>
     </item>
     <item>
      <widget class="LeftTabWidget" name="tabWidget">
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
       <property name="styleSheet">
        <string notr="true">QTabWidget
 {
@@ -141,6 +221,8 @@ QTabBar::tab:!selected
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="resources/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

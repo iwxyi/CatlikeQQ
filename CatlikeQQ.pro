@@ -71,3 +71,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 DISTFILES += \
     qxtglobalshortcut5/qxt.pri
+
+RESOURCES += \
+    resources/resources.qrc

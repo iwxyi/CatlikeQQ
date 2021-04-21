@@ -17,6 +17,11 @@ public:
     ~MainWindow();
 
 private:
+    void loadSettingsTabs();
+    void loadAuxiliaryTabs();
+    void loadApplicationTabs();
+
+private:
     Ui::MainWindow *ui;
 };
 #endif // MAINWINDOW_H
