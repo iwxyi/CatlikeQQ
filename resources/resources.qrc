@@ -20,5 +20,6 @@
         <file alias="appicon">icons/cat_chat.png</file>
         <file>icons/quit.png</file>
         <file>icons/silent.png</file>
+        <file>icons/debug.png</file>
     </qresource>
 </RCC>

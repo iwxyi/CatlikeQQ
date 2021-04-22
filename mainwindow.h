@@ -37,8 +37,12 @@ private:
 
     void startMessageLoop();
 
+    QRect screenGeometry() const;
+
 public slots:
-    void showNotification(const MsgBean& msg);
+    void showMessage(const MsgBean& msg);
+    void createNotificationBanner(const MsgBean& msg);
+    void adjustUnderCardsTop(int aboveIndex, int deltaHeight);
 
 protected:
     void closeEvent(QCloseEvent* e) override;

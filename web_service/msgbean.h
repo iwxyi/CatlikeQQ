@@ -50,6 +50,13 @@ struct MsgBean
         this->fileSize = fileSize;
         return *this;
     }
+
+    QString displayString() const
+    {
+        if (!fileId.isEmpty())
+            return QString("[文件] %1").arg(fileName);
+        return message;
+    }
 };
 
 #endif // MSGBEAN_H

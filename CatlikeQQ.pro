@@ -42,7 +42,8 @@ SOURCES += \
     third_party/utils/fileutil.cpp \
     third_party/utils/stringutil.cpp \
     third_party/utils/textinputdialog.cpp \
-    widgets/settings/accountwidget.cpp
+    widgets/settings/accountwidget.cpp \
+    widgets/settings/debugwidget.cpp
 
 HEADERS += \
     global/signaltransfer.h \
@@ -69,14 +70,16 @@ HEADERS += \
     web_service/msgbean.h \
     widgets/customtabstyle.h \
     widgets/lefttabwidget.h \
-    widgets/settings/accountwidget.h
+    widgets/settings/accountwidget.h \
+    widgets/settings/debugwidget.h
 
 FORMS += \
     mainwindow.ui \
     notification/notificationbubble.ui \
     notification/notificationcard.ui \
     third_party/utils/textinputdialog.ui \
-    widgets/settings/accountwidget.ui
+    widgets/settings/accountwidget.ui \
+    widgets/settings/debugwidget.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

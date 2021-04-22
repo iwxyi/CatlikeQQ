@@ -60,6 +60,31 @@ public:
     {
         return QSettings::value(key, def).toString();
     }
+
+    void assign(bool& val, QString key)
+    {
+        val = value(key, val).toBool();
+    }
+
+    void assign(double& val, QString key)
+    {
+        val = value(key, val).toDouble();
+    }
+
+    void assign(int& val, QString key)
+    {
+        val = value(key, val).toInt();
+    }
+
+    void assign(qint64& val, QString key)
+    {
+        val = value(key, val).toLongLong();
+    }
+
+    void assign(QString& val, QString key)
+    {
+        val = value(key, val).toString();
+    }
 };
 
 #endif // MYSETTINGS_H

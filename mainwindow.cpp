@@ -5,6 +5,7 @@
 #include "widgets/customtabstyle.h"
 #include "usersettings.h"
 #include "widgets/settings/accountwidget.h"
+#include "widgets/settings/debugwidget.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -65,29 +66,22 @@ void MainWindow::loadDataTabs()
         ui->tabWidget->widget(i)->deleteLater();
     ui->tabWidget->clear();
 
+    ui->tabWidget->addTab(new DebugWidget(service, this), QIcon("://icons/debug.png"), "开发调试");
     ui->tabWidget->addTab(new QWidget(), QIcon("://icons/history_message.png"), "历史消息");
     ui->tabWidget->addTab(new QWidget(), QIcon("://icons/statistical.png"), "数据统计");
 }
 
 void MainWindow::startMessageLoop()
 {
-    if (!us->host.isEmpty())
+    if (!us->host.isEmpty() && !us->host.contains("*"))
     {
         emit sig->hostChanged(us->host);
     }
 }
 
-void MainWindow::showNotification(const MsgBean &msg)
+QRect MainWindow::screenGeometry() const
 {
-    // 判断现有的有没有
-    foreach (auto card, notificationCards)
-    {
-        if (card->append(msg))
-            return ;
-    }
-
-    // 没有现有的，新建一个卡片
-
+    return QGuiApplication::screenAt(QCursor::pos())->geometry();
 }
 
 void MainWindow::initTray()
@@ -134,7 +128,7 @@ void MainWindow::initService()
 {
     service = new CqhttpService(this);
 
-    connect(service, SIGNAL(signalMessage(const MsgBean&)), this, SLOT(showNotification(const MsgBean&)));
+    connect(service, SIGNAL(signalMessage(const MsgBean&)), this, SLOT(showMessage(const MsgBean&)));
 }
 
 void MainWindow::closeEvent(QCloseEvent *e)
@@ -168,6 +162,73 @@ void MainWindow::on_sideButtons_currentRowChanged(int currentRow)
     case 2:
         loadDataTabs();
         break;
+    }
+}
+
+void MainWindow::showMessage(const MsgBean &msg)
+{
+    // 判断现有的有没有
+    int delta = 0;
+    foreach (auto card, notificationCards)
+    {
+        if (!card->isHidding() && (delta = card->append(msg)))
+        {
+            adjustUnderCardsTop(notificationCards.indexOf(card), delta);
+            return ;
+        }
+    }
+
+    // 没有现有的，新建一个卡片
+    createNotificationBanner(msg);
+}
+
+void MainWindow::createNotificationBanner(const MsgBean &msg)
+{
+    QPoint startPos; // 开始出现的位置
+    QPoint showPos;  // 显示的最终位置
+    switch (int(us->floatSide))
+    {
+    case SideRight: // 右
+    {
+        int top = us->floatPixel;
+        // 统计所有横幅的位置
+        foreach (auto card, notificationCards)
+            top += card->height() + us->bannerSpacing;
+        startPos = QPoint(screenGeometry().width(), top);
+        showPos = QPoint(screenGeometry().width() - us->bannerWidth - us->bannerSpacing, top);
+    }
+        break;
+    default:
+        qCritical() << "暂不支持该位置";
+        return ;
+    }
+
+    NotificationCard* card = new NotificationCard(nullptr);
+    card->setMsg(msg);
+    card->showFrom(startPos, showPos);
+
+    notificationCards.append(card);
+    connect(card, &NotificationCard::signalHided, this, [=]{
+        int index = notificationCards.indexOf(card);
+        notificationCards.removeOne(card);
+        adjustUnderCardsTop(index, card->height() + us->bannerSpacing);
+    });
+}
+
+/**
+ * 调整下面所有卡片的位置
+ * @param firstIndex  第一个开始调整的位置的上一个（即最后一个不需要调整的索引）
+ * @param deltaHeight 位置差，可能正可能负
+ */
+void MainWindow::adjustUnderCardsTop(int aboveIndex, int deltaHeight)
+{
+    if (aboveIndex < 0)
+        return ;
+
+    for (int i = aboveIndex + 1; i < notificationCards.count(); i++)
+    {
+        // 移动动画的话，需要考虑到一些冲突什么的，大概还是比较麻烦的
+        // 比如正在动画中，又需要临时调整，就很难搞
     }
 }
 

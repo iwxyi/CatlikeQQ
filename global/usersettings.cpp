@@ -7,5 +7,16 @@ UserSettings::UserSettings(QObject *parent) : MySettings("settings.ini", QSettin
 
 void UserSettings::restoreSettings()
 {
-    this->host = s("net/host");
+    host = s("net/host");
+
+    beginGroup("float");
+    floatSide = Side(i("side", int(floatSide)));
+    floatDirection = Direction(i("direction", floatDirection));
+    assign(floatPixel, "pixel");
+    endGroup();
+
+    beginGroup("banner");
+    assign(bannerSpacing, "spacing");
+    assign(bannerWidth, "width");
+    endGroup();
 }
