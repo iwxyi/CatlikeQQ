@@ -39,6 +39,8 @@ public:
 signals:
     void signalToHide();
     void signalHided();
+    void signalReplyPrivate(qint64 userId, const QString& message);
+    void signalReplyGroup(qint64 groupId, const QString& message);
 
 private slots:
     void focusIn();

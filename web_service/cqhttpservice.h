@@ -27,7 +27,7 @@ signals:
 
 public slots:
     void openHost(QString host);
-
+    void sendMessage(const QString& text);
     void messageReceived(const QString &message);
 
 private:

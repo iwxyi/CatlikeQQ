@@ -6,6 +6,7 @@
 #include "usersettings.h"
 #include "widgets/settings/accountwidget.h"
 #include "widgets/settings/debugwidget.h"
+#include "myjson.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -212,6 +213,26 @@ void MainWindow::createNotificationBanner(const MsgBean &msg)
         int index = notificationCards.indexOf(card);
         notificationCards.removeOne(card);
         adjustUnderCardsTop(index, card->height() + us->bannerSpacing);
+    });
+    connect(card, &NotificationCard::signalReplyPrivate, this, [=](qint64 userId, const QString& message) {
+        MyJson json;
+        json.insert("action", "send_private_msg");
+        MyJson params;
+        params.insert("user_id", userId);
+        params.insert("message", message);
+        json.insert("params", params);
+        json.insert("echo", "send_private_msg");
+        service->sendMessage(json.toBa());
+    });
+    connect(card, &NotificationCard::signalReplyGroup, this, [=](qint64 groupId, const QString& message) {
+        MyJson json;
+        json.insert("action", "send_group_msg");
+        MyJson params;
+        params.insert("group_id", groupId);
+        params.insert("message", message);
+        json.insert("params", params);
+        json.insert("echo", "send_group_msg");
+        service->sendMessage(json.toBa());
     });
 }
 

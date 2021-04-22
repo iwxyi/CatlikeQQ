@@ -128,8 +128,21 @@ void NotificationCard::sendReply()
     QString text = ui->messageEdit->text();
     if (text.isEmpty())
         return ;
-    qDebug() << "回复消息：" << text;
 
+    // 回复消息
+    if (!groupId && userId)
+        emit signalReplyPrivate(userId, text);
+    else if (groupId)
+        emit signalReplyGroup(groupId, text);
+    else
+    {
+        qCritical() << "回复失败，无法获取到 userId 或者 groupId";
+        return ;
+    }
+
+    // 加到消息框中
+    showText.append("<p>>" + text + "</p>");
+    ui->messageLabel->setText(showText);
     ui->messageEdit->clear();
 }
 

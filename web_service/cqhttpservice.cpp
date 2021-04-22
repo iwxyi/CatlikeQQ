@@ -63,6 +63,11 @@ void CqhttpService::openHost(QString host)
     socket->open(host);
 }
 
+void CqhttpService::sendMessage(const QString &text)
+{
+    socket->sendTextMessage(text);
+}
+
 /// 收到消息的根入口
 /// 字段说明：https://docs.go-cqhttp.org/event
 void CqhttpService::messageReceived(const QString &message)
@@ -146,6 +151,10 @@ void CqhttpService::parseEchoMessage(const MyJson &json)
             JS(group, group_name);
             groupHash.insert(group_id, group_name);
         });
+    }
+    else if (echo == "send_private_msg" || echo == "send_group_msg")
+    {
+        // 发送消息的回复，不做处理
     }
     else
     {
