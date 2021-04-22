@@ -171,7 +171,7 @@ void MainWindow::showMessage(const MsgBean &msg)
     int delta = 0;
     foreach (auto card, notificationCards)
     {
-        if (!card->isHidding() && (delta = card->append(msg)))
+        if (!card->isHidding() && card->append(msg, delta))
         {
             adjustUnderCardsTop(notificationCards.indexOf(card), delta);
             return ;

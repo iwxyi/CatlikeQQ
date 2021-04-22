@@ -23,7 +23,8 @@ void DebugWidget::on_sendButton_clicked()
 
     if (ui->msgRadio->isChecked())
     {
-
+        if (msg.message.isEmpty())
+            msg.message = "测试消息123456";
     }
     else if (ui->imgRadio->isChecked())
     {

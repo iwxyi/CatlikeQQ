@@ -32,7 +32,7 @@ public:
     void showFrom(QPoint hi, QPoint sh);
 
     void setMsg(const MsgBean& msg);
-    int append(const MsgBean& msg);
+    bool append(const MsgBean& msg, int& delta);
 
     bool isHidding() const;
 
@@ -41,6 +41,10 @@ signals:
     void signalHided();
 
 private slots:
+    void focusIn();
+    void focusOut();
+    void showReplyEdit();
+    void sendReply();
     void toHide();
 
 protected:
@@ -59,6 +63,7 @@ private:
     InteractiveButtonBase* bg;
     QPoint hidePoint;
     QTimer* displayTimer;
+    bool focusing = false;
     bool hidding = false;
 };
 

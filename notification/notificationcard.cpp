@@ -21,6 +21,10 @@ NotificationCard::NotificationCard(QWidget *parent) :
     ui->headerLabel->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     ui->nicknameLabel->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     ui->messageLabel->setAttribute(Qt::WA_TransparentForMouseEvents, true);
+    ui->replyButton->setRadius(us->bannerBgRadius);
+    ui->messageEdit->hide();
+    connect(ui->replyButton, SIGNAL(clicked()), this, SLOT(showReplyEdit()));
+    connect(ui->messageEdit, SIGNAL(returnPressed()), this, SLOT(sendReply()));
 
     // 绘制背景
     bg = new InteractiveButtonBase(this);
@@ -28,6 +32,17 @@ NotificationCard::NotificationCard(QWidget *parent) :
     bg->setRadius(us->bannerBgRadius);
     bg->setBgColor(us->bannerBgColor);
     CREATE_SHADOW(bg);
+
+    // 焦点处理
+    connect(bg, SIGNAL(signalMouseEnter()), this, SLOT(focusIn()));
+    connect(bg, SIGNAL(signalMouseLeave()), this, SLOT(focusOut()));
+    connect(ui->messageEdit, &ReplyEdit::signalESC, this, [=]{
+        ui->messageEdit->hide(); // 也会触发 FocusOut 事件
+        ui->horizontalLayout_2->insertItem(0, ui->horizontalSpacer);
+        ui->replyButton->setText("回复");
+        focusOut();
+    });
+    connect(ui->messageEdit, SIGNAL(signalFocusOut()), this, SLOT(focusOut()));
 }
 
 NotificationCard::~NotificationCard()
@@ -43,17 +58,19 @@ void NotificationCard::setMsg(const MsgBean &msg)
 
     // 显示
     ui->nicknameLabel->setText(msg.nickname);
-    ui->messageLabel->setText(msg.displayString());
+    showText = msg.displayString();
+    showText.replace("<", "&lt;").replace(">", "&gt;");
+    ui->messageLabel->setText(showText);
 }
 
 /**
  * 测试能否直接添加到这里，就是消息内容直接添加一行（可能是很长一行）
  * @return 修改后的卡片高度差
  */
-int NotificationCard::append(const MsgBean &msg)
+bool NotificationCard::append(const MsgBean &msg, int &delta)
 {
     if (this->userId != msg.senderId || this->groupId != msg.groupId)
-        return 0;
+        return false;
 
     int h = height();
 
@@ -67,12 +84,53 @@ int NotificationCard::append(const MsgBean &msg)
     ui->messageLabel->setText(showText);
 
     this->layout()->activate();
-    return this->height() - h;
+    delta = height() - h;
+    return true;
 }
 
 bool NotificationCard::isHidding() const
 {
     return hidding;
+}
+
+void NotificationCard::focusIn()
+{
+    displayTimer->stop();
+}
+
+void NotificationCard::focusOut()
+{
+    if ((ui->messageEdit->isVisible() && ui->messageEdit->hasFocus())
+            || bg->isInArea(bg->mapFromGlobal(QCursor::pos())))
+        return ;
+    displayTimer->setInterval(us->bannerRetentionDuration);
+    displayTimer->start();
+}
+
+void NotificationCard::showReplyEdit()
+{
+    if (ui->messageEdit->isHidden()) // 显示消息框
+    {
+        ui->replyButton->setText("发送");
+        ui->messageEdit->show();
+        ui->messageEdit->setFocus();
+        ui->horizontalLayout_2->removeItem(ui->horizontalSpacer);
+        // delete ui->horizontalSpacer;
+    }
+    else // 发送内容
+    {
+        sendReply();
+    }
+}
+
+void NotificationCard::sendReply()
+{
+    QString text = ui->messageEdit->text();
+    if (text.isEmpty())
+        return ;
+    qDebug() << "回复消息：" << text;
+
+    ui->messageEdit->clear();
 }
 
 /**

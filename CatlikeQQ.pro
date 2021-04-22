@@ -47,6 +47,7 @@ SOURCES += \
 
 HEADERS += \
     global/signaltransfer.h \
+    notification/replyedit.h \
     third_party/utils/mysettings.h \
     web_service/cqhttpservice.h \
     third_party/color_octree/coloroctree.h \

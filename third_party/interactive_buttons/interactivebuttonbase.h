@@ -235,6 +235,7 @@ public:
     bool getLeaveAfterClick() { return leave_after_clicked; }
     bool getShowAni() { return show_animation; }
     bool getWaterRipple() { return water_animation; }
+    bool isInArea(QPoint pos) { return this->inArea(pos); }
 
 #if QT_DEPRECATED_SINCE(5, 11)
     QT_DEPRECATED_X("Use InteractiveButtonBase::setFixedForePos(bool fixed = true)")

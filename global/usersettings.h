@@ -40,8 +40,9 @@ public:
     int bannerAnimationDuration = 300; // 横幅的动画时长
     int bannerShowEasingCurve = 0;     // 动画的曲线设定
     int bannerDisplayDuration = 5000;  // 横幅显示的时长
+    int bannerRetentionDuration = 1000; // 失去焦点后滞留时长
     QColor bannerBgColor = QColor(255, 250, 250);
-    int bannerBgRadius = 12;
+    int bannerBgRadius = 5;
     int bannerBgShadow = 12;
 };
 
