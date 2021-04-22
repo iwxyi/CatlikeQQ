@@ -1,5 +1,7 @@
+#include <QRegularExpression>
 #include "accountwidget.h"
 #include "ui_accountwidget.h"
+#include "stringutil.h"
 
 AccountWidget::AccountWidget(QWidget *parent) :
     QWidget(parent),
@@ -20,13 +22,23 @@ AccountWidget::~AccountWidget()
 
 void AccountWidget::resotreSettings()
 {
-    ui->lineEdit->setText(us->host);
+    if (!us->host.isEmpty())
+    {
+        QString host = us->host;
+        // 加密
+        QRegularExpressionMatch match;
+        if (host.indexOf(QRegularExpression(":(\\d+)"), 0, &match) > -1)
+            host.replace(match.captured(1), repeatString("*", match.captured(1).length()));
+        if (host.indexOf(QRegularExpression("://(\\w+)"), 0, &match) > -1)
+            host.replace(match.captured(1), repeatString("*", match.captured(1).length()));
+        ui->lineEdit->setText(host);
+    }
 }
 
 void AccountWidget::on_lineEdit_editingFinished()
 {
     QString host = ui->lineEdit->text().trimmed();
-    if (host == us->host)
+    if (host == us->host || host.contains("*"))
         return ;
     us->set("net/host", host);
     emit sig->hostChanged(host);
