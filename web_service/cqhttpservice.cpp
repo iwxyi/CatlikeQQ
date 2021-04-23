@@ -317,8 +317,8 @@ MsgBean& CqhttpService::parseMsgDisplay(MsgBean &msg)
     text.replace(QRegExp("\\[CQ:json,data=.+\\]"), "[json]");
 
     // #处理长度
-    if (text.length() > us->msgMaxLength)
-        text = text.left(us->msgMaxLength) + "...";
+    if (text.length() > us->bannerMsgMaxLength)
+        text = text.left(us->bannerMsgMaxLength) + "...";
 
     msg.display = text;
     return msg;

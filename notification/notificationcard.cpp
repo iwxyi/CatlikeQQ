@@ -157,6 +157,20 @@ bool NotificationCard::append(const MsgBean &msg, int &delta)
     return true;
 }
 
+void NotificationCard::adjustTop(int delta)
+{
+    showPoint.ry() += delta;
+    hidePoint.ry() += delta;
+
+    QPropertyAnimation* ani = new QPropertyAnimation(this, "pos");
+    ani->setStartValue(this->pos());
+    ani->setEndValue(showPoint);
+    ani->setEasingCurve(QEasingCurve::Type(us->bannerShowEasingCurve));
+    ani->setDuration(us->bannerAnimationDuration);
+    connect(ani, SIGNAL(finished()), ani, SLOT(deleteLater()));
+    ani->start();
+}
+
 bool NotificationCard::isPrivate() const
 {
     return !groupId;
@@ -249,6 +263,7 @@ void NotificationCard::sendReply()
  */
 void NotificationCard::showFrom(QPoint hi, QPoint sh)
 {
+    this->showPoint = sh;
     this->hidePoint = hi;
     move(hi);
 

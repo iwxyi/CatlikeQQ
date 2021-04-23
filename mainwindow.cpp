@@ -100,7 +100,13 @@ void MainWindow::startMessageLoop()
 
 QRect MainWindow::screenGeometry() const
 {
-    return QGuiApplication::screenAt(QCursor::pos())->geometry();
+    auto screens = QGuiApplication::screens();
+    int& index = us->bannerScreenIndex;
+    if (index >= screens.size())
+        index = screens.size() - 1;
+    if (index < 0)
+        return QRect();
+    return screens.at(us->bannerScreenIndex)->geometry();
 }
 
 void MainWindow::initTray()
@@ -250,8 +256,8 @@ void MainWindow::createNotificationBanner(const MsgBean &msg)
     notificationCards.append(card);
     connect(card, &NotificationCard::signalHided, this, [=]{
         int index = notificationCards.indexOf(card);
+        adjustUnderCardsTop(index, -(card->height() + us->bannerSpacing));
         notificationCards.removeOne(card);
-        adjustUnderCardsTop(index, card->height() + us->bannerSpacing);
     });
     connect(card, &NotificationCard::signalReplyPrivate, this, [=](qint64 userId, const QString& message) {
         MyJson json;
@@ -289,5 +295,9 @@ void MainWindow::adjustUnderCardsTop(int aboveIndex, int deltaHeight)
     {
         // 移动动画的话，需要考虑到一些冲突什么的，大概还是比较麻烦的
         // 比如正在动画中，又需要临时调整，就很难搞
+        auto card = notificationCards.at(i);
+        if (card->isHidding())
+            continue;
+        card->adjustTop(deltaHeight);
     }
 }

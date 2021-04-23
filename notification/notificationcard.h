@@ -33,6 +33,7 @@ public:
     void setColors(QColor bg, QColor fg);
     void setMsg(const MsgBean& msg);
     bool append(const MsgBean& msg, int& delta);
+    void adjustTop(int delta);
 
     bool isPrivate() const;
     bool isGroup() const;
@@ -72,6 +73,7 @@ private:
     QString showText;
 
     InteractiveButtonBase* bg;
+    QPoint showPoint;
     QPoint hidePoint;
     QTimer* displayTimer;
     bool focusing = false;
