@@ -48,7 +48,7 @@ public:
     int msgMaxLength = 300; // 消息最大长度
 
     bool bannerShowImages = true;
-    bool bannerCloseAfterReply = false; // 回复后关闭对话框（Ctrl+Enter切换）
+    bool bannerCloseAfterReply = true; // 回复后关闭对话框（Ctrl+Enter切换）
 };
 
 #endif // USERSETTINGS_H

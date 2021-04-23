@@ -39,9 +39,7 @@ NotificationCard::NotificationCard(QWidget *parent) :
     connect(bg, SIGNAL(signalMouseEnter()), this, SLOT(focusIn()));
     connect(bg, SIGNAL(signalMouseLeave()), this, SLOT(focusOut()));
     connect(ui->messageEdit, &ReplyEdit::signalESC, this, [=]{
-        ui->messageEdit->hide(); // 也会触发 FocusOut 事件
-        ui->horizontalLayout_2->insertItem(0, ui->horizontalSpacer);
-        ui->replyButton->setText("回复");
+        hideReplyEdit();
         focusOut();
     });
     connect(ui->messageEdit, SIGNAL(signalFocusOut()), this, SLOT(focusOut()));
@@ -164,10 +162,10 @@ void NotificationCard::focusIn()
     displayTimer->stop();
 }
 
-void NotificationCard::focusOut()
+void NotificationCard::focusOut(bool force)
 {
-    if ((ui->messageEdit->isVisible() && ui->messageEdit->hasFocus())
-            || bg->isInArea(bg->mapFromGlobal(QCursor::pos())))
+    if (!force && ((ui->messageEdit->isVisible() && ui->messageEdit->hasFocus())
+            || bg->isInArea(bg->mapFromGlobal(QCursor::pos()))))
         return ;
     displayTimer->setInterval(us->bannerRetentionDuration);
     displayTimer->start();
@@ -187,6 +185,13 @@ void NotificationCard::showReplyEdit()
     {
         sendReply();
     }
+}
+
+void NotificationCard::hideReplyEdit()
+{
+    ui->messageEdit->hide(); // 会触发 FocusOut 事件
+    ui->horizontalLayout_2->insertItem(0, ui->horizontalSpacer);
+    ui->replyButton->setText("回复");
 }
 
 void NotificationCard::sendReply()
@@ -210,6 +215,13 @@ void NotificationCard::sendReply()
     showText.append("<p>>" + text + "</p>");
     ui->messageLabel->setText(showText);
     ui->messageEdit->clear();
+
+    // 关闭对话框
+    if (us->bannerCloseAfterReply)
+    {
+        hideReplyEdit();
+        focusOut(true);
+    }
 }
 
 /**

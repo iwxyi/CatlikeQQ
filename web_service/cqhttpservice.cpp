@@ -309,7 +309,7 @@ MsgBean& CqhttpService::parseMsgDisplay(MsgBean &msg)
     }
 
     // 回复
-    text.replace(QRegExp("\\[CQ:reply,id=-?\\d+\\]\\[CQ:at,qq=\\d+\\]"), "回复：");
+    text.replace(QRegExp("\\[CQ:reply,id=-?\\d+\\]\\[CQ:at,qq=\\d+\\]"), "[回复]");
 
     // 艾特
     text.replace(QRegExp("\\[CQ:at,qq=(\\d+)\\]"), "@\\1");

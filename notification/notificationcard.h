@@ -45,8 +45,9 @@ signals:
 
 private slots:
     void focusIn();
-    void focusOut();
+    void focusOut(bool force = false);
     void showReplyEdit();
+    void hideReplyEdit();
     void sendReply();
     void toHide();
     void cardClicked();

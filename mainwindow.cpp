@@ -213,9 +213,38 @@ void MainWindow::createNotificationBanner(const MsgBean &msg)
     // 计算头像背景颜色
     if (us->bannerBgColorByHeader)
     {
-        QColor bg, fg;
-        ImageUtil::getBgFgColor(ImageUtil::extractImageThemeColors(msg.header.toImage(), 2), &bg, &fg);
-        card->setColors(bg, fg);
+        CardColor co;
+
+        auto calcColor = [&]{
+            ImageUtil::getBgFgColor(ImageUtil::extractImageThemeColors(msg.header.toImage(), 2), &co.bg, &co.fg);
+        };
+
+        if (!msg.groupId)
+        {
+            if (userHeaderColor.contains(msg.senderId))
+            {
+                co = userHeaderColor.value(msg.senderId);
+            }
+            else
+            {
+                calcColor();
+                userHeaderColor.insert(msg.senderId, co);
+            }
+        }
+        else
+        {
+            if (groupHeaderColor.contains(msg.groupId))
+            {
+                co = groupHeaderColor.value(msg.groupId);
+            }
+            else
+            {
+                calcColor();
+                groupHeaderColor.insert(msg.groupId, co);
+            }
+        }
+
+        card->setColors(co.bg, co.fg);
     }
 
     notificationCards.append(card);
