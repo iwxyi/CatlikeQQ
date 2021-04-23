@@ -314,7 +314,7 @@ MsgBean& CqhttpService::parseMsgDisplay(MsgBean &msg)
     text.replace(QRegExp("\\[CQ:at,qq=(\\d+)\\]"), "@\\1");
 
     // JSON格式
-    text.replace(QRegExp("\\[CQ:json,data=.+?\\]"), "[json]");
+    text.replace(QRegExp("\\[CQ:json,data=.+\\]"), "[json]");
 
     // #处理长度
     if (text.length() > us->msgMaxLength)
