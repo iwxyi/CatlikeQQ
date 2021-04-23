@@ -35,6 +35,8 @@ private:
     void parsePrivateMessage(const MyJson& json);
     void parseGroupMessage(const MyJson& json);
     void parseGroupUpload(const MyJson& json);
+
+public:
     MsgBean &parseMsgDisplay(MsgBean& msg);
     QPixmap loadNetPixmap(QString url) const;
     void saveNetImage(QString url, QString path);

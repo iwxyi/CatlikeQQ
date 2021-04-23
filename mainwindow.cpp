@@ -15,9 +15,9 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    initView();
-    initTray();
     initService();
+    initView(); // 因为要绑定 service，所以要在 initService 后面
+    initTray();
 
     startMessageLoop();
 }
@@ -31,49 +31,62 @@ MainWindow::~MainWindow()
 
 void MainWindow::initView()
 {
-    ui->tabWidget->setAttribute(Qt::WA_StyledBackground);
-    ui->tabWidget->setTabPosition(QTabWidget::West);
-    ui->tabWidget->tabBar()->setStyle(new CustomTabStyle);
+    ui->settingsTabWidget->setAttribute(Qt::WA_StyledBackground);
+    ui->settingsTabWidget->setTabPosition(QTabWidget::West);
+    ui->settingsTabWidget->tabBar()->setStyle(new CustomTabStyle);
+    ui->settingsTabWidget->setCurrentIndex(us->i("mainwindow/settingsTabIndex"));
+
+    ui->auxiliaryTabWidget->setAttribute(Qt::WA_StyledBackground);
+    ui->auxiliaryTabWidget->setTabPosition(QTabWidget::West);
+    ui->auxiliaryTabWidget->tabBar()->setStyle(new CustomTabStyle);
+    ui->auxiliaryTabWidget->setCurrentIndex(us->i("mainwindow/settingsTabIndex"));
+
+    ui->dataTabWidget->setAttribute(Qt::WA_StyledBackground);
+    ui->dataTabWidget->setTabPosition(QTabWidget::West);
+    ui->dataTabWidget->tabBar()->setStyle(new CustomTabStyle);
+    ui->dataTabWidget->setCurrentIndex(us->i("mainwindow/settingsTabIndex"));
+
+
+    ui->settingsTabWidget->clear();
+    ui->settingsTabWidget->addTab(new AccountWidget(service, this), QIcon("://icons/account.png"), "账号绑定");
+    ui->settingsTabWidget->addTab(new QWidget(), QIcon("://icons/group.png"), "群组消息");
+    ui->settingsTabWidget->addTab(new QWidget(), QIcon("://icons/care.png"), "特别关心");
+    ui->settingsTabWidget->addTab(new QWidget(), QIcon("://icons/banner.png"), "横幅通知");
+    ui->settingsTabWidget->addTab(new QWidget(), QIcon("://icons/bubble.png"), "气泡样式");
+    ui->settingsTabWidget->addTab(new QWidget(), QIcon("://icons/animation.png"), "动画调整");
+    ui->settingsTabWidget->addTab(new QWidget(), QIcon("://icons/startup.png"), "程序启动");
+
+    ui->auxiliaryTabWidget->clear();
+    ui->auxiliaryTabWidget->addTab(new QWidget(), QIcon("://icons/reply.png"), "快速回复");
+    ui->auxiliaryTabWidget->addTab(new QWidget(), QIcon("://icons/ai.png"), "智能聊天");
+    ui->auxiliaryTabWidget->addTab(new QWidget(), QIcon("://icons/model.png"), "模型训练");
+
+    ui->dataTabWidget->clear();
+    ui->dataTabWidget->addTab(new DebugWidget(service, this), QIcon("://icons/debug.png"), "开发调试");
+    ui->dataTabWidget->addTab(new QWidget(), QIcon("://icons/history_message.png"), "历史消息");
+    ui->dataTabWidget->addTab(new QWidget(), QIcon("://icons/statistical.png"), "数据统计");
+
 
     ui->sideButtons->setCurrentRow(us->i("mainwindow/sideIndex"));
-    ui->tabWidget->setCurrentIndex(us->i("mainwindow/tabIndex"));
+    ui->settingsTabWidget->setCurrentIndex(us->i("mainwindow/settingsTabIndex"));
+    ui->auxiliaryTabWidget->setCurrentIndex(us->i("mainwindow/auxiliaryTabIndex"));
+    ui->dataTabWidget->setCurrentIndex(us->i("mainwindow/dataTabIndex"));
+
+    connect(ui->settingsTabWidget, &QTabWidget::currentChanged, this, [=](int index) {
+        us->set("mainwindow/settingsTabIndex", index);
+    });
+    connect(ui->auxiliaryTabWidget, &QTabWidget::currentChanged, this, [=](int index) {
+        us->set("mainwindow/auxiliaryTabIndex", index);
+    });
+    connect(ui->dataTabWidget, &QTabWidget::currentChanged, this, [=](int index) {
+        us->set("mainwindow/dataTabIndex", index);
+    });
 }
 
-void MainWindow::loadSettingsTabs()
+void MainWindow::on_sideButtons_currentRowChanged(int currentRow)
 {
-    for (int i = 0; i < ui->tabWidget->count(); i++)
-        ui->tabWidget->widget(i)->deleteLater();
-    ui->tabWidget->clear();
-
-    ui->tabWidget->addTab(new AccountWidget(this), QIcon("://icons/account.png"), "账号绑定");
-    ui->tabWidget->addTab(new QWidget(), QIcon("://icons/group.png"), "群组消息");
-    ui->tabWidget->addTab(new QWidget(), QIcon("://icons/care.png"), "特别关心");
-    ui->tabWidget->addTab(new QWidget(), QIcon("://icons/banner.png"), "横幅通知");
-    ui->tabWidget->addTab(new QWidget(), QIcon("://icons/bubble.png"), "气泡样式");
-    ui->tabWidget->addTab(new QWidget(), QIcon("://icons/animation.png"), "动画调整");
-    ui->tabWidget->addTab(new QWidget(), QIcon("://icons/startup.png"), "程序启动");
-}
-
-void MainWindow::loadAuxiliaryTabs()
-{
-    for (int i = 0; i < ui->tabWidget->count(); i++)
-        ui->tabWidget->widget(i)->deleteLater();
-    ui->tabWidget->clear();
-
-    ui->tabWidget->addTab(new QWidget(), QIcon("://icons/reply.png"), "快速回复");
-    ui->tabWidget->addTab(new QWidget(), QIcon("://icons/ai.png"), "智能聊天");
-    ui->tabWidget->addTab(new QWidget(), QIcon("://icons/model.png"), "模型训练");
-}
-
-void MainWindow::loadDataTabs()
-{
-    for (int i = 0; i < ui->tabWidget->count(); i++)
-        ui->tabWidget->widget(i)->deleteLater();
-    ui->tabWidget->clear();
-
-    ui->tabWidget->addTab(new DebugWidget(service, this), QIcon("://icons/debug.png"), "开发调试");
-    ui->tabWidget->addTab(new QWidget(), QIcon("://icons/history_message.png"), "历史消息");
-    ui->tabWidget->addTab(new QWidget(), QIcon("://icons/statistical.png"), "数据统计");
+    ui->stackedWidget->setCurrentIndex(currentRow);
+    us->set("mainwindow/sideIndex", currentRow);
 }
 
 void MainWindow::startMessageLoop()
@@ -152,24 +165,6 @@ void MainWindow::closeEvent(QCloseEvent *e)
 #else
     QMainWindow::closeEvent(e);
 #endif
-}
-
-void MainWindow::on_sideButtons_currentRowChanged(int currentRow)
-{
-    switch (currentRow)
-    {
-    case 0:
-        loadSettingsTabs();
-        break;
-    case 1:
-        loadAuxiliaryTabs();
-        break;
-    case 2:
-        loadDataTabs();
-        break;
-    }
-    us->set("mainwindow/sideIndex", currentRow);
-    us->set("mainwindow/tabIndex", 0);
 }
 
 void MainWindow::showMessage(const MsgBean &msg)
@@ -257,9 +252,4 @@ void MainWindow::adjustUnderCardsTop(int aboveIndex, int deltaHeight)
         // 移动动画的话，需要考虑到一些冲突什么的，大概还是比较麻烦的
         // 比如正在动画中，又需要临时调整，就很难搞
     }
-}
-
-void MainWindow::on_tabWidget_tabBarClicked(int index)
-{
-    us->set("mainwindow/tabIndex", index);
 }

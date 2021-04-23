@@ -103,7 +103,6 @@ void NotificationCard::setMsg(const MsgBean &msg)
         else // 是静态图
         {
             delete movie; // 释放文件锁
-            qDebug() << path;
             QPixmap pixmap(path, "1");
             ui->messageLabel->setPixmap(pixmap.scaled(maxWidth, maxHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation));
         }

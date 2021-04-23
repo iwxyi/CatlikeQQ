@@ -3,9 +3,9 @@
 #include "ui_accountwidget.h"
 #include "stringutil.h"
 
-AccountWidget::AccountWidget(QWidget *parent) :
+AccountWidget::AccountWidget(CqhttpService *service, QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::AccountWidget)
+    ui(new Ui::AccountWidget), service(service)
 {
     ui->setupUi(this);
     resotreSettings();

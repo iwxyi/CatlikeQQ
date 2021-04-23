@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include "global.h"
+#include "cqhttpservice.h"
 
 namespace Ui {
 class AccountWidget;
@@ -13,7 +14,7 @@ class AccountWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit AccountWidget(QWidget *parent = nullptr);
+    AccountWidget(CqhttpService* service, QWidget *parent = nullptr);
     ~AccountWidget();
 
     void resotreSettings();
@@ -23,6 +24,7 @@ private slots:
 
 private:
     Ui::AccountWidget *ui;
+    CqhttpService* service;
 };
 
 #endif // ACCOUNTWIDGET_H

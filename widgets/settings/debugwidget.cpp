@@ -35,5 +35,6 @@ void DebugWidget::on_sendButton_clicked()
         msg.file("123/qwe/456/asd/789/zxc", "测试文件名", 8888);
     }
 
+    service->parseMsgDisplay(msg);
     emit service->signalMessage(msg);
 }
