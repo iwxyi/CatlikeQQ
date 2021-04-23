@@ -36,6 +36,8 @@ private:
     void parseGroupMessage(const MyJson& json);
     void parseGroupUpload(const MyJson& json);
     MsgBean &parseMsgDisplay(MsgBean& msg) const;
+    QPixmap loadPixmap(QString url) const;
+    QPixmap toRoundedLabel(const QPixmap& pixmap) const;
 
 private:
     QWebSocket* socket = nullptr;
@@ -45,8 +47,8 @@ private:
     QHash<qint64, QString> userNames; // 好友列表
     QHash<qint64, QString> groupNames; // 群列表
     QHash<qint64, QHash<qint64, QString>> groupMemberNames; // 群成员名字
-    QHash<qint64, QPixmap> userHeads;
-    QHash<qint64, QPixmap> groupHeads;
+    mutable QHash<qint64, QPixmap> userHeads;
+    mutable QHash<qint64, QPixmap> groupHeads;
 };
 
 #endif // CQHTTPSERVICE_H

@@ -65,6 +65,8 @@ void NotificationCard::setMsg(const MsgBean &msg)
     showText.replace("<", "&lt;").replace(">", "&gt;");
     ui->messageLabel->setText(showText);
 
+    ui->headerLabel->setPixmap(msg.head);
+
     setFixedWidth(us->bannerWidth);
     this->layout()->activate();
     resize(this->sizeHint());

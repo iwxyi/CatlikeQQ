@@ -1,5 +1,9 @@
 #include <QSslConfiguration>
 #include <QRegularExpression>
+#include <QNetworkAccessManager>
+#include <QEventLoop>
+#include <QNetworkReply>
+#include <QPainter>
 #include "cqhttpservice.h"
 #include "myjson.h"
 
@@ -240,8 +244,38 @@ MsgBean& CqhttpService::parseMsgDisplay(MsgBean &msg) const
     QRegularExpressionMatch match;
 
     // 头像
-    // 群头像API：https://p.qlogo.cn/gh/{group_id}/{group_id}/100
-
+    // 用户头像API：http://q1.qlogo.cn/g?b=qq&nk=QQ号&s=100&t=
+    // 群头像API：https://p.qlogo.cn/gh/群号/群号/100
+    if (!msg.groupId)
+    {
+        if (userHeads.contains(msg.senderId))
+        {
+            msg.head = userHeads.value(msg.senderId);
+        }
+        else // 没有头像，联网获取
+        {
+            QString url = "http://q1.qlogo.cn/g?b=qq&nk=" + snum(msg.senderId) + "&s=100&t=";
+            QPixmap pixmap = loadPixmap(url);
+            pixmap = toRoundedLabel(pixmap);
+            msg.head = pixmap;
+            userHeads.insert(msg.senderId, pixmap);
+        }
+    }
+    else
+    {
+        if (groupHeads.contains(msg.groupId))
+        {
+            msg.head = groupHeads.value(msg.groupId);
+        }
+        else
+        {
+            QString url = "https://p.qlogo.cn/gh/" + snum(msg.groupId) + "/" + snum(msg.groupId) + "/100";
+            QPixmap pixmap = loadPixmap(url);
+            pixmap = toRoundedLabel(pixmap);
+            msg.head = pixmap;
+            groupHeads.insert(msg.groupId, pixmap);
+        }
+    }
 
     // #替换CQ
     // 文件
@@ -255,10 +289,10 @@ MsgBean& CqhttpService::parseMsgDisplay(MsgBean &msg) const
 
     // 图片
     // 图片格式：[CQ:image,file=e9f40e7fb43071e7471a2add0df33b32.image,url=http://gchat.qpic.cn/gchatpic_new/707049914/3934208404-2722739418-E9F40E7FB43071E7471A2ADD0DF33B32/0?term=3]
-    text.replace(QRegExp("\\[CQ:image,.+\\]"), "[图片]");
+    text.replace(QRegExp("\\[CQ:image,[^\\]]+\\]"), "[图片]");
 
     // 回复
-
+    text.replace(QRegExp("\\[CQ:reply,id=\\d+\\]\\[CQ:at,qq=\\d+\\]"), "回复：");
 
     // 艾特
     text.replace(QRegExp("\\[CQ:at,qq=(\\d+)\\]"), "@\\1");
@@ -270,4 +304,35 @@ MsgBean& CqhttpService::parseMsgDisplay(MsgBean &msg) const
 
     msg.display = text;
     return msg;
+}
+
+QPixmap CqhttpService::loadPixmap(QString url) const
+{
+    QNetworkAccessManager manager;
+    QEventLoop loop;
+    QNetworkReply *reply = manager.get(QNetworkRequest(url));
+    //请求结束并下载完成后，退出子事件循环
+    connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
+    //开启子事件循环
+    loop.exec();
+    QByteArray jpegData = reply->readAll();
+    QPixmap pixmap;
+    pixmap.loadFromData(jpegData);
+    return pixmap;
+}
+
+QPixmap CqhttpService::toRoundedLabel(const QPixmap &pixmap) const
+{
+    QPixmap dest(pixmap.size());
+    dest.fill(Qt::transparent);
+    QPainter painter(&dest);
+    painter.setRenderHint(QPainter::Antialiasing, true);
+    painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
+    QRect rect = QRect(0, 0, pixmap.width(), pixmap.height());
+    int radius = qMin(rect.width(), rect.height())/2;
+    QPainterPath path;
+    path.addRoundedRect(rect, radius, radius);
+    painter.setClipPath(path);
+    painter.drawPixmap(rect, pixmap);
+    return dest;
 }
