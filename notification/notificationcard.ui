@@ -63,6 +63,9 @@
          <property name="textFormat">
           <enum>Qt::RichText</enum>
          </property>
+         <property name="scaledContents">
+          <bool>false</bool>
+         </property>
          <property name="wordWrap">
           <bool>true</bool>
          </property>

@@ -63,7 +63,16 @@ void NotificationCard::setMsg(const MsgBean &msg)
         ui->nicknameLabel->setText(msg.nickname + " · " + msg.groupName);
     showText = msg.displayString();
     showText.replace("<", "&lt;").replace(">", "&gt;");
-    ui->messageLabel->setText(showText);
+    if (msg.image.isNull())
+    {
+        ui->messageLabel->setText(showText);
+    }
+    else
+    {
+        int maxWidth = us->bannerWidth;
+        int maxHeight = us->bannerWidth/3;
+        ui->messageLabel->setPixmap(msg.image.scaled(maxWidth, maxHeight, Qt::KeepAspectRatio));
+    }
 
     ui->headerLabel->setPixmap(msg.head);
 
@@ -92,6 +101,11 @@ bool NotificationCard::append(const MsgBean &msg, int &delta)
     showText.append("<p>" + s + "</p>");
     ui->messageLabel->setText(showText);
 
+    // 调整显示时间
+    if (displayTimer->isActive())
+        displayTimer->start();
+
+    // 调整尺寸
     this->layout()->activate();
     resize(this->sizeHint());
     delta = height() - h;

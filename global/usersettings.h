@@ -47,6 +47,7 @@ public:
 
     int msgMaxLength = 300;
 
+    bool bannerShowImages = true;
     bool bannerCloseAfterReply = false; // 回复后关闭对话框（Ctrl+Enter切换）
 };
 

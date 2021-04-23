@@ -22,6 +22,9 @@ struct MsgBean
     QPixmap head;
     QString display;
 
+    QPixmap image; // 显示唯一图片（不一定有）
+    QColor bgColor; // 显示的背景（不一定有，除非开启动态背景）
+
     MsgBean(qint64 senderId, QString nickname, QString message, qint64 messageId, QString subType)
         : senderId(senderId), nickname(nickname), message(message), messageId(messageId), subType(subType)
     {

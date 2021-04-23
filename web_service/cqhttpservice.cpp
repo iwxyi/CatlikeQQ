@@ -289,7 +289,16 @@ MsgBean& CqhttpService::parseMsgDisplay(MsgBean &msg) const
 
     // 图片
     // 图片格式：[CQ:image,file=e9f40e7fb43071e7471a2add0df33b32.image,url=http://gchat.qpic.cn/gchatpic_new/707049914/3934208404-2722739418-E9F40E7FB43071E7471A2ADD0DF33B32/0?term=3]
-    text.replace(QRegExp("\\[CQ:image,[^\\]]+\\]"), "[图片]");
+    if (us->bannerShowImages && text.indexOf(QRegularExpression("^\\[CQ:image,.*url=(.+)\\]"), 0, &match) > -1)
+    {
+        QString url = match.captured(1);
+        QPixmap pixmap = loadPixmap(url);
+        msg.image = pixmap;
+    }
+    else
+    {
+        text.replace(QRegExp("\\[CQ:image,[^\\]]+\\]"), "[图片]");
+    }
 
     // 回复
     text.replace(QRegExp("\\[CQ:reply,id=\\d+\\]\\[CQ:at,qq=\\d+\\]"), "回复：");
