@@ -65,7 +65,9 @@ void NotificationCard::setMsg(const MsgBean &msg)
     showText.replace("<", "&lt;").replace(">", "&gt;");
     ui->messageLabel->setText(showText);
 
+    setFixedWidth(us->bannerWidth);
     this->layout()->activate();
+    resize(this->sizeHint());
 }
 
 /**
@@ -89,6 +91,7 @@ bool NotificationCard::append(const MsgBean &msg, int &delta)
     ui->messageLabel->setText(showText);
 
     this->layout()->activate();
+    resize(this->sizeHint());
     delta = height() - h;
     return true;
 }

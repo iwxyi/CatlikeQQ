@@ -2,6 +2,7 @@
 #define MSGBEAN_H
 
 #include <QString>
+#include <QPixmap>
 
 struct MsgBean
 {
@@ -18,6 +19,7 @@ struct MsgBean
     QString fileName;
     qint64 fileSize;
 
+    QPixmap head;
     QString display;
 
     MsgBean(qint64 senderId, QString nickname, QString message, qint64 messageId, QString subType)

@@ -46,6 +46,8 @@ public:
     int bannerBgShadow = 12;
 
     int msgMaxLength = 300;
+
+    bool bannerCloseAfterReply = false; // 回复后关闭对话框（Ctrl+Enter切换）
 };
 
 #endif // USERSETTINGS_H

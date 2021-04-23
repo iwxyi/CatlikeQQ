@@ -145,7 +145,7 @@ void CqhttpService::parseEchoMessage(const MyJson &json)
             JS(fri, nickname);
             JS(fri, remark); // 备注，如果为空则默认为nickname
             JL(fri, user_id);
-            friendNames.insert(user_id, remark.isEmpty() ? nickname : remark);
+            userNames.insert(user_id, remark.isEmpty() ? nickname : remark);
         });
     }
     else if (echo == "get_group_list")
@@ -212,7 +212,7 @@ void CqhttpService::parseGroupMessage(const MyJson &json)
     MsgBean msg = MsgBean(user_id, nickname, message, message_id, sub_type).group(group_id, groupNames.value(group_id), card);
     parseMsgDisplay(msg);
     emit signalMessage(msg);
-    qInfo() << "收到群消息：" << group_id << groupNames.value(group_id) << user_id << friendNames.value(user_id) << message << message_id;
+    qInfo() << "收到群消息：" << group_id << groupNames.value(group_id) << user_id << userNames.value(user_id) << message << message_id;
 }
 
 void CqhttpService::parseGroupUpload(const MyJson &json)
@@ -225,12 +225,12 @@ void CqhttpService::parseGroupUpload(const MyJson &json)
     JS(file, name); // 文件名
     JL(file, size); // 文件大小（字节数）
 
-    MsgBean msg = MsgBean(user_id, friendNames.value(user_id))
+    MsgBean msg = MsgBean(user_id, userNames.value(user_id))
                        .group(group_id, groupNames.value(group_id))
                        .file(id, name, size);
     parseMsgDisplay(msg);
     emit signalMessage(msg);
-    qInfo() << "收到群文件消息：" << group_id << groupNames.value(group_id) << user_id << friendNames.value(user_id) << name << size << id;
+    qInfo() << "收到群文件消息：" << group_id << groupNames.value(group_id) << user_id << userNames.value(user_id) << name << size << id;
 }
 
 MsgBean& CqhttpService::parseMsgDisplay(MsgBean &msg) const
@@ -238,6 +238,10 @@ MsgBean& CqhttpService::parseMsgDisplay(MsgBean &msg) const
     QString text = msg.message;
     QRegularExpression re;
     QRegularExpressionMatch match;
+
+    // 头像
+    // 群头像API：https://p.qlogo.cn/gh/{group_id}/{group_id}/100
+
 
     // #替换CQ
     // 文件
@@ -250,7 +254,7 @@ MsgBean& CqhttpService::parseMsgDisplay(MsgBean &msg) const
     text.replace(QRegExp("\\[CQ:face,id=\\d+\\]"), "[表情]");
 
     // 图片
-    // [CQ:image,file=e9f40e7fb43071e7471a2add0df33b32.image,url=http://gchat.qpic.cn/gchatpic_new/707049914/3934208404-2722739418-E9F40E7FB43071E7471A2ADD0DF33B32/0?term=3]
+    // 图片格式：[CQ:image,file=e9f40e7fb43071e7471a2add0df33b32.image,url=http://gchat.qpic.cn/gchatpic_new/707049914/3934208404-2722739418-E9F40E7FB43071E7471A2ADD0DF33B32/0?term=3]
     text.replace(QRegExp("\\[CQ:image,.+\\]"), "[图片]");
 
     // 回复
