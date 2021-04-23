@@ -21,8 +21,11 @@ int main(int argc, char *argv[])
 
     // 初始化全局配置
     rt->APP_PATH = QApplication::applicationDirPath() + "/";
-    rt->DATA_PATH = QApplication::applicationDirPath() + "/data";
-    ensureDirExist(rt->DATA_PATH);
+    rt->DATA_PATH = QApplication::applicationDirPath() + "/data/";
+    rt->IMAGE_PATH = rt->DATA_PATH + "images/";
+    rt->CACHE_PATH = rt->DATA_PATH + "cache/";
+    rt->CACHE_IMAGE_PATH = rt->CACHE_PATH + "images/";
+    ensureDirExist(rt->CACHE_IMAGE_PATH);
 
     MainWindow w;
     w.show();

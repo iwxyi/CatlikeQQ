@@ -1,6 +1,7 @@
 #include <QPropertyAnimation>
 #include <QPainter>
 #include <QPainterPath>
+#include <QMovie>
 #include "notificationcard.h"
 #include "ui_notificationcard.h"
 
@@ -63,7 +64,7 @@ void NotificationCard::setMsg(const MsgBean &msg)
         ui->nicknameLabel->setText(msg.nickname + " · " + msg.groupName);
     showText = msg.displayString();
     showText.replace("<", "&lt;").replace(">", "&gt;");
-    if (msg.image.isNull())
+    if (msg.imageId.isEmpty())
     {
         ui->messageLabel->setText(showText);
     }
@@ -71,7 +72,14 @@ void NotificationCard::setMsg(const MsgBean &msg)
     {
         int maxWidth = us->bannerWidth;
         int maxHeight = us->bannerWidth/3;
-        ui->messageLabel->setPixmap(msg.image.scaled(maxWidth, maxHeight, Qt::KeepAspectRatio));
+
+        /*QMovie* movie = new QMovie(rt->imageCache(msg.imageId), QByteArray(), this);
+        ui->messageLabel->setMaximumSize(maxWidth, maxHeight);
+        ui->messageLabel->setMovie(movie);*/
+
+        QPixmap pixmap(rt->imageCache(msg.imageId));
+        ui->messageLabel->setPixmap(pixmap.scaled(maxWidth, maxHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        single = true;
     }
 
     ui->headerLabel->setPixmap(msg.head);
@@ -115,6 +123,11 @@ bool NotificationCard::append(const MsgBean &msg, int &delta)
 bool NotificationCard::isHidding() const
 {
     return hidding;
+}
+
+bool NotificationCard::canMerge() const
+{
+    return !hidding && !single;
 }
 
 void NotificationCard::focusIn()

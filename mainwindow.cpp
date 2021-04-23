@@ -7,6 +7,7 @@
 #include "widgets/settings/accountwidget.h"
 #include "widgets/settings/debugwidget.h"
 #include "myjson.h"
+#include "fileutil.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -24,6 +25,8 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
+
+    deleteDir(rt->CACHE_PATH);
 }
 
 void MainWindow::initView()
@@ -175,7 +178,7 @@ void MainWindow::showMessage(const MsgBean &msg)
     int delta = 0;
     foreach (auto card, notificationCards)
     {
-        if (!card->isHidding() && card->append(msg, delta))
+        if (card->canMerge() && card->append(msg, delta))
         {
             adjustUnderCardsTop(notificationCards.indexOf(card), delta);
             return ;

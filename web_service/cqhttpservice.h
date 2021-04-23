@@ -36,7 +36,7 @@ private:
     void parseGroupMessage(const MyJson& json);
     void parseGroupUpload(const MyJson& json);
     MsgBean &parseMsgDisplay(MsgBean& msg) const;
-    QPixmap loadPixmap(QString url) const;
+    QPixmap loadNetPixmap(QString url) const;
     QPixmap toRoundedLabel(const QPixmap& pixmap) const;
 
 private:

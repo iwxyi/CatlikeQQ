@@ -9,14 +9,14 @@ class Runtime : public QObject
 public:
     explicit Runtime(QObject *parent = nullptr);
 
-signals:
-
-public slots:
-
+    QString imageCache(QString id);
 
 public:
     QString APP_PATH;
     QString DATA_PATH;
+    QString IMAGE_PATH;
+    QString CACHE_PATH;
+    QString CACHE_IMAGE_PATH;
 };
 
 #endif // RUNTIME_H

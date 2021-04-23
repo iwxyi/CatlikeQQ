@@ -6,6 +6,7 @@
 #include <QPainter>
 #include "cqhttpservice.h"
 #include "myjson.h"
+#include "fileutil.h"
 
 CqhttpService::CqhttpService(QObject *parent) : QObject(parent)
 {
@@ -255,7 +256,7 @@ MsgBean& CqhttpService::parseMsgDisplay(MsgBean &msg) const
         else // 没有头像，联网获取
         {
             QString url = "http://q1.qlogo.cn/g?b=qq&nk=" + snum(msg.senderId) + "&s=100&t=";
-            QPixmap pixmap = loadPixmap(url);
+            QPixmap pixmap = loadNetPixmap(url);
             pixmap = toRoundedLabel(pixmap);
             msg.head = pixmap;
             userHeads.insert(msg.senderId, pixmap);
@@ -270,7 +271,7 @@ MsgBean& CqhttpService::parseMsgDisplay(MsgBean &msg) const
         else
         {
             QString url = "https://p.qlogo.cn/gh/" + snum(msg.groupId) + "/" + snum(msg.groupId) + "/100";
-            QPixmap pixmap = loadPixmap(url);
+            QPixmap pixmap = loadNetPixmap(url);
             pixmap = toRoundedLabel(pixmap);
             msg.head = pixmap;
             groupHeads.insert(msg.groupId, pixmap);
@@ -289,11 +290,14 @@ MsgBean& CqhttpService::parseMsgDisplay(MsgBean &msg) const
 
     // 图片
     // 图片格式：[CQ:image,file=e9f40e7fb43071e7471a2add0df33b32.image,url=http://gchat.qpic.cn/gchatpic_new/707049914/3934208404-2722739418-E9F40E7FB43071E7471A2ADD0DF33B32/0?term=3]
-    if (us->bannerShowImages && text.indexOf(QRegularExpression("^\\[CQ:image,.*url=(.+)\\]"), 0, &match) > -1)
+    if (us->bannerShowImages && text.indexOf(QRegularExpression("^\\[CQ:image,file=(.+?).image,.*url=(.+)\\]"), 0, &match) > -1)
     {
-        QString url = match.captured(1);
-        QPixmap pixmap = loadPixmap(url);
-        msg.image = pixmap;
+        QString id = match.captured(1);
+        QString url = match.captured(2);
+        QString path = rt->imageCache(id);
+        QPixmap pixmap = isFileExist(path) ? QPixmap(path) : loadNetPixmap(url);
+        pixmap.save(rt->imageCache(id));
+        msg.imageId = id;
     }
     else
     {
@@ -301,7 +305,7 @@ MsgBean& CqhttpService::parseMsgDisplay(MsgBean &msg) const
     }
 
     // 回复
-    text.replace(QRegExp("\\[CQ:reply,id=\\d+\\]\\[CQ:at,qq=\\d+\\]"), "回复：");
+    text.replace(QRegExp("\\[CQ:reply,id=-?\\d+\\]\\[CQ:at,qq=\\d+\\]"), "回复：");
 
     // 艾特
     text.replace(QRegExp("\\[CQ:at,qq=(\\d+)\\]"), "@\\1");
@@ -315,7 +319,7 @@ MsgBean& CqhttpService::parseMsgDisplay(MsgBean &msg) const
     return msg;
 }
 
-QPixmap CqhttpService::loadPixmap(QString url) const
+QPixmap CqhttpService::loadNetPixmap(QString url) const
 {
     QNetworkAccessManager manager;
     QEventLoop loop;

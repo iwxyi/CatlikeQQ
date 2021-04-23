@@ -35,6 +35,7 @@ public:
     bool append(const MsgBean& msg, int& delta);
 
     bool isHidding() const;
+    bool canMerge() const;
 
 signals:
     void signalToHide();
@@ -67,6 +68,7 @@ private:
     QTimer* displayTimer;
     bool focusing = false;
     bool hidding = false;
+    bool single = false;
 };
 
 #endif // NOTIFICATIONCARD_H
