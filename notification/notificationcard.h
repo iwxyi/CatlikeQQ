@@ -56,6 +56,7 @@ private slots:
 
 private:
     int getReadDisplayDuration(int length) const;
+    QPixmap toRoundedPixmap(const QPixmap& pixmap) const;
 
 protected:
     void showEvent(QShowEvent *event) override;

@@ -249,34 +249,32 @@ MsgBean& CqhttpService::parseMsgDisplay(MsgBean &msg)
     // 群头像API：https://p.qlogo.cn/gh/群号/群号/100
     if (!msg.groupId)
     {
-        if (userHeads.contains(msg.senderId))
+        if (userHeaders.contains(msg.senderId))
         {
-            msg.header = userHeads.value(msg.senderId);
+            msg.header = userHeaders.value(msg.senderId);
         }
         else // 没有头像，联网获取
         {
             QString url = "http://q1.qlogo.cn/g?b=qq&nk=" + snum(msg.senderId) + "&s=100&t=";
             QPixmap pixmap = loadNetPixmap(url);
             if (!us->bannerBgColorByHeader)
-                pixmap = toRoundedLabel(pixmap);
+                pixmap = toRoundedPixmap(pixmap);
             msg.header = pixmap;
-            userHeads.insert(msg.senderId, pixmap);
+            userHeaders.insert(msg.senderId, pixmap);
         }
     }
     else
     {
-        if (groupHeads.contains(msg.groupId))
+        if (groupHeaders.contains(msg.groupId))
         {
-            msg.header = groupHeads.value(msg.groupId);
+            msg.header = groupHeaders.value(msg.groupId);
         }
         else
         {
             QString url = "https://p.qlogo.cn/gh/" + snum(msg.groupId) + "/" + snum(msg.groupId) + "/100";
             QPixmap pixmap = loadNetPixmap(url);
-            if (!us->bannerBgColorByHeader)
-                pixmap = toRoundedLabel(pixmap);
             msg.header = pixmap;
-            groupHeads.insert(msg.groupId, pixmap);
+            groupHeaders.insert(msg.groupId, pixmap);
         }
     }
 
@@ -359,7 +357,7 @@ void CqhttpService::saveNetImage(QString url, QString path)
     file.close();
 }
 
-QPixmap CqhttpService::toRoundedLabel(const QPixmap &pixmap) const
+QPixmap CqhttpService::toRoundedPixmap(const QPixmap &pixmap) const
 {
     QPixmap dest(pixmap.size());
     dest.fill(Qt::transparent);

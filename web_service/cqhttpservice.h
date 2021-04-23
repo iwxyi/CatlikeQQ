@@ -40,7 +40,7 @@ public:
     MsgBean &parseMsgDisplay(MsgBean& msg);
     QPixmap loadNetPixmap(QString url) const;
     void saveNetImage(QString url, QString path);
-    QPixmap toRoundedLabel(const QPixmap& pixmap) const;
+    QPixmap toRoundedPixmap(const QPixmap& pixmap) const;
 
 private:
     QWebSocket* socket = nullptr;
@@ -50,8 +50,8 @@ private:
     QHash<qint64, QString> userNames; // 好友列表
     QHash<qint64, QString> groupNames; // 群列表
     QHash<qint64, QHash<qint64, QString>> groupMemberNames; // 群成员名字
-    mutable QHash<qint64, QPixmap> userHeads;
-    mutable QHash<qint64, QPixmap> groupHeads;
+    mutable QHash<qint64, QPixmap> userHeaders;
+    mutable QHash<qint64, QPixmap> groupHeaders;
 };
 
 #endif // CQHTTPSERVICE_H

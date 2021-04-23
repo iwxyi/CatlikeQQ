@@ -109,7 +109,7 @@ void NotificationCard::setMsg(const MsgBean &msg)
         single = true; // 不允许合并（因为没法合并啊……）
     }
 
-    ui->headerLabel->setPixmap(msg.header);
+    ui->headerLabel->setPixmap(toRoundedPixmap(msg.header));
 
     // 设置大小
     setFixedWidth(us->bannerWidth);
@@ -267,6 +267,7 @@ void NotificationCard::setColors(QColor bg, QColor fg)
     this->bg->setBgColor(bg);
     QPalette pa(ui->nicknameLabel->palette());
     pa.setColor(QPalette::Foreground, fg);
+    pa.setColor(QPalette::Text, fg);
     ui->nicknameLabel->setPalette(pa);
     ui->messageLabel->setPalette(pa);
     ui->messageEdit->setPalette(pa);
@@ -309,6 +310,22 @@ void NotificationCard::cardClicked()
 int NotificationCard::getReadDisplayDuration(int length) const
 {
     return us->bannerDisplayDuration + (length * 1000 / us->bannerReaderSpeed);
+}
+
+QPixmap NotificationCard::toRoundedPixmap(const QPixmap &pixmap) const
+{
+    QPixmap dest(pixmap.size());
+    dest.fill(Qt::transparent);
+    QPainter painter(&dest);
+    painter.setRenderHint(QPainter::Antialiasing, true);
+    painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
+    QRect rect = QRect(0, 0, pixmap.width(), pixmap.height());
+    int radius = qMin(rect.width(), rect.height())/2;
+    QPainterPath path;
+    path.addRoundedRect(rect, radius, radius);
+    painter.setClipPath(path);
+    painter.drawPixmap(rect, pixmap);
+    return dest;
 }
 
 void NotificationCard::showEvent(QShowEvent *event)
