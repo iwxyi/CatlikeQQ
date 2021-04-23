@@ -2,6 +2,7 @@
 #include <QPainter>
 #include <QPainterPath>
 #include <QMovie>
+#include <QDesktopServices>
 #include "notificationcard.h"
 #include "ui_notificationcard.h"
 
@@ -44,6 +45,7 @@ NotificationCard::NotificationCard(QWidget *parent) :
         focusOut();
     });
     connect(ui->messageEdit, SIGNAL(signalFocusOut()), this, SLOT(focusOut()));
+    connect(bg, SIGNAL(clicked()), this, SLOT(cardClicked()));
 }
 
 NotificationCard::~NotificationCard()
@@ -72,14 +74,42 @@ void NotificationCard::setMsg(const MsgBean &msg)
     {
         int maxWidth = us->bannerWidth;
         int maxHeight = us->bannerWidth/3;
+        QString path = rt->imageCache(msg.imageId);
 
-        /*QMovie* movie = new QMovie(rt->imageCache(msg.imageId), QByteArray(), this);
-        ui->messageLabel->setMaximumSize(maxWidth, maxHeight);
-        ui->messageLabel->setMovie(movie);*/
+        // 支持GIF
+        QMovie* movie = new QMovie(rt->imageCache(msg.imageId), "gif", this);
+        if (movie->frameCount()) // 有帧，表示是GIF
+        {
+            // 调整图片大小
+            movie->jumpToFrame(0);
+            QSize sz = movie->frameRect().size();
+            if (sz.height() && sz.width())
+            {
+                if (sz.width() > maxWidth)
+                    sz = QSize(maxWidth, sz.height() * maxWidth / sz.width());
+                if (sz.height() > maxHeight)
+                    sz = QSize(sz.width() * maxHeight / sz.height(), maxHeight);
+                movie->setScaledSize(sz);
+            }
+            else
+            {
+                movie->setScaledSize(QSize(maxWidth, maxHeight));
+            }
 
-        QPixmap pixmap(rt->imageCache(msg.imageId));
-        ui->messageLabel->setPixmap(pixmap.scaled(maxWidth, maxHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-        single = true;
+            ui->messageLabel->setMaximumSize(maxWidth, maxHeight);
+            ui->messageLabel->setMovie(movie);
+            movie->start();
+        }
+        else // 是静态图
+        {
+            delete movie; // 释放文件锁
+            qDebug() << path;
+            QPixmap pixmap(path, "1");
+            ui->messageLabel->setPixmap(pixmap.scaled(maxWidth, maxHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        }
+
+        // 其他设置
+        single = true; // 不允许合并（因为没法合并啊……）
     }
 
     ui->headerLabel->setPixmap(msg.head);
@@ -220,6 +250,18 @@ void NotificationCard::toHide()
     ani->start();
 }
 
+void NotificationCard::cardClicked()
+{
+    if (!msgs.size())
+        return ;
+
+    const MsgBean& msg = msgs.first();
+    if (!msg.imageId.isEmpty())
+    {
+        QDesktopServices::openUrl(QUrl("file:///" + rt->imageCache(msg.imageId), QUrl::TolerantMode));
+    }
+}
+
 void NotificationCard::showEvent(QShowEvent *event)
 {
     QWidget::showEvent(event);
@@ -227,9 +269,8 @@ void NotificationCard::showEvent(QShowEvent *event)
     displayTimer->start();
 }
 
-void NotificationCard::paintEvent(QPaintEvent *event)
+void NotificationCard::paintEvent(QPaintEvent *)
 {
-
 }
 
 void NotificationCard::resizeEvent(QResizeEvent *event)

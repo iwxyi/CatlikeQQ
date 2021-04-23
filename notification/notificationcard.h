@@ -49,10 +49,11 @@ private slots:
     void showReplyEdit();
     void sendReply();
     void toHide();
+    void cardClicked();
 
 protected:
     void showEvent(QShowEvent *event) override;
-    void paintEvent(QPaintEvent *event) override;
+    void paintEvent(QPaintEvent *) override;
     void resizeEvent(QResizeEvent *event) override;
 
 private:

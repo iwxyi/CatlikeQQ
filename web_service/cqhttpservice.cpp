@@ -238,7 +238,7 @@ void CqhttpService::parseGroupUpload(const MyJson &json)
     qInfo() << "收到群文件消息：" << group_id << groupNames.value(group_id) << user_id << userNames.value(user_id) << name << size << id;
 }
 
-MsgBean& CqhttpService::parseMsgDisplay(MsgBean &msg) const
+MsgBean& CqhttpService::parseMsgDisplay(MsgBean &msg)
 {
     QString text = msg.message;
     QRegularExpression re;
@@ -295,8 +295,10 @@ MsgBean& CqhttpService::parseMsgDisplay(MsgBean &msg) const
         QString id = match.captured(1);
         QString url = match.captured(2);
         QString path = rt->imageCache(id);
-        QPixmap pixmap = isFileExist(path) ? QPixmap(path) : loadNetPixmap(url);
-        pixmap.save(rt->imageCache(id));
+        /* QPixmap pixmap = isFileExist(path) ? QPixmap(path) : loadNetPixmap(url);
+        if (!pixmap.save(rt->imageCache(id)))
+            qWarning() << "保存图片失败：" << id; */
+        saveNetImage(url, path);
         msg.imageId = id;
     }
     else
@@ -332,6 +334,24 @@ QPixmap CqhttpService::loadNetPixmap(QString url) const
     QPixmap pixmap;
     pixmap.loadFromData(jpegData);
     return pixmap;
+}
+
+/// 保存网络图片
+/// 因为不一定是静态图片，所以没法使用 QPixmap
+void CqhttpService::saveNetImage(QString url, QString path)
+{
+    QNetworkAccessManager manager;
+    QEventLoop loop;
+    QNetworkReply *reply = manager.get(QNetworkRequest(url));
+    //请求结束并下载完成后，退出子事件循环
+    connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
+    //开启子事件循环
+    loop.exec();
+    QByteArray data = reply->readAll();
+    QFile file(path);
+    file.open(QIODevice::WriteOnly);
+    file.write(data);
+    file.close();
 }
 
 QPixmap CqhttpService::toRoundedLabel(const QPixmap &pixmap) const
