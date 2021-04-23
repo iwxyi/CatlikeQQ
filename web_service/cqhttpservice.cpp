@@ -1,4 +1,5 @@
 #include <QSslConfiguration>
+#include <QRegularExpression>
 #include "cqhttpservice.h"
 #include "myjson.h"
 
@@ -87,7 +88,6 @@ void CqhttpService::messageReceived(const QString &message)
     }
     else if (post_type == "message") // 消息
     {
-        qDebug() << json;
         JS(json, message_type);
         if (message_type == "private") // 私信
         {
@@ -130,26 +130,31 @@ void CqhttpService::parseEchoMessage(const MyJson &json)
     JS(json, echo);
     if (echo == "get_login_info")
     {
-        JL(json, user_id);
-        JS(json, nickname);
+        JO(json, data);
+        JL(data, user_id);
+        JS(data, nickname);
         myId = user_id;
         myNickname = nickname;
+        qInfo() << "登录成功：" << nickname << user_id;
+        emit sig->myAccount(user_id, nickname);
     }
     else if (echo == "get_friend_list")
     {
+        qInfo() << "读取好友列表：" << json.a("data").size();
         json.each("data", [=](MyJson fri) {
             JS(fri, nickname);
             JS(fri, remark); // 备注，如果为空则默认为nickname
             JL(fri, user_id);
-            friendHash.insert(user_id, remark.isEmpty() ? nickname : remark);
+            friendNames.insert(user_id, remark.isEmpty() ? nickname : remark);
         });
     }
     else if (echo == "get_group_list")
     {
+        qInfo() << "读取群列表：" << json.a("data").size();
         json.each("data", [=](MyJson group) {
             JL(group, group_id);
             JS(group, group_name);
-            groupHash.insert(group_id, group_name);
+            groupNames.insert(group_id, group_name);
         });
     }
     else if (echo == "send_private_msg" || echo == "send_group_msg")
@@ -174,8 +179,10 @@ void CqhttpService::parsePrivateMessage(const MyJson &json)
     JL(sender, user_id); // 发送者用户QQ号
     JS(sender, nickname);
 
-    emit signalMessage(MsgBean(user_id, nickname, message, message_id, sub_type));
-    qDebug() << "收到好友消息：" << user_id << nickname << message << message_id;
+    MsgBean msg(user_id, nickname, message, message_id, sub_type);
+    parseMsgDisplay(msg);
+    emit signalMessage(msg);
+    qInfo() << "收到好友消息：" << user_id << nickname << message << message_id;
 
     // 图片消息：文字1\r\n[CQ:image,file=8f84df65ee005b52f7f798697765a81b.image,url=http://c2cpicdw.qpic.cn/offpic_new/1600631528//1600631528-3839913603-8F84DF65EE005B52F7F798697765A81B/0?term=3]\r\n文字二……
 }
@@ -202,8 +209,10 @@ void CqhttpService::parseGroupMessage(const MyJson &json)
         JS(anonymous, flag); // 匿名用户flag，在调用禁言API时需要传入
     }
 
-    emit signalMessage(MsgBean(user_id, nickname, message, message_id, sub_type).group(group_id, groupHash.value(group_id), card));
-    qDebug() << "收到群消息：" << group_id << groupHash.value(group_id) << user_id << friendHash.value(user_id) << message << message_id;
+    MsgBean msg = MsgBean(user_id, nickname, message, message_id, sub_type).group(group_id, groupNames.value(group_id), card);
+    parseMsgDisplay(msg);
+    emit signalMessage(msg);
+    qInfo() << "收到群消息：" << group_id << groupNames.value(group_id) << user_id << friendNames.value(user_id) << message << message_id;
 }
 
 void CqhttpService::parseGroupUpload(const MyJson &json)
@@ -216,8 +225,45 @@ void CqhttpService::parseGroupUpload(const MyJson &json)
     JS(file, name); // 文件名
     JL(file, size); // 文件大小（字节数）
 
-    emit signalMessage(MsgBean(user_id, friendHash.value(user_id))
-                       .group(group_id, groupHash.value(group_id))
-                       .file(id, name, size));
-    qDebug() << "收到群文件消息：" << group_id << groupHash.value(group_id) << user_id << friendHash.value(user_id) << name << size << id;
+    MsgBean msg = MsgBean(user_id, friendNames.value(user_id))
+                       .group(group_id, groupNames.value(group_id))
+                       .file(id, name, size);
+    parseMsgDisplay(msg);
+    emit signalMessage(msg);
+    qInfo() << "收到群文件消息：" << group_id << groupNames.value(group_id) << user_id << friendNames.value(user_id) << name << size << id;
+}
+
+MsgBean& CqhttpService::parseMsgDisplay(MsgBean &msg) const
+{
+    QString text = msg.message;
+    QRegularExpression re;
+    QRegularExpressionMatch match;
+
+    // #替换CQ
+    // 文件
+    if (!msg.fileId.isEmpty())
+    {
+        text = "[文件] " + msg.fileName;
+    }
+
+    // 表情
+    text.replace(QRegExp("\\[CQ:face,id=\\d+\\]"), "[表情]");
+
+    // 图片
+    // [CQ:image,file=e9f40e7fb43071e7471a2add0df33b32.image,url=http://gchat.qpic.cn/gchatpic_new/707049914/3934208404-2722739418-E9F40E7FB43071E7471A2ADD0DF33B32/0?term=3]
+    text.replace(QRegExp("\\[CQ:image,.+\\]"), "[图片]");
+
+    // 回复
+
+
+    // 艾特
+    text.replace(QRegExp("\\[CQ:at,qq=(\\d+)\\]"), "@\\1");
+
+
+    // #处理长度
+    if (text.length() > us->msgMaxLength)
+        text = text.left(us->msgMaxLength) + "...";
+
+    msg.display = text;
+    return msg;
 }

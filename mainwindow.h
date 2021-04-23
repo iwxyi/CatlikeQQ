@@ -25,6 +25,7 @@ public:
 private slots:
     void trayAction(QSystemTrayIcon::ActivationReason reason);
     void on_sideButtons_currentRowChanged(int currentRow);
+    void on_tabWidget_tabBarClicked(int index);
 
 private:
     void initView();

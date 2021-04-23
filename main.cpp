@@ -1,6 +1,6 @@
-#include "mainwindow.h"
-
 #include <QApplication>
+#include "mainwindow.h"
+#include "fileutil.h"
 
 int main(int argc, char *argv[])
 {
@@ -19,7 +19,13 @@ int main(int argc, char *argv[])
     font.setFamily("微软雅黑");
     a.setFont(font);
 
+    // 初始化全局配置
+    rt->APP_PATH = QApplication::applicationDirPath() + "/";
+    rt->DATA_PATH = QApplication::applicationDirPath() + "/data";
+    ensureDirExist(rt->DATA_PATH);
+
     MainWindow w;
     w.show();
+
     return a.exec();
 }

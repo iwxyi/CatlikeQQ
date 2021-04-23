@@ -10,7 +10,7 @@ NotificationCard::NotificationCard(QWidget *parent) :
 {
     ui->setupUi(this);
     setAttribute(Qt::WA_DeleteOnClose, true);
-    setWindowFlags(Qt::FramelessWindowHint);
+    setWindowFlags(Qt::FramelessWindowHint | Qt::Tool | Qt::MSWindowsFixedSizeDialogHint);
     setAttribute(Qt::WA_TranslucentBackground, true);
     setWindowFlag(Qt::WindowStaysOnTopHint, true);
 
@@ -57,10 +57,15 @@ void NotificationCard::setMsg(const MsgBean &msg)
     msgs.append(msg);
 
     // 显示
-    ui->nicknameLabel->setText(msg.nickname);
+    if (!groupId)
+        ui->nicknameLabel->setText(msg.nickname);
+    else
+        ui->nicknameLabel->setText(msg.nickname + " · " + msg.groupName);
     showText = msg.displayString();
     showText.replace("<", "&lt;").replace(">", "&gt;");
     ui->messageLabel->setText(showText);
+
+    this->layout()->activate();
 }
 
 /**

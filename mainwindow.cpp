@@ -32,7 +32,8 @@ void MainWindow::initView()
     ui->tabWidget->setTabPosition(QTabWidget::West);
     ui->tabWidget->tabBar()->setStyle(new CustomTabStyle);
 
-    ui->sideButtons->setCurrentRow(0);
+    ui->sideButtons->setCurrentRow(us->i("mainwindow/sideIndex"));
+    ui->tabWidget->setCurrentIndex(us->i("mainwindow/tabIndex"));
 }
 
 void MainWindow::loadSettingsTabs()
@@ -164,6 +165,8 @@ void MainWindow::on_sideButtons_currentRowChanged(int currentRow)
         loadDataTabs();
         break;
     }
+    us->set("mainwindow/sideIndex", currentRow);
+    us->set("mainwindow/tabIndex", 0);
 }
 
 void MainWindow::showMessage(const MsgBean &msg)
@@ -195,7 +198,7 @@ void MainWindow::createNotificationBanner(const MsgBean &msg)
         // 统计所有横幅的位置
         foreach (auto card, notificationCards)
             top += card->height() + us->bannerSpacing;
-        startPos = QPoint(screenGeometry().width(), top);
+        startPos = QPoint(screenGeometry().width()-5, top);
         showPos = QPoint(screenGeometry().width() - us->bannerWidth - us->bannerSpacing, top);
     }
         break;
@@ -253,3 +256,7 @@ void MainWindow::adjustUnderCardsTop(int aboveIndex, int deltaHeight)
     }
 }
 
+void MainWindow::on_tabWidget_tabBarClicked(int index)
+{
+    us->set("mainwindow/tabIndex", index);
+}

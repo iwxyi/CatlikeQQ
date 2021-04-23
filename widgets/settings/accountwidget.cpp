@@ -13,6 +13,10 @@ AccountWidget::AccountWidget(QWidget *parent) :
     connect(sig, &SignalTransfer::socketStateChanged, this, [=](bool connected) {
         ui->connectStateLabel->setText(connected ? "已连接" : "已断开");
     });
+
+    connect(sig, &SignalTransfer::myAccount, this, [=](qint64 id, QString nickname) {
+        ui->accountLabel->setText(nickname + " (" + QString::number(id) + ")");
+    });
 }
 
 AccountWidget::~AccountWidget()

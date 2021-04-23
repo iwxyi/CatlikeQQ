@@ -18,6 +18,8 @@ struct MsgBean
     QString fileName;
     qint64 fileSize;
 
+    QString display;
+
     MsgBean(qint64 senderId, QString nickname, QString message, qint64 messageId, QString subType)
         : senderId(senderId), nickname(nickname), message(message), messageId(messageId), subType(subType)
     {
@@ -53,6 +55,8 @@ struct MsgBean
 
     QString displayString() const
     {
+        if (!display.isEmpty())
+            return display;
         if (!fileId.isEmpty())
             return QString("[文件] %1").arg(fileName);
         return message;

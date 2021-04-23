@@ -35,14 +35,16 @@ private:
     void parsePrivateMessage(const MyJson& json);
     void parseGroupMessage(const MyJson& json);
     void parseGroupUpload(const MyJson& json);
+    MsgBean &parseMsgDisplay(MsgBean& msg) const;
 
 private:
     QWebSocket* socket = nullptr;
 
     qint64 myId = 0; // 自己的QQ号
     QString myNickname; // 自己的昵称
-    QHash<qint64, QString> friendHash; // 好友列表
-    QHash<qint64, QString> groupHash; // 群列表
+    QHash<qint64, QString> friendNames; // 好友列表
+    QHash<qint64, QString> groupNames; // 群列表
+    QHash<qint64, QHash<qint64, QString>> groupMemberNames;
 };
 
 #endif // CQHTTPSERVICE_H

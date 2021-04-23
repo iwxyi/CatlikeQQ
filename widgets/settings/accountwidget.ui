@@ -31,6 +31,13 @@
      <property name="spacing">
       <number>12</number>
      </property>
+     <item row="1" column="1">
+      <widget class="QLabel" name="connectStateLabel">
+       <property name="text">
+        <string>待连接</string>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="0">
       <widget class="QLabel" name="label">
        <property name="text">
@@ -52,10 +59,17 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="QLabel" name="connectStateLabel">
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_3">
        <property name="text">
-        <string>待连接</string>
+        <string>账号信息</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLabel" name="accountLabel">
+       <property name="text">
+        <string/>
        </property>
       </widget>
      </item>
