@@ -30,7 +30,7 @@ public:
     ~NotificationCard() override;
 
     void showFrom(QPoint hi, QPoint sh);
-
+    void setColors(QColor bg, QColor fg);
     void setMsg(const MsgBean& msg);
     bool append(const MsgBean& msg, int& delta);
 

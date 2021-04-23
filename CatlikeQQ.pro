@@ -26,6 +26,7 @@ INCLUDEPATH += third_party/color_octree/\
     web_service/
 
 SOURCES += \
+    global/usettings.cpp \
     web_service/cqhttpservice.cpp \
     third_party/color_octree/coloroctree.cpp \
     third_party/color_octree/imageutil.cpp \
@@ -38,7 +39,6 @@ SOURCES += \
     notification/notificationbubble.cpp \
     notification/notificationcard.cpp \
     global/runtime.cpp \
-    global/usersettings.cpp \
     third_party/utils/fileutil.cpp \
     third_party/utils/stringutil.cpp \
     third_party/utils/textinputdialog.cpp \
@@ -47,6 +47,7 @@ SOURCES += \
 
 HEADERS += \
     global/signaltransfer.h \
+    global/usettings.h \
     notification/replyedit.h \
     third_party/utils/mysettings.h \
     web_service/cqhttpservice.h \
@@ -60,7 +61,6 @@ HEADERS += \
     notification/notificationbubble.h \
     notification/notificationcard.h \
     global/runtime.h \
-    global/usersettings.h \
     third_party/utils/dlog.h \
     third_party/utils/fileutil.h \
     third_party/utils/myjson.h \

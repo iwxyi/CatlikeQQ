@@ -3,11 +3,12 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "widgets/customtabstyle.h"
-#include "usersettings.h"
+#include "usettings.h"
 #include "widgets/settings/accountwidget.h"
 #include "widgets/settings/debugwidget.h"
 #include "myjson.h"
 #include "fileutil.h"
+#include "imageutil.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -208,6 +209,14 @@ void MainWindow::createNotificationBanner(const MsgBean &msg)
     NotificationCard* card = new NotificationCard(nullptr);
     card->setMsg(msg);
     card->showFrom(startPos, showPos);
+
+    // 计算头像背景颜色
+    if (us->bannerBgColorByHeader)
+    {
+        QColor bg, fg;
+        ImageUtil::getBgFgColor(ImageUtil::extractImageThemeColors(msg.header.toImage(), 2), &bg, &fg);
+        card->setColors(bg, fg);
+    }
 
     notificationCards.append(card);
     connect(card, &NotificationCard::signalHided, this, [=]{

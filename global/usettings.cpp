@@ -1,11 +1,11 @@
-#include "usersettings.h"
+#include "usettings.h"
 
-UserSettings::UserSettings(QObject *parent) : MySettings("settings.ini", QSettings::Format::IniFormat, parent)
+USettings::USettings(QObject *parent) : MySettings("settings.ini", QSettings::Format::IniFormat, parent)
 {
     restoreSettings();
 }
 
-void UserSettings::restoreSettings()
+void USettings::restoreSettings()
 {
     host = s("net/host");
 

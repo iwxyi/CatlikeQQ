@@ -19,7 +19,7 @@ struct MsgBean
     QString fileName;
     qint64 fileSize;
 
-    QPixmap head;
+    QPixmap header;
     QString display;
 
     QString imageId; // 显示唯一图片（不一定有）

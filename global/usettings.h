@@ -20,10 +20,10 @@ enum Direction
     BottomToTop
 };
 
-class UserSettings : public MySettings
+class USettings : public MySettings
 {
 public:
-    UserSettings(QObject* parent = nullptr);
+    USettings(QObject* parent = nullptr);
 
 private:
     void restoreSettings();
@@ -38,14 +38,14 @@ public:
     int bannerSpacing = 10; // 横幅之间的间距
     int bannerWidth = 300;  // 横幅的固定宽度
     int bannerAnimationDuration = 300; // 横幅的动画时长
-    int bannerShowEasingCurve = 0;     // 动画的曲线设定
+    int bannerShowEasingCurve = 6;     // 动画的曲线设定
     int bannerDisplayDuration = 5000;  // 横幅显示的时长
     int bannerRetentionDuration = 1000; // 失去焦点后滞留时长
-    QColor bannerBgColor = QColor(255, 255, 255);
-    int bannerBgRadius = 5;
-    int bannerBgShadow = 12;
-
-    int msgMaxLength = 300;
+    QColor bannerBgColor = QColor(255, 255, 255); // 默认背景颜色
+    bool bannerBgColorByHeader = true; // 使用头像颜色填充背景颜色
+    int bannerBgRadius = 5; // 圆角大小
+    int bannerBgShadow = 12; // 阴影大小，右下角会空出这么多的margin
+    int msgMaxLength = 300; // 消息最大长度
 
     bool bannerShowImages = true;
     bool bannerCloseAfterReply = false; // 回复后关闭对话框（Ctrl+Enter切换）

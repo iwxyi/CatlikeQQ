@@ -251,14 +251,15 @@ MsgBean& CqhttpService::parseMsgDisplay(MsgBean &msg)
     {
         if (userHeads.contains(msg.senderId))
         {
-            msg.head = userHeads.value(msg.senderId);
+            msg.header = userHeads.value(msg.senderId);
         }
         else // 没有头像，联网获取
         {
             QString url = "http://q1.qlogo.cn/g?b=qq&nk=" + snum(msg.senderId) + "&s=100&t=";
             QPixmap pixmap = loadNetPixmap(url);
-            pixmap = toRoundedLabel(pixmap);
-            msg.head = pixmap;
+            if (!us->bannerBgColorByHeader)
+                pixmap = toRoundedLabel(pixmap);
+            msg.header = pixmap;
             userHeads.insert(msg.senderId, pixmap);
         }
     }
@@ -266,14 +267,15 @@ MsgBean& CqhttpService::parseMsgDisplay(MsgBean &msg)
     {
         if (groupHeads.contains(msg.groupId))
         {
-            msg.head = groupHeads.value(msg.groupId);
+            msg.header = groupHeads.value(msg.groupId);
         }
         else
         {
             QString url = "https://p.qlogo.cn/gh/" + snum(msg.groupId) + "/" + snum(msg.groupId) + "/100";
             QPixmap pixmap = loadNetPixmap(url);
-            pixmap = toRoundedLabel(pixmap);
-            msg.head = pixmap;
+            if (!us->bannerBgColorByHeader)
+                pixmap = toRoundedLabel(pixmap);
+            msg.header = pixmap;
             groupHeads.insert(msg.groupId, pixmap);
         }
     }

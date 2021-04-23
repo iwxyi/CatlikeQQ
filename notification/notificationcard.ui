@@ -94,7 +94,17 @@
       </spacer>
      </item>
      <item>
-      <widget class="ReplyEdit" name="messageEdit"/>
+      <widget class="ReplyEdit" name="messageEdit">
+       <property name="styleSheet">
+        <string notr="true">QLineEdit
+{
+	background: transparent;
+}</string>
+       </property>
+       <property name="frame">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="InteractiveButtonBase" name="replyButton">

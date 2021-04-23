@@ -111,7 +111,7 @@ void NotificationCard::setMsg(const MsgBean &msg)
         single = true; // 不允许合并（因为没法合并啊……）
     }
 
-    ui->headerLabel->setPixmap(msg.head);
+    ui->headerLabel->setPixmap(msg.header);
 
     setFixedWidth(us->bannerWidth);
     this->layout()->activate();
@@ -223,10 +223,22 @@ void NotificationCard::showFrom(QPoint hi, QPoint sh)
     QPropertyAnimation* ani = new QPropertyAnimation(this, "pos");
     ani->setStartValue(hi);
     ani->setEndValue(sh);
+    ani->setEasingCurve(QEasingCurve::Type(us->bannerShowEasingCurve));
     ani->setDuration(us->bannerAnimationDuration);
     connect(ani, SIGNAL(finished()), ani, SLOT(deleteLater()));
     ani->start();
     show();
+}
+
+void NotificationCard::setColors(QColor bg, QColor fg)
+{
+    this->bg->setBgColor(bg);
+    QPalette pa(ui->nicknameLabel->palette());
+    pa.setColor(QPalette::Foreground, fg);
+    ui->nicknameLabel->setPalette(pa);
+    ui->messageLabel->setPalette(pa);
+    ui->messageEdit->setPalette(pa);
+    ui->replyButton->setTextColor(fg);
 }
 
 /**
@@ -240,6 +252,7 @@ void NotificationCard::toHide()
     QPropertyAnimation* ani = new QPropertyAnimation(this, "pos");
     ani->setStartValue(pos());
     ani->setEndValue(hidePoint);
+    ani->setEasingCurve(QEasingCurve::Type(us->bannerShowEasingCurve));
     ani->setDuration(us->bannerAnimationDuration);
     connect(ani, &QPropertyAnimation::finished, this, [=]{
         emit signalHided();
