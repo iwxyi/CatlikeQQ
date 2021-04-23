@@ -111,9 +111,16 @@ void NotificationCard::setMsg(const MsgBean &msg)
 
     ui->headerLabel->setPixmap(msg.header);
 
+    // 设置大小
     setFixedWidth(us->bannerWidth);
     this->layout()->activate();
     resize(this->sizeHint());
+
+    // 调整显示的时长
+    if (us->bannerReaderSpeed)
+    {
+        displayTimer->setInterval(getReadDisplayDuration(msg.displayString().length()));
+    }
 }
 
 /**
@@ -131,20 +138,33 @@ bool NotificationCard::append(const MsgBean &msg, int &delta)
     msgs.append(msg);
 
     // 段落显示
-    QString s = msg.message;
+    QString s = msg.displayString();
     s.replace("<", "&lt;").replace(">", "&gt;");
     showText.append("<p>" + s + "</p>");
     ui->messageLabel->setText(showText);
 
     // 调整显示时间
     if (displayTimer->isActive())
+    {
+        displayTimer->setInterval(qMax(0, displayTimer->remainingTime() - us->bannerDisplayDuration) + getReadDisplayDuration(msg.displayString().length()));
         displayTimer->start();
+    }
 
     // 调整尺寸
     this->layout()->activate();
     resize(this->sizeHint());
     delta = height() - h;
     return true;
+}
+
+bool NotificationCard::isPrivate() const
+{
+    return !groupId;
+}
+
+bool NotificationCard::isGroup() const
+{
+    return groupId;
 }
 
 bool NotificationCard::isHidding() const
@@ -284,6 +304,11 @@ void NotificationCard::cardClicked()
     {
         QDesktopServices::openUrl(QUrl("file:///" + rt->imageCache(msg.imageId), QUrl::TolerantMode));
     }
+}
+
+int NotificationCard::getReadDisplayDuration(int length) const
+{
+    return us->bannerDisplayDuration + (length * 1000 / us->bannerReaderSpeed);
 }
 
 void NotificationCard::showEvent(QShowEvent *event)

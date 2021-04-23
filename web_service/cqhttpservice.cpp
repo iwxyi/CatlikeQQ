@@ -292,20 +292,21 @@ MsgBean& CqhttpService::parseMsgDisplay(MsgBean &msg)
 
     // 图片
     // 图片格式：[CQ:image,file=e9f40e7fb43071e7471a2add0df33b32.image,url=http://gchat.qpic.cn/gchatpic_new/707049914/3934208404-2722739418-E9F40E7FB43071E7471A2ADD0DF33B32/0?term=3]
-    if (us->bannerShowImages && text.indexOf(QRegularExpression("^\\[CQ:image,file=(.+?).image,.*url=(.+)\\]"), 0, &match) > -1)
+    if (text.indexOf(QRegularExpression("\\[CQ:image,file=(.+?).image,.*url=(.+)\\]"), 0, &match) > -1)
     {
-        QString id = match.captured(1);
-        QString url = match.captured(2);
-        QString path = rt->imageCache(id);
-        /* QPixmap pixmap = isFileExist(path) ? QPixmap(path) : loadNetPixmap(url);
-        if (!pixmap.save(rt->imageCache(id)))
-            qWarning() << "保存图片失败：" << id; */
-        saveNetImage(url, path);
-        msg.imageId = id;
-    }
-    else
-    {
-        text.replace(QRegExp("\\[CQ:image,[^\\]]+\\]"), "[图片]");
+        if (us->bannerShowImages && text.indexOf(QRegularExpression("^\\[CQ:image,file=(.+?).image,.*url=(.+)\\]$"), 0, &match) > -1)
+        {
+            QString id = match.captured(1);
+            QString url = match.captured(2);
+            QString path = rt->imageCache(id);
+            saveNetImage(url, path);
+            msg.imageId = id;
+            text = "[图片]";
+        }
+        else
+        {
+            text.replace(QRegExp("\\[CQ:image,[^\\]]+\\]"), "[图片]");
+        }
     }
 
     // 回复

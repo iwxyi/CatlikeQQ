@@ -66,6 +66,16 @@ struct MsgBean
             return QString("[文件] %1").arg(fileName);
         return message;
     }
+
+    bool isPrivate() const
+    {
+        return !groupId;
+    }
+
+    bool isGroup() const
+    {
+        return groupId;
+    }
 };
 
 #endif // MSGBEAN_H

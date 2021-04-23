@@ -34,6 +34,8 @@ public:
     void setMsg(const MsgBean& msg);
     bool append(const MsgBean& msg, int& delta);
 
+    bool isPrivate() const;
+    bool isGroup() const;
     bool isHidding() const;
     bool canMerge() const;
 
@@ -51,6 +53,9 @@ private slots:
     void sendReply();
     void toHide();
     void cardClicked();
+
+private:
+    int getReadDisplayDuration(int length) const;
 
 protected:
     void showEvent(QShowEvent *event) override;

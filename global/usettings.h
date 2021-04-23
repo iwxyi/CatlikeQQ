@@ -40,6 +40,7 @@ public:
     int bannerAnimationDuration = 300; // 横幅的动画时长
     int bannerShowEasingCurve = 6;     // 动画的曲线设定
     int bannerDisplayDuration = 5000;  // 横幅显示的时长
+    int bannerReaderSpeed = 10; // 按字数增加时长，每秒钟看多少字
     int bannerRetentionDuration = 1000; // 失去焦点后滞留时长
     QColor bannerBgColor = QColor(255, 255, 255); // 默认背景颜色
     bool bannerBgColorByHeader = true; // 使用头像颜色填充背景颜色
