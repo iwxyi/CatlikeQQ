@@ -6,6 +6,7 @@
 #include "usettings.h"
 #include "widgets/settings/accountwidget.h"
 #include "widgets/settings/debugwidget.h"
+#include "widgets/settings/groupwidget.h"
 #include "myjson.h"
 #include "fileutil.h"
 #include "imageutil.h"
@@ -50,7 +51,7 @@ void MainWindow::initView()
 
     ui->settingsTabWidget->clear();
     ui->settingsTabWidget->addTab(new AccountWidget(service, this), QIcon("://icons/account.png"), "账号绑定");
-    ui->settingsTabWidget->addTab(new QWidget(), QIcon("://icons/group.png"), "群组消息");
+    ui->settingsTabWidget->addTab(new GroupWidget(this), QIcon("://icons/group.png"), "群组消息");
     ui->settingsTabWidget->addTab(new QWidget(), QIcon("://icons/care.png"), "特别关心");
     ui->settingsTabWidget->addTab(new QWidget(), QIcon("://icons/banner.png"), "横幅通知");
     ui->settingsTabWidget->addTab(new QWidget(), QIcon("://icons/bubble.png"), "气泡样式");
@@ -170,6 +171,10 @@ void MainWindow::closeEvent(QCloseEvent *e)
 
 void MainWindow::showMessage(const MsgBean &msg)
 {
+    // 判断是否需要显示
+    if (!us->enableGroupNotification && msg.isGroup())
+        return ;
+
     // 判断现有的有没有
     int delta = 0;
     foreach (auto card, notificationCards)

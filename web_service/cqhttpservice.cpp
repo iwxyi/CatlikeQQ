@@ -175,6 +175,7 @@ void CqhttpService::parseEchoMessage(const MyJson &json)
 
 void CqhttpService::parsePrivateMessage(const MyJson &json)
 {
+    qDebug() << json;
     JS(json, sub_type); // 好友：friend，群临时会话：group，群里自己发送：group_self
     JS(json, message); // 消息内容
     JS(json, raw_message);

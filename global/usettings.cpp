@@ -19,4 +19,8 @@ void USettings::restoreSettings()
     assign(bannerSpacing, "spacing");
     assign(bannerWidth, "width");
     endGroup();
+
+    beginGroup("group");
+    assign(enableGroupNotification, "enabled");
+    endGroup();
 }

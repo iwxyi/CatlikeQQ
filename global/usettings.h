@@ -39,7 +39,7 @@ public:
     int bannerWidth = 300;  // 横幅的固定宽度
     int bannerAnimationDuration = 300; // 横幅的动画时长
     int bannerShowEasingCurve = 6;     // 动画的曲线设定
-    int bannerDisplayDuration = 5000;  // 横幅显示的时长
+    int bannerDisplayDuration = 7000;  // 横幅显示的时长
     int bannerReaderSpeed = 10; // 按字数增加时长，每秒钟看多少字
     int bannerRetentionDuration = 1000; // 失去焦点后滞留时长
     QColor bannerBgColor = QColor(255, 255, 255); // 默认背景颜色
@@ -50,6 +50,7 @@ public:
 
     bool bannerShowImages = true;
     bool bannerCloseAfterReply = true; // 回复后关闭对话框（Ctrl+Enter切换）
+    bool enableGroupNotification = true;
 };
 
 #endif // USERSETTINGS_H
