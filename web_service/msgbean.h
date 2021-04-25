@@ -11,16 +11,18 @@ struct MsgBean
     QString message;
     qint64 messageId = 0;
     QString subType;
+    QString remark; // 自己对TA的备注
 
     qint64 groupId = 0;
     QString groupName;
+    QString groupCard; // 群昵称
 
     QString fileId;
     QString fileName;
     qint64 fileSize;
 
-    QPixmap header;
-    QString display;
+    QPixmap header; // 头像
+    QString display; // 显示的纯文本
 
     QString imageId; // 显示唯一图片（不一定有）
     QColor bgColor; // 显示的背景（不一定有，除非开启动态背景）
@@ -44,7 +46,7 @@ struct MsgBean
         this->groupId = groupId;
         this->groupName = groupName;
         if (!card.isEmpty())
-            nickname = card;
+            groupCard = card;
         if (groupName.isEmpty())
             groupName = QString::number(groupId);
         return *this;
@@ -56,6 +58,21 @@ struct MsgBean
         this->fileName = fileName;
         this->fileSize = fileSize;
         return *this;
+    }
+
+    MsgBean& frind(QString remark)
+    {
+        this->remark = remark;
+        return *this;
+    }
+
+    QString displayNickname() const
+    {
+        if (!groupCard.isEmpty())
+            return groupCard;
+        if (!remark.isEmpty())
+            return remark;
+        return nickname;
     }
 
     QString displayString() const

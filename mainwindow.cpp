@@ -172,10 +172,10 @@ void MainWindow::closeEvent(QCloseEvent *e)
 void MainWindow::showMessage(const MsgBean &msg)
 {
     // 判断是否需要显示
-    if (!us->enableGroupNotification && msg.isGroup())
+    if (!us->enableGroupNotification && msg.isGroup()) // 群组消息总开关
         return ;
 
-    // 判断现有的有没有
+    // 判断有没有现有的卡片
     int delta = 0;
     foreach (auto card, notificationCards)
     {

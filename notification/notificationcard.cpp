@@ -59,9 +59,9 @@ void NotificationCard::setMsg(const MsgBean &msg)
 
     // 显示
     if (!groupId)
-        ui->nicknameLabel->setText(msg.nickname);
+        ui->nicknameLabel->setText(msg.displayNickname());
     else
-        ui->nicknameLabel->setText(msg.nickname + " · " + msg.groupName);
+        ui->nicknameLabel->setText(msg.displayNickname() + " · " + msg.groupName);
     showText = msg.displayString();
     showText.replace("<", "&lt;").replace(">", "&gt;");
     if (msg.imageId.isEmpty())

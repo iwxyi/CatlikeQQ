@@ -150,7 +150,7 @@ void CqhttpService::parseEchoMessage(const MyJson &json)
             JS(fri, nickname);
             JS(fri, remark); // 备注，如果为空则默认为nickname
             JL(fri, user_id);
-            userNames.insert(user_id, remark.isEmpty() ? nickname : remark);
+            friendNames.insert(user_id, remark.isEmpty() ? nickname : remark);
         });
     }
     else if (echo == "get_group_list")
@@ -175,7 +175,6 @@ void CqhttpService::parseEchoMessage(const MyJson &json)
 
 void CqhttpService::parsePrivateMessage(const MyJson &json)
 {
-    qDebug() << json;
     JS(json, sub_type); // 好友：friend，群临时会话：group，群里自己发送：group_self
     JS(json, message); // 消息内容
     JS(json, raw_message);
@@ -185,7 +184,8 @@ void CqhttpService::parsePrivateMessage(const MyJson &json)
     JL(sender, user_id); // 发送者用户QQ号
     JS(sender, nickname);
 
-    MsgBean msg(user_id, nickname, message, message_id, sub_type);
+    MsgBean msg = MsgBean(user_id, nickname, message, message_id, sub_type)
+            .frind(friendNames.value(user_id, ""));
     parseMsgDisplay(msg);
     emit signalMessage(msg);
     qInfo() << "收到好友消息：" << user_id << nickname << message << message_id;
@@ -218,7 +218,7 @@ void CqhttpService::parseGroupMessage(const MyJson &json)
     MsgBean msg = MsgBean(user_id, nickname, message, message_id, sub_type).group(group_id, groupNames.value(group_id), card);
     parseMsgDisplay(msg);
     emit signalMessage(msg);
-    qInfo() << "收到群消息：" << group_id << groupNames.value(group_id) << user_id << userNames.value(user_id) << message << message_id;
+    qInfo() << "收到群消息：" << group_id << groupNames.value(group_id) << user_id << friendNames.value(user_id) << message << message_id;
 }
 
 void CqhttpService::parseGroupUpload(const MyJson &json)
@@ -231,12 +231,12 @@ void CqhttpService::parseGroupUpload(const MyJson &json)
     JS(file, name); // 文件名
     JL(file, size); // 文件大小（字节数）
 
-    MsgBean msg = MsgBean(user_id, userNames.value(user_id))
+    MsgBean msg = MsgBean(user_id, friendNames.value(user_id))
                        .group(group_id, groupNames.value(group_id))
                        .file(id, name, size);
     parseMsgDisplay(msg);
     emit signalMessage(msg);
-    qInfo() << "收到群文件消息：" << group_id << groupNames.value(group_id) << user_id << userNames.value(user_id) << name << size << id;
+    qInfo() << "收到群文件消息：" << group_id << groupNames.value(group_id) << user_id << friendNames.value(user_id) << name << size << id;
 }
 
 MsgBean& CqhttpService::parseMsgDisplay(MsgBean &msg)
