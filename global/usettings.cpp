@@ -18,6 +18,9 @@ void USettings::restoreSettings()
     beginGroup("banner");
     assign(bannerSpacing, "spacing");
     assign(bannerWidth, "width");
+    assign(bannerUseHeaderColor, "useHeaderColor");
+    assign(bannerDisplayDuration, "displayDuration");
+    assign(bannerTextReadSpeed, "textReadSpeed");
     endGroup();
 
     beginGroup("group");
@@ -27,5 +30,9 @@ void USettings::restoreSettings()
 
 bool USettings::isGroupShow(qint64 groupId)
 {
+    if (!enableGroupNotification)
+        return false;
 
+    // 过滤显示通知的群组
+    return enabledGroups.contains(groupId);
 }

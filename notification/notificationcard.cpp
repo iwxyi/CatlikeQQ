@@ -117,7 +117,7 @@ void NotificationCard::setMsg(const MsgBean &msg)
     resize(this->sizeHint());
 
     // 调整显示的时长
-    if (us->bannerReaderSpeed)
+    if (us->bannerTextReadSpeed)
     {
         displayTimer->setInterval(getReadDisplayDuration(msg.displayString().length()));
     }
@@ -309,7 +309,7 @@ void NotificationCard::cardClicked()
 
 int NotificationCard::getReadDisplayDuration(int length) const
 {
-    return us->bannerDisplayDuration + (length * 1000 / us->bannerReaderSpeed);
+    return us->bannerDisplayDuration + (length * 1000 / us->bannerTextReadSpeed);
 }
 
 QPixmap NotificationCard::toRoundedPixmap(const QPixmap &pixmap) const

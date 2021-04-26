@@ -7,6 +7,7 @@
 #include "widgets/settings/accountwidget.h"
 #include "widgets/settings/debugwidget.h"
 #include "widgets/settings/groupwidget.h"
+#include "widgets/settings/bannerwidget.h"
 #include "myjson.h"
 #include "fileutil.h"
 #include "imageutil.h"
@@ -52,9 +53,9 @@ void MainWindow::initView()
     ui->settingsTabWidget->clear();
     ui->settingsTabWidget->addTab(new AccountWidget(service, this), QIcon("://icons/account.png"), "账号绑定");
     ui->settingsTabWidget->addTab(new GroupWidget(this), QIcon("://icons/group.png"), "群组消息");
-    ui->settingsTabWidget->addTab(new QWidget(), QIcon("://icons/care.png"), "特别关心");
-    ui->settingsTabWidget->addTab(new QWidget(), QIcon("://icons/banner.png"), "横幅通知");
+    ui->settingsTabWidget->addTab(new BannerWidget(this), QIcon("://icons/banner.png"), "横幅通知");
     ui->settingsTabWidget->addTab(new QWidget(), QIcon("://icons/bubble.png"), "气泡样式");
+    ui->settingsTabWidget->addTab(new QWidget(), QIcon("://icons/care.png"), "特别关心");
     ui->settingsTabWidget->addTab(new QWidget(), QIcon("://icons/animation.png"), "动画调整");
     ui->settingsTabWidget->addTab(new QWidget(), QIcon("://icons/startup.png"), "程序启动");
 
@@ -216,7 +217,7 @@ void MainWindow::createNotificationBanner(const MsgBean &msg)
     card->showFrom(startPos, showPos);
 
     // 计算头像背景颜色
-    if (us->bannerBgColorByHeader)
+    if (us->bannerUseHeaderColor)
     {
         CardColor co;
 

@@ -43,6 +43,7 @@ SOURCES += \
     third_party/utils/stringutil.cpp \
     third_party/utils/textinputdialog.cpp \
     widgets/settings/accountwidget.cpp \
+    widgets/settings/bannerwidget.cpp \
     widgets/settings/debugwidget.cpp \
     widgets/settings/groupwidget.cpp
 
@@ -73,6 +74,7 @@ HEADERS += \
     widgets/customtabstyle.h \
     widgets/lefttabwidget.h \
     widgets/settings/accountwidget.h \
+    widgets/settings/bannerwidget.h \
     widgets/settings/debugwidget.h \
     widgets/settings/groupwidget.h
 
@@ -82,6 +84,7 @@ FORMS += \
     notification/notificationcard.ui \
     third_party/utils/textinputdialog.ui \
     widgets/settings/accountwidget.ui \
+    widgets/settings/bannerwidget.ui \
     widgets/settings/debugwidget.ui \
     widgets/settings/groupwidget.ui
 

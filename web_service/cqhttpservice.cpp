@@ -258,7 +258,7 @@ MsgBean& CqhttpService::parseMsgDisplay(MsgBean &msg)
         {
             QString url = "http://q1.qlogo.cn/g?b=qq&nk=" + snum(msg.senderId) + "&s=100&t=";
             QPixmap pixmap = loadNetPixmap(url);
-            if (!us->bannerBgColorByHeader)
+            if (!us->bannerUseHeaderColor)
                 pixmap = toRoundedPixmap(pixmap);
             msg.header = pixmap;
             userHeaders.insert(msg.senderId, pixmap);
