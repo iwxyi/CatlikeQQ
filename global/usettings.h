@@ -27,6 +27,7 @@ public:
 
 private:
     void restoreSettings();
+    bool isGroupShow(qint64 groupId);
 
 public:
     QString host;
@@ -51,6 +52,8 @@ public:
     bool bannerShowImages = true;
     bool bannerCloseAfterReply = true; // 回复后关闭对话框（Ctrl+Enter切换）
     bool enableGroupNotification = true;
+
+
 };
 
 #endif // USERSETTINGS_H

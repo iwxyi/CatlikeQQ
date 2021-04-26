@@ -44,6 +44,11 @@ void AccountWidget::on_lineEdit_editingFinished()
     QString host = ui->lineEdit->text().trimmed();
     if (host == us->host || host.contains("*"))
         return ;
-    us->set("net/host", host);
+
+    // 自动填充前缀
+    if (!host.startsWith("ws"))
+        host = "ws://" + host;
+
+    us->set("net/host", us->host = host);
     emit sig->hostChanged(host);
 }

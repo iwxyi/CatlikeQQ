@@ -24,3 +24,8 @@ void USettings::restoreSettings()
     assign(enableGroupNotification, "enabled");
     endGroup();
 }
+
+bool USettings::isGroupShow(qint64 groupId)
+{
+
+}
