@@ -27,6 +27,8 @@ public:
 
 private:
     void restoreSettings();
+
+public:
     bool isGroupShow(qint64 groupId);
 
 public:
@@ -49,6 +51,7 @@ public:
     int bannerBgShadow = 12; // 阴影大小，右下角会空出这么多的margin
     int msgMaxLength = 300; // 消息最大长度
 
+    bool bannerSingleSender = false; // 当个横幅卡片只放同一个人的消息
     bool bannerShowImages = true;
     bool bannerCloseAfterReply = true; // 回复后关闭对话框（Ctrl+Enter切换）
     bool enableGroupNotification = true;

@@ -28,6 +28,7 @@ void USettings::restoreSettings()
     endGroup();
 }
 
+/// 是否展示该群组的通知
 bool USettings::isGroupShow(qint64 groupId)
 {
     if (!enableGroupNotification)

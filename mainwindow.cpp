@@ -54,6 +54,7 @@ void MainWindow::initView()
     ui->settingsTabWidget->addTab(new AccountWidget(service, this), QIcon("://icons/account.png"), "账号绑定");
     ui->settingsTabWidget->addTab(new GroupWidget(this), QIcon("://icons/group.png"), "群组消息");
     ui->settingsTabWidget->addTab(new BannerWidget(this), QIcon("://icons/banner.png"), "横幅通知");
+    ui->settingsTabWidget->addTab(new BannerWidget(this), QIcon("://icons/reply.png"), "通知回复");
     ui->settingsTabWidget->addTab(new QWidget(), QIcon("://icons/bubble.png"), "气泡样式");
     ui->settingsTabWidget->addTab(new QWidget(), QIcon("://icons/care.png"), "特别关心");
     ui->settingsTabWidget->addTab(new QWidget(), QIcon("://icons/animation.png"), "动画调整");
@@ -173,7 +174,7 @@ void MainWindow::closeEvent(QCloseEvent *e)
 void MainWindow::showMessage(const MsgBean &msg)
 {
     // 判断是否需要显示
-    if (!us->enableGroupNotification && msg.isGroup()) // 群组消息总开关
+    if (msg.isGroup() && !us->isGroupShow(msg.groupId)) // 群组消息开关
         return ;
 
     // 判断有没有现有的卡片

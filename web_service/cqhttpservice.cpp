@@ -266,16 +266,19 @@ MsgBean& CqhttpService::parseMsgDisplay(MsgBean &msg)
     }
     else
     {
-        if (groupHeaders.contains(msg.groupId))
+        if (us->isGroupShow(msg.groupId))
         {
-            msg.header = groupHeaders.value(msg.groupId);
-        }
-        else
-        {
-            QString url = "https://p.qlogo.cn/gh/" + snum(msg.groupId) + "/" + snum(msg.groupId) + "/100";
-            QPixmap pixmap = loadNetPixmap(url);
-            msg.header = pixmap;
-            groupHeaders.insert(msg.groupId, pixmap);
+            if (groupHeaders.contains(msg.groupId))
+            {
+                msg.header = groupHeaders.value(msg.groupId);
+            }
+            else
+            {
+                QString url = "https://p.qlogo.cn/gh/" + snum(msg.groupId) + "/" + snum(msg.groupId) + "/100";
+                QPixmap pixmap = loadNetPixmap(url);
+                msg.header = pixmap;
+                groupHeaders.insert(msg.groupId, pixmap);
+            }
         }
     }
 
