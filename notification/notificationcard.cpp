@@ -322,6 +322,10 @@ void NotificationCard::addNewEdit(const MsgBean& msg)
     ui->listWidget->setFixedHeight(qMin(sumHeight, us->bannerMaximumHeight));
     this->adjustSize();
 
+    // 滚动
+    if (ending)
+        ui->listWidget->scrollToBottom();
+
     // 回复时钟
     if (remain >= 0)
     {
@@ -340,6 +344,9 @@ void NotificationCard::addNewBox(const MsgBean &msg)
         remain = displayTimer->remainingTime();
         displayTimer->stop();
     }
+
+    auto scrollbar = ui->listWidget->verticalScrollBar();
+    bool ending = (scrollbar->sliderPosition() >= scrollbar->maximum());
 
     // 创建控件
     QWidget* box = new QWidget(this);
@@ -428,6 +435,10 @@ void NotificationCard::addNewBox(const MsgBean &msg)
     ui->listWidget->setFixedHeight(qMin(sumHeight, us->bannerMaximumHeight));
     this->adjustSize();
 
+    // 滚动
+    if (ending)
+        ui->listWidget->scrollToBottom();
+
     // 回复时钟
     if (remain >= 0)
     {
@@ -448,6 +459,9 @@ void NotificationCard::addNewEdit2(const MsgBean &msg)
         remain = displayTimer->remainingTime();
         displayTimer->stop();
     }
+
+    auto scrollbar = ui->listWidget->verticalScrollBar();
+    bool ending = (scrollbar->sliderPosition() >= scrollbar->maximum());
 
     QWidget* box = new QWidget(this);
     QLabel* headerLabel = new QLabel(box);
@@ -489,6 +503,10 @@ void NotificationCard::addNewEdit2(const MsgBean &msg)
     }
     ui->listWidget->setFixedHeight(qMin(sumHeight, us->bannerMaximumHeight));
     this->adjustSize();
+
+    // 滚动
+    if (ending)
+        ui->listWidget->scrollToBottom();
 
     // 回复时钟
     if (remain >= 0)
@@ -574,7 +592,13 @@ void NotificationCard::sendReply()
     }
 
     // 加到消息框中
-    // TODO: 添加自己的消息
+    MsgBean msg(ac->myId, ac->myNickname, "您: " + text, 0, "");
+    if (isGroup())
+        addNewEdit2(msg);
+    else
+        appendPrivateMsg(msg);
+
+    // 清空输入框
     ui->messageEdit->clear();
 
     // 关闭对话框
