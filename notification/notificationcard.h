@@ -65,6 +65,7 @@ private:
     void addSingleSenderMsg(const MsgBean& msg);
     void setBgColorByHeader(const QPixmap& pixmap);
     void addNewEdit(const MsgBean &msg);
+    void addNewBox(const MsgBean &msg);
     int getReadDisplayDuration(int length) const;
 
 protected:

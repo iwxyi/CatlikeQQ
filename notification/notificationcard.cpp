@@ -29,9 +29,12 @@ NotificationCard::NotificationCard(QWidget *parent) :
     // ui->listWidget->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     ui->replyButton->setRadius(us->bannerBgRadius);
     ui->messageEdit->hide();
+
     ui->listWidget->setFixedHeight(0);
     ui->listWidget->setMinimumHeight(0);
     ui->listWidget->setMaximumHeight(us->bannerMaximumHeight);
+//    ui->listWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    ui->listWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     connect(ui->replyButton, SIGNAL(clicked()), this, SLOT(showReplyEdit()));
     connect(ui->messageEdit, SIGNAL(returnPressed()), this, SLOT(sendReply()));
@@ -250,8 +253,12 @@ void NotificationCard::setGroupMsg(const MsgBean &msg)
         setColors(cardColor.bg, cardColor.fg);
     }
 
-    // 根据消息调整高度
-    addNewEdit(msg);
+    // 列表是需要移动到外面来的（头像单独一列）
+    ui->verticalLayout->removeWidget(ui->listWidget);
+    ui->verticalLayout_2->insertWidget(1, ui->listWidget);
+
+    // 添加消息组
+    addNewBox(msg);
 }
 
 /// 添加一个私聊消息
@@ -263,13 +270,16 @@ void NotificationCard::appendPrivateMsg(const MsgBean &msg)
 /// 添加一个群组消息，每条都有可能是独立的头像、昵称（二级标题）
 void NotificationCard::appendGroupMsg(const MsgBean &msg)
 {
-
+    if (!msgs.size() || msgs.last().senderId != msg.senderId)
+        addNewBox(msg);
+    else
+        addNewEdit(msg);
 }
 
 /// 一个卡片只显示一个人的消息的情况
 void NotificationCard::addSingleSenderMsg(const MsgBean &msg)
 {
-
+    addNewEdit(msg);
 }
 
 /// 根据头像设置为对应的背景颜色
@@ -285,6 +295,14 @@ void NotificationCard::setBgColorByHeader(const QPixmap &pixmap)
 
 void NotificationCard::addNewEdit(const MsgBean& msg)
 {
+    // 先暂停时钟（获取图片有延迟）
+    int remain = -1;
+    if (displayTimer->isActive())
+    {
+        remain = displayTimer->remainingTime();
+        displayTimer->stop();
+    }
+
     MessageEdit* edit = new MessageEdit(this);
     edit->setMessage(msg);
     edit->setTextColor(cardColor.fg);
@@ -292,9 +310,9 @@ void NotificationCard::addNewEdit(const MsgBean& msg)
     QListWidgetItem* item = new QListWidgetItem(ui->listWidget);
     ui->listWidget->setItemWidget(item, edit);
 
-    QSize sz = edit->adjustSizeByTextWidth(ui->nicknameLabel->width());
+    QSize sz = edit->adjustSizeByTextWidth(us->bannerContentWidth);
     edit->resize(sz);
-    item->setSizeHint(sz);
+    item->setSizeHint(edit->size());
 
     int sumHeight = 0;
     for (int i = 0; i < ui->listWidget->count(); i++)
@@ -302,9 +320,109 @@ void NotificationCard::addNewEdit(const MsgBean& msg)
         auto widget = ui->listWidget->itemWidget(ui->listWidget->item(i));
         sumHeight += widget->height();
     }
-    ui->listWidget->setFixedHeight(sumHeight);
-
+    ui->listWidget->setFixedHeight(qMin(sumHeight, us->bannerMaximumHeight));
     this->adjustSize();
+    qDebug() << sz << edit->document()->size() << edit->size() << item->sizeHint() << ui->listWidget->size();
+    if (remain >= 0)
+    {
+        displayTimer->setInterval(remain);
+        displayTimer->start();
+        // 显示出来后会自动增加新message需要的时间，所以只要恢复就行了
+    }
+}
+
+void NotificationCard::addNewBox(const MsgBean &msg)
+{
+    // 先暂停时钟（获取图片有延迟）
+    int remain = -1;
+    if (displayTimer->isActive())
+    {
+        remain = displayTimer->remainingTime();
+        displayTimer->stop();
+    }
+
+    // 创建控件
+    QWidget* box = new QWidget(this);
+    QLabel* headerLabel = new QLabel(box);
+    QLabel* nameLabel = new QLabel(msg.groupName, box);
+    MessageEdit* edit = new MessageEdit(box);
+    QWidget* spacer = new QWidget(this);
+    QVBoxLayout* headerVlayout = new QVBoxLayout;
+    QVBoxLayout* contentVlayout = new QVBoxLayout;
+    QHBoxLayout* mainHlayout = new QHBoxLayout(box);
+    headerVlayout->addWidget(headerLabel);
+    headerVlayout->addWidget(spacer);
+    headerVlayout->setStretch(0, 0);
+    headerVlayout->setStretch(1, 1);
+    contentVlayout->addWidget(nameLabel);
+    contentVlayout->addWidget(edit);
+    contentVlayout->setStretch(0, 0);
+    contentVlayout->setStretch(1, 1);
+    mainHlayout->addLayout(headerVlayout);
+    mainHlayout->addLayout(contentVlayout);
+    mainHlayout->setStretch(0, 0);
+    mainHlayout->setStretch(1, 100);
+    mainHlayout->setAlignment(Qt::AlignLeft);
+
+    spacer->setAttribute(Qt::WA_TransparentForMouseEvents, true);
+    headerLabel->setAttribute(Qt::WA_TransparentForMouseEvents, true);
+    nameLabel->setAttribute(Qt::WA_TransparentForMouseEvents, true);
+    spacer->setFixedWidth(1);
+    headerLabel->setFixedSize(ui->headerLabel->size());
+
+    // 设置颜色
+    QPalette pa(ui->nicknameLabel->palette());
+    pa.setColor(QPalette::Foreground, cardColor.fg);
+    pa.setColor(QPalette::Text, cardColor.fg);
+    nameLabel->setPalette(pa);
+    edit->setPalette(pa);
+
+    // 设置昵称
+    nameLabel->setText(msg.displayNickname());
+
+    // 设置头像
+    // 用户头像API：http://q1.qlogo.cn/g?b=qq&nk=QQ号&s=100&t=
+    if (isFileExist(rt->userHeader(msg.senderId)))
+    {
+        headerLabel->setPixmap(NetImageUtil::toRoundedPixmap(QPixmap(rt->userHeader(msg.senderId)).scaled(headerLabel->size())));
+    }
+    else // 没有头像，联网获取
+    {
+        QString url = "http://q1.qlogo.cn/g?b=qq&nk=" + snum(msg.senderId) + "&s=100&t=";
+        QPixmap pixmap = NetImageUtil::loadNetPixmap(url);
+        if (!us->bannerUseHeaderColor)
+            pixmap = NetImageUtil::toRoundedPixmap(pixmap);
+        pixmap.save(rt->userHeader(msg.senderId));
+        headerLabel->setPixmap(NetImageUtil::toRoundedPixmap(pixmap.scaled(headerLabel->size())));
+    }
+
+    // 设置消息
+    edit->setMessage(msg);
+    edit->setTextColor(cardColor.fg);
+    QSize sz = edit->adjustSizeByTextWidth(us->bannerContentWidth - 12);
+    edit->resize(sz);
+    box->adjustSize();
+
+    // 设置列表项
+    QListWidgetItem* item = new QListWidgetItem(ui->listWidget);
+    ui->listWidget->setItemWidget(item, box);
+    item->setSizeHint(box->size());
+
+    int sumHeight = 0;
+    for (int i = 0; i < ui->listWidget->count(); i++)
+    {
+        auto widget = ui->listWidget->itemWidget(ui->listWidget->item(i));
+        sumHeight += widget->height();
+    }
+    ui->listWidget->setFixedHeight(qMin(sumHeight, us->bannerMaximumHeight));
+    this->adjustSize();
+
+    if (remain >= 0)
+    {
+        displayTimer->setInterval(remain);
+        displayTimer->start();
+        // 显示出来后会自动增加新message需要的时间，所以只要恢复就行了
+    }
 }
 
 bool NotificationCard::isPrivate() const

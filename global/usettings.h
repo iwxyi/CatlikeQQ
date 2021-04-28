@@ -39,6 +39,7 @@ public:
     int floatPixel = 500; // 按照这条边的绝对像素高度
 
     int bannerWidth = 300;  // 横幅的固定宽度
+    int bannerContentWidth = 214; // 内容的宽度：300-左9-头像32-间距6-右9-阴影12-列表18
     int bannerSpacing = 10; // 横幅之间的间距
     int bannerAnimationDuration = 300; // 横幅的动画时长
     int bannerShowEasingCurve = 6;     // 动画的曲线设定

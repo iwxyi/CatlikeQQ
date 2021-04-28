@@ -12,7 +12,7 @@ MessageEdit::MessageEdit(QWidget *parent) : QTextEdit(parent)
     setReadOnly(true);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setStyleSheet("QTextEdit{ background: transparent; border: none; padding: 0px; margin: 0px; }");
-    setWordWrapMode(QTextOption::WrapMode::WordWrap);
+    setWordWrapMode(QTextOption::WrapMode::WrapAnywhere);
 }
 
 /// 设置带有表情、图片等多种类型的Message
@@ -70,6 +70,7 @@ void MessageEdit::setMessage(const MsgBean& msg)
 
 QSize MessageEdit::adjustSizeByTextWidth(int w)
 {
+    setMaximumWidth(w);
     QTextDocument* doc = this->document();
     doc->setTextWidth(w);
     doc->adjustSize();
