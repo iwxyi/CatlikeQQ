@@ -68,7 +68,7 @@ void NotificationCard::setMsg(const MsgBean &msg)
     {
         ui->messageLabel->setText(showText);
     }
-    else
+    else // 设置单章图片
     {
         int maxWidth = us->bannerWidth;
         int maxHeight = us->bannerWidth/3;
@@ -121,6 +121,16 @@ void NotificationCard::setMsg(const MsgBean &msg)
     {
         displayTimer->setInterval(getReadDisplayDuration(msg.displayString().length()));
     }
+}
+
+void NotificationCard::setPrivateMsg(const MsgBean &msg)
+{
+
+}
+
+void NotificationCard::setGroupMsg(const MsgBean &msg)
+{
+
 }
 
 /**
@@ -212,7 +222,7 @@ void NotificationCard::showReplyEdit()
         ui->replyButton->setText("发送");
         ui->messageEdit->show();
         ui->messageEdit->setFocus();
-        ui->horizontalLayout_2->removeItem(ui->horizontalSpacer);
+        ui->replyHLayout->removeItem(ui->horizontalSpacer);
         // delete ui->horizontalSpacer;
     }
     else // 发送内容
@@ -224,7 +234,7 @@ void NotificationCard::showReplyEdit()
 void NotificationCard::hideReplyEdit()
 {
     ui->messageEdit->hide(); // 会触发 FocusOut 事件
-    ui->horizontalLayout_2->insertItem(0, ui->horizontalSpacer);
+    ui->replyHLayout->insertItem(0, ui->horizontalSpacer);
     ui->replyButton->setText("回复");
 }
 

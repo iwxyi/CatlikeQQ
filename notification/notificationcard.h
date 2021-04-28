@@ -56,6 +56,8 @@ private slots:
     void cardClicked();
 
 private:
+    void setPrivateMsg(const MsgBean& msg);
+    void setGroupMsg(const MsgBean& msg);
     int getReadDisplayDuration(int length) const;
     QPixmap toRoundedPixmap(const QPixmap& pixmap) const;
 

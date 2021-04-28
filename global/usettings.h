@@ -37,7 +37,7 @@ public:
 
     int bannerSpacing = 10; // 横幅之间的间距
     int bannerWidth = 300;  // 横幅的固定宽度
-    int bannerAnimationDuration = 300; // 横幅的动画时长
+    int bannerAnimationDuration = 100; // 横幅的动画时长
     int bannerShowEasingCurve = 6;     // 动画的曲线设定
     int bannerDisplayDuration = 7000;  // 横幅显示的时长
     int bannerReaderSpeed = 10; // 按字数增加时长，每秒钟看多少字
@@ -53,6 +53,7 @@ public:
     int bannerTitleLarger = 4; // 大标题（发送者/群名）变大
     int bannerSubTitleLarger= 2; // 二级标题（群聊的发送者）字体
     int bannerMessageAlpha = 255; // 消息透明度
+    int bannerMaxMsgCount = 10; // 同时最多显示10条消息
 };
 
 #endif // USERSETTINGS_H

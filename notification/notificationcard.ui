@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>300</width>
-    <height>97</height>
+    <height>112</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -29,7 +29,7 @@
     <number>21</number>
    </property>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <layout class="QHBoxLayout" name="mainHLayout">
      <item>
       <widget class="QLabel" name="headerLabel">
        <property name="maximumSize">
@@ -76,7 +76,7 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <layout class="QHBoxLayout" name="replyHLayout">
      <property name="topMargin">
       <number>0</number>
      </property>
