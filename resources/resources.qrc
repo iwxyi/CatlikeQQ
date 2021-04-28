@@ -22,7 +22,7 @@
         <file>icons/silent.png</file>
         <file>icons/debug.png</file>
     </qresource>
-    <qresource prefix="/qq-face">
+    <qresource prefix="/qq">
         <file>qq-face/0.gif</file>
         <file>qq-face/0.png</file>
         <file>qq-face/1.gif</file>

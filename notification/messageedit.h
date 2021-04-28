@@ -5,6 +5,8 @@
 #include <QLabel>
 #include "msgbean.h"
 
+#define MESSAGE_LABEL
+
 class MessageEdit : public QLabel
 {
     Q_OBJECT

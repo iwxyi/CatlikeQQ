@@ -60,6 +60,66 @@ NotificationCard::NotificationCard(QWidget *parent) :
     });
     connect(ui->messageEdit, SIGNAL(signalFocusOut()), this, SLOT(focusOut()));
     connect(bg, SIGNAL(clicked()), this, SLOT(cardClicked()));
+
+    // 样式表
+    QString qss = "/* 整个滚动条背景 */\
+                    QScrollBar:vertical\
+                    {\
+                        width:7px;\
+                        background:rgba(128,128,128,0%);\
+                        margin:0px,0px,0px,0px;\
+                        padding-top:0px;\
+                        padding-bottom:0px;\
+                    }\
+                    \
+                    /* 可以按的那一块背景 */\
+                    QScrollBar::handle:vertical\
+                    {\
+                        width:7px;\
+                        background:rgba(128, 128, 128, 64);\
+                        border-radius:3px;\
+                        min-height:20;\
+                    }\
+                    \
+                    /* 可以按的那一块鼠标悬浮 */\
+                    QScrollBar::handle:vertical:hover\
+                    {\
+                        width:7px;\
+                        background:rgba(128, 128, 128, 128);\
+                        border-radius:3px;\
+                        min-height:20;\
+                    }\
+                    \
+                    /* 可以按的那一块鼠标拖动 */\
+                    QScrollBar::handle:vertical:pressed\
+                    {\
+                        width:7px;\
+                        background:rgba(128, 128, 128, 64);\
+                        border-radius:3px;\
+                        min-height:20;\
+                    }\
+                    \
+                    QScrollBar::sub-line:vertical\
+                    {\
+                        height:9px;width:8px;\
+                        border-image:url(:/images/a/1.png);\
+                        subcontrol-position:top;\
+                    }\
+                    \
+                    QScrollBar::add-line:vertical\
+                    {\
+                        height:9px;width:8px;\
+                        border-image:url(:/images/a/3.png);\
+                        subcontrol-position:bottom;\
+                    }\
+                    \
+                    QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical\
+                    {\
+                        background:rgba(0,0,0,0%);\
+                        border-radius:3px;\
+                    }\
+        ";
+    ui->listWidget->verticalScrollBar()->setStyleSheet(qss);
 }
 
 NotificationCard::~NotificationCard()
