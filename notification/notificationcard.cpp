@@ -167,9 +167,6 @@ bool NotificationCard::append(const MsgBean &msg, int &delta)
 
     int h = height();
 
-    // 插入到自己的消息
-    msgs.append(msg);
-
     if (!msg.isGroup())
     {
         appendPrivateMsg(msg);
@@ -179,11 +176,8 @@ bool NotificationCard::append(const MsgBean &msg, int &delta)
         appendGroupMsg(msg);
     }
 
-    /* // 段落显示
-    QString s = msg.displayString();
-    s.replace("<", "&lt;").replace(">", "&gt;");
-    showText.append("<p>" + s + "</p>");
-    ui->messageLabel->setText(showText); */
+    // 插入到自己的消息
+    msgs.append(msg);
 
     // 调整显示时间
     if (displayTimer->isActive())

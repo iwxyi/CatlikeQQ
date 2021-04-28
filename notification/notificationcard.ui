@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>300</width>
-    <height>219</height>
+    <height>106</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -116,6 +116,9 @@
          </property>
          <property name="horizontalScrollMode">
           <enum>QAbstractItemView::ScrollPerPixel</enum>
+         </property>
+         <property name="spacing">
+          <number>2</number>
          </property>
          <property name="wordWrap">
           <bool>false</bool>
