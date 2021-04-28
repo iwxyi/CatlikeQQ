@@ -300,7 +300,7 @@ void NotificationCard::addNewEdit(const MsgBean& msg)
     }
 
     auto scrollbar = ui->listWidget->verticalScrollBar();
-    bool end = (scrollbar->sliderPosition() >= scrollbar->maximum());
+    bool ending = (scrollbar->sliderPosition() >= scrollbar->maximum());
 
     MessageEdit* edit = new MessageEdit(this);
     edit->setMessage(msg);
@@ -350,6 +350,10 @@ void NotificationCard::addNewBox(const MsgBean &msg)
     QVBoxLayout* headerVlayout = new QVBoxLayout;
     QVBoxLayout* contentVlayout = new QVBoxLayout;
     QHBoxLayout* mainHlayout = new QHBoxLayout(box);
+//    mainHlayout->addWidget(headerLabel);
+//    mainHlayout->addWidget(edit);
+//    mainHlayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
+
     headerVlayout->addWidget(headerLabel);
     headerVlayout->addWidget(spacer);
     headerVlayout->setStretch(0, 0);
@@ -361,7 +365,7 @@ void NotificationCard::addNewBox(const MsgBean &msg)
     mainHlayout->addLayout(headerVlayout);
     mainHlayout->addLayout(contentVlayout);
     mainHlayout->setStretch(0, 0);
-    mainHlayout->setStretch(1, 100);
+    mainHlayout->setStretch(1, 1);
     mainHlayout->setAlignment(Qt::AlignLeft);
     mainHlayout->setMargin(0);
 
@@ -405,7 +409,9 @@ void NotificationCard::addNewBox(const MsgBean &msg)
     edit->setMessage(msg);
     edit->setTextColor(cardColor.fg);
     QSize sz = edit->adjustSizeByTextWidth(us->bannerContentWidth - 12);
-    edit->setFixedSize(sz);
+    edit->resize(sz);
+    edit->setFixedHeight(sz.height());
+    box->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     box->adjustSize();
 
     // 设置列表项
@@ -466,7 +472,8 @@ void NotificationCard::addNewEdit2(const MsgBean &msg)
     edit->setMessage(msg);
     edit->setTextColor(cardColor.fg);
     QSize sz = edit->adjustSizeByTextWidth(us->bannerContentWidth - 12);
-    edit->setFixedSize(sz);
+    edit->resize(sz);
+    edit->setFixedHeight(sz.height());
     box->adjustSize();
 
     // 设置列表项

@@ -76,7 +76,7 @@ QSize MessageEdit::adjustSizeByTextWidth(int w)
     QTextDocument* doc = this->document();
     doc->setTextWidth(w);
     doc->adjustSize();
-    return (doc->size() + QSizeF(0, 0)).toSize();
+    return (doc->size() + QSizeF(4, 0)).toSize(); // 横向肯定要加
 }
 
 void MessageEdit::setTextColor(QColor c)
