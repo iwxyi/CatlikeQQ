@@ -4,9 +4,11 @@
 #include <QWidget>
 #include <QTimer>
 #include <QGraphicsDropShadowEffect>
+#include <QListWidgetItem>
 #include "interactivebuttonbase.h"
 #include "msgbean.h"
 #include "global.h"
+#include "messageedit.h"
 
 #define CREATE_SHADOW(x)                                                  \
 do {                                                                      \
@@ -43,7 +45,7 @@ public:
 signals:
     void signalToHide();
     void signalHided();
-    void signalReplyPrivate(qint64 userId, const QString& message);
+    void signalReplyPrivate(qint64 senderId, const QString& message);
     void signalReplyGroup(qint64 groupId, const QString& message);
 
 private slots:
@@ -54,12 +56,18 @@ private slots:
     void sendReply();
     void toHide();
     void cardClicked();
+    void on_listWidget_itemDoubleClicked(QListWidgetItem *item);
 
 private:
     void setPrivateMsg(const MsgBean& msg);
     void setGroupMsg(const MsgBean& msg);
+    void appendPrivateMsg(const MsgBean& msg);
+    void appendGroupMsg(const MsgBean& msg);
+    void addSingleSenderMsg(const MsgBean& msg);
+    void addNewEdit(const MsgBean &msg);
+    void addNewBox(const MsgBean &msg);
+    void addNewEdit2(const MsgBean &msg);
     int getReadDisplayDuration(int length) const;
-    QPixmap toRoundedPixmap(const QPixmap& pixmap) const;
 
 protected:
     void showEvent(QShowEvent *event) override;
@@ -69,7 +77,7 @@ protected:
 private:
     Ui::NotificationCard *ui;
 
-    qint64 userId = 0;
+    qint64 senderId = 0;
     qint64 groupId = 0;
     QList<MsgBean> msgs; // 可能会合并多条消息
     QString showText;
@@ -81,6 +89,7 @@ private:
     bool focusing = false;
     bool hidding = false;
     bool single = false;
+    AccountInfo::CardColor cardColor;
 };
 
 #endif // NOTIFICATIONCARD_H

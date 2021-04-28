@@ -6,6 +6,8 @@
 #include "usettings.h"
 #include "widgets/settings/accountwidget.h"
 #include "widgets/settings/debugwidget.h"
+#include "widgets/settings/groupwidget.h"
+#include "widgets/settings/bannerwidget.h"
 #include "myjson.h"
 #include "fileutil.h"
 #include "imageutil.h"
@@ -50,10 +52,11 @@ void MainWindow::initView()
 
     ui->settingsTabWidget->clear();
     ui->settingsTabWidget->addTab(new AccountWidget(service, this), QIcon("://icons/account.png"), "账号绑定");
-    ui->settingsTabWidget->addTab(new QWidget(), QIcon("://icons/group.png"), "群组消息");
-    ui->settingsTabWidget->addTab(new QWidget(), QIcon("://icons/care.png"), "特别关心");
-    ui->settingsTabWidget->addTab(new QWidget(), QIcon("://icons/banner.png"), "横幅通知");
+    ui->settingsTabWidget->addTab(new GroupWidget(this), QIcon("://icons/group.png"), "群组消息");
+    ui->settingsTabWidget->addTab(new BannerWidget(this), QIcon("://icons/banner.png"), "横幅通知");
+    ui->settingsTabWidget->addTab(new BannerWidget(this), QIcon("://icons/reply.png"), "通知回复");
     ui->settingsTabWidget->addTab(new QWidget(), QIcon("://icons/bubble.png"), "气泡样式");
+    ui->settingsTabWidget->addTab(new QWidget(), QIcon("://icons/care.png"), "特别关心");
     ui->settingsTabWidget->addTab(new QWidget(), QIcon("://icons/animation.png"), "动画调整");
     ui->settingsTabWidget->addTab(new QWidget(), QIcon("://icons/startup.png"), "程序启动");
 
@@ -176,11 +179,15 @@ void MainWindow::closeEvent(QCloseEvent *e)
 
 void MainWindow::showMessage(const MsgBean &msg)
 {
-    // 判断现有的有没有
+    // 判断是否需要显示
+    if (msg.isGroup() && !us->isGroupShow(msg.groupId)) // 群组消息开关
+        return ;
+
+    // 判断有没有现有的卡片
     int delta = 0;
     foreach (auto card, notificationCards)
     {
-        if (card->canMerge() && card->append(msg, delta))
+        if (card->append(msg, delta))
         {
             adjustUnderCardsTop(notificationCards.indexOf(card), delta);
             return ;
@@ -215,43 +222,6 @@ void MainWindow::createNotificationBanner(const MsgBean &msg)
     NotificationCard* card = new NotificationCard(nullptr);
     card->setMsg(msg);
     card->showFrom(startPos, showPos);
-
-    // 计算头像背景颜色
-    if (us->bannerBgColorByHeader)
-    {
-        CardColor co;
-
-        auto calcColor = [&]{
-            ImageUtil::getBgFgColor(ImageUtil::extractImageThemeColors(msg.header.toImage(), 2), &co.bg, &co.fg);
-        };
-
-        if (!msg.groupId)
-        {
-            if (userHeaderColor.contains(msg.senderId))
-            {
-                co = userHeaderColor.value(msg.senderId);
-            }
-            else
-            {
-                calcColor();
-                userHeaderColor.insert(msg.senderId, co);
-            }
-        }
-        else
-        {
-            if (groupHeaderColor.contains(msg.groupId))
-            {
-                co = groupHeaderColor.value(msg.groupId);
-            }
-            else
-            {
-                calcColor();
-                groupHeaderColor.insert(msg.groupId, co);
-            }
-        }
-
-        card->setColors(co.bg, co.fg);
-    }
 
     notificationCards.append(card);
     connect(card, &NotificationCard::signalHided, this, [=]{

@@ -27,6 +27,7 @@ INCLUDEPATH += third_party/color_octree/\
 
 SOURCES += \
     global/usettings.cpp \
+    notification/messageedit.cpp \
     web_service/cqhttpservice.cpp \
     third_party/color_octree/coloroctree.cpp \
     third_party/color_octree/imageutil.cpp \
@@ -43,13 +44,18 @@ SOURCES += \
     third_party/utils/stringutil.cpp \
     third_party/utils/textinputdialog.cpp \
     widgets/settings/accountwidget.cpp \
-    widgets/settings/debugwidget.cpp
+    widgets/settings/bannerwidget.cpp \
+    widgets/settings/debugwidget.cpp \
+    widgets/settings/groupwidget.cpp
 
 HEADERS += \
+    global/accountinfo.h \
     global/signaltransfer.h \
     global/usettings.h \
+    notification/messageedit.h \
     notification/replyedit.h \
     third_party/utils/mysettings.h \
+    third_party/utils/netimageutil.h \
     web_service/cqhttpservice.h \
     third_party/color_octree/coloroctree.h \
     third_party/third_party/color_octree/imageutil.h \
@@ -72,7 +78,9 @@ HEADERS += \
     widgets/customtabstyle.h \
     widgets/lefttabwidget.h \
     widgets/settings/accountwidget.h \
-    widgets/settings/debugwidget.h
+    widgets/settings/bannerwidget.h \
+    widgets/settings/debugwidget.h \
+    widgets/settings/groupwidget.h
 
 FORMS += \
     mainwindow.ui \
@@ -80,7 +88,9 @@ FORMS += \
     notification/notificationcard.ui \
     third_party/utils/textinputdialog.ui \
     widgets/settings/accountwidget.ui \
-    widgets/settings/debugwidget.ui
+    widgets/settings/bannerwidget.ui \
+    widgets/settings/debugwidget.ui \
+    widgets/settings/groupwidget.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

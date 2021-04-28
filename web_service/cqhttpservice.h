@@ -5,7 +5,6 @@
 #include <QtWebSockets/QWebSocket>
 #include <QHash>
 #include "global.h"
-#include "usettings.h"
 #include "msgbean.h"
 
 #define SKT_DEB if (1) qDebug()
@@ -36,22 +35,10 @@ private:
     void parseGroupMessage(const MyJson& json);
     void parseGroupUpload(const MyJson& json);
 
-public:
-    MsgBean &parseMsgDisplay(MsgBean& msg);
-    QPixmap loadNetPixmap(QString url) const;
-    void saveNetImage(QString url, QString path);
-    QPixmap toRoundedPixmap(const QPixmap& pixmap) const;
-
 private:
     QWebSocket* socket = nullptr;
 
-    qint64 myId = 0; // 自己的QQ号
-    QString myNickname; // 自己的昵称
-    QHash<qint64, QString> userNames; // 好友列表
-    QHash<qint64, QString> groupNames; // 群列表
-    QHash<qint64, QHash<qint64, QString>> groupMemberNames; // 群成员名字
-    mutable QHash<qint64, QPixmap> userHeaders;
-    mutable QHash<qint64, QPixmap> groupHeaders;
+
 };
 
 #endif // CQHTTPSERVICE_H
