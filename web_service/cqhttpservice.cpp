@@ -7,6 +7,7 @@
 #include "cqhttpservice.h"
 #include "myjson.h"
 #include "fileutil.h"
+#include "netimageutil.h"
 
 CqhttpService::CqhttpService(QObject *parent) : QObject(parent)
 {
@@ -246,43 +247,6 @@ MsgBean& CqhttpService::parseMsgDisplay(MsgBean &msg)
     QRegularExpression re;
     QRegularExpressionMatch match;
 
-    // 头像
-    // 用户头像API：http://q1.qlogo.cn/g?b=qq&nk=QQ号&s=100&t=
-    // 群头像API：https://p.qlogo.cn/gh/群号/群号/100
-    if (!msg.groupId)
-    {
-        if (isFileExist(rt->userHeader(msg.senderId)))
-        {
-            msg.userHeader = QPixmap(rt->userHeader(msg.senderId));
-        }
-        else // 没有头像，联网获取
-        {
-            QString url = "http://q1.qlogo.cn/g?b=qq&nk=" + snum(msg.senderId) + "&s=100&t=";
-            QPixmap pixmap = loadNetPixmap(url);
-            if (!us->bannerUseHeaderColor)
-                pixmap = toRoundedPixmap(pixmap);
-            msg.userHeader = pixmap;
-            pixmap.save(rt->userHeader(msg.senderId));
-        }
-    }
-    else
-    {
-        if (us->isGroupShow(msg.groupId))
-        {
-            if (isFileExist(rt->groupHeader(msg.groupId)))
-            {
-                msg.userHeader = QPixmap(rt->groupHeader(msg.groupId));
-            }
-            else
-            {
-                QString url = "https://p.qlogo.cn/gh/" + snum(msg.groupId) + "/" + snum(msg.groupId) + "/100";
-                QPixmap pixmap = loadNetPixmap(url);
-                msg.groupHeader = pixmap;
-                pixmap.save(rt->groupHeader(msg.groupId));
-            }
-        }
-    }
-
     // #替换CQ
     // 文件
     if (!msg.fileId.isEmpty())
@@ -302,7 +266,7 @@ MsgBean& CqhttpService::parseMsgDisplay(MsgBean &msg)
             QString id = match.captured(1);
             QString url = match.captured(2);
             QString path = rt->imageCache(id);
-            saveNetImage(url, path);
+            NetImageUtil::saveNetImage(url, path);
             msg.imageId = id;
             text = "[图片]";
         }
@@ -327,53 +291,4 @@ MsgBean& CqhttpService::parseMsgDisplay(MsgBean &msg)
 
     msg.display = text;
     return msg;
-}
-
-QPixmap CqhttpService::loadNetPixmap(QString url) const
-{
-    QNetworkAccessManager manager;
-    QEventLoop loop;
-    QNetworkReply *reply = manager.get(QNetworkRequest(url));
-    //请求结束并下载完成后，退出子事件循环
-    connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
-    //开启子事件循环
-    loop.exec();
-    QByteArray jpegData = reply->readAll();
-    QPixmap pixmap;
-    pixmap.loadFromData(jpegData);
-    return pixmap;
-}
-
-/// 保存网络图片
-/// 因为不一定是静态图片，所以没法使用 QPixmap
-void CqhttpService::saveNetImage(QString url, QString path)
-{
-    QNetworkAccessManager manager;
-    QEventLoop loop;
-    QNetworkReply *reply = manager.get(QNetworkRequest(url));
-    //请求结束并下载完成后，退出子事件循环
-    connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
-    //开启子事件循环
-    loop.exec();
-    QByteArray data = reply->readAll();
-    QFile file(path);
-    file.open(QIODevice::WriteOnly);
-    file.write(data);
-    file.close();
-}
-
-QPixmap CqhttpService::toRoundedPixmap(const QPixmap &pixmap) const
-{
-    QPixmap dest(pixmap.size());
-    dest.fill(Qt::transparent);
-    QPainter painter(&dest);
-    painter.setRenderHint(QPainter::Antialiasing, true);
-    painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
-    QRect rect = QRect(0, 0, pixmap.width(), pixmap.height());
-    int radius = qMin(rect.width(), rect.height())/2;
-    QPainterPath path;
-    path.addRoundedRect(rect, radius, radius);
-    painter.setClipPath(path);
-    painter.drawPixmap(rect, pixmap);
-    return dest;
 }

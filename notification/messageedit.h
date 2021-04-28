@@ -2,6 +2,7 @@
 #define MESSAGEEDIT_H
 
 #include <QTextEdit>
+#include "msgbean.h"
 
 class MessageEdit : public QTextEdit
 {
@@ -9,7 +10,9 @@ class MessageEdit : public QTextEdit
 public:
     explicit MessageEdit(QWidget *parent = nullptr);
 
-    void setMessage(QString text);
+    void setMessage(const MsgBean &msg);
+
+    QSize adjustSizeByTextWidth(int w);
 
 signals:
 

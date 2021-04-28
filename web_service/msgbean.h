@@ -21,8 +21,6 @@ struct MsgBean
     QString fileName;
     qint64 fileSize;
 
-    QPixmap userHeader; // 头像
-    QPixmap groupHeader; // 群组头像
     QString display; // 显示的纯文本
 
     QString imageId; // 显示唯一图片（不一定有）

@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QTimer>
 #include <QGraphicsDropShadowEffect>
+#include <QListWidgetItem>
 #include "interactivebuttonbase.h"
 #include "msgbean.h"
 #include "global.h"
@@ -55,14 +56,16 @@ private slots:
     void toHide();
     void cardClicked();
 
+    void on_listWidget_itemDoubleClicked(QListWidgetItem *item);
+
 private:
     void setPrivateMsg(const MsgBean& msg);
     void setGroupMsg(const MsgBean& msg);
     void appendPrivateMsg(const MsgBean& msg);
     void appendGroupMsg(const MsgBean& msg);
     void addSingleSenderMsg(const MsgBean& msg);
+    void setBgColorByHeader(const QPixmap& pixmap);
     int getReadDisplayDuration(int length) const;
-    QPixmap toRoundedPixmap(const QPixmap& pixmap) const;
 
 protected:
     void showEvent(QShowEvent *event) override;

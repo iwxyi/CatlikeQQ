@@ -21,12 +21,6 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow() override;
 
-    struct CardColor
-    {
-        QColor bg;
-        QColor fg;
-    };
-
 private slots:
     void trayAction(QSystemTrayIcon::ActivationReason reason);
     void on_sideButtons_currentRowChanged(int currentRow);
@@ -54,7 +48,5 @@ private:
 
     QList<NotificationCard*> notificationCards;
     QList<NotificationBubble*> notificationBubbles;
-    QHash<qint64, CardColor> userHeaderColor;
-    QHash<qint64, CardColor> groupHeaderColor;
 };
 #endif // MAINWINDOW_H

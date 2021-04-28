@@ -5,6 +5,10 @@
 #include <QDesktopServices>
 #include "notificationcard.h"
 #include "ui_notificationcard.h"
+#include "global.h"
+#include "netimageutil.h"
+#include "fileutil.h"
+#include "imageutil.h"
 
 NotificationCard::NotificationCard(QWidget *parent) :
     QWidget(parent),
@@ -22,7 +26,7 @@ NotificationCard::NotificationCard(QWidget *parent) :
 
     ui->headerLabel->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     ui->nicknameLabel->setAttribute(Qt::WA_TransparentForMouseEvents, true);
-    ui->messageLabel->setAttribute(Qt::WA_TransparentForMouseEvents, true);
+    // ui->listWidget->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     ui->replyButton->setRadius(us->bannerBgRadius);
     ui->messageEdit->hide();
     connect(ui->replyButton, SIGNAL(clicked()), this, SLOT(showReplyEdit()));
@@ -118,8 +122,6 @@ void NotificationCard::setMsg(const MsgBean &msg)
         single = true; // 不允许合并（因为没法合并啊……）
     } */
 
-    ui->headerLabel->setPixmap(toRoundedPixmap(msg.userHeader));
-
     // 设置大小
     setFixedWidth(us->bannerWidth);
     this->layout()->activate();
@@ -175,39 +177,122 @@ bool NotificationCard::append(const MsgBean &msg, int &delta)
     return true;
 }
 
+/// 设置第一个私聊消息
 void NotificationCard::setPrivateMsg(const MsgBean &msg)
 {
     // 设置标题
     ui->nicknameLabel->setText(msg.displayNickname());
-    ui->headerLabel->setPixmap(msg.userHeader);
+
+    // 设置头像
+    // 用户头像API：http://q1.qlogo.cn/g?b=qq&nk=QQ号&s=100&t=
+    if (isFileExist(rt->userHeader(msg.senderId)))
+    {
+        ui->headerLabel->setPixmap(NetImageUtil::toRoundedPixmap(QPixmap(rt->userHeader(msg.senderId))));
+    }
+    else // 没有头像，联网获取
+    {
+        QString url = "http://q1.qlogo.cn/g?b=qq&nk=" + snum(msg.senderId) + "&s=100&t=";
+        QPixmap pixmap = NetImageUtil::loadNetPixmap(url);
+        if (!us->bannerUseHeaderColor)
+            pixmap = NetImageUtil::toRoundedPixmap(pixmap);
+        pixmap.save(rt->userHeader(msg.senderId));
+        ui->headerLabel->setPixmap(pixmap);
+    }
+
+    // 设置背景颜色
+    if (us->bannerUseHeaderColor)
+    {
+        AccountInfo::CardColor co;
+        if (ac->userHeaderColor.contains(msg.senderId))
+            co = ac->userHeaderColor.value(msg.senderId);
+        else
+            ImageUtil::getBgFgColor(ImageUtil::extractImageThemeColors(ui->headerLabel->pixmap()->toImage(), 2), &co.bg, &co.fg);
+        setColors(co.bg, co.fg);
+    }
 
     // 设置消息
+    MessageEdit* edit = new MessageEdit(this);
+    edit->setMessage(msg);
+    QListWidgetItem* item = new QListWidgetItem(ui->listWidget);
+    ui->listWidget->setItemWidget(item, edit);
 
+    // 根据消息调整高度
+    QSize sz = edit->adjustSizeByTextWidth(ui->nicknameLabel->width());
+    edit->resize(sz);
+    item->setSizeHint(sz);
+    ui->listWidget->setMinimumHeight(qMin(sz.height(), us->bannerMaximumHeight));
+    ui->listWidget->setMaximumHeight(us->bannerMaximumHeight);
+    ui->listWidget->setFixedHeight(sz.height());
+    this->adjustSize();
 }
 
+/// 设置第一个群聊消息
 void NotificationCard::setGroupMsg(const MsgBean &msg)
 {
     // 设置标题
     ui->nicknameLabel->setText(msg.groupName);
-    ui->headerLabel->setPixmap(msg.groupHeader);
+
+    // 设置头像
+    // 群头像API：https://p.qlogo.cn/gh/群号/群号/100
+    if (us->isGroupShow(msg.groupId))
+    {
+        if (isFileExist(rt->groupHeader(msg.groupId)))
+        {
+            ui->headerLabel->setPixmap(NetImageUtil::toRoundedPixmap(QPixmap(rt->groupHeader(msg.groupId))));
+        }
+        else
+        {
+            QString url = "https://p.qlogo.cn/gh/" + snum(msg.groupId) + "/" + snum(msg.groupId) + "/100";
+            QPixmap pixmap = NetImageUtil::loadNetPixmap(url);
+            pixmap.save(rt->groupHeader(msg.groupId));
+            ui->headerLabel->setPixmap(pixmap);
+        }
+    }
+
+    // 设置背景颜色
+    if (us->bannerUseHeaderColor)
+    {
+        AccountInfo::CardColor co;
+        if (ac->groupHeaderColor.contains(msg.groupId))
+            co = ac->groupHeaderColor.value(msg.groupId);
+        else
+            ImageUtil::getBgFgColor(ImageUtil::extractImageThemeColors(ui->headerLabel->pixmap()->toImage(), 2), &co.bg, &co.fg);
+        setColors(co.bg, co.fg);
+    }
 
     // 设置消息
 }
 
+/// 添加一个私聊消息
 void NotificationCard::appendPrivateMsg(const MsgBean &msg)
 {
-
+    MessageEdit* edit = new MessageEdit(this);
+    edit->setMessage(msg);
+    QListWidgetItem* item = new QListWidgetItem(ui->listWidget);
+    ui->listWidget->setItemWidget(item, edit);
 }
 
+/// 添加一个群组消息，每条都有可能是独立的头像、昵称（二级标题）
 void NotificationCard::appendGroupMsg(const MsgBean &msg)
 {
 
 }
 
-/// 一个卡片只显示一个人的情况
+/// 一个卡片只显示一个人的消息的情况
 void NotificationCard::addSingleSenderMsg(const MsgBean &msg)
 {
 
+}
+
+/// 根据头像设置为对应的背景颜色
+void NotificationCard::setBgColorByHeader(const QPixmap &pixmap)
+{
+    if (!us->bannerUseHeaderColor)
+        return ;
+
+    AccountInfo::CardColor co;
+    ImageUtil::getBgFgColor(ImageUtil::extractImageThemeColors(pixmap.toImage(), 2), &co.bg, &co.fg);
+    setColors(co.bg, co.fg);
 }
 
 bool NotificationCard::isPrivate() const
@@ -285,8 +370,7 @@ void NotificationCard::sendReply()
     }
 
     // 加到消息框中
-    showText.append("<p>>" + text + "</p>");
-    ui->messageLabel->setText(showText);
+    // TODO: 添加自己的消息
     ui->messageEdit->clear();
 
     // 关闭对话框
@@ -322,7 +406,7 @@ void NotificationCard::setColors(QColor bg, QColor fg)
     pa.setColor(QPalette::Foreground, fg);
     pa.setColor(QPalette::Text, fg);
     ui->nicknameLabel->setPalette(pa);
-    ui->messageLabel->setPalette(pa);
+    ui->listWidget->setPalette(pa);
     ui->messageEdit->setPalette(pa);
     ui->replyButton->setTextColor(fg);
 }
@@ -365,22 +449,6 @@ int NotificationCard::getReadDisplayDuration(int length) const
     return us->bannerDisplayDuration + (length * 1000 / us->bannerTextReadSpeed);
 }
 
-QPixmap NotificationCard::toRoundedPixmap(const QPixmap &pixmap) const
-{
-    QPixmap dest(pixmap.size());
-    dest.fill(Qt::transparent);
-    QPainter painter(&dest);
-    painter.setRenderHint(QPainter::Antialiasing, true);
-    painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
-    QRect rect = QRect(0, 0, pixmap.width(), pixmap.height());
-    int radius = qMin(rect.width(), rect.height())/2;
-    QPainterPath path;
-    path.addRoundedRect(rect, radius, radius);
-    painter.setClipPath(path);
-    painter.drawPixmap(rect, pixmap);
-    return dest;
-}
-
 void NotificationCard::showEvent(QShowEvent *event)
 {
     QWidget::showEvent(event);
@@ -396,4 +464,13 @@ void NotificationCard::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent(event);
     bg->resize(event->size() - QSize(us->bannerBgShadow, us->bannerBgShadow));
+}
+
+void NotificationCard::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
+{
+    int row = ui->listWidget->row(item);
+    const MsgBean msg = msgs.at(row);
+    // 如果是图片
+
+    // 如果是文件
 }

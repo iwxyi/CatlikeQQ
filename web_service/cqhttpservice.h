@@ -37,9 +37,6 @@ private:
 
 public:
     MsgBean &parseMsgDisplay(MsgBean& msg);
-    QPixmap loadNetPixmap(QString url) const;
-    void saveNetImage(QString url, QString path);
-    QPixmap toRoundedPixmap(const QPixmap& pixmap) const;
 
 private:
     QWebSocket* socket = nullptr;

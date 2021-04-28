@@ -49,7 +49,8 @@ public:
     bool bannerUseHeaderColor = true; // 使用头像颜色填充背景颜色
     int bannerBgRadius = 5; // 圆角大小
     int bannerBgShadow = 12; // 阴影大小，右下角会空出这么多的margin
-    int msgMaxLength = 300; // 消息最大长度
+    int msgMaxLength = 100; // 消息最大长度
+    int bannerMaximumHeight = 150; // 内容最大像素高度
 
     bool bannerSingleSender = false; // 当个横幅卡片只放同一个人的消息
     bool bannerShowImages = true;

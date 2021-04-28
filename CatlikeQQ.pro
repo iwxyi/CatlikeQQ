@@ -55,6 +55,7 @@ HEADERS += \
     notification/messageedit.h \
     notification/replyedit.h \
     third_party/utils/mysettings.h \
+    third_party/utils/netimageutil.h \
     web_service/cqhttpservice.h \
     third_party/color_octree/coloroctree.h \
     third_party/third_party/color_octree/imageutil.h \
