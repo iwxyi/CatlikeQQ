@@ -16,6 +16,7 @@ MessageEdit::MessageEdit(QWidget *parent) : QTextEdit(parent)
 }
 
 /// 设置带有表情、图片等多种类型的Message
+/// 设置动图表情的方法：https://blog.csdn.net/qq_46495964/article/details/113795814
 void MessageEdit::setMessage(const MsgBean& msg)
 {
     QString text = msg.message;
@@ -73,5 +74,13 @@ QSize MessageEdit::adjustSizeByTextWidth(int w)
     doc->setTextWidth(w);
     doc->adjustSize();
     return (doc->size() + QSizeF(4, 4)).toSize();
+}
+
+void MessageEdit::setTextColor(QColor c)
+{
+    QPalette pa(this->palette());
+    pa.setColor(QPalette::Foreground, c);
+    pa.setColor(QPalette::Text, c);
+    setPalette(pa);
 }
 

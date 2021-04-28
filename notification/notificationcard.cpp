@@ -29,6 +29,10 @@ NotificationCard::NotificationCard(QWidget *parent) :
     // ui->listWidget->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     ui->replyButton->setRadius(us->bannerBgRadius);
     ui->messageEdit->hide();
+    ui->listWidget->setFixedHeight(0);
+    ui->listWidget->setMinimumHeight(0);
+    ui->listWidget->setMaximumHeight(us->bannerMaximumHeight);
+
     connect(ui->replyButton, SIGNAL(clicked()), this, SLOT(showReplyEdit()));
     connect(ui->messageEdit, SIGNAL(returnPressed()), this, SLOT(sendReply()));
 
@@ -202,22 +206,15 @@ void NotificationCard::setPrivateMsg(const MsgBean &msg)
     // 设置背景颜色
     if (us->bannerUseHeaderColor)
     {
-        AccountInfo::CardColor co;
         if (ac->userHeaderColor.contains(msg.senderId))
-            co = ac->userHeaderColor.value(msg.senderId);
+            cardColor = ac->userHeaderColor.value(msg.senderId);
         else
-            ImageUtil::getBgFgColor(ImageUtil::extractImageThemeColors(ui->headerLabel->pixmap()->toImage(), 2), &co.bg, &co.fg);
-        setColors(co.bg, co.fg);
+            ImageUtil::getBgFgColor(ImageUtil::extractImageThemeColors(ui->headerLabel->pixmap()->toImage(), 2), &cardColor.bg, &cardColor.fg);
+        setColors(cardColor.bg, cardColor.fg);
     }
 
-    // 设置消息
-    MessageEdit* edit = new MessageEdit(this);
-    edit->setMessage(msg);
-    QListWidgetItem* item = new QListWidgetItem(ui->listWidget);
-    ui->listWidget->setItemWidget(item, edit);
-
-    // 根据消息调整高度
-    adjustSizeByNewEdit(edit, item);
+    // 添加消息
+    addNewEdit(msg);
 }
 
 /// 设置第一个群聊消息
@@ -246,31 +243,21 @@ void NotificationCard::setGroupMsg(const MsgBean &msg)
     // 设置背景颜色
     if (us->bannerUseHeaderColor)
     {
-        AccountInfo::CardColor co;
         if (ac->groupHeaderColor.contains(msg.groupId))
-            co = ac->groupHeaderColor.value(msg.groupId);
+            cardColor = ac->groupHeaderColor.value(msg.groupId);
         else
-            ImageUtil::getBgFgColor(ImageUtil::extractImageThemeColors(ui->headerLabel->pixmap()->toImage(), 2), &co.bg, &co.fg);
-        setColors(co.bg, co.fg);
+            ImageUtil::getBgFgColor(ImageUtil::extractImageThemeColors(ui->headerLabel->pixmap()->toImage(), 2), &cardColor.bg, &cardColor.fg);
+        setColors(cardColor.bg, cardColor.fg);
     }
 
-    // 设置消息
-    MessageEdit* edit = new MessageEdit(this);
-    edit->setMessage(msg);
-    QListWidgetItem* item = new QListWidgetItem(ui->listWidget);
-    ui->listWidget->setItemWidget(item, edit);
-
     // 根据消息调整高度
-    adjustSizeByNewEdit(edit, item);
+    addNewEdit(msg);
 }
 
 /// 添加一个私聊消息
 void NotificationCard::appendPrivateMsg(const MsgBean &msg)
 {
-    MessageEdit* edit = new MessageEdit(this);
-    edit->setMessage(msg);
-    QListWidgetItem* item = new QListWidgetItem(ui->listWidget);
-    ui->listWidget->setItemWidget(item, edit);
+    addNewEdit(msg);
 }
 
 /// 添加一个群组消息，每条都有可能是独立的头像、昵称（二级标题）
@@ -296,14 +283,27 @@ void NotificationCard::setBgColorByHeader(const QPixmap &pixmap)
     setColors(co.bg, co.fg);
 }
 
-void NotificationCard::adjustSizeByNewEdit(MessageEdit *edit, QListWidgetItem* item)
+void NotificationCard::addNewEdit(const MsgBean& msg)
 {
+    MessageEdit* edit = new MessageEdit(this);
+    edit->setMessage(msg);
+    edit->setTextColor(cardColor.fg);
+
+    QListWidgetItem* item = new QListWidgetItem(ui->listWidget);
+    ui->listWidget->setItemWidget(item, edit);
+
     QSize sz = edit->adjustSizeByTextWidth(ui->nicknameLabel->width());
     edit->resize(sz);
     item->setSizeHint(sz);
-    ui->listWidget->setMinimumHeight(qMin(sz.height(), us->bannerMaximumHeight));
-    ui->listWidget->setMaximumHeight(us->bannerMaximumHeight);
-    ui->listWidget->setFixedHeight(sz.height());
+
+    int sumHeight = 0;
+    for (int i = 0; i < ui->listWidget->count(); i++)
+    {
+        auto widget = ui->listWidget->itemWidget(ui->listWidget->item(i));
+        sumHeight += widget->height();
+    }
+    ui->listWidget->setFixedHeight(sumHeight);
+
     this->adjustSize();
 }
 

@@ -14,6 +14,8 @@ public:
 
     QSize adjustSizeByTextWidth(int w);
 
+    void setTextColor(QColor c);
+
 signals:
 
 public slots:

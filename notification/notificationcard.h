@@ -64,7 +64,7 @@ private:
     void appendGroupMsg(const MsgBean& msg);
     void addSingleSenderMsg(const MsgBean& msg);
     void setBgColorByHeader(const QPixmap& pixmap);
-    void adjustSizeByNewEdit(MessageEdit* edit, QListWidgetItem *item);
+    void addNewEdit(const MsgBean &msg);
     int getReadDisplayDuration(int length) const;
 
 protected:
@@ -86,6 +86,7 @@ private:
     bool focusing = false;
     bool hidding = false;
     bool single = false;
+    AccountInfo::CardColor cardColor;
 };
 
 #endif // NOTIFICATIONCARD_H
