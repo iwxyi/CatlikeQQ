@@ -181,7 +181,7 @@ void MainWindow::showMessage(const MsgBean &msg)
     int delta = 0;
     foreach (auto card, notificationCards)
     {
-        if (card->canMerge() && card->append(msg, delta))
+        if (card->append(msg, delta))
         {
             adjustUnderCardsTop(notificationCards.indexOf(card), delta);
             return ;

@@ -3,6 +3,7 @@
 #include <QPainterPath>
 #include <QMovie>
 #include <QDesktopServices>
+#include <QScrollBar>
 #include "notificationcard.h"
 #include "ui_notificationcard.h"
 #include "global.h"
@@ -29,6 +30,10 @@ NotificationCard::NotificationCard(QWidget *parent) :
     // ui->listWidget->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     ui->replyButton->setRadius(us->bannerBgRadius);
     ui->messageEdit->hide();
+
+    QFont font;
+    font.setPointSize(font.pointSize() + 2);
+    ui->nicknameLabel->setFont(font);
 
     ui->listWidget->setFixedHeight(0);
     ui->listWidget->setMinimumHeight(0);
@@ -64,7 +69,7 @@ NotificationCard::~NotificationCard()
 
 void NotificationCard::setMsg(const MsgBean &msg)
 {
-    this->userId = msg.senderId;
+    this->senderId = msg.senderId;
     this->groupId = msg.groupId;
     msgs.append(msg);
 
@@ -147,7 +152,9 @@ void NotificationCard::setMsg(const MsgBean &msg)
  */
 bool NotificationCard::append(const MsgBean &msg, int &delta)
 {
-    if (this->userId != msg.senderId || this->groupId != msg.groupId)
+    if (this->groupId != msg.groupId)
+        return false;
+    if (this->isPrivate() && this->senderId != msg.senderId)
         return false;
 
     int h = height();
@@ -273,24 +280,13 @@ void NotificationCard::appendGroupMsg(const MsgBean &msg)
     if (!msgs.size() || msgs.last().senderId != msg.senderId)
         addNewBox(msg);
     else
-        addNewEdit(msg);
+        addNewEdit2(msg);
 }
 
 /// 一个卡片只显示一个人的消息的情况
 void NotificationCard::addSingleSenderMsg(const MsgBean &msg)
 {
     addNewEdit(msg);
-}
-
-/// 根据头像设置为对应的背景颜色
-void NotificationCard::setBgColorByHeader(const QPixmap &pixmap)
-{
-    if (!us->bannerUseHeaderColor)
-        return ;
-
-    AccountInfo::CardColor co;
-    ImageUtil::getBgFgColor(ImageUtil::extractImageThemeColors(pixmap.toImage(), 2), &co.bg, &co.fg);
-    setColors(co.bg, co.fg);
 }
 
 void NotificationCard::addNewEdit(const MsgBean& msg)
@@ -302,6 +298,9 @@ void NotificationCard::addNewEdit(const MsgBean& msg)
         remain = displayTimer->remainingTime();
         displayTimer->stop();
     }
+
+    auto scrollbar = ui->listWidget->verticalScrollBar();
+    bool end = (scrollbar->sliderPosition() >= scrollbar->maximum());
 
     MessageEdit* edit = new MessageEdit(this);
     edit->setMessage(msg);
@@ -322,7 +321,8 @@ void NotificationCard::addNewEdit(const MsgBean& msg)
     }
     ui->listWidget->setFixedHeight(qMin(sumHeight, us->bannerMaximumHeight));
     this->adjustSize();
-    qDebug() << sz << edit->document()->size() << edit->size() << item->sizeHint() << ui->listWidget->size();
+
+    // 回复时钟
     if (remain >= 0)
     {
         displayTimer->setInterval(remain);
@@ -363,12 +363,17 @@ void NotificationCard::addNewBox(const MsgBean &msg)
     mainHlayout->setStretch(0, 0);
     mainHlayout->setStretch(1, 100);
     mainHlayout->setAlignment(Qt::AlignLeft);
+    mainHlayout->setMargin(0);
 
     spacer->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     headerLabel->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     nameLabel->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     spacer->setFixedWidth(1);
     headerLabel->setFixedSize(ui->headerLabel->size());
+
+    QFont font;
+    font.setPointSize(font.pointSize() + 1);
+    nameLabel->setFont(font);
 
     // 设置颜色
     QPalette pa(ui->nicknameLabel->palette());
@@ -400,7 +405,7 @@ void NotificationCard::addNewBox(const MsgBean &msg)
     edit->setMessage(msg);
     edit->setTextColor(cardColor.fg);
     QSize sz = edit->adjustSizeByTextWidth(us->bannerContentWidth - 12);
-    edit->resize(sz);
+    edit->setFixedSize(sz);
     box->adjustSize();
 
     // 设置列表项
@@ -417,6 +422,68 @@ void NotificationCard::addNewBox(const MsgBean &msg)
     ui->listWidget->setFixedHeight(qMin(sumHeight, us->bannerMaximumHeight));
     this->adjustSize();
 
+    // 回复时钟
+    if (remain >= 0)
+    {
+        displayTimer->setInterval(remain);
+        displayTimer->start();
+        // 显示出来后会自动增加新message需要的时间，所以只要恢复就行了
+    }
+}
+
+/// 仅显示编辑框，不显示头像
+/// 但是头像的占位还在的
+void NotificationCard::addNewEdit2(const MsgBean &msg)
+{
+    // 先暂停时钟（获取图片有延迟）
+    int remain = -1;
+    if (displayTimer->isActive())
+    {
+        remain = displayTimer->remainingTime();
+        displayTimer->stop();
+    }
+
+    QWidget* box = new QWidget(this);
+    QLabel* headerLabel = new QLabel(box);
+    MessageEdit* edit = new MessageEdit(box);
+    QHBoxLayout* mainHlayout = new QHBoxLayout(box);
+    headerLabel->setFixedSize(ui->headerLabel->width(), 1);
+    headerLabel->setAttribute(Qt::WA_TransparentForMouseEvents, true);
+    mainHlayout->addWidget(headerLabel);
+    mainHlayout->addWidget(edit);
+    mainHlayout->setStretch(0, 0);
+    mainHlayout->setStretch(1, 1);
+    mainHlayout->setAlignment(Qt::AlignLeft);
+    mainHlayout->setMargin(0);
+
+    // 设置颜色
+    QPalette pa(ui->nicknameLabel->palette());
+    pa.setColor(QPalette::Foreground, cardColor.fg);
+    pa.setColor(QPalette::Text, cardColor.fg);
+    edit->setPalette(pa);
+
+    // 设置消息
+    edit->setMessage(msg);
+    edit->setTextColor(cardColor.fg);
+    QSize sz = edit->adjustSizeByTextWidth(us->bannerContentWidth - 12);
+    edit->setFixedSize(sz);
+    box->adjustSize();
+
+    // 设置列表项
+    QListWidgetItem* item = new QListWidgetItem(ui->listWidget);
+    ui->listWidget->setItemWidget(item, box);
+    item->setSizeHint(box->size());
+
+    int sumHeight = 0;
+    for (int i = 0; i < ui->listWidget->count(); i++)
+    {
+        auto widget = ui->listWidget->itemWidget(ui->listWidget->item(i));
+        sumHeight += widget->height();
+    }
+    ui->listWidget->setFixedHeight(qMin(sumHeight, us->bannerMaximumHeight));
+    this->adjustSize();
+
+    // 回复时钟
     if (remain >= 0)
     {
         displayTimer->setInterval(remain);
@@ -489,8 +556,8 @@ void NotificationCard::sendReply()
         return ;
 
     // 回复消息
-    if (!groupId && userId)
-        emit signalReplyPrivate(userId, text);
+    if (!groupId && senderId)
+        emit signalReplyPrivate(senderId, text);
     else if (groupId)
         emit signalReplyGroup(groupId, text);
     else
@@ -535,7 +602,8 @@ void NotificationCard::setColors(QColor bg, QColor fg)
     QPalette pa(ui->nicknameLabel->palette());
     pa.setColor(QPalette::Foreground, fg);
     pa.setColor(QPalette::Text, fg);
-    ui->nicknameLabel->setPalette(pa);
+    ui->nicknameLabel->setPalette(pa); // 不知道为什么没有用
+    ui->nicknameLabel->setStyleSheet("color: " + QVariant(cardColor.fg).toString() + ";");
     ui->listWidget->setPalette(pa);
     ui->messageEdit->setPalette(pa);
     ui->replyButton->setTextColor(fg);
