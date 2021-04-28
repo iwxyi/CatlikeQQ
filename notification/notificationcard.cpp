@@ -196,7 +196,7 @@ void NotificationCard::setPrivateMsg(const MsgBean &msg)
         if (!us->bannerUseHeaderColor)
             pixmap = NetImageUtil::toRoundedPixmap(pixmap);
         pixmap.save(rt->userHeader(msg.senderId));
-        ui->headerLabel->setPixmap(pixmap);
+        ui->headerLabel->setPixmap(NetImageUtil::toRoundedPixmap(pixmap));
     }
 
     // 设置背景颜色
@@ -217,13 +217,7 @@ void NotificationCard::setPrivateMsg(const MsgBean &msg)
     ui->listWidget->setItemWidget(item, edit);
 
     // 根据消息调整高度
-    QSize sz = edit->adjustSizeByTextWidth(ui->nicknameLabel->width());
-    edit->resize(sz);
-    item->setSizeHint(sz);
-    ui->listWidget->setMinimumHeight(qMin(sz.height(), us->bannerMaximumHeight));
-    ui->listWidget->setMaximumHeight(us->bannerMaximumHeight);
-    ui->listWidget->setFixedHeight(sz.height());
-    this->adjustSize();
+    adjustSizeByNewEdit(edit, item);
 }
 
 /// 设置第一个群聊消息
@@ -233,7 +227,7 @@ void NotificationCard::setGroupMsg(const MsgBean &msg)
     ui->nicknameLabel->setText(msg.groupName);
 
     // 设置头像
-    // 群头像API：https://p.qlogo.cn/gh/群号/群号/100
+    // 群头像API：http://p.qlogo.cn/gh/群号/群号/100
     if (us->isGroupShow(msg.groupId))
     {
         if (isFileExist(rt->groupHeader(msg.groupId)))
@@ -242,10 +236,10 @@ void NotificationCard::setGroupMsg(const MsgBean &msg)
         }
         else
         {
-            QString url = "https://p.qlogo.cn/gh/" + snum(msg.groupId) + "/" + snum(msg.groupId) + "/100";
+            QString url = "http://p.qlogo.cn/gh/" + snum(msg.groupId) + "/" + snum(msg.groupId) + "/100";
             QPixmap pixmap = NetImageUtil::loadNetPixmap(url);
             pixmap.save(rt->groupHeader(msg.groupId));
-            ui->headerLabel->setPixmap(pixmap);
+            ui->headerLabel->setPixmap(NetImageUtil::toRoundedPixmap(pixmap));
         }
     }
 
@@ -261,6 +255,13 @@ void NotificationCard::setGroupMsg(const MsgBean &msg)
     }
 
     // 设置消息
+    MessageEdit* edit = new MessageEdit(this);
+    edit->setMessage(msg);
+    QListWidgetItem* item = new QListWidgetItem(ui->listWidget);
+    ui->listWidget->setItemWidget(item, edit);
+
+    // 根据消息调整高度
+    adjustSizeByNewEdit(edit, item);
 }
 
 /// 添加一个私聊消息
@@ -293,6 +294,17 @@ void NotificationCard::setBgColorByHeader(const QPixmap &pixmap)
     AccountInfo::CardColor co;
     ImageUtil::getBgFgColor(ImageUtil::extractImageThemeColors(pixmap.toImage(), 2), &co.bg, &co.fg);
     setColors(co.bg, co.fg);
+}
+
+void NotificationCard::adjustSizeByNewEdit(MessageEdit *edit, QListWidgetItem* item)
+{
+    QSize sz = edit->adjustSizeByTextWidth(ui->nicknameLabel->width());
+    edit->resize(sz);
+    item->setSizeHint(sz);
+    ui->listWidget->setMinimumHeight(qMin(sz.height(), us->bannerMaximumHeight));
+    ui->listWidget->setMaximumHeight(us->bannerMaximumHeight);
+    ui->listWidget->setFixedHeight(sz.height());
+    this->adjustSize();
 }
 
 bool NotificationCard::isPrivate() const

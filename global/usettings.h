@@ -57,7 +57,7 @@ public:
     bool bannerCloseAfterReply = true; // 回复后关闭对话框（Ctrl+Enter切换）
     bool enableGroupNotification = true;
 
-    QHash<qint64, bool> enabledGroups;
+    QList<qint64> enabledGroups;
 };
 
 #endif // USERSETTINGS_H

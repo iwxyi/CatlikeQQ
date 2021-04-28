@@ -55,7 +55,6 @@ private slots:
     void sendReply();
     void toHide();
     void cardClicked();
-
     void on_listWidget_itemDoubleClicked(QListWidgetItem *item);
 
 private:
@@ -65,6 +64,7 @@ private:
     void appendGroupMsg(const MsgBean& msg);
     void addSingleSenderMsg(const MsgBean& msg);
     void setBgColorByHeader(const QPixmap& pixmap);
+    void adjustSizeByNewEdit(MessageEdit* edit, QListWidgetItem *item);
     int getReadDisplayDuration(int length) const;
 
 protected:
