@@ -3,6 +3,7 @@
 #include <QEventLoop>
 #include <QNetworkReply>
 #include <QPainter>
+#include <QMovie>
 #include "fileutil.h"
 #include "messageedit.h"
 #include "global.h"
@@ -43,28 +44,65 @@ void MessageEdit::setMessage(const MsgBean& msg)
     // 图片格式：[CQ:image,file=e9f40e7fb43071e7471a2add0df33b32.image,url=http://gchat.qpic.cn/gchatpic_new/707049914/3934208404-2722739418-E9F40E7FB43071E7471A2ADD0DF33B32/0?term=3]
     if (text.indexOf(QRegularExpression("\\[CQ:image,file=(.+?).image,.*url=(.+)\\]"), 0, &match) > -1)
     {
-        if (us->bannerShowImages)
+        if (!us->bannerShowImages)
+        {
+            text.replace(QRegExp("\\[CQ:image,[^\\]]+\\]"), "[图片]");
+
+        }
+        else
         {
             // 下载原图
             QString id = match.captured(1);
             QString url = match.captured(2);
             QString path = rt->imageCache(id);
             NetImageUtil::saveNetImage(url, path);
-            qDebug() << "保存图片：" << path;
+
+#ifdef MESSAGE_LABEL
+            // 如果是单张图片，支持显示gif
+            if (text.indexOf(QRegularExpression("^\\[CQ:image,file=(.+?).image,.*url=(.+)\\]$")) > -1)
+            {
+                // 不显示文字了，直接用图片！
+                int maxWidth = us->bannerContentWidth;
+                int maxHeight = us->bannerContentWidth/3;
+
+                // 支持GIF
+                QMovie* movie = new QMovie(path, "gif", this);
+                if (movie->frameCount() > 0) // 有帧，表示是GIF
+                {
+                    // 调整图片大小
+                    movie->jumpToFrame(0);
+                    QSize sz = movie->frameRect().size();
+                    if (sz.height() && sz.width())
+                    {
+                        if (sz.width() > maxWidth)
+                            sz = QSize(maxWidth, sz.height() * maxWidth / sz.width());
+                        if (sz.height() > maxHeight)
+                            sz = QSize(sz.width() * maxHeight / sz.height(), maxHeight);
+                        movie->setScaledSize(sz);
+                    }
+                    else
+                    {
+                        movie->setScaledSize(QSize(maxWidth, maxHeight));
+                    }
+
+                    setMaximumSize(maxWidth, maxHeight);
+                    setMovie(movie);
+                    movie->start();
+                    return ;
+                }
+                delete movie;
+            }
+#endif
             // 伸缩、圆角
             QPixmap pixmap(path, "1");
             if (pixmap.width() > us->bannerContentWidth)
-                pixmap = pixmap.scaled(us->bannerContentWidth, us->bannerContentWidth*4/5, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                pixmap = pixmap.scaled(us->bannerContentWidth, us->bannerContentWidth/3, Qt::KeepAspectRatio, Qt::SmoothTransformation);
             pixmap = NetImageUtil::toRoundedPixmap(pixmap, us->bannerBgRadius);
             id = id + "_small";
             path = rt->imageCache(id);
             pixmap.save(path);
             // 替换为图片标签
             text.replace(match.captured(0), "<img src=\"" + path + "\" />");
-        }
-        else
-        {
-            text.replace(QRegExp("\\[CQ:image,[^\\]]+\\]"), "[图片]");
         }
     }
 

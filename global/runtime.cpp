@@ -17,5 +17,5 @@ QString Runtime::groupHeader(qint64 id) const
 
 QString Runtime::imageCache(QString id) const
 {
-    return CACHE_IMAGE_PATH + id + ".png";
+    return CACHE_IMAGE_PATH + id + ".gif";
 }
