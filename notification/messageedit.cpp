@@ -38,7 +38,47 @@ void MessageEdit::setMessage(const MsgBean& msg)
     }
 
     // 表情
-    text.replace(QRegExp("\\[CQ:face,id=(\\d+)\\]"), "<img src=\":/qq/qq-face/\\1.png\"/>");
+    if (text.indexOf(QRegExp("\\[CQ:face,id=(\\d+)\\]")) > -1)
+    {
+#ifdef MESSAGE_LABEL
+            // 如果是单张图片，支持显示gif
+            if (text.indexOf(QRegularExpression("^\\[CQ:face,id=(\\d+)\\]$"), 0, &match) > -1)
+            {
+                // 不显示文字了，直接用图片！
+                int maxWidth = us->bannerContentWidth;
+                int maxHeight = us->bannerContentWidth/3;
+
+                // 支持GIF
+                QMovie* movie = new QMovie(":/qq/qq-face/" + match.captured(1) + ".gif", "gif", this);
+                if (movie->frameCount() > 0) // 有帧，表示是GIF
+                {
+                    // 调整图片大小
+                    movie->jumpToFrame(0);
+                    QSize sz = movie->frameRect().size();
+                    if (sz.height() && sz.width())
+                    {
+                        if (sz.width() > maxWidth)
+                            sz = QSize(maxWidth, sz.height() * maxWidth / sz.width());
+                        if (sz.height() > maxHeight)
+                            sz = QSize(sz.width() * maxHeight / sz.height(), maxHeight);
+                        movie->setScaledSize(sz);
+                    }
+                    else
+                    {
+                        movie->setScaledSize(QSize(maxWidth, maxHeight));
+                    }
+
+                    setMaximumSize(maxWidth, maxHeight);
+                    setMovie(movie);
+                    movie->start();
+                    text = "[表情]";
+                    return ;
+                }
+                delete movie;
+            }
+#endif
+        text.replace(QRegExp("\\[CQ:face,id=(\\d+)\\]"), "<img src=\":/qq/qq-face/\\1.png\"/>");
+    }
 
     // 图片
     // 图片格式：[CQ:image,file=e9f40e7fb43071e7471a2add0df33b32.image,url=http://gchat.qpic.cn/gchatpic_new/707049914/3934208404-2722739418-E9F40E7FB43071E7471A2ADD0DF33B32/0?term=3]
@@ -47,7 +87,6 @@ void MessageEdit::setMessage(const MsgBean& msg)
         if (!us->bannerShowImages)
         {
             text.replace(QRegExp("\\[CQ:image,[^\\]]+\\]"), "[图片]");
-
         }
         else
         {
@@ -88,6 +127,7 @@ void MessageEdit::setMessage(const MsgBean& msg)
                     setMaximumSize(maxWidth, maxHeight);
                     setMovie(movie);
                     movie->start();
+                    text = "[图片]";
                     return ;
                 }
                 delete movie;
