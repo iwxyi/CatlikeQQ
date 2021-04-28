@@ -8,12 +8,13 @@
 #include "global.h"
 #include "netimageutil.h"
 
-MessageEdit::MessageEdit(QWidget *parent) : QTextEdit(parent)
+MessageEdit::MessageEdit(QWidget *parent) : QLabel(parent)
 {
-    setReadOnly(true);
-    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+//    setReadOnly(true);
+//    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setStyleSheet("QTextEdit{ background: transparent; border: none; padding: 0px; margin: 0px; }");
-    setWordWrapMode(QTextOption::WrapMode::WrapAnywhere);
+//    setWordWrapMode(QTextOption::WrapMode::WrapAnywhere);
+    setWordWrap(true);
     setContentsMargins(0, 0, 0, 0);
 }
 
@@ -39,13 +40,22 @@ void MessageEdit::setMessage(const MsgBean& msg)
     // 图片格式：[CQ:image,file=e9f40e7fb43071e7471a2add0df33b32.image,url=http://gchat.qpic.cn/gchatpic_new/707049914/3934208404-2722739418-E9F40E7FB43071E7471A2ADD0DF33B32/0?term=3]
     if (text.indexOf(QRegularExpression("\\[CQ:image,file=(.+?).image,.*url=(.+)\\]"), 0, &match) > -1)
     {
-        if (us->bannerShowImages && text.indexOf(QRegularExpression("^\\[CQ:image,file=(.+?).image,.*url=(.+)\\]$"), 0, &match) > -1)
+        if (us->bannerShowImages)
         {
+            // 下载原图
             QString id = match.captured(1);
             QString url = match.captured(2);
             QString path = rt->imageCache(id);
             NetImageUtil::saveNetImage(url, path);
-            text = "[图片]";
+            // 伸缩、圆角
+            QPixmap pixmap(path);
+            if (pixmap.width() > us->bannerContentWidth)
+                pixmap = pixmap.scaled(us->bannerContentWidth, us->bannerContentWidth, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            pixmap = NetImageUtil::toRoundedPixmap(pixmap, us->bannerBgRadius);
+            id = id + "_small";
+            path = rt->imageCache(id);
+            pixmap.save(path);
+            text.replace(match.captured(0), "<img src=\"" + path + "\" />");
         }
         else
         {
@@ -63,8 +73,8 @@ void MessageEdit::setMessage(const MsgBean& msg)
     text.replace(QRegExp("\\[CQ:(\\w+),.+\\]"), "[\\1]");
 
     // #处理长度
-    if (text.length() > us->msgMaxLength)
-        text = text.left(us->msgMaxLength) + "...";
+//    if (text.length() > us->msgMaxLength)
+//        text = text.left(us->msgMaxLength) + "...";
 
     // #设置显示
     setText(text);
@@ -72,11 +82,14 @@ void MessageEdit::setMessage(const MsgBean& msg)
 
 QSize MessageEdit::adjustSizeByTextWidth(int w)
 {
-    setMaximumWidth(w);
-    QTextDocument* doc = this->document();
-    doc->setTextWidth(w);
-    doc->adjustSize();
-    return (doc->size() + QSizeF(4, 0)).toSize(); // 横向肯定要加
+//    setMaximumWidth(w);
+//    QTextDocument* doc = this->document();
+//    doc->setTextWidth(w);
+//    doc->adjustSize();
+//    return (doc->size() + QSizeF(4, 0)).toSize(); // 横向肯定要加
+    setFixedWidth(w);
+    adjustSize();
+    return this->size();
 }
 
 void MessageEdit::setTextColor(QColor c)

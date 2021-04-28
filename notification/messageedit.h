@@ -1,10 +1,11 @@
 #ifndef MESSAGEEDIT_H
 #define MESSAGEEDIT_H
 
-#include <QTextEdit>
+#include <QTextBrowser>
+#include <QLabel>
 #include "msgbean.h"
 
-class MessageEdit : public QTextEdit
+class MessageEdit : public QLabel
 {
     Q_OBJECT
 public:
