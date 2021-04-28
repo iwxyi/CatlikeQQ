@@ -25,7 +25,11 @@ int main(int argc, char *argv[])
     rt->IMAGE_PATH = rt->DATA_PATH + "images/";
     rt->CACHE_PATH = rt->DATA_PATH + "cache/";
     rt->CACHE_IMAGE_PATH = rt->CACHE_PATH + "images/";
+    rt->CACHE_USER_HEADER_PATH = rt->CACHE_PATH + "user_headers/";
+    rt->CACHE_GROUP_HEADER_PATH = rt->CACHE_PATH + "group_headers/";
     ensureDirExist(rt->CACHE_IMAGE_PATH);
+    ensureDirExist(rt->CACHE_USER_HEADER_PATH);
+    ensureDirExist(rt->CACHE_GROUP_HEADER_PATH);
 
     MainWindow w;
     w.show();

@@ -57,7 +57,16 @@ void NotificationCard::setMsg(const MsgBean &msg)
     this->groupId = msg.groupId;
     msgs.append(msg);
 
-    // 显示
+    if (!msg.isGroup())
+    {
+        setPrivateMsg(msg);
+    }
+    else
+    {
+        setGroupMsg(msg);
+    }
+
+    /* // 显示
     if (!groupId)
         ui->nicknameLabel->setText(msg.displayNickname());
     else
@@ -107,9 +116,9 @@ void NotificationCard::setMsg(const MsgBean &msg)
 
         // 其他设置
         single = true; // 不允许合并（因为没法合并啊……）
-    }
+    } */
 
-    ui->headerLabel->setPixmap(toRoundedPixmap(msg.header));
+    ui->headerLabel->setPixmap(toRoundedPixmap(msg.userHeader));
 
     // 设置大小
     setFixedWidth(us->bannerWidth);
@@ -137,11 +146,20 @@ bool NotificationCard::append(const MsgBean &msg, int &delta)
     // 插入到自己的消息
     msgs.append(msg);
 
-    // 段落显示
+    if (!msg.isGroup())
+    {
+        appendPrivateMsg(msg);
+    }
+    else
+    {
+        appendGroupMsg(msg);
+    }
+
+    /* // 段落显示
     QString s = msg.displayString();
     s.replace("<", "&lt;").replace(">", "&gt;");
     showText.append("<p>" + s + "</p>");
-    ui->messageLabel->setText(showText);
+    ui->messageLabel->setText(showText); */
 
     // 调整显示时间
     if (displayTimer->isActive())
@@ -155,6 +173,41 @@ bool NotificationCard::append(const MsgBean &msg, int &delta)
     resize(this->sizeHint());
     delta = height() - h;
     return true;
+}
+
+void NotificationCard::setPrivateMsg(const MsgBean &msg)
+{
+    // 设置标题
+    ui->nicknameLabel->setText(msg.displayNickname());
+    ui->headerLabel->setPixmap(msg.userHeader);
+
+    // 设置消息
+
+}
+
+void NotificationCard::setGroupMsg(const MsgBean &msg)
+{
+    // 设置标题
+    ui->nicknameLabel->setText(msg.groupName);
+    ui->headerLabel->setPixmap(msg.groupHeader);
+
+    // 设置消息
+}
+
+void NotificationCard::appendPrivateMsg(const MsgBean &msg)
+{
+
+}
+
+void NotificationCard::appendGroupMsg(const MsgBean &msg)
+{
+
+}
+
+/// 一个卡片只显示一个人的情况
+void NotificationCard::addSingleSenderMsg(const MsgBean &msg)
+{
+
 }
 
 bool NotificationCard::isPrivate() const
@@ -300,7 +353,7 @@ void NotificationCard::cardClicked()
     if (!msgs.size())
         return ;
 
-    const MsgBean& msg = msgs.first();
+    const MsgBean& msg = msgs.last();
     if (!msg.imageId.isEmpty())
     {
         QDesktopServices::openUrl(QUrl("file:///" + rt->imageCache(msg.imageId), QUrl::TolerantMode));

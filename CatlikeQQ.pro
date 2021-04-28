@@ -27,6 +27,7 @@ INCLUDEPATH += third_party/color_octree/\
 
 SOURCES += \
     global/usettings.cpp \
+    notification/messageedit.cpp \
     web_service/cqhttpservice.cpp \
     third_party/color_octree/coloroctree.cpp \
     third_party/color_octree/imageutil.cpp \
@@ -48,8 +49,10 @@ SOURCES += \
     widgets/settings/groupwidget.cpp
 
 HEADERS += \
+    global/accountinfo.h \
     global/signaltransfer.h \
     global/usettings.h \
+    notification/messageedit.h \
     notification/replyedit.h \
     third_party/utils/mysettings.h \
     web_service/cqhttpservice.h \

@@ -7,6 +7,7 @@
 #include "interactivebuttonbase.h"
 #include "msgbean.h"
 #include "global.h"
+#include "messageedit.h"
 
 #define CREATE_SHADOW(x)                                                  \
 do {                                                                      \
@@ -55,6 +56,11 @@ private slots:
     void cardClicked();
 
 private:
+    void setPrivateMsg(const MsgBean& msg);
+    void setGroupMsg(const MsgBean& msg);
+    void appendPrivateMsg(const MsgBean& msg);
+    void appendGroupMsg(const MsgBean& msg);
+    void addSingleSenderMsg(const MsgBean& msg);
     int getReadDisplayDuration(int length) const;
     QPixmap toRoundedPixmap(const QPixmap& pixmap) const;
 

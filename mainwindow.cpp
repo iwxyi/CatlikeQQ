@@ -223,7 +223,7 @@ void MainWindow::createNotificationBanner(const MsgBean &msg)
         CardColor co;
 
         auto calcColor = [&]{
-            ImageUtil::getBgFgColor(ImageUtil::extractImageThemeColors(msg.header.toImage(), 2), &co.bg, &co.fg);
+            ImageUtil::getBgFgColor(ImageUtil::extractImageThemeColors(msg.userHeader.toImage(), 2), &co.bg, &co.fg);
         };
 
         if (!msg.groupId)

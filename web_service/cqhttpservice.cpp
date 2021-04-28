@@ -138,8 +138,8 @@ void CqhttpService::parseEchoMessage(const MyJson &json)
         JO(json, data);
         JL(data, user_id);
         JS(data, nickname);
-        myId = user_id;
-        myNickname = nickname;
+        ac->myId = user_id;
+        ac->myNickname = nickname;
         qInfo() << "登录成功：" << nickname << user_id;
         emit sig->myAccount(user_id, nickname);
     }
@@ -150,7 +150,7 @@ void CqhttpService::parseEchoMessage(const MyJson &json)
             JS(fri, nickname);
             JS(fri, remark); // 备注，如果为空则默认为nickname
             JL(fri, user_id);
-            friendNames.insert(user_id, remark.isEmpty() ? nickname : remark);
+            ac->friendNames.insert(user_id, remark.isEmpty() ? nickname : remark);
         });
     }
     else if (echo == "get_group_list")
@@ -159,7 +159,7 @@ void CqhttpService::parseEchoMessage(const MyJson &json)
         json.each("data", [=](MyJson group) {
             JL(group, group_id);
             JS(group, group_name);
-            groupNames.insert(group_id, group_name);
+            ac->groupNames.insert(group_id, group_name);
         });
     }
     else if (echo == "send_private_msg" || echo == "send_group_msg")
@@ -185,8 +185,8 @@ void CqhttpService::parsePrivateMessage(const MyJson &json)
     JS(sender, nickname);
 
     MsgBean msg = MsgBean(user_id, nickname, message, message_id, sub_type)
-            .frind(friendNames.value(user_id, ""));
-    parseMsgDisplay(msg);
+            .frind(ac->friendNames.value(user_id, ""));
+    // parseMsgDisplay(msg);
     emit signalMessage(msg);
     qInfo() << "收到好友消息：" << user_id << nickname << message << message_id;
 
@@ -213,12 +213,13 @@ void CqhttpService::parseGroupMessage(const MyJson &json)
         JL(anonymous, id); // 匿名用户ID
         JS(anonymous, name); // 匿名用户名称
         JS(anonymous, flag); // 匿名用户flag，在调用禁言API时需要传入
+        Q_UNUSED(id)
     }
 
-    MsgBean msg = MsgBean(user_id, nickname, message, message_id, sub_type).group(group_id, groupNames.value(group_id), card);
-    parseMsgDisplay(msg);
+    MsgBean msg = MsgBean(user_id, nickname, message, message_id, sub_type).group(group_id, ac->groupNames.value(group_id), card);
+    // parseMsgDisplay(msg);
     emit signalMessage(msg);
-    qInfo() << "收到群消息：" << group_id << groupNames.value(group_id) << user_id << friendNames.value(user_id) << message << message_id;
+    qInfo() << "收到群消息：" << group_id << ac->groupNames.value(group_id) << user_id << ac->friendNames.value(user_id) << message << message_id;
 }
 
 void CqhttpService::parseGroupUpload(const MyJson &json)
@@ -231,12 +232,12 @@ void CqhttpService::parseGroupUpload(const MyJson &json)
     JS(file, name); // 文件名
     JL(file, size); // 文件大小（字节数）
 
-    MsgBean msg = MsgBean(user_id, friendNames.value(user_id))
-                       .group(group_id, groupNames.value(group_id))
+    MsgBean msg = MsgBean(user_id, ac->friendNames.value(user_id))
+                       .group(group_id, ac->groupNames.value(group_id))
                        .file(id, name, size);
-    parseMsgDisplay(msg);
+    // parseMsgDisplay(msg);
     emit signalMessage(msg);
-    qInfo() << "收到群文件消息：" << group_id << groupNames.value(group_id) << user_id << friendNames.value(user_id) << name << size << id;
+    qInfo() << "收到群文件消息：" << group_id << ac->groupNames.value(group_id) << user_id << ac->friendNames.value(user_id) << name << size << id;
 }
 
 MsgBean& CqhttpService::parseMsgDisplay(MsgBean &msg)
@@ -250,9 +251,9 @@ MsgBean& CqhttpService::parseMsgDisplay(MsgBean &msg)
     // 群头像API：https://p.qlogo.cn/gh/群号/群号/100
     if (!msg.groupId)
     {
-        if (userHeaders.contains(msg.senderId))
+        if (isFileExist(rt->userHeader(msg.senderId)))
         {
-            msg.header = userHeaders.value(msg.senderId);
+            msg.userHeader = QPixmap(rt->userHeader(msg.senderId));
         }
         else // 没有头像，联网获取
         {
@@ -260,24 +261,24 @@ MsgBean& CqhttpService::parseMsgDisplay(MsgBean &msg)
             QPixmap pixmap = loadNetPixmap(url);
             if (!us->bannerUseHeaderColor)
                 pixmap = toRoundedPixmap(pixmap);
-            msg.header = pixmap;
-            userHeaders.insert(msg.senderId, pixmap);
+            msg.userHeader = pixmap;
+            pixmap.save(rt->userHeader(msg.senderId));
         }
     }
     else
     {
         if (us->isGroupShow(msg.groupId))
         {
-            if (groupHeaders.contains(msg.groupId))
+            if (isFileExist(rt->groupHeader(msg.groupId)))
             {
-                msg.header = groupHeaders.value(msg.groupId);
+                msg.userHeader = QPixmap(rt->groupHeader(msg.groupId));
             }
             else
             {
                 QString url = "https://p.qlogo.cn/gh/" + snum(msg.groupId) + "/" + snum(msg.groupId) + "/100";
                 QPixmap pixmap = loadNetPixmap(url);
-                msg.header = pixmap;
-                groupHeaders.insert(msg.groupId, pixmap);
+                msg.groupHeader = pixmap;
+                pixmap.save(rt->groupHeader(msg.groupId));
             }
         }
     }
