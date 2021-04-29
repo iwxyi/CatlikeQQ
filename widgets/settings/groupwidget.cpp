@@ -1,5 +1,6 @@
 #include <QDialog>
 #include <QListWidget>
+#include <QLineEdit>
 #include "interactivebuttonbase.h"
 #include "groupwidget.h"
 #include "ui_groupwidget.h"
@@ -30,8 +31,20 @@ void GroupWidget::on_enabledGroupButton_clicked()
     QDialog* dialog = new QDialog(this);
     QListWidget* view = new QListWidget(dialog);
     QVBoxLayout* layout = new QVBoxLayout(dialog);
-    layout->addWidget(view);
+    dialog->setWindowTitle("开启群组通知");
+    dialog->setWhatsThis("仅开启的群组会显示通知");
     view->setFocusPolicy(Qt::NoFocus);
+
+    // 添加过滤
+    QLineEdit* edit = new QLineEdit(this);
+    edit->setPlaceholderText("过滤...");
+    connect(edit, &QLineEdit::textChanged, this, [=](const QString& text) {
+        for (int i = 0; i < view->count(); i++)
+        {
+            auto item = view->item(i);
+            item->setHidden(!item->text().contains(text));
+        }
+    });
 
     // 添加按钮
     QPushButton* selectAllButton = new InteractiveButtonBase("全选", dialog);
@@ -39,6 +52,9 @@ void GroupWidget::on_enabledGroupButton_clicked()
     QHBoxLayout* btnLayout = new QHBoxLayout;
     btnLayout->addWidget(selectAllButton);
     btnLayout->addWidget(selectRevButton);
+
+    layout->addWidget(edit);
+    layout->addWidget(view);
     layout->addLayout(btnLayout);
 
     // 生成model
@@ -52,8 +68,7 @@ void GroupWidget::on_enabledGroupButton_clicked()
     }
 
     // 设置事件
-    connect(view, &QListWidget::currentRowChanged, this, [=](int currentRow){
-        auto item = view->item(currentRow);
+    connect(view, &QListWidget::itemClicked, this, [=](QListWidgetItem *item){
         item->setCheckState(item->checkState() == Qt::Checked ? Qt::Unchecked : Qt::Checked);
     });
     connect(selectAllButton, &QPushButton::clicked, this, [=]{
