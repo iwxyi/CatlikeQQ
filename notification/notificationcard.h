@@ -52,6 +52,7 @@ private slots:
     void focusIn();
     void focusOut(bool force = false);
     void showReplyEdit();
+    void showReplyEdit(bool focus);
     void hideReplyEdit();
     void sendReply();
     void toHide();

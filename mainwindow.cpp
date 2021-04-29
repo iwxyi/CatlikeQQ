@@ -2,15 +2,16 @@
 #include "facilemenu.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "widgets/customtabstyle.h"
 #include "usettings.h"
+#include "myjson.h"
+#include "fileutil.h"
+#include "imageutil.h"
+#include "widgets/customtabstyle.h"
 #include "widgets/settings/accountwidget.h"
 #include "widgets/settings/debugwidget.h"
 #include "widgets/settings/groupwidget.h"
 #include "widgets/settings/bannerwidget.h"
-#include "myjson.h"
-#include "fileutil.h"
-#include "imageutil.h"
+#include "widgets/settings/replywidget.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -54,7 +55,7 @@ void MainWindow::initView()
     ui->settingsTabWidget->addTab(new AccountWidget(service, this), QIcon("://icons/account.png"), "账号绑定");
     ui->settingsTabWidget->addTab(new GroupWidget(this), QIcon("://icons/group.png"), "群组消息");
     ui->settingsTabWidget->addTab(new BannerWidget(this), QIcon("://icons/banner.png"), "横幅通知");
-    ui->settingsTabWidget->addTab(new BannerWidget(this), QIcon("://icons/reply.png"), "通知回复");
+    ui->settingsTabWidget->addTab(new ReplyWidget(this), QIcon("://icons/reply.png"), "通知回复");
     ui->settingsTabWidget->addTab(new QWidget(), QIcon("://icons/bubble.png"), "气泡样式");
     ui->settingsTabWidget->addTab(new QWidget(), QIcon("://icons/care.png"), "特别关心");
     ui->settingsTabWidget->addTab(new QWidget(), QIcon("://icons/animation.png"), "动画调整");
@@ -202,11 +203,11 @@ void MainWindow::createNotificationBanner(const MsgBean &msg)
 {
     QPoint startPos; // 开始出现的位置
     QPoint showPos;  // 显示的最终位置
-    switch (int(us->floatSide))
+    switch (int(us->bannerFloatSide))
     {
     case SideRight: // 右
     {
-        int top = us->floatPixel;
+        int top = us->bannerFloatPixel;
         // 统计所有横幅的位置
         foreach (auto card, notificationCards)
             top += card->height() + us->bannerSpacing;

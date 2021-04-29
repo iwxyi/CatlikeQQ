@@ -11,6 +11,8 @@ BannerWidget::BannerWidget(QWidget *parent) :
     ui->useHeaderColorCheck->setChecked(us->bannerUseHeaderColor);
     ui->displayDurationSpin->setValue(us->bannerDisplayDuration / 1000);
     ui->textReadSpeedSpin->setValue(us->bannerTextReadSpeed);
+    ui->floatPixelSpin->setValue(us->bannerFloatPixel);
+    ui->retentionDurationSpin->setValue(us->bannerRetentionDuration / 1000);
 }
 
 BannerWidget::~BannerWidget()
@@ -31,4 +33,14 @@ void BannerWidget::on_displayDurationSpin_editingFinished()
 void BannerWidget::on_textReadSpeedSpin_editingFinished()
 {
     us->set("banner/textReadSpeed", us->bannerTextReadSpeed = ui->textReadSpeedSpin->value());
+}
+
+void BannerWidget::on_floatPixelSpin_editingFinished()
+{
+    us->set("banner/floatPixel", us->bannerFloatPixel = ui->floatPixelSpin->value());
+}
+
+void BannerWidget::on_retentionDurationSpin_editingFinished()
+{
+    us->set("banner/retentionDuration", us->bannerRetentionDuration = ui->retentionDurationSpin->value() * 1000);
 }

@@ -22,6 +22,10 @@ private slots:
 
     void on_textReadSpeedSpin_editingFinished();
 
+    void on_floatPixelSpin_editingFinished();
+
+    void on_retentionDurationSpin_editingFinished();
+
 private:
     Ui::BannerWidget *ui;
 };

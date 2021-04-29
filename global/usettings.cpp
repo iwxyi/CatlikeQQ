@@ -9,18 +9,19 @@ void USettings::restoreSettings()
 {
     host = s("net/host");
 
-    beginGroup("float");
-    floatSide = Side(i("side", int(floatSide)));
-    floatDirection = Direction(i("direction", floatDirection));
-    assign(floatPixel, "pixel");
-    endGroup();
-
     beginGroup("banner");
+    assign(bannerFloatPixel, "floatPixel");
+    bannerFloatSide = Side(i("side", int(bannerFloatSide)));
+    bannerFloatDirection = Direction(i("direction", bannerFloatDirection));
+    assign(bannerFloatPixel, "pixel");
     assign(bannerSpacing, "spacing");
     assign(bannerWidth, "width");
     assign(bannerUseHeaderColor, "useHeaderColor");
     assign(bannerDisplayDuration, "displayDuration");
     assign(bannerTextReadSpeed, "textReadSpeed");
+    assign(bannerAutoShowReply, "autoShowReply");
+    assign(bannerAutoFocusReply, "autoFocusReply");
+    assign(bannerCloseAfterReply, "closeAfterReply");
     endGroup();
 
     beginGroup("group");

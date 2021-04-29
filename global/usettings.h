@@ -34,10 +34,9 @@ public:
 public:
     QString host;
 
-    Side floatSide = SideRight; // 边：0上，1左，2右，3下，-1任意
-    Direction floatDirection = TopToBottom; // 方向：0从左到右，1从右到左，2从上到下，3从下到上
-    int floatPixel = 500; // 按照这条边的绝对像素高度
-
+    Side bannerFloatSide = SideRight; // 边：0上，1左，2右，3下，-1任意
+    Direction bannerFloatDirection = TopToBottom; // 方向：0从左到右，1从右到左，2从上到下，3从下到上
+    int bannerFloatPixel = 500; // 按照这条边的绝对像素高度
     int bannerWidth = 300;  // 横幅的固定宽度
     int bannerContentWidth = 214; // 内容的宽度：300-左9-头像32-间距6-右9-阴影12-列表18
     int bannerSpacing = 10; // 横幅之间的间距
@@ -51,9 +50,11 @@ public:
     int bannerBgRadius = 5; // 圆角大小
     int bannerBgShadow = 12; // 阴影大小，右下角会空出这么多的margin
     bool bannerShowImages = true; // 显示图片，还是只显示[图片]
+    bool bannerAutoShowReply = false; // 自动显示回复框
+    bool bannerAutoFocusReply = false; // hover的时候自动聚焦回复框
     bool bannerCloseAfterReply = true; // 回复后关闭对话框（Ctrl+Enter切换）
     int bannerScreenIndex = 0; // 使用哪一个屏幕
-    int bannerTitleLarger = 4; // 大标题（发送者/群名）变大
+    int bannerTitleLarger = 3; // 大标题（发送者/群名）变大
     int bannerSubTitleLarger= 2; // 二级标题（群聊的发送者）字体
     int bannerMessageAlpha = 255; // 消息透明度
     int bannerMaxMsgCount = 10; // 同时最多显示10条消息

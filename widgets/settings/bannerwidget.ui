@@ -35,27 +35,6 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>横幅显示时长</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QCheckBox" name="useHeaderColorCheck">
-       <property name="text">
-        <string>跟随头像变色</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>文字阅读速度</string>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="1">
       <widget class="QSpinBox" name="textReadSpeedSpin">
        <property name="toolTip">
@@ -82,6 +61,92 @@
        </property>
       </widget>
      </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>横幅出现位置</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>横幅显示时长</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QCheckBox" name="useHeaderColorCheck">
+       <property name="text">
+        <string>跟随头像变色</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QSpinBox" name="floatPixelSpin">
+       <property name="toolTip">
+        <string>一秒钟能看多少文字
+横幅通知展示的时间会对应调整</string>
+       </property>
+       <property name="suffix">
+        <string>像素</string>
+       </property>
+       <property name="prefix">
+        <string>距顶部</string>
+       </property>
+       <property name="minimum">
+        <number>0</number>
+       </property>
+       <property name="maximum">
+        <number>999999</number>
+       </property>
+       <property name="singleStep">
+        <number>100</number>
+       </property>
+       <property name="value">
+        <number>300</number>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>文字阅读速度</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QSpinBox" name="retentionDurationSpin">
+       <property name="toolTip">
+        <string>失去焦点/回复后多久时间隐藏</string>
+       </property>
+       <property name="suffix">
+        <string>秒</string>
+       </property>
+       <property name="prefix">
+        <string/>
+       </property>
+       <property name="minimum">
+        <number>0</number>
+       </property>
+       <property name="maximum">
+        <number>60</number>
+       </property>
+       <property name="singleStep">
+        <number>1</number>
+       </property>
+       <property name="value">
+        <number>1</number>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>失焦后再停留</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
@@ -92,7 +157,7 @@
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>203</height>
+       <height>151</height>
       </size>
      </property>
     </spacer>

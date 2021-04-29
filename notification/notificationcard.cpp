@@ -32,7 +32,7 @@ NotificationCard::NotificationCard(QWidget *parent) :
     ui->messageEdit->hide();
 
     QFont font;
-    font.setPointSize(font.pointSize() + 2);
+    font.setPointSize(font.pointSize() + us->bannerTitleLarger);
     ui->nicknameLabel->setFont(font);
 
     ui->listWidget->setFixedHeight(0);
@@ -151,6 +151,12 @@ void NotificationCard::setMsg(const MsgBean &msg)
     if (us->bannerTextReadSpeed)
     {
         displayTimer->setInterval(getReadDisplayDuration(msg.displayString().length()));
+    }
+
+    // 自动展开
+    if (us->bannerAutoShowReply)
+    {
+        showReplyEdit();
     }
 }
 
@@ -396,7 +402,7 @@ void NotificationCard::addNewBox(const MsgBean &msg)
     headerLabel->setFixedSize(ui->headerLabel->size());
 
     QFont font;
-    font.setPointSize(font.pointSize() + 1);
+    font.setPointSize(font.pointSize() + us->bannerSubTitleLarger);
     nameLabel->setFont(font);
 
     // 设置颜色
@@ -553,6 +559,21 @@ bool NotificationCard::canMerge() const
 void NotificationCard::focusIn()
 {
     displayTimer->stop();
+
+    if (us->bannerAutoFocusReply)
+    {
+        if (ui->messageEdit->isHidden())
+        {
+            showReplyEdit(false);
+        }
+        // 如果加了动画，可能需要等待动画结束后再聚焦
+        QTimer::singleShot(100, [=]{
+            this->setFocus();
+            ui->replyButton->setFocus();
+            ui->messageEdit->setFocusPolicy(Qt::StrongFocus);
+            ui->messageEdit->setFocus();
+        });
+    }
 }
 
 void NotificationCard::focusOut(bool force)
@@ -568,16 +589,22 @@ void NotificationCard::showReplyEdit()
 {
     if (ui->messageEdit->isHidden()) // 显示消息框
     {
-        ui->replyButton->setText("发送");
-        ui->messageEdit->show();
-        ui->messageEdit->setFocus();
-        ui->replyHLayout->removeItem(ui->horizontalSpacer);
-        // delete ui->horizontalSpacer;
+        showReplyEdit(true);
     }
     else // 发送内容
     {
         sendReply();
     }
+}
+
+void NotificationCard::showReplyEdit(bool focus)
+{
+    ui->replyButton->setText("发送");
+    ui->messageEdit->show();
+    if (focus)
+        ui->messageEdit->setFocus();
+    ui->replyHLayout->removeItem(ui->horizontalSpacer);
+    // delete ui->horizontalSpacer;
 }
 
 void NotificationCard::hideReplyEdit()
