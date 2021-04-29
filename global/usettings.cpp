@@ -25,8 +25,8 @@ void USettings::restoreSettings()
     endGroup();
 
     beginGroup("group");
-    assign(enableGroupNotification, "mainEnabled");
-    assign(enabledGroups, "enabled");
+    assign(enableGroupNotification, "enabled");
+    assign(enabledGroups, "enables");
     endGroup();
 }
 

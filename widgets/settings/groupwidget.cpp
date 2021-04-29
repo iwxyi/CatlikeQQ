@@ -22,7 +22,7 @@ GroupWidget::~GroupWidget()
 void GroupWidget::on_mainCheck_clicked()
 {
     bool enabled = ui->mainCheck->isChecked();
-    us->set("group/mainEnabled", us->enableGroupNotification = enabled);
+    us->set("group/enabled", us->enableGroupNotification = enabled);
 }
 
 void GroupWidget::on_enabledGroupButton_clicked()
@@ -32,7 +32,7 @@ void GroupWidget::on_enabledGroupButton_clicked()
     QListWidget* view = new QListWidget(dialog);
     QVBoxLayout* layout = new QVBoxLayout(dialog);
     dialog->setWindowTitle("开启群组通知");
-    dialog->setWhatsThis("仅开启的群组会显示通知");
+    dialog->setWindowFlags(dialog->windowFlags() & ~Qt::WindowContextHelpButtonHint);
     view->setFocusPolicy(Qt::NoFocus);
 
     // 添加过滤
@@ -97,7 +97,7 @@ void GroupWidget::on_enabledGroupButton_clicked()
         if (item->checkState() == Qt::Checked)
             enables.append(item->data(Qt::UserRole).toLongLong());
     }
-    us->set("groups/enabled", enables);
+    us->set("group/enables", enables);
 
     dialog->deleteLater();
 }
