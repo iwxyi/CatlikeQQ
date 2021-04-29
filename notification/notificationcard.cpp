@@ -66,7 +66,7 @@ NotificationCard::NotificationCard(QWidget *parent) :
                     QScrollBar:vertical\
                     {\
                         width:7px;\
-                        background:rgba(128,128,128,0%);\
+                        background:rgba(205,205,205,0%);\
                         margin:0px,0px,0px,0px;\
                         padding-top:0px;\
                         padding-bottom:0px;\
@@ -76,7 +76,7 @@ NotificationCard::NotificationCard(QWidget *parent) :
                     QScrollBar::handle:vertical\
                     {\
                         width:7px;\
-                        background:rgba(128, 128, 128, 64);\
+                        background:rgba(205, 205, 205, 64);\
                         border-radius:3px;\
                         min-height:20;\
                     }\
@@ -85,7 +85,7 @@ NotificationCard::NotificationCard(QWidget *parent) :
                     QScrollBar::handle:vertical:hover\
                     {\
                         width:7px;\
-                        background:rgba(128, 128, 128, 128);\
+                        background:rgba(205, 205, 205, 128);\
                         border-radius:3px;\
                         min-height:20;\
                     }\
@@ -94,7 +94,7 @@ NotificationCard::NotificationCard(QWidget *parent) :
                     QScrollBar::handle:vertical:pressed\
                     {\
                         width:7px;\
-                        background:rgba(128, 128, 128, 64);\
+                        background:rgba(205, 205, 205, 256);\
                         border-radius:3px;\
                         min-height:20;\
                     }\

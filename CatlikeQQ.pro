@@ -28,6 +28,7 @@ INCLUDEPATH += third_party/color_octree/\
 SOURCES += \
     global/usettings.cpp \
     notification/messageview.cpp \
+    notification/smoothlistwidget.cpp \
     web_service/cqhttpservice.cpp \
     third_party/color_octree/coloroctree.cpp \
     third_party/color_octree/imageutil.cpp \
@@ -54,6 +55,8 @@ HEADERS += \
     global/usettings.h \
     notification/messageview.h \
     notification/replyedit.h \
+    notification/smoothlistwidget.h \
+    notification/smoothscrollbean.h \
     third_party/utils/mysettings.h \
     third_party/utils/netimageutil.h \
     web_service/cqhttpservice.h \

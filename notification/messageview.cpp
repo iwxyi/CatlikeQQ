@@ -36,6 +36,9 @@ void MessageView::setMessage(const MsgBean& msg)
     QRegularExpression re;
     QRegularExpressionMatch match;
 
+    // #处理HTML
+    text.replace("<", "&lt;").replace(">", "&gt;");
+
     // #替换CQ
     // 文件
     if (!msg.fileId.isEmpty())
@@ -141,8 +144,8 @@ void MessageView::setMessage(const MsgBean& msg)
             // 伸缩、圆角
             QString originPath = path;
             QPixmap pixmap(path, "1");
-            if (pixmap.width() > us->bannerContentWidth)
-                pixmap = pixmap.scaled(us->bannerContentWidth, us->bannerContentWidth/3, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            if (pixmap.width() > us->bannerContentWidth || pixmap.height() > us->bannerMaximumHeight)
+                pixmap = pixmap.scaled(us->bannerContentWidth, us->bannerMaximumHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
             pixmap = NetImageUtil::toRoundedPixmap(pixmap, us->bannerBgRadius);
             id = id + "_small";
             path = rt->imageCache(id);
@@ -161,10 +164,7 @@ void MessageView::setMessage(const MsgBean& msg)
     // 其他格式
     text.replace(QRegExp("\\[CQ:(\\w+),.+\\]"), "[\\1]");
 
-    // 处理HTML
-    text.replace("<", "&lt;").replace(">", "&gt;");
-
-    // #处理长度
+    // #处理长度（注意要忽略各种标签）
 //    if (text.length() > us->msgMaxLength)
 //        text = text.left(us->msgMaxLength) + "...";
 

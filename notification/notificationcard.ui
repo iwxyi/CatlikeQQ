@@ -91,7 +91,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QListWidget" name="listWidget">
+        <widget class="SmoothListWidget" name="listWidget">
          <property name="minimumSize">
           <size>
            <width>0</width>
@@ -181,6 +181,11 @@
    <class>ReplyEdit</class>
    <extends>QLineEdit</extends>
    <header>replyedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>SmoothListWidget</class>
+   <extends>QListWidget</extends>
+   <header>smoothlistwidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
