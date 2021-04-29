@@ -15,18 +15,34 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QCheckBox" name="mainCheck">
-     <property name="text">
-      <string>群组通知主开关</string>
+    <layout class="QGridLayout" name="gridLayout">
+     <property name="leftMargin">
+      <number>9</number>
      </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="enabledGroupButton">
-     <property name="text">
-      <string>允许通知的群组</string>
+     <property name="topMargin">
+      <number>0</number>
      </property>
-    </widget>
+     <property name="rightMargin">
+      <number>9</number>
+     </property>
+     <property name="spacing">
+      <number>12</number>
+     </property>
+     <item row="0" column="0">
+      <widget class="QCheckBox" name="mainCheck">
+       <property name="text">
+        <string>群组通知主开关</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="InteractiveButtonBase" name="enabledGroupButton">
+       <property name="text">
+        <string>允许通知的群组</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
     <spacer name="verticalSpacer">
@@ -43,6 +59,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>InteractiveButtonBase</class>
+   <extends>QPushButton</extends>
+   <header>interactivebuttonbase.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

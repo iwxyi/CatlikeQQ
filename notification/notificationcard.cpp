@@ -37,7 +37,7 @@ NotificationCard::NotificationCard(QWidget *parent) :
 
     ui->listWidget->setFixedHeight(0);
     ui->listWidget->setMinimumHeight(0);
-    ui->listWidget->setMaximumHeight(us->bannerMaximumHeight);
+    ui->listWidget->setMaximumHeight(us->bannerContentHeight);
 //    ui->listWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     ui->listWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
@@ -150,7 +150,7 @@ void NotificationCard::setMsg(const MsgBean &msg)
     // 调整显示的时长
     if (us->bannerTextReadSpeed)
     {
-        displayTimer->setInterval(getReadDisplayDuration(msg.displayString().length()));
+        displayTimer->setInterval(getReadDisplayDuration(msg.displayString()));
     }
 
     // 自动展开
@@ -188,7 +188,7 @@ bool NotificationCard::append(const MsgBean &msg, int &delta)
     // 调整显示时间
     if (displayTimer->isActive())
     {
-        displayTimer->setInterval(qMax(0, displayTimer->remainingTime() - us->bannerDisplayDuration) + getReadDisplayDuration(msg.displayString().length()));
+        displayTimer->setInterval(qMax(0, displayTimer->remainingTime() - us->bannerDisplayDuration) + getReadDisplayDuration(msg.displayString()));
         displayTimer->start();
     }
 
@@ -341,7 +341,7 @@ void NotificationCard::addNewEdit(const MsgBean& msg)
         auto widget = ui->listWidget->itemWidget(ui->listWidget->item(i));
         sumHeight += widget->height() + us->bannerMessageSpacing;
     }
-    ui->listWidget->setFixedHeight(qMin(sumHeight, us->bannerMaximumHeight));
+    ui->listWidget->setFixedHeight(qMin(sumHeight, us->bannerContentHeight));
     this->adjustSize();
 
     // 滚动
@@ -451,7 +451,7 @@ void NotificationCard::addNewBox(const MsgBean &msg)
         auto widget = ui->listWidget->itemWidget(ui->listWidget->item(i));
         sumHeight += widget->height() + us->bannerMessageSpacing;
     }
-    ui->listWidget->setFixedHeight(qMin(sumHeight, us->bannerMaximumHeight));
+    ui->listWidget->setFixedHeight(qMin(sumHeight, us->bannerContentHeight));
     this->adjustSize();
 
     // 滚动
@@ -520,7 +520,7 @@ void NotificationCard::addNewEdit2(const MsgBean &msg)
         auto widget = ui->listWidget->itemWidget(ui->listWidget->item(i));
         sumHeight += widget->height() + us->bannerMessageSpacing;
     }
-    ui->listWidget->setFixedHeight(qMin(sumHeight, us->bannerMaximumHeight));
+    ui->listWidget->setFixedHeight(qMin(sumHeight, us->bannerContentHeight));
     this->adjustSize();
 
     // 滚动
@@ -714,8 +714,10 @@ void NotificationCard::cardClicked()
     }
 }
 
-int NotificationCard::getReadDisplayDuration(int length) const
+int NotificationCard::getReadDisplayDuration(QString text) const
 {
+    text.replace(QRegExp("<.+?>"), "");
+    int length = text.length();
     return us->bannerDisplayDuration + (length * 1000 / us->bannerTextReadSpeed);
 }
 

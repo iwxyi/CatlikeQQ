@@ -53,10 +53,6 @@ void MessageView::setMessage(const MsgBean& msg)
         // 如果是单张图片，支持显示gif
         if (text.indexOf(QRegularExpression("^\\[CQ:face,id=(\\d+)\\]$"), 0, &match) > -1)
         {
-            // 不显示文字了，直接用图片！
-            int maxWidth = us->bannerContentWidth;
-            int maxHeight = us->bannerMaximumHeight;
-
             // 支持GIF
             QMovie* movie = new QMovie(":/qq/qq-face/" + match.captured(1) + ".gif", "gif", this);
             if (movie->frameCount() > 0) // 有帧，表示是GIF
@@ -115,7 +111,7 @@ void MessageView::setMessage(const MsgBean& msg)
             {
                 // 不显示文字了，直接用图片！
                 int maxWidth = us->bannerContentWidth;
-                int maxHeight = us->bannerMaximumHeight;
+                int maxHeight = us->bannerContentHeight - us->bannerHeaderSize;
 
                 // 支持GIF
                 QMovie* movie = new QMovie(path, "gif", this);
@@ -140,7 +136,7 @@ void MessageView::setMessage(const MsgBean& msg)
                     setMaximumSize(maxWidth, maxHeight);
                     setMovie(movie);
                     movie->start();
-                    text = "[图片]";
+                    setText("[图片]");
                     return ;
                 }
                 delete movie;
@@ -149,8 +145,8 @@ void MessageView::setMessage(const MsgBean& msg)
             // 伸缩、圆角
             QString originPath = path;
             QPixmap pixmap(path, "1");
-            if (pixmap.width() > us->bannerContentWidth || pixmap.height() > us->bannerMaximumHeight)
-                pixmap = pixmap.scaled(us->bannerContentWidth, us->bannerMaximumHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            if (pixmap.width() > us->bannerContentWidth || pixmap.height() > us->bannerContentHeight - us->bannerHeaderSize)
+                pixmap = pixmap.scaled(us->bannerContentWidth, us->bannerContentHeight - us->bannerHeaderSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
             pixmap = NetImageUtil::toRoundedPixmap(pixmap, us->bannerBgRadius);
             id = id + "_small";
             path = rt->imageCache(id);
@@ -168,6 +164,13 @@ void MessageView::setMessage(const MsgBean& msg)
 
     // 其他格式
     text.replace(QRegExp("\\[CQ:(\\w+),.+\\]"), "[\\1]");
+
+    // 实体
+    text.replace("&#91;", "[").replace("&#93;", "]");
+
+    // 超链接
+    text.replace(QRegExp("((http|ftp)s?://\\w+\\.\\w{2,5}([\\?\\/][\\S]*)?)"), "<a href=\"\\1\">\\1</a>");
+    text.replace(QRegExp("([a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+)"), "<a href=\"mailto:\\1\">\\1</a>");
 
     // #处理长度（注意要忽略各种标签）
 //    if (text.length() > us->msgMaxLength)

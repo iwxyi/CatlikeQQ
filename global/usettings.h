@@ -36,9 +36,11 @@ public:
 
     Side bannerFloatSide = SideRight; // 边：0上，1左，2右，3下，-1任意
     Direction bannerFloatDirection = TopToBottom; // 方向：0从左到右，1从右到左，2从上到下，3从下到上
-    int bannerFloatPixel = 500; // 按照这条边的绝对像素高度
+    int bannerFloatPixel = 100; // 按照这条边的绝对像素高度
     int bannerWidth = 300;  // 横幅的固定宽度
+    int bannerHeaderSize = 32; // 头像大小
     int bannerContentWidth = 214; // 内容的宽度：300-左9-头像32-间距6-右9-阴影12-列表18
+    int bannerContentHeight = 150; // 内容最大像素高度
     int bannerSpacing = 10; // 横幅之间的间距
     int bannerAnimationDuration = 300; // 横幅的动画时长
     int bannerShowEasingCurve = 6;     // 动画的曲线设定
@@ -59,7 +61,6 @@ public:
     int bannerMessageAlpha = 255; // 消息透明度
     int bannerMaxMsgCount = 10; // 同时最多显示10条消息
     int bannerMsgMaxLength = 100; // 消息最大长度
-    int bannerMaximumHeight = 150; // 内容最大像素高度
 
     bool bannerSingleSender = false; // 当个横幅卡片只放同一个人的消息
     bool enableGroupNotification = true;

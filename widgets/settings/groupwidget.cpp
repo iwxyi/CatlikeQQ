@@ -76,6 +76,8 @@ void GroupWidget::on_enabledGroupButton_clicked()
         for (int i = 0; i < view->count(); i++)
         {
             auto item = view->item(i);
+            if (item->isHidden())
+                continue;
             item->setCheckState(Qt::Checked);
         }
     });
@@ -84,6 +86,8 @@ void GroupWidget::on_enabledGroupButton_clicked()
         for (int i = 0; i < view->count(); i++)
         {
             auto item = view->item(i);
+            if (item->isHidden())
+                continue;
             item->setCheckState(item->checkState() == Qt::Checked ? Qt::Unchecked : Qt::Checked);
         }
     });

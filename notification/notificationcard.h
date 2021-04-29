@@ -68,7 +68,7 @@ private:
     void addNewEdit(const MsgBean &msg);
     void addNewBox(const MsgBean &msg);
     void addNewEdit2(const MsgBean &msg);
-    int getReadDisplayDuration(int length) const;
+    int getReadDisplayDuration(QString text) const;
 
 protected:
     void showEvent(QShowEvent *event) override;
