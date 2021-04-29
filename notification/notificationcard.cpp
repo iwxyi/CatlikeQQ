@@ -94,7 +94,7 @@ NotificationCard::NotificationCard(QWidget *parent) :
                     QScrollBar::handle:vertical:pressed\
                     {\
                         width:7px;\
-                        background:rgba(205, 205, 205, 256);\
+                        background:rgba(205, 205, 205, 255);\
                         border-radius:3px;\
                         min-height:20;\
                     }\

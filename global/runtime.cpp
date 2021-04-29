@@ -19,3 +19,8 @@ QString Runtime::imageCache(QString id) const
 {
     return CACHE_IMAGE_PATH + id + ".png";
 }
+
+QString Runtime::faceCache(QString id) const
+{
+    return CACHE_FACE_PATH + id + ".png";
+}

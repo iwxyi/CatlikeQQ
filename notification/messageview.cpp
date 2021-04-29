@@ -47,46 +47,51 @@ void MessageView::setMessage(const MsgBean& msg)
     }
 
     // 表情
-    if (text.indexOf(QRegExp("\\[CQ:face,id=(\\d+)\\]")) > -1)
+    if (text.indexOf(QRegularExpression("\\[CQ:face,id=(\\d+)\\]"), 0, &match) > -1)
     {
 #ifdef MESSAGE_LABEL
-            // 如果是单张图片，支持显示gif
-            if (text.indexOf(QRegularExpression("^\\[CQ:face,id=(\\d+)\\]$"), 0, &match) > -1)
+        // 如果是单张图片，支持显示gif
+        if (text.indexOf(QRegularExpression("^\\[CQ:face,id=(\\d+)\\]$"), 0, &match) > -1)
+        {
+            // 不显示文字了，直接用图片！
+            int maxWidth = us->bannerContentWidth;
+            int maxHeight = us->bannerMaximumHeight;
+
+            // 支持GIF
+            QMovie* movie = new QMovie(":/qq/qq-face/" + match.captured(1) + ".gif", "gif", this);
+            if (movie->frameCount() > 0) // 有帧，表示是GIF
             {
-                // 不显示文字了，直接用图片！
-                int maxWidth = us->bannerContentWidth;
-                int maxHeight = us->bannerContentWidth/3;
-
-                // 支持GIF
-                QMovie* movie = new QMovie(":/qq/qq-face/" + match.captured(1) + ".gif", "gif", this);
-                if (movie->frameCount() > 0) // 有帧，表示是GIF
-                {
-                    // 调整图片大小
-                    movie->jumpToFrame(0);
-                    QSize sz = movie->frameRect().size();
-                    if (sz.height() && sz.width())
-                    {
-                        if (sz.width() > maxWidth)
-                            sz = QSize(maxWidth, sz.height() * maxWidth / sz.width());
-                        if (sz.height() > maxHeight)
-                            sz = QSize(sz.width() * maxHeight / sz.height(), maxHeight);
-                        movie->setScaledSize(sz);
-                    }
-                    else
-                    {
-                        movie->setScaledSize(QSize(maxWidth, maxHeight));
-                    }
-
-                    setMaximumSize(maxWidth, maxHeight);
-                    setMovie(movie);
-                    movie->start();
-                    text = "[表情]";
-                    return ;
-                }
-                delete movie;
+                // 调整图片大小
+                movie->jumpToFrame(0);
+                int sz = this->fontMetrics().height();
+                movie->setScaledSize(QSize(sz, sz));
+                setMaximumSize(sz, sz);
+                setMovie(movie);
+                movie->start();
+                text = "[表情]";
+                return ;
             }
+            delete movie;
+        }
 #endif
-        text.replace(QRegExp("\\[CQ:face,id=(\\d+)\\]"), "<img src=\":/qq/qq-face/\\1.png\"/>");
+        if (!isFileExist(":/qq/qq-face/" + match.captured(1) + ".png"))
+        {
+            text.replace(QRegExp("\\[CQ:face,id=(\\d+)\\]"), "[表情]");
+        }
+        else
+        {
+            // 压缩表情图片至字体等大小
+            QString id = match.captured(1);
+            QString path = rt->faceCache(id);
+            if (!isFileExist(path))
+            {
+                int sz = this->fontMetrics().height();
+                QPixmap pixmap(":/qq/qq-face/" + id + ".png");
+                pixmap = pixmap.scaled(sz, sz, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                pixmap.save(path);
+            }
+            text.replace(QRegExp("\\[CQ:face,id=(\\d+)\\]"), "<img src=\"" + path + "\"/>");
+        }
     }
 
     // 图片
@@ -110,7 +115,7 @@ void MessageView::setMessage(const MsgBean& msg)
             {
                 // 不显示文字了，直接用图片！
                 int maxWidth = us->bannerContentWidth;
-                int maxHeight = us->bannerContentWidth/3;
+                int maxHeight = us->bannerMaximumHeight;
 
                 // 支持GIF
                 QMovie* movie = new QMovie(path, "gif", this);
