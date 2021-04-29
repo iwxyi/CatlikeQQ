@@ -161,7 +161,6 @@ void CqhttpService::parseEchoMessage(const MyJson &json)
             JL(group, group_id);
             JS(group, group_name);
             ac->groupNames.insert(group_id, group_name);
-            us->enabledGroups.append(group_id);
         });
     }
     else if (echo == "send_private_msg" || echo == "send_group_msg")

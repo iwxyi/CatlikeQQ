@@ -36,6 +36,14 @@ public:
         QSettings::setValue(key, var);
     }
 
+    void set(QString key, QList<qint64> list)
+    {
+        QStringList sl;
+        foreach (auto i, list)
+            sl.append(QString::number(i));
+        set(key, sl);
+    }
+
     bool b(QString key, QVariant def = QVariant())
     {
         return QSettings::value(key, def).toBool();
@@ -84,6 +92,13 @@ public:
     void assign(QString& val, QString key)
     {
         val = value(key, val).toString();
+    }
+
+    void assign(QList<qint64>& val, QString key)
+    {
+        QStringList sl = value(key).toStringList();
+        foreach (auto s, sl)
+            val.append(s.toLongLong());
     }
 };
 

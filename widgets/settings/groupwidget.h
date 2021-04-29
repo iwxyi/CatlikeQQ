@@ -19,6 +19,8 @@ public:
 private slots:
     void on_mainCheck_clicked();
 
+    void on_enabledGroupButton_clicked();
+
 private:
     Ui::GroupWidget *ui;
 };
