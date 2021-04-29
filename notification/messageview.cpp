@@ -4,15 +4,17 @@
 #include <QNetworkReply>
 #include <QPainter>
 #include <QMovie>
+#include <QDesktopServices>
 #include "fileutil.h"
-#include "messageedit.h"
+#include "messageview.h"
 #include "global.h"
 #include "netimageutil.h"
 
-MessageEdit::MessageEdit(QWidget *parent) : QLabel(parent)
+MessageView::MessageView(QWidget *parent) : QLabel(parent)
 {
 #ifdef MESSAGE_LABEL
     setWordWrap(true);
+    setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
 #else
     setReadOnly(true);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -20,11 +22,15 @@ MessageEdit::MessageEdit(QWidget *parent) : QLabel(parent)
     setStyleSheet("QTextEdit{ background: transparent; border: none; padding: 0px; margin: 0px; }");
 #endif
     setContentsMargins(0, 0, 0, 0);
+    connect(this, &QLabel::linkActivated, this, [=](const QString& link) {
+        qDebug() << "打开链接：" << link;
+        QDesktopServices::openUrl(QUrl(link));
+    });
 }
 
 /// 设置带有表情、图片等多种类型的Message
 /// 设置动图表情的方法：https://blog.csdn.net/qq_46495964/article/details/113795814
-void MessageEdit::setMessage(const MsgBean& msg)
+void MessageView::setMessage(const MsgBean& msg)
 {
     QString text = msg.message;
     QRegularExpression re;
@@ -133,6 +139,7 @@ void MessageEdit::setMessage(const MsgBean& msg)
             }
 #endif
             // 伸缩、圆角
+            QString originPath = path;
             QPixmap pixmap(path, "1");
             if (pixmap.width() > us->bannerContentWidth)
                 pixmap = pixmap.scaled(us->bannerContentWidth, us->bannerContentWidth/3, Qt::KeepAspectRatio, Qt::SmoothTransformation);
@@ -141,7 +148,7 @@ void MessageEdit::setMessage(const MsgBean& msg)
             path = rt->imageCache(id);
             pixmap.save(path);
             // 替换为图片标签
-            text.replace(match.captured(0), "<img src=\"" + path + "\" />");
+            text.replace(match.captured(0), "<a href=\"file:///" + originPath + "\"><img src=\"" + path + "\" /></a>");
         }
     }
 
@@ -154,6 +161,9 @@ void MessageEdit::setMessage(const MsgBean& msg)
     // 其他格式
     text.replace(QRegExp("\\[CQ:(\\w+),.+\\]"), "[\\1]");
 
+    // 处理HTML
+    text.replace("<", "&lt;").replace(">", "&gt;");
+
     // #处理长度
 //    if (text.length() > us->msgMaxLength)
 //        text = text.left(us->msgMaxLength) + "...";
@@ -162,7 +172,7 @@ void MessageEdit::setMessage(const MsgBean& msg)
     setText(text);
 }
 
-QSize MessageEdit::adjustSizeByTextWidth(int w)
+QSize MessageView::adjustSizeByTextWidth(int w)
 {
 #ifdef MESSAGE_LABEL
     setFixedWidth(w);
@@ -177,7 +187,7 @@ QSize MessageEdit::adjustSizeByTextWidth(int w)
 #endif
 }
 
-void MessageEdit::setTextColor(QColor c)
+void MessageView::setTextColor(QColor c)
 {
     QPalette pa(this->palette());
     pa.setColor(QPalette::Foreground, c);

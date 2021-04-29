@@ -318,7 +318,7 @@ void NotificationCard::addNewEdit(const MsgBean& msg)
     auto scrollbar = ui->listWidget->verticalScrollBar();
     bool ending = (scrollbar->sliderPosition() >= scrollbar->maximum());
 
-    MessageEdit* edit = new MessageEdit(this);
+    MessageView* edit = new MessageView(this);
     edit->setMessage(msg);
     edit->setTextColor(cardColor.fg);
 
@@ -333,7 +333,7 @@ void NotificationCard::addNewEdit(const MsgBean& msg)
     for (int i = 0; i < ui->listWidget->count(); i++)
     {
         auto widget = ui->listWidget->itemWidget(ui->listWidget->item(i));
-        sumHeight += widget->height();
+        sumHeight += widget->height() + us->bannerMessageSpacing;
     }
     ui->listWidget->setFixedHeight(qMin(sumHeight, us->bannerMaximumHeight));
     this->adjustSize();
@@ -368,14 +368,11 @@ void NotificationCard::addNewBox(const MsgBean &msg)
     QWidget* box = new QWidget(this);
     QLabel* headerLabel = new QLabel(box);
     QLabel* nameLabel = new QLabel(msg.groupName, box);
-    MessageEdit* edit = new MessageEdit(box);
+    MessageView* edit = new MessageView(box);
     QWidget* spacer = new QWidget(this);
     QVBoxLayout* headerVlayout = new QVBoxLayout;
     QVBoxLayout* contentVlayout = new QVBoxLayout;
     QHBoxLayout* mainHlayout = new QHBoxLayout(box);
-//    mainHlayout->addWidget(headerLabel);
-//    mainHlayout->addWidget(edit);
-//    mainHlayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
 
     headerVlayout->addWidget(headerLabel);
     headerVlayout->addWidget(spacer);
@@ -446,7 +443,7 @@ void NotificationCard::addNewBox(const MsgBean &msg)
     for (int i = 0; i < ui->listWidget->count(); i++)
     {
         auto widget = ui->listWidget->itemWidget(ui->listWidget->item(i));
-        sumHeight += widget->height();
+        sumHeight += widget->height() + us->bannerMessageSpacing;
     }
     ui->listWidget->setFixedHeight(qMin(sumHeight, us->bannerMaximumHeight));
     this->adjustSize();
@@ -481,7 +478,7 @@ void NotificationCard::addNewEdit2(const MsgBean &msg)
 
     QWidget* box = new QWidget(this);
     QLabel* headerLabel = new QLabel(box);
-    MessageEdit* edit = new MessageEdit(box);
+    MessageView* edit = new MessageView(box);
     QHBoxLayout* mainHlayout = new QHBoxLayout(box);
     headerLabel->setFixedSize(ui->headerLabel->width(), 1);
     headerLabel->setAttribute(Qt::WA_TransparentForMouseEvents, true);
@@ -515,7 +512,7 @@ void NotificationCard::addNewEdit2(const MsgBean &msg)
     for (int i = 0; i < ui->listWidget->count(); i++)
     {
         auto widget = ui->listWidget->itemWidget(ui->listWidget->item(i));
-        sumHeight += widget->height();
+        sumHeight += widget->height() + us->bannerMessageSpacing;
     }
     ui->listWidget->setFixedHeight(qMin(sumHeight, us->bannerMaximumHeight));
     this->adjustSize();

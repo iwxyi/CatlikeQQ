@@ -62,6 +62,7 @@ public:
 
     bool bannerSingleSender = false; // 当个横幅卡片只放同一个人的消息
     bool enableGroupNotification = true;
+    int bannerMessageSpacing = 8; // 同一个卡片里面的消息的间距：itemSpace+margin*2
 
     QList<qint64> enabledGroups;
 };

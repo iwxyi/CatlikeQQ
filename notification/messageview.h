@@ -7,11 +7,11 @@
 
 #define MESSAGE_LABEL
 
-class MessageEdit : public QLabel
+class MessageView : public QLabel
 {
     Q_OBJECT
 public:
-    explicit MessageEdit(QWidget *parent = nullptr);
+    explicit MessageView(QWidget *parent = nullptr);
 
     void setMessage(const MsgBean &msg);
 
