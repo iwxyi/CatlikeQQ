@@ -138,7 +138,6 @@ void MessageView::setMessage(const MsgBean& msg)
                     setMaximumSize(maxWidth, maxHeight);
                     setMovie(movie);
                     movie->start();
-                    setText("[图片]");
                     return ;
                 }
                 delete movie;
@@ -171,7 +170,7 @@ void MessageView::setMessage(const MsgBean& msg)
     text.replace("&#91;", "[").replace("&#93;", "]");
 
     // 超链接
-    text.replace(QRegExp("((http|ftp)s?://\\w+\\.\\w{2,5}([\\?\\/][\\S]*)?)"), "<a href=\"\\1\">\\1</a>");
+    text.replace(QRegExp("((http|ftp)s?://[\\w\\.]+\\.\\w{2,5}([\\?\\/][\\S]*)?)"), "<a href=\"\\1\">\\1</a>");
     text.replace(QRegExp("([a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+)"), "<a href=\"mailto:\\1\">\\1</a>");
 
     // #处理长度（注意要忽略各种标签）
