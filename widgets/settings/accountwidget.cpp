@@ -2,6 +2,8 @@
 #include "accountwidget.h"
 #include "ui_accountwidget.h"
 #include "stringutil.h"
+#include "signaltransfer.h"
+#include "usettings.h"
 
 AccountWidget::AccountWidget(CqhttpService *service, QWidget *parent) :
     QWidget(parent),

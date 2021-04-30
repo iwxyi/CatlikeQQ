@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 #include <QSystemTrayIcon>
-#include "global.h"
+#include "defines.h"
 #include "cqhttpservice.h"
 #include "notificationcard.h"
 #include "notificationbubble.h"

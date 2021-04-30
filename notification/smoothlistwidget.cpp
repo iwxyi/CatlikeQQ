@@ -1,7 +1,7 @@
 #include <QScrollBar>
 #include <QWheelEvent>
 #include "smoothlistwidget.h"
-#include "global.h"
+#include "defines.h"
 
 SmoothListWidget::SmoothListWidget(QWidget *parent) : QListWidget(parent)
 {

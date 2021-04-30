@@ -1,6 +1,7 @@
 #include "bannerwidget.h"
 #include "ui_bannerwidget.h"
-#include "global.h"
+#include "defines.h"
+#include "usettings.h"
 
 BannerWidget::BannerWidget(QWidget *parent) :
     QWidget(parent),

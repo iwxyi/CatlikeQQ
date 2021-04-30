@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QtWebSockets/QWebSocket>
 #include <QHash>
-#include "global.h"
+#include "defines.h"
 #include "msgbean.h"
 
 #define SKT_DEB if (1) qDebug()

@@ -7,7 +7,9 @@
 #include <QDesktopServices>
 #include "fileutil.h"
 #include "messageview.h"
-#include "global.h"
+#include "defines.h"
+#include "runtime.h"
+#include "usettings.h"
 #include "netimageutil.h"
 
 MessageView::MessageView(QWidget *parent) : QLabel(parent)

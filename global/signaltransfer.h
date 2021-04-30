@@ -17,4 +17,6 @@ signals:
     void groupHeadLoaded(qint64 id, const QPixmap& pixmap);
 };
 
+extern SignalTransfer* sig;
+
 #endif // SIGNALTRANSFER_H

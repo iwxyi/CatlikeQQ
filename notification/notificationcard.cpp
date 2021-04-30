@@ -6,7 +6,7 @@
 #include <QScrollBar>
 #include "notificationcard.h"
 #include "ui_notificationcard.h"
-#include "global.h"
+#include "defines.h"
 #include "netimageutil.h"
 #include "fileutil.h"
 #include "imageutil.h"

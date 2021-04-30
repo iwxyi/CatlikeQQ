@@ -2,7 +2,7 @@
 #define ACCOUNTWIDGET_H
 
 #include <QWidget>
-#include "global.h"
+#include "defines.h"
 #include "cqhttpservice.h"
 
 namespace Ui {

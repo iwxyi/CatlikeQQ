@@ -26,4 +26,6 @@ public:
     QString CACHE_GROUP_HEADER_PATH;
 };
 
+extern Runtime* rt;
+
 #endif // RUNTIME_H

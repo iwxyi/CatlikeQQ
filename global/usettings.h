@@ -46,7 +46,7 @@ public:
     int bannerShowEasingCurve = 6;     // 动画的曲线设定
     int bannerDisplayDuration = 7000;  // 横幅显示的时长
     int bannerTextReadSpeed = 10; // 按字数增加时长，每秒钟看多少字
-    int bannerRetentionDuration = 1000; // 失去焦点后滞留时长
+    int bannerRetentionDuration = 2000; // 失去焦点后滞留时长
     QColor bannerBgColor = QColor(255, 255, 255); // 默认背景颜色
     bool bannerUseHeaderColor = true; // 使用头像颜色填充背景颜色
     int bannerBgRadius = 5; // 圆角大小
@@ -69,5 +69,7 @@ public:
 
     QList<qint64> enabledGroups;
 };
+
+extern USettings* us;
 
 #endif // USERSETTINGS_H

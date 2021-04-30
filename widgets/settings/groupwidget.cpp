@@ -4,6 +4,8 @@
 #include "interactivebuttonbase.h"
 #include "groupwidget.h"
 #include "ui_groupwidget.h"
+#include "usettings.h"
+#include "accountinfo.h"
 
 GroupWidget::GroupWidget(QWidget *parent) :
     QWidget(parent),

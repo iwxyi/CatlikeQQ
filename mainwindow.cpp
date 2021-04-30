@@ -6,6 +6,7 @@
 #include "myjson.h"
 #include "fileutil.h"
 #include "imageutil.h"
+#include "signaltransfer.h"
 #include "widgets/customtabstyle.h"
 #include "widgets/settings/accountwidget.h"
 #include "widgets/settings/debugwidget.h"

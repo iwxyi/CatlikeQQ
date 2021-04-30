@@ -2,7 +2,7 @@
 #define GROUPWIDGET_H
 
 #include <QWidget>
-#include "global.h"
+#include "defines.h"
 
 namespace Ui {
 class GroupWidget;

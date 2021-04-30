@@ -23,4 +23,6 @@ public:
     QHash<qint64, CardColor> groupHeaderColor;
 };
 
+extern AccountInfo* ac;
+
 #endif // ACCOUNTINFO_H

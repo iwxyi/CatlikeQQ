@@ -1,6 +1,7 @@
 #include "replywidget.h"
 #include "ui_replywidget.h"
-#include "global.h"
+#include "defines.h"
+#include "usettings.h"
 
 ReplyWidget::ReplyWidget(QWidget *parent) :
     QWidget(parent),

@@ -34,7 +34,6 @@ SOURCES += \
     third_party/color_octree/imageutil.cpp \
     third_party/facile_menu/facilemenu.cpp \
     third_party/facile_menu/facilemenuitem.cpp \
-    global/global.cpp \
     third_party/interactive_buttons/interactivebuttonbase.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -52,6 +51,7 @@ SOURCES += \
 
 HEADERS += \
     global/accountinfo.h \
+    global/defines.h \
     global/signaltransfer.h \
     global/usettings.h \
     notification/messageview.h \
@@ -65,7 +65,6 @@ HEADERS += \
     third_party/third_party/color_octree/imageutil.h \
     third_party/facile_menu/facilemenu.h \
     third_party/facile_menu/facilemenuitem.h \
-    global/global.h \
     third_party/interactive_buttons/interactivebuttonbase.h \
     mainwindow.h \
     notification/notificationbubble.h \

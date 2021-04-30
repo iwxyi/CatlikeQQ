@@ -2,7 +2,7 @@
 #define DEBUGWIDGET_H
 
 #include <QWidget>
-#include "global.h"
+#include "defines.h"
 #include "msgbean.h"
 #include "cqhttpservice.h"
 

@@ -7,8 +7,11 @@
 #include <QListWidgetItem>
 #include "interactivebuttonbase.h"
 #include "msgbean.h"
-#include "global.h"
+#include "defines.h"
 #include "messageview.h"
+#include "accountinfo.h"
+#include "usettings.h"
+#include "runtime.h"
 
 #define CREATE_SHADOW(x)                                                  \
 do {                                                                      \

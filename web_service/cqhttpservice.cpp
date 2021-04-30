@@ -8,6 +8,8 @@
 #include "myjson.h"
 #include "fileutil.h"
 #include "netimageutil.h"
+#include "signaltransfer.h"
+#include "accountinfo.h"
 
 CqhttpService::CqhttpService(QObject *parent) : QObject(parent)
 {
