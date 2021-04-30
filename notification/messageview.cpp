@@ -106,7 +106,7 @@ void MessageView::setMessage(const MsgBean& msg)
             QString id = match.captured(1);
             QString url = match.captured(2);
             QString path = rt->imageCache(id);
-            NetImageUtil::saveNetImage(url, path);
+            NetImageUtil::saveNetFile(url, path);
 #ifdef MESSAGE_LABEL
             // 如果是单张图片，支持显示gif
             if (text.indexOf(QRegularExpression("^\\[CQ:image,file=(.+?).image,.*url=(.+)\\]$")) > -1)

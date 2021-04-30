@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QListWidget>
+#include <QDebug>
 #include "smoothscrollbean.h"
 
 class SmoothListWidget : public QListWidget
@@ -14,6 +15,9 @@ public:
     void setSmoothScrollEnabled(bool e);
     void setSmoothScrollSpeed(int speed);
     void setSmoothScrollDuration(int duration);
+
+    void scrollToBottom();
+    bool isToBottoming() const;
 
 private:
     void addSmoothScrollThread(int distance, int duration);
@@ -29,6 +33,7 @@ private:
     int smoothScrollSpeed = 64;
     int smoothScrollDuration = 200;
     QList<SmoothScrollBean*> smooth_scrolls;
+    int toBottoming = 0;
 };
 
 #endif // SMOOTHLISTWIDGET_H

@@ -322,7 +322,7 @@ void NotificationCard::addNewEdit(const MsgBean& msg)
     }
 
     auto scrollbar = ui->listWidget->verticalScrollBar();
-    bool ending = (scrollbar->sliderPosition() >= scrollbar->maximum());
+    bool ending = (scrollbar->sliderPosition() >= scrollbar->maximum() || ui->listWidget->isToBottoming());
 
     MessageView* edit = new MessageView(this);
     edit->setMessage(msg);
@@ -339,14 +339,16 @@ void NotificationCard::addNewEdit(const MsgBean& msg)
     for (int i = 0; i < ui->listWidget->count(); i++)
     {
         auto widget = ui->listWidget->itemWidget(ui->listWidget->item(i));
-        sumHeight += widget->height() + us->bannerMessageSpacing;
+        sumHeight += widget->height() + ui->listWidget->spacing();
     }
     ui->listWidget->setFixedHeight(qMin(sumHeight, us->bannerContentHeight));
     this->adjustSize();
 
     // 滚动
     if (ending)
+    {
         ui->listWidget->scrollToBottom();
+    }
 
     // 回复时钟
     if (remain >= 0)
@@ -368,7 +370,7 @@ void NotificationCard::addNewBox(const MsgBean &msg)
     }
 
     auto scrollbar = ui->listWidget->verticalScrollBar();
-    bool ending = (scrollbar->sliderPosition() >= scrollbar->maximum());
+    bool ending = (scrollbar->sliderPosition() >= scrollbar->maximum() || ui->listWidget->isToBottoming());
 
     // 创建控件
     QWidget* box = new QWidget(this);
@@ -480,7 +482,7 @@ void NotificationCard::addNewEdit2(const MsgBean &msg)
     }
 
     auto scrollbar = ui->listWidget->verticalScrollBar();
-    bool ending = (scrollbar->sliderPosition() >= scrollbar->maximum());
+    bool ending = (scrollbar->sliderPosition() >= scrollbar->maximum() || ui->listWidget->isToBottoming());
 
     QWidget* box = new QWidget(this);
     QLabel* headerLabel = new QLabel(box);

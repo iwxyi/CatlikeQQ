@@ -13,7 +13,13 @@ public:
     SmoothScrollBean(int distance, int duration) : distance(distance), duration(duration)
     {
         per = distance * TIMER_INTERVAL / duration; // 每个时钟周期滚动的距离
-        count = distance / per; // 滚动次数也等于 duration / TIMER_INTERVAL
+        if (per != 0)
+            count = distance / per; // 滚动次数也等于 duration / TIMER_INTERVAL
+        else // 滚动一小段距离
+        {
+            per = distance > 0 ? 1 : -1;
+            count = distance;
+        }
 
         QTimer* timer = new QTimer(this);
         timer->setInterval(TIMER_INTERVAL);

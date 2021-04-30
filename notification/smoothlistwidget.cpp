@@ -23,6 +23,30 @@ void SmoothListWidget::setSmoothScrollDuration(int duration)
     this->smoothScrollDuration = duration;
 }
 
+void SmoothListWidget::scrollToBottom()
+{
+    if (!enabledSmoothScroll)
+        return QListWidget::scrollToBottom();
+
+    auto scrollBar = verticalScrollBar();
+    int delta = scrollBar->maximum() + scrollBar->pageStep() - scrollBar->sliderPosition();
+    if (delta <= 1)
+        return QListWidget::scrollToBottom();
+    addSmoothScrollThread(delta, smoothScrollDuration);
+
+    toBottoming++;
+    connect(smooth_scrolls.last(), &SmoothScrollBean::signalSmoothScrollFinished, this, [=]{
+        toBottoming--;
+        if (toBottoming < 0) // 到底部可能会提前中止
+            toBottoming = 0;
+    });
+}
+
+bool SmoothListWidget::isToBottoming() const
+{
+    return toBottoming;
+}
+
 void SmoothListWidget::addSmoothScrollThread(int distance, int duration)
 {
     SmoothScrollBean* bean = new SmoothScrollBean(distance, duration);
@@ -56,9 +80,14 @@ void SmoothListWidget::wheelEvent(QWheelEvent *event)
     if (enabledSmoothScroll)
     {
         if (event->delta() > 0) // 上滚
+        {
             addSmoothScrollThread(-smoothScrollSpeed, smoothScrollDuration);
-        else if (event->delta() < 0)
+            toBottoming = 0;
+        }
+        else if (event->delta() < 0) // 下滚
+        {
             addSmoothScrollThread(smoothScrollSpeed, smoothScrollDuration);
+        }
     }
     else
     {

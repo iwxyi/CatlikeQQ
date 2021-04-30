@@ -25,9 +25,10 @@ public:
         return pixmap;
     }
 
-    /// 保存网络图片
-    /// 因为不一定是静态图片，所以没法使用 QPixmap
-    static void saveNetImage(QString url, QString path)
+    /// 保存网络文件
+    /// 直接存储原数据，可以是图片、视频、文件等等
+    /// 有些图片不一定是静态的，所以没法使用 QPixmap
+    static void saveNetFile(QString url, QString path)
     {
         QNetworkAccessManager manager;
         QEventLoop loop;
