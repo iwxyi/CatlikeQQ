@@ -175,8 +175,7 @@ void MessageView::setMessage(const MsgBean& msg)
             if (pixmap.width() > us->bannerContentWidth || pixmap.height() > us->bannerContentHeight - us->bannerHeaderSize)
                 pixmap = pixmap.scaled(us->bannerContentWidth, us->bannerContentHeight - us->bannerHeaderSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
             pixmap = NetImageUtil::toRoundedPixmap(pixmap, us->bannerBgRadius);
-            id = id + "_small";
-            path = rt->imageCache(id);
+            path = rt->imageSCache(id);
             pixmap.save(path);
             // 替换为图片标签
             text.replace(match.captured(0), "<a href=\"file:///" + originPath + "\"><img src=\"" + path + "\" /></a>");

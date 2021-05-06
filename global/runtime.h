@@ -12,6 +12,7 @@ public:
     QString userHeader(qint64 id) const;
     QString groupHeader(qint64 id) const;
     QString imageCache(QString id) const;
+    QString imageSCache(QString id) const;
     QString faceCache(QString id) const;
 
 public:
@@ -21,9 +22,13 @@ public:
 
     QString CACHE_PATH;
     QString CACHE_IMAGE_PATH;
+    QString CACHE_IMAGE_S_PATH;
     QString CACHE_FACE_PATH;
     QString CACHE_USER_HEADER_PATH;
     QString CACHE_GROUP_HEADER_PATH;
+
+private:
+    const QString imageSuffix = ".png";
 };
 
 extern Runtime* rt;
