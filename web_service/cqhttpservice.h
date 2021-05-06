@@ -37,8 +37,6 @@ private:
 
 private:
     QWebSocket* socket = nullptr;
-
-
 };
 
 #endif // CQHTTPSERVICE_H

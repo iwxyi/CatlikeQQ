@@ -637,7 +637,7 @@ void NotificationCard::sendReply()
     }
 
     // 加到消息框中
-    MsgBean msg(ac->myId, ac->myNickname, "您: " + text, 0, "");
+    MsgBean msg(ac->myId, ac->myNickname, "你: " + text, 0, "");
     if (isGroup())
         addNewEdit2(msg);
     else
@@ -683,6 +683,7 @@ void NotificationCard::setColors(QColor bg, QColor fg)
     ui->nicknameLabel->setStyleSheet("color: " + QVariant(cardColor.fg).toString() + ";");
     ui->listWidget->setPalette(pa);
     ui->messageEdit->setPalette(pa);
+    ui->replyButton->setPalette(pa);
     ui->replyButton->setTextColor(fg);
 }
 
@@ -725,7 +726,10 @@ void NotificationCard::cardMenu()
     menu->addAction(QIcon(), "立即关闭", [=]{
         this->toHide();
     });
-    menu->addAction(QIcon(), "不显示该群通知", [=]{
+    menu->addAction(QIcon(), "消息历史", [=]{
+
+    })->disable();
+    menu->split()->addAction(QIcon(), "不显示该群通知", [=]{
         us->enabledGroups.removeOne(groupId);
         us->set("group/enables", us->enabledGroups);
         this->toHide();

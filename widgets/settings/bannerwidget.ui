@@ -47,8 +47,7 @@
      <item row="1" column="1">
       <widget class="QSpinBox" name="textReadSpeedSpin">
        <property name="toolTip">
-        <string>一秒钟能看多少文字
-横幅通知展示的时间会对应调整</string>
+        <string/>
        </property>
        <property name="suffix">
         <string>字</string>
@@ -72,6 +71,9 @@
      </item>
      <item row="2" column="0">
       <widget class="QLabel" name="label_3">
+       <property name="toolTip">
+        <string>通知卡片出现的位置</string>
+       </property>
        <property name="text">
         <string>横幅出现位置</string>
        </property>
@@ -94,8 +96,7 @@
      <item row="2" column="1">
       <widget class="QSpinBox" name="floatPixelSpin">
        <property name="toolTip">
-        <string>一秒钟能看多少文字
-横幅通知展示的时间会对应调整</string>
+        <string/>
        </property>
        <property name="suffix">
         <string>像素</string>
@@ -113,7 +114,7 @@
         <number>100</number>
        </property>
        <property name="value">
-        <number>300</number>
+        <number>100</number>
        </property>
       </widget>
      </item>
@@ -127,7 +128,7 @@
      <item row="3" column="1">
       <widget class="QSpinBox" name="retentionDurationSpin">
        <property name="toolTip">
-        <string>失去焦点/回复后多久时间隐藏</string>
+        <string/>
        </property>
        <property name="suffix">
         <string>秒</string>
@@ -151,6 +152,9 @@
      </item>
      <item row="3" column="0">
       <widget class="QLabel" name="label_4">
+       <property name="toolTip">
+        <string>失去焦点/回复后多久时间隐藏</string>
+       </property>
        <property name="text">
         <string>失焦后再停留</string>
        </property>

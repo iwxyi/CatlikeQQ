@@ -5,6 +5,7 @@
 #include <QPainter>
 #include <QMovie>
 #include <QDesktopServices>
+#include <QBitmap>
 #include "fileutil.h"
 #include "messageview.h"
 #include "defines.h"
@@ -68,6 +69,16 @@ void MessageView::setMessage(const MsgBean& msg)
                 setMovie(movie);
                 movie->start();
                 text = "[表情]";
+
+                // 设置圆角
+                QPixmap pixmap(movie->currentPixmap().size());
+                pixmap.fill(Qt::transparent);
+                QPainter painter(&pixmap);
+                painter.setRenderHint(QPainter::Antialiasing);
+                QPainterPath path;
+                path.addRoundedRect(pixmap.rect(), us->bannerBgRadius, us->bannerBgRadius);
+                painter.fillPath(path, Qt::white);
+                this->setMask(pixmap.mask());
                 return ;
             }
             delete movie;
@@ -92,6 +103,10 @@ void MessageView::setMessage(const MsgBean& msg)
             text.replace(QRegExp("\\[CQ:face,id=(\\d+)\\]"), "<img src=\"" + path + "\"/>");
         }
     }
+
+    // 闪照
+    // [CQ:image,type=flash,file=27194ea0bc4ef666c06ba6fe716e31ad.image]
+    text.replace(QRegExp("\\[CQ:image,type=flash,.+\\]"), "[闪照]");
 
     // 图片
     // 图片格式：[CQ:image,file=e9f40e7fb43071e7471a2add0df33b32.image,url=http://gchat.qpic.cn/gchatpic_new/707049914/3934208404-2722739418-E9F40E7FB43071E7471A2ADD0DF33B32/0?term=3]
@@ -139,6 +154,16 @@ void MessageView::setMessage(const MsgBean& msg)
                     setMaximumSize(maxWidth, maxHeight);
                     setMovie(movie);
                     movie->start();
+
+                    // 设置圆角
+                    QPixmap pixmap(movie->currentPixmap().size());
+                    pixmap.fill(Qt::transparent);
+                    QPainter painter(&pixmap);
+                    painter.setRenderHint(QPainter::Antialiasing);
+                    QPainterPath path;
+                    path.addRoundedRect(pixmap.rect(), us->bannerBgRadius, us->bannerBgRadius);
+                    painter.fillPath(path, Qt::white);
+                    this->setMask(pixmap.mask());
                     return ;
                 }
                 delete movie;

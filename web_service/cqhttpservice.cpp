@@ -190,6 +190,10 @@ void CqhttpService::parsePrivateMessage(const MyJson &json)
     MsgBean msg = MsgBean(user_id, nickname, message, message_id, sub_type)
             .frind(ac->friendNames.value(user_id, ""));
     emit signalMessage(msg);
+
+    if (!ac->userMsgHistory.contains(user_id))
+        ac->userMsgHistory.insert(user_id, QList<MsgBean>());
+    ac->userMsgHistory[user_id].append(msg);
     qInfo() << "收到好友消息：" << user_id << nickname << message << message_id;
 
     // 图片消息：文字1\r\n[CQ:image,file=8f84df65ee005b52f7f798697765a81b.image,url=http://c2cpicdw.qpic.cn/offpic_new/1600631528//1600631528-3839913603-8F84DF65EE005B52F7F798697765A81B/0?term=3]\r\n文字二……
@@ -220,6 +224,10 @@ void CqhttpService::parseGroupMessage(const MyJson &json)
 
     MsgBean msg = MsgBean(user_id, nickname, message, message_id, sub_type).group(group_id, ac->groupNames.value(group_id), card);
     emit signalMessage(msg);
+
+    if (!ac->groupMsgHistory.contains(group_id))
+        ac->groupMsgHistory.insert(group_id, QList<MsgBean>());
+    ac->groupMsgHistory[group_id].append(msg);
     qInfo() << "收到群消息：" << group_id << ac->groupNames.value(group_id) << user_id << ac->friendNames.value(user_id) << message << message_id;
 }
 

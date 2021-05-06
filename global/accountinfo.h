@@ -4,6 +4,7 @@
 #include <QString>
 #include <QHash>
 #include <QColor>
+#include "msgbean.h"
 
 class AccountInfo
 {
@@ -18,9 +19,11 @@ public:
     QString myNickname; // 自己的昵称
     QHash<qint64, QString> friendNames; // 好友列表
     QHash<qint64, QString> groupNames; // 群列表
-    QHash<qint64, QHash<qint64, QString>> groupMemberNames; // 群成员名字
-    QHash<qint64, CardColor> userHeaderColor;
-    QHash<qint64, CardColor> groupHeaderColor;
+    QHash<qint64, QHash<qint64, QString>> groupMemberNames; // 群成员名字，@专用
+    QHash<qint64, CardColor> userHeaderColor; // 用户头像，好友+群员+陌生人
+    QHash<qint64, CardColor> groupHeaderColor; // 群头像
+    QHash<qint64, QList<MsgBean>> userMsgHistory; // 用户消息记录（不包括自己）
+    QHash<qint64, QList<MsgBean>> groupMsgHistory; // 群组消息记录（不包括自己）
 };
 
 extern AccountInfo* ac;
