@@ -17,6 +17,7 @@ MessageView::MessageView(QWidget *parent) : QLabel(parent)
 #ifdef MESSAGE_LABEL
     setWordWrap(true);
     setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
+    setTextFormat(Qt::RichText);
 #else
     setReadOnly(true);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

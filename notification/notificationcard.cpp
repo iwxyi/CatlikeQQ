@@ -10,6 +10,7 @@
 #include "netimageutil.h"
 #include "fileutil.h"
 #include "imageutil.h"
+#include "facilemenu.h"
 
 NotificationCard::NotificationCard(QWidget *parent) :
     QWidget(parent),
@@ -49,6 +50,7 @@ NotificationCard::NotificationCard(QWidget *parent) :
     bg->lower();
     bg->setRadius(us->bannerBgRadius);
     bg->setBgColor(us->bannerBgColor);
+    bg->setContextMenuPolicy(Qt::CustomContextMenu);
     CREATE_SHADOW(bg);
 
     // 焦点处理
@@ -60,6 +62,7 @@ NotificationCard::NotificationCard(QWidget *parent) :
     });
     connect(ui->messageEdit, SIGNAL(signalFocusOut()), this, SLOT(focusOut()));
     connect(bg, SIGNAL(clicked()), this, SLOT(cardClicked()));
+    connect(bg, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(cardMenu()));
 
     // 样式表
     QString qss = "/* 整个滚动条背景 */\
@@ -714,6 +717,21 @@ void NotificationCard::cardClicked()
     {
         QDesktopServices::openUrl(QUrl("file:///" + rt->imageCache(msg.imageId), QUrl::TolerantMode));
     }
+}
+
+void NotificationCard::cardMenu()
+{
+    FacileMenu* menu = new FacileMenu;
+    menu->addAction(QIcon(), "立即关闭", [=]{
+        this->toHide();
+    });
+    menu->addAction(QIcon(), "不显示该群通知", [=]{
+        us->enabledGroups.removeOne(groupId);
+        us->set("group/enables", us->enabledGroups);
+        this->toHide();
+        qInfo() << "不显示群组通知：" << groupId;
+    })->hide(!groupId);
+    menu->exec();
 }
 
 int NotificationCard::getReadDisplayDuration(QString text) const

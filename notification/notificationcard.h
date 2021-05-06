@@ -60,6 +60,7 @@ private slots:
     void sendReply();
     void toHide();
     void cardClicked();
+    void cardMenu();
     void on_listWidget_itemDoubleClicked(QListWidgetItem *item);
 
 private:
