@@ -338,7 +338,7 @@ void NotificationCard::addNewEdit(const MsgBean& msg)
     edit->resize(sz);
     item->setSizeHint(edit->size());
 
-    int sumHeight = 0;
+    int sumHeight = ui->listWidget->spacing();
     for (int i = 0; i < ui->listWidget->count(); i++)
     {
         auto widget = ui->listWidget->itemWidget(ui->listWidget->item(i));
@@ -680,11 +680,17 @@ void NotificationCard::setColors(QColor bg, QColor fg)
     pa.setColor(QPalette::Foreground, fg);
     pa.setColor(QPalette::Text, fg);
     ui->nicknameLabel->setPalette(pa); // 不知道为什么没有用
-    ui->nicknameLabel->setStyleSheet("color: " + QVariant(cardColor.fg).toString() + ";");
     ui->listWidget->setPalette(pa);
     ui->messageEdit->setPalette(pa);
     ui->replyButton->setPalette(pa);
     ui->replyButton->setTextColor(fg);
+
+    QString qss = "QLabel { color: " + QVariant(cardColor.fg).toString() + ";}";
+    ui->nicknameLabel->setStyleSheet(qss);
+
+    // qss = "QLineEdit { color: " + QVariant(cardColor.fg).toString() + "; background: transparent; border: 1px solid" + QVariant(cardColor.fg).toString() + "; border-radius: " + snum(us->bannerBgRadius) + "px; padding-left:2px; padding-right: 2px;}";
+    qss = "QLineEdit { color: " + QVariant(cardColor.fg).toString() + "; background: transparent; }";
+    ui->messageEdit->setStyleSheet(qss);
 }
 
 /**

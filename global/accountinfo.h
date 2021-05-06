@@ -22,8 +22,8 @@ public:
     QHash<qint64, QHash<qint64, QString>> groupMemberNames; // 群成员名字，@专用
     QHash<qint64, CardColor> userHeaderColor; // 用户头像，好友+群员+陌生人
     QHash<qint64, CardColor> groupHeaderColor; // 群头像
-    QHash<qint64, QList<MsgBean>> userMsgHistory; // 用户消息记录（不包括自己）
-    QHash<qint64, QList<MsgBean>> groupMsgHistory; // 群组消息记录（不包括自己）
+    QHash<qint64, QList<MsgBean>> userMsgHistory; // 私聊消息记录（不包括自己）
+    QHash<qint64, QList<MsgBean>> groupMsgHistory; // 群聊消息记录（不包括自己）
 };
 
 extern AccountInfo* ac;
