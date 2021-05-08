@@ -821,7 +821,7 @@ void NotificationCard::cardMenu()
 
 int NotificationCard::getReadDisplayDuration(QString text) const
 {
-    text.replace(QRegExp("<.+?>"), "");
+    text.replace(QRegularExpression("<.+?>"), "").replace(QRegularExpression("\\[CQ:.+?\\]"), "");
     int length = text.length();
     return us->bannerDisplayDuration + (length * 1000 / us->bannerTextReadSpeed);
 }
