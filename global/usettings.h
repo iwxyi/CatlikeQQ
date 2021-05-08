@@ -66,6 +66,7 @@ public:
     bool enableGroupNotification = true;
     int bannerMessageSpacing = 8; // 同一个卡片里面的消息的间距：itemSpace+margin*2
     bool bannerMessageSmoothScroll = true;
+    int bannerMessageLoadCount = 20; // 一次性加载多少条历史记录
 
     QList<qint64> enabledGroups;
 };

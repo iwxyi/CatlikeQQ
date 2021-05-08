@@ -62,6 +62,7 @@ private slots:
     void cardClicked();
     void cardMenu();
     void on_listWidget_itemDoubleClicked(QListWidgetItem *item);
+    void loadMsgHistory();
 
 private:
     void setPrivateMsg(const MsgBean& msg);
@@ -69,9 +70,9 @@ private:
     void appendPrivateMsg(const MsgBean& msg);
     void appendGroupMsg(const MsgBean& msg);
     void addSingleSenderMsg(const MsgBean& msg);
-    void addNewEdit(const MsgBean &msg);
-    void addNewBox(const MsgBean &msg);
-    void addNewEdit2(const MsgBean &msg);
+    void createMsgEdit(const MsgBean &msg, int index = -1);
+    void createMsgBox(const MsgBean &msg, int index = -1);
+    void createBoxEdit(const MsgBean &msg, int index = -1);
     int getReadDisplayDuration(QString text) const;
 
 protected:

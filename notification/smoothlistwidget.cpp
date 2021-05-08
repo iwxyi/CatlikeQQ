@@ -81,11 +81,15 @@ void SmoothListWidget::wheelEvent(QWheelEvent *event)
     {
         if (event->delta() > 0) // 上滚
         {
+            if (verticalScrollBar()->sliderPosition() == verticalScrollBar()->minimum() && !smooth_scrolls.size()) // 到顶部了
+                emit signalLoadTop();
             addSmoothScrollThread(-smoothScrollSpeed, smoothScrollDuration);
             toBottoming = 0;
         }
         else if (event->delta() < 0) // 下滚
         {
+            if (verticalScrollBar()->sliderPosition() == verticalScrollBar()->maximum() && !smooth_scrolls.size()) // 到顶部了
+                emit signalLoadBottom();
             addSmoothScrollThread(smoothScrollSpeed, smoothScrollDuration);
         }
     }

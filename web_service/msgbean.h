@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QPixmap>
+#include <QDateTime>
 
 struct MsgBean
 {
@@ -25,12 +26,14 @@ struct MsgBean
 
     QString imageId; // 显示唯一图片（不一定有）
     QColor bgColor; // 显示的背景（不一定有，除非开启动态背景）
+    qint64 timestamp = 0; // 创建时间（毫秒级）
 
     MsgBean(qint64 senderId, QString nickname, QString message, qint64 messageId, QString subType)
         : senderId(senderId), nickname(nickname), message(message), messageId(messageId), subType(subType)
     {
         if (nickname.isEmpty())
             nickname = QString::number(senderId);
+        timestamp = QDateTime::currentMSecsSinceEpoch();
     }
 
     MsgBean(qint64 senderId, QString nickname)
@@ -38,6 +41,7 @@ struct MsgBean
     {
         if (nickname.isEmpty())
             nickname = QString::number(senderId);
+        timestamp = QDateTime::currentMSecsSinceEpoch();
     }
 
     MsgBean& group(qint64 groupId, QString groupName, QString card = "")

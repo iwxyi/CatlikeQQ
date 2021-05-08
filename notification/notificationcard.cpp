@@ -63,6 +63,7 @@ NotificationCard::NotificationCard(QWidget *parent) :
     connect(ui->messageEdit, SIGNAL(signalFocusOut()), this, SLOT(focusOut()));
     connect(bg, SIGNAL(clicked()), this, SLOT(cardClicked()));
     connect(bg, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(cardMenu()));
+    connect(ui->listWidget, SIGNAL(signalLoadTop()), this, SLOT(loadMsgHistory()));
 
     // 样式表
     QString qss = "/* 整个滚动条背景 */\
@@ -249,7 +250,7 @@ void NotificationCard::setPrivateMsg(const MsgBean &msg)
     }
 
     // 添加消息
-    addNewEdit(msg);
+    createMsgEdit(msg);
 }
 
 /// 设置第一个群聊消息
@@ -290,31 +291,31 @@ void NotificationCard::setGroupMsg(const MsgBean &msg)
     ui->verticalLayout_2->insertWidget(1, ui->listWidget);
 
     // 添加消息组
-    addNewBox(msg);
+    createMsgBox(msg);
 }
 
 /// 添加一个私聊消息
 void NotificationCard::appendPrivateMsg(const MsgBean &msg)
 {
-    addNewEdit(msg);
+    createMsgEdit(msg);
 }
 
 /// 添加一个群组消息，每条都有可能是独立的头像、昵称（二级标题）
 void NotificationCard::appendGroupMsg(const MsgBean &msg)
 {
     if (!msgs.size() || msgs.last().senderId != msg.senderId)
-        addNewBox(msg);
+        createMsgBox(msg);
     else
-        addNewEdit2(msg);
+        createBoxEdit(msg);
 }
 
 /// 一个卡片只显示一个人的消息的情况
 void NotificationCard::addSingleSenderMsg(const MsgBean &msg)
 {
-    addNewEdit(msg);
+    createMsgEdit(msg);
 }
 
-void NotificationCard::addNewEdit(const MsgBean& msg)
+void NotificationCard::createMsgEdit(const MsgBean& msg, int index)
 {
     // 先暂停时钟（获取图片有延迟）
     int remain = -1;
@@ -331,7 +332,16 @@ void NotificationCard::addNewEdit(const MsgBean& msg)
     edit->setMessage(msg);
     edit->setTextColor(cardColor.fg);
 
-    QListWidgetItem* item = new QListWidgetItem(ui->listWidget);
+    QListWidgetItem* item;
+    if (index < 0)
+    {
+        item = new QListWidgetItem(ui->listWidget);
+    }
+    else
+    {
+        item = new QListWidgetItem;
+        ui->listWidget->insertItem(index, item);
+    }
     ui->listWidget->setItemWidget(item, edit);
 
     QSize sz = edit->adjustSizeByTextWidth(us->bannerContentWidth);
@@ -342,13 +352,13 @@ void NotificationCard::addNewEdit(const MsgBean& msg)
     for (int i = 0; i < ui->listWidget->count(); i++)
     {
         auto widget = ui->listWidget->itemWidget(ui->listWidget->item(i));
-        sumHeight += widget->height() + ui->listWidget->spacing();
+        sumHeight += widget->height() + ui->listWidget->spacing() * 2;
     }
     ui->listWidget->setFixedHeight(qMin(sumHeight, us->bannerContentHeight));
     this->adjustSize();
 
     // 滚动
-    if (ending)
+    if (index == -1 && ending)
     {
         ui->listWidget->scrollToBottom();
     }
@@ -362,7 +372,7 @@ void NotificationCard::addNewEdit(const MsgBean& msg)
     }
 }
 
-void NotificationCard::addNewBox(const MsgBean &msg)
+void NotificationCard::createMsgBox(const MsgBean &msg, int index)
 {
     // 先暂停时钟（获取图片有延迟）
     int remain = -1;
@@ -446,7 +456,16 @@ void NotificationCard::addNewBox(const MsgBean &msg)
     box->adjustSize();
 
     // 设置列表项
-    QListWidgetItem* item = new QListWidgetItem(ui->listWidget);
+    QListWidgetItem* item;
+    if (index < 0)
+    {
+        item = new QListWidgetItem(ui->listWidget);
+    }
+    else
+    {
+        item = new QListWidgetItem;
+        ui->listWidget->insertItem(index, item);
+    }
     ui->listWidget->setItemWidget(item, box);
     item->setSizeHint(box->size());
 
@@ -454,13 +473,13 @@ void NotificationCard::addNewBox(const MsgBean &msg)
     for (int i = 0; i < ui->listWidget->count(); i++)
     {
         auto widget = ui->listWidget->itemWidget(ui->listWidget->item(i));
-        sumHeight += widget->height() + us->bannerMessageSpacing;
+        sumHeight += widget->height() + ui->listWidget->spacing() * 2; // us->bannerMessageSpacing;
     }
     ui->listWidget->setFixedHeight(qMin(sumHeight, us->bannerContentHeight));
     this->adjustSize();
 
     // 滚动
-    if (ending)
+    if (index == -1 && ending)
         ui->listWidget->scrollToBottom();
 
     // 回复时钟
@@ -474,7 +493,7 @@ void NotificationCard::addNewBox(const MsgBean &msg)
 
 /// 仅显示编辑框，不显示头像
 /// 但是头像的占位还在的
-void NotificationCard::addNewEdit2(const MsgBean &msg)
+void NotificationCard::createBoxEdit(const MsgBean &msg, int index)
 {
     // 先暂停时钟（获取图片有延迟）
     int remain = -1;
@@ -515,7 +534,16 @@ void NotificationCard::addNewEdit2(const MsgBean &msg)
     box->adjustSize();
 
     // 设置列表项
-    QListWidgetItem* item = new QListWidgetItem(ui->listWidget);
+    QListWidgetItem* item;
+    if (index < 0)
+    {
+        item = new QListWidgetItem(ui->listWidget);
+    }
+    else
+    {
+        item = new QListWidgetItem;
+        ui->listWidget->insertItem(index, item);
+    }
     ui->listWidget->setItemWidget(item, box);
     item->setSizeHint(box->size());
 
@@ -523,13 +551,13 @@ void NotificationCard::addNewEdit2(const MsgBean &msg)
     for (int i = 0; i < ui->listWidget->count(); i++)
     {
         auto widget = ui->listWidget->itemWidget(ui->listWidget->item(i));
-        sumHeight += widget->height() + us->bannerMessageSpacing;
+        sumHeight += widget->height() + ui->listWidget->spacing() * 2; // us->bannerMessageSpacing;
     }
     ui->listWidget->setFixedHeight(qMin(sumHeight, us->bannerContentHeight));
     this->adjustSize();
 
     // 滚动
-    if (ending)
+    if (index == -1 && ending)
         ui->listWidget->scrollToBottom();
 
     // 回复时钟
@@ -639,7 +667,7 @@ void NotificationCard::sendReply()
     // 加到消息框中
     MsgBean msg(ac->myId, ac->myNickname, "你: " + text, 0, "");
     if (isGroup())
-        addNewEdit2(msg);
+        createBoxEdit(msg);
     else
         appendPrivateMsg(msg);
 
@@ -728,7 +756,7 @@ void NotificationCard::cardClicked()
 
 void NotificationCard::cardMenu()
 {
-    FacileMenu* menu = new FacileMenu;
+    FacileMenu* menu = new FacileMenu(this);
     menu->addAction(QIcon(), "立即关闭", [=]{
         this->toHide();
     });
@@ -775,4 +803,71 @@ void NotificationCard::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
     // 如果是图片
 
     // 如果是文件
+}
+
+/// 加载消息记录
+void NotificationCard::loadMsgHistory()
+{
+    QList<MsgBean> *histories;
+
+    Q_ASSERT(msgs.size());
+    if (!groupId) // 加载私聊消息
+    {
+        if (!ac->userMsgHistory.contains(senderId))
+            return ;
+        histories = &ac->userMsgHistory[senderId];
+    }
+    else // 加载群组消息
+    {
+        if (!ac->groupMsgHistory.contains(groupId))
+            return ;
+        histories = &ac->groupMsgHistory[groupId];
+    }
+
+    auto firstMsg = msgs.first();
+
+    // 获取当前消息的前一个位置（最后一条历史）
+    int historyStart = histories->size()-1;
+    qint64 timestamp = firstMsg.timestamp;
+    while (--historyStart >= 0 && histories->at(historyStart).timestamp >= timestamp);
+    int historyEnd = qMin(historyStart + 1, histories->size()); // 当前索引
+    if (historyEnd <= 0) // 没有历史消息
+        return ;
+
+    // 群组的话，根据同一个人的连续消息，稍微向上延伸，最多一倍
+    if (groupId && historyStart > 0)
+    {
+        int count = us->bannerMessageLoadCount;
+        qint64 senderId = histories->at(historyStart).senderId;
+        while (historyStart > 0 && count-- && histories->at(historyStart-1).senderId == senderId)
+            historyStart--;
+    }
+
+    // 加载消息：index -> historyEnd-1
+    auto bar = ui->listWidget->verticalScrollBar();
+    int disBottom = bar->maximum() - bar->sliderPosition();
+    qint64 senderId = -1;
+    for (int i = historyStart; i < historyEnd; i++)
+    {
+        int index = i - historyStart;
+        auto msg = histories->at(i);
+        if (isPrivate())
+        {
+            createMsgEdit(msg, index);
+        }
+        else
+        {
+            if (msg.senderId != senderId)
+            {
+                createMsgBox(msg, index);
+            }
+            else
+            {
+                createBoxEdit(msg, index);
+            }
+        }
+        senderId = msg.senderId;
+        msgs.insert(index, msg);
+    }
+    bar->setSliderPosition(bar->maximum() - disBottom);
 }

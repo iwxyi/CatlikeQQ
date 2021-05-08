@@ -22,6 +22,10 @@ public:
 private:
     void addSmoothScrollThread(int distance, int duration);
 
+signals:
+    void signalLoadTop(); // 到顶端之后下拉
+    void signalLoadBottom(); // 到底部之后上拉
+
 public slots:
     void slotSmoothScrollDistance(SmoothScrollBean* bean, int dis);
 
