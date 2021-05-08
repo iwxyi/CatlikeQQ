@@ -84,7 +84,7 @@ void MessageView::setMessage(const MsgBean& msg)
             delete movie;
         }
 #endif
-        if (!isFileExist(":/qq/qq-face/" + match.captured(1) + ".png"))
+        if (!isFileExist(":/qq/qq-face/" + match.captured(1) + ".png")) // 不在表情库中的表情
         {
             text.replace(QRegExp("\\[CQ:face,id=(\\d+)\\]"), "[表情]");
         }
@@ -122,7 +122,8 @@ void MessageView::setMessage(const MsgBean& msg)
             QString id = match.captured(1);
             QString url = match.captured(2);
             QString path = rt->imageCache(id);
-            NetImageUtil::saveNetFile(url, path);
+            if (!isFileExist(path)) // 可能重复发送，也可能从历史消息加载，所以不重复读取
+                NetImageUtil::saveNetFile(url, path);
 #ifdef MESSAGE_LABEL
             // 如果是单张图片，支持显示gif
             if (text.indexOf(QRegularExpression("^\\[CQ:image,file=(.+?).image,.*url=(.+)\\]$")) > -1)

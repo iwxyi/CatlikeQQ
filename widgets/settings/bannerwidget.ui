@@ -153,10 +153,11 @@
      <item row="3" column="0">
       <widget class="QLabel" name="label_4">
        <property name="toolTip">
-        <string>失去焦点/回复后多久时间隐藏</string>
+        <string>失去焦点（鼠标移开）/回复后多久时间隐藏
+一个小技巧：慢慢移开可快速隐藏通知，快速移开则可以继续保留</string>
        </property>
        <property name="text">
-        <string>失焦后再停留</string>
+        <string>鼠标移开后再停留</string>
        </property>
       </widget>
      </item>
