@@ -10,6 +10,8 @@ CONFIG += c++11
 # deprecated API in order to know how to port your code away from it.
 DEFINES += QT_DEPRECATED_WARNINGS
 
+RC_FILE += resources/resource.rc
+
 # You can also make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
@@ -58,6 +60,7 @@ HEADERS += \
     notification/replyedit.h \
     notification/smoothlistwidget.h \
     notification/smoothscrollbean.h \
+    resources/resource.rc \
     third_party/utils/mysettings.h \
     third_party/utils/netimageutil.h \
     web_service/cqhttpservice.h \
