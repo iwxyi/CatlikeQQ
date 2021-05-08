@@ -12,6 +12,7 @@
 #include "runtime.h"
 #include "usettings.h"
 #include "netimageutil.h"
+#include "myjson.h"
 
 MessageView::MessageView(QWidget *parent) : QLabel(parent)
 {
@@ -208,6 +209,19 @@ void MessageView::setMessage(const MsgBean& msg)
     }
     text.replace(QRegExp("\\[CQ:at,qq=(\\d+)\\]"), "@\\1"); // 万一有没有替换完的呢
 
+    // json
+    if (text.indexOf(QRegularExpression("\\[CQ:json,data=(.+?)\\]"), 0, &match) > -1)
+    {
+        QString s = match.captured(1);
+        s.replace("\\\"", "\"").replace("&#44;", ",");
+        MyJson json(s.toUtf8());
+        if (json.contains("prompt"))
+        {
+            JS(json, prompt);
+            text.replace(match.captured(0), prompt);
+        }
+    }
+
     // 其他格式
     text.replace(QRegExp("\\[CQ:(\\w+),.+\\]"), "[\\1]");
 
@@ -251,7 +265,8 @@ void MessageView::replaceGroupAt()
         text.replace(match.captured(0), "@" + memberNames->value(userId));
         replaced = true;
     }
-    setText(text);
+    if (replaced) // 没有替换的话，就不重新设置了（怕引起大小变化等等）
+        setText(text);
 }
 
 QSize MessageView::adjustSizeByTextWidth(int w)
