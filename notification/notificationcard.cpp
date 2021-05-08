@@ -28,7 +28,8 @@ NotificationCard::NotificationCard(QWidget *parent) :
 
     ui->headerLabel->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     ui->nicknameLabel->setAttribute(Qt::WA_TransparentForMouseEvents, true);
-    // ui->listWidget->setAttribute(Qt::WA_TransparentForMouseEvents, true);
+    // ui->listWidget->setAttribute(Qt::WA_TransparentForMouseEvents, true); // 不能穿透
+    ui->listWidget->setAttribute(Qt::WA_TranslucentBackground, true);
     ui->replyButton->setRadius(us->bannerBgRadius);
     ui->messageEdit->hide();
 
@@ -328,9 +329,11 @@ void NotificationCard::createMsgEdit(const MsgBean& msg, int index)
     auto scrollbar = ui->listWidget->verticalScrollBar();
     bool ending = (scrollbar->sliderPosition() >= scrollbar->maximum() || ui->listWidget->isToBottoming());
 
-    MessageView* edit = new MessageView(this);
-    edit->setMessage(msg);
-    edit->setTextColor(cardColor.fg);
+    MessageView* msgView = new MessageView(this);
+    msgView->setMessage(msg);
+    msgView->setTextColor(cardColor.fg);
+
+    msgView->setAttribute(Qt::WA_TransparentForMouseEvents, false);
 
     QListWidgetItem* item;
     if (index < 0)
@@ -342,11 +345,11 @@ void NotificationCard::createMsgEdit(const MsgBean& msg, int index)
         item = new QListWidgetItem;
         ui->listWidget->insertItem(index, item);
     }
-    ui->listWidget->setItemWidget(item, edit);
+    ui->listWidget->setItemWidget(item, msgView);
 
-    QSize sz = edit->adjustSizeByTextWidth(us->bannerContentWidth);
-    edit->resize(sz);
-    item->setSizeHint(edit->size());
+    QSize sz = msgView->adjustSizeByTextWidth(us->bannerContentWidth);
+    msgView->resize(sz);
+    item->setSizeHint(msgView->size());
 
     int sumHeight = ui->listWidget->spacing();
     for (int i = 0; i < ui->listWidget->count(); i++)
@@ -389,7 +392,7 @@ void NotificationCard::createMsgBox(const MsgBean &msg, int index)
     QWidget* box = new QWidget(this);
     QLabel* headerLabel = new QLabel(box);
     QLabel* nameLabel = new QLabel(msg.groupName, box);
-    MessageView* edit = new MessageView(box);
+    MessageView* msgView = new MessageView(box);
     QWidget* spacer = new QWidget(this);
     QVBoxLayout* headerVlayout = new QVBoxLayout;
     QVBoxLayout* contentVlayout = new QVBoxLayout;
@@ -400,7 +403,7 @@ void NotificationCard::createMsgBox(const MsgBean &msg, int index)
     headerVlayout->setStretch(0, 0);
     headerVlayout->setStretch(1, 1);
     contentVlayout->addWidget(nameLabel);
-    contentVlayout->addWidget(edit);
+    contentVlayout->addWidget(msgView);
     contentVlayout->setStretch(0, 0);
     contentVlayout->setStretch(1, 1);
     mainHlayout->addLayout(headerVlayout);
@@ -413,6 +416,7 @@ void NotificationCard::createMsgBox(const MsgBean &msg, int index)
     spacer->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     headerLabel->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     nameLabel->setAttribute(Qt::WA_TransparentForMouseEvents, true);
+    msgView->setAttribute(Qt::WA_TransparentForMouseEvents, false);
     spacer->setFixedWidth(1);
     headerLabel->setFixedSize(ui->headerLabel->size());
 
@@ -425,7 +429,7 @@ void NotificationCard::createMsgBox(const MsgBean &msg, int index)
     pa.setColor(QPalette::Foreground, cardColor.fg);
     pa.setColor(QPalette::Text, cardColor.fg);
     nameLabel->setPalette(pa);
-    edit->setPalette(pa);
+    msgView->setPalette(pa);
 
     // 设置昵称
     nameLabel->setText(msg.displayNickname());
@@ -447,11 +451,11 @@ void NotificationCard::createMsgBox(const MsgBean &msg, int index)
     }
 
     // 设置消息
-    edit->setMessage(msg);
-    edit->setTextColor(cardColor.fg);
-    QSize sz = edit->adjustSizeByTextWidth(us->bannerContentWidth - 12);
-    edit->resize(sz);
-    edit->setFixedHeight(sz.height());
+    msgView->setMessage(msg);
+    msgView->setTextColor(cardColor.fg);
+    QSize sz = msgView->adjustSizeByTextWidth(us->bannerContentWidth - 12);
+    msgView->resize(sz);
+    msgView->setFixedHeight(sz.height());
     box->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     box->adjustSize();
 
@@ -508,29 +512,31 @@ void NotificationCard::createBoxEdit(const MsgBean &msg, int index)
 
     QWidget* box = new QWidget(this);
     QLabel* headerLabel = new QLabel(box);
-    MessageView* edit = new MessageView(box);
+    MessageView* msgView = new MessageView(box);
     QHBoxLayout* mainHlayout = new QHBoxLayout(box);
     headerLabel->setFixedSize(ui->headerLabel->width(), 1);
     headerLabel->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     mainHlayout->addWidget(headerLabel);
-    mainHlayout->addWidget(edit);
+    mainHlayout->addWidget(msgView);
     mainHlayout->setStretch(0, 0);
     mainHlayout->setStretch(1, 1);
     mainHlayout->setAlignment(Qt::AlignLeft);
     mainHlayout->setMargin(0);
 
+    msgView->setAttribute(Qt::WA_TransparentForMouseEvents, false);
+
     // 设置颜色
     QPalette pa(ui->nicknameLabel->palette());
     pa.setColor(QPalette::Foreground, cardColor.fg);
     pa.setColor(QPalette::Text, cardColor.fg);
-    edit->setPalette(pa);
+    msgView->setPalette(pa);
 
     // 设置消息
-    edit->setMessage(msg);
-    edit->setTextColor(cardColor.fg);
-    QSize sz = edit->adjustSizeByTextWidth(us->bannerContentWidth - 12);
-    edit->resize(sz);
-    edit->setFixedHeight(sz.height());
+    msgView->setMessage(msg);
+    msgView->setTextColor(cardColor.fg);
+    QSize sz = msgView->adjustSizeByTextWidth(us->bannerContentWidth - 12);
+    msgView->resize(sz);
+    msgView->setFixedHeight(sz.height());
     box->adjustSize();
 
     // 设置列表项
