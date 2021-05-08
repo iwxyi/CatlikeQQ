@@ -169,6 +169,40 @@ void CqhttpService::parseEchoMessage(const MyJson &json)
     {
         // 发送消息的回复，不做处理
     }
+    else if (echo.startsWith("get_group_member_list"))
+    {
+        QRegularExpression re("^get_group_member_list:(\\d+)$");
+        QRegularExpressionMatch match;
+        if (echo.indexOf(re, 0, &match) == -1)
+        {
+            qWarning() << "无法识别的群成员echo：" << echo;
+            return ;
+        }
+
+        qint64 groupId = match.captured(1).toLongLong();
+        if (!ac->groupMemberNames.contains(groupId))
+            ac->groupMemberNames.insert(groupId, QHash<qint64, QString>());
+
+        QHash<qint64, QString>* names = &ac->groupMemberNames[groupId];
+        names->clear();
+        json.each("data", [=](MyJson member) {
+            JL(member, user_id);
+            JS(member, card);
+            JS(member, nickname);
+            QString name = card;
+            if (card.isEmpty()) // 没有群备注
+            {
+                // 优先使用好友备注
+                if (ac->friendNames.contains(user_id))
+                    name = ac->friendNames.value(user_id);
+                if (name.isEmpty()) // 好友备注还是空的（应该不会，空的就已经用 nickname 了）
+                    name = nickname;
+            }
+            names->insert(user_id, name);
+        });
+        qInfo() << "加载群成员：" << groupId << names->size();
+        emit sig->groupMembersLoaded(groupId);
+    }
     else
     {
         qDebug() << "未处理类型的返回：" << json;

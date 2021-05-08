@@ -19,7 +19,7 @@ public:
     QString myNickname; // 自己的昵称
     QHash<qint64, QString> friendNames; // 好友列表
     QHash<qint64, QString> groupNames; // 群列表
-    QHash<qint64, QHash<qint64, QString>> groupMemberNames; // 群成员名字，@专用
+    QHash<qint64, QHash<qint64, QString>> groupMemberNames; // 群成员名字（不包含好友备注），@专用
     QHash<qint64, CardColor> userHeaderColor; // 用户头像，好友+群员+陌生人
     QHash<qint64, CardColor> groupHeaderColor; // 群头像
     QHash<qint64, QList<MsgBean>> userMsgHistory; // 私聊消息记录（不包括自己）

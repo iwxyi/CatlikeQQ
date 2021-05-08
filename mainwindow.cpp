@@ -159,6 +159,16 @@ void MainWindow::initService()
     service = new CqhttpService(this);
 
     connect(service, SIGNAL(signalMessage(const MsgBean&)), this, SLOT(showMessage(const MsgBean&)));
+
+    connect(sig, &SignalTransfer::loadGroupMembers, service, [=](qint64 groupId) {
+        MyJson json;
+        json.insert("action", "get_group_member_list");
+        MyJson params;
+        params.insert("group_id", groupId);
+        json.insert("params", params);
+        json.insert("echo", "get_group_member_list:" + snum(groupId));
+        service->sendMessage(json.toBa());
+    });
 }
 
 void MainWindow::closeEvent(QCloseEvent *e)

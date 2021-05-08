@@ -11,10 +11,8 @@ signals:
     void socketStateChanged(bool connected);
     void myAccount(qint64 id, QString nickname);
 
-    void imgLoaded(QString url, const QPixmap& pixmap);
-    void faceLoaded(int id, const QPixmap& pixmap);
-    void userHeadLoaded(qint64 id, const QPixmap& pixmap);
-    void groupHeadLoaded(qint64 id, const QPixmap& pixmap);
+    void loadGroupMembers(qint64 groupId);
+    void groupMembersLoaded(qint64 groupId);
 };
 
 extern SignalTransfer* sig;

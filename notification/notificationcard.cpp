@@ -138,7 +138,7 @@ void NotificationCard::setMsg(const MsgBean &msg)
     this->groupId = msg.groupId;
     msgs.append(msg);
 
-    if (!msg.isGroup())
+    if (msg.isPrivate())
     {
         setPrivateMsg(msg);
     }
@@ -293,6 +293,19 @@ void NotificationCard::setGroupMsg(const MsgBean &msg)
 
     // 添加消息组
     createMsgBox(msg);
+
+    connect(sig, &SignalTransfer::groupMembersLoaded, this, [=](qint64 groupId) {
+        if (groupId != this->groupId)
+            return ;
+
+        Q_ASSERT(ac->groupMemberNames.contains(groupId));
+        QHash<qint64, QString> *groupMembers = &ac->groupMemberNames[groupId];
+        foreach (auto view, msgViews)
+        {
+            view->setGroupMembers(groupMembers);
+            view->replaceGroupAt();
+        }
+    });
 }
 
 /// 添加一个私聊消息
@@ -329,7 +342,7 @@ void NotificationCard::createMsgEdit(const MsgBean& msg, int index)
     auto scrollbar = ui->listWidget->verticalScrollBar();
     bool ending = (scrollbar->sliderPosition() >= scrollbar->maximum() || ui->listWidget->isToBottoming());
 
-    MessageView* msgView = new MessageView(this);
+    MessageView* msgView = newMsgView();
     msgView->setMessage(msg);
     msgView->setTextColor(cardColor.fg);
 
@@ -392,7 +405,7 @@ void NotificationCard::createMsgBox(const MsgBean &msg, int index)
     QWidget* box = new QWidget(this);
     QLabel* headerLabel = new QLabel(box);
     QLabel* nameLabel = new QLabel(msg.groupName, box);
-    MessageView* msgView = new MessageView(box);
+    MessageView* msgView = newMsgView();
     QWidget* spacer = new QWidget(this);
     QVBoxLayout* headerVlayout = new QVBoxLayout;
     QVBoxLayout* contentVlayout = new QVBoxLayout;
@@ -512,7 +525,7 @@ void NotificationCard::createBoxEdit(const MsgBean &msg, int index)
 
     QWidget* box = new QWidget(this);
     QLabel* headerLabel = new QLabel(box);
-    MessageView* msgView = new MessageView(box);
+    MessageView* msgView = newMsgView();
     QHBoxLayout* mainHlayout = new QHBoxLayout(box);
     headerLabel->setFixedSize(ui->headerLabel->width(), 1);
     headerLabel->setAttribute(Qt::WA_TransparentForMouseEvents, true);
@@ -573,6 +586,34 @@ void NotificationCard::createBoxEdit(const MsgBean &msg, int index)
         displayTimer->start();
         // 显示出来后会自动增加新message需要的时间，所以只要恢复就行了
     }
+}
+
+MessageView *NotificationCard::newMsgView()
+{
+    MessageView* view = new MessageView(this);
+    msgViews.append(view);
+
+    if (groupId)
+    {
+        if (ac->groupMemberNames.contains(groupId))
+            view->setGroupMembers(&ac->groupMemberNames[groupId]);
+
+        connect(view, &MessageView::needMemberNames, this, [=]{
+            if (ac->groupMemberNames.contains(groupId))
+            {
+                auto& list = ac->groupMemberNames[groupId];
+                if (!list.size()) // 这里标记是空列表表示正在获取中
+                    return ;
+
+                list.clear(); // 有列表，但是还是需要，就清空，重新获取
+            }
+
+            // 没有获取中，或者是旧的列表（已清空）
+            emit sig->loadGroupMembers(groupId);
+        });
+    }
+
+    return view;
 }
 
 bool NotificationCard::isPrivate() const

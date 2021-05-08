@@ -187,7 +187,26 @@ void MessageView::setMessage(const MsgBean& msg)
     text.replace(QRegExp("\\[CQ:reply,id=-?\\d+\\]\\[CQ:at,qq=\\d+\\]"), "[回复]");
 
     // 艾特
-    text.replace(QRegExp("\\[CQ:at,qq=(\\d+)\\]"), "@\\1");
+    re = QRegularExpression("\\[CQ:at,qq=(\\d+)\\]");
+    int pos = 0;
+    while ((pos = text.indexOf(re, pos, &match)) > -1)
+    {
+        if (!memberNames)
+        {
+            emit needMemberNames();
+            break;
+        }
+
+        qint64 userId = match.captured(1).toLongLong();
+        if (memberNames->contains(userId))
+            text.replace(match.captured(0), "@" + memberNames->value(userId));
+        else // 群组里没有这个人，刚加入？
+        {
+            emit needMemberNames();
+            pos++;
+        }
+    }
+    text.replace(QRegExp("\\[CQ:at,qq=(\\d+)\\]"), "@\\1"); // 万一有没有替换完的呢
 
     // 其他格式
     text.replace(QRegExp("\\[CQ:(\\w+),.+\\]"), "[\\1]");
@@ -204,6 +223,34 @@ void MessageView::setMessage(const MsgBean& msg)
 //        text = text.left(us->msgMaxLength) + "...";
 
     // #设置显示
+    setText(text);
+}
+
+/// 把形如 @123456 的格式统统替换为 @某某
+void MessageView::replaceGroupAt()
+{
+    if (!memberNames)
+        return ;
+    QString text = this->text();
+    if (text.isEmpty())
+        return ;
+
+    QRegularExpression re("@(\\d+)");
+    QRegularExpressionMatch match;
+    int pos = 0;
+    bool replaced = false;
+    while ((pos = text.indexOf(re, pos, &match)) > -1)
+    {
+        qint64 userId = match.captured(1).toInt();
+        if (!memberNames->contains(userId))
+        {
+            pos++;
+            continue;
+        }
+
+        text.replace(match.captured(0), "@" + memberNames->value(userId));
+        replaced = true;
+    }
     setText(text);
 }
 
@@ -228,5 +275,10 @@ void MessageView::setTextColor(QColor c)
     pa.setColor(QPalette::Foreground, c);
     pa.setColor(QPalette::Text, c);
     setPalette(pa);
+}
+
+void MessageView::setGroupMembers(QHash<qint64, QString> *memberNames)
+{
+    this->memberNames = memberNames;
 }
 

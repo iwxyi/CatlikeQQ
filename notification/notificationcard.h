@@ -12,6 +12,7 @@
 #include "accountinfo.h"
 #include "usettings.h"
 #include "runtime.h"
+#include "signaltransfer.h"
 
 #define CREATE_SHADOW(x)                                                  \
 do {                                                                      \
@@ -73,6 +74,7 @@ private:
     void createMsgEdit(const MsgBean &msg, int index = -1);
     void createMsgBox(const MsgBean &msg, int index = -1);
     void createBoxEdit(const MsgBean &msg, int index = -1);
+    MessageView* newMsgView();
     int getReadDisplayDuration(QString text) const;
 
 protected:
@@ -86,7 +88,7 @@ private:
     qint64 senderId = 0;
     qint64 groupId = 0;
     QList<MsgBean> msgs; // 可能会合并多条消息
-    QString showText;
+    QList<MessageView*> msgViews;
 
     InteractiveButtonBase* bg;
     QPoint showPoint;
