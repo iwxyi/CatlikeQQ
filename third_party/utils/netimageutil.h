@@ -64,7 +64,7 @@ public:
         return dest;
     }
 
-    /// 绕中心点圆形渐变
+    /// 绕中心点圆形现行渐变
     static QPixmap toCircleTransparentGradient(const QPixmap& pixmap)
     {
         QPixmap rst(pixmap.size());
@@ -73,15 +73,15 @@ public:
 
         QImage img = pixmap.toImage();
         QPoint center(pixmap.rect().center());
-        int alpha0 = sqrt(qMin(center.x() * center.x(), center.y()* center.y())); // 这是距离的平方
+        int alpha0 = qMin(center.x() * center.x(), center.y()* center.y()); // 这是距离的平方
         int alpha255 = alpha0 / 9; // 确定开始渐变的距离
 
         for (int x = 0; x < pixmap.width(); x++)
         {
             for (int y = 0; y < pixmap.height(); y++)
             {
-                int dis2 = sqrt((x - center.x()) * (x - center.x())
-                        + (y - center.y()) * (y - center.y()));
+                int dis2 = (x - center.x()) * (x - center.x())
+                        + (y - center.y()) * (y - center.y()); // 使用sqrt来判断是否需要线性渐变
                 int alpha = 0;
                 if (dis2 <= alpha255)
                     alpha = 255;

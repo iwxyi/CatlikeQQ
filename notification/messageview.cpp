@@ -6,6 +6,7 @@
 #include <QMovie>
 #include <QDesktopServices>
 #include <QBitmap>
+#include <QTimer>
 #include "fileutil.h"
 #include "messageview.h"
 #include "defines.h"
@@ -125,14 +126,14 @@ void MessageView::setMessage(const MsgBean& msg)
             QString path = rt->imageCache(id);
             if (!isFileExist(path)) // 可能重复发送，也可能从历史消息加载，所以不重复读取
                 NetImageUtil::saveNetFile(url, path);
+
+            // 图片尺寸
+            int maxWidth = us->bannerContentWidth;
+            int maxHeight = us->bannerContentHeight - us->bannerHeaderSize;
 #ifdef MESSAGE_LABEL
             // 如果是单张图片，支持显示gif
             if (text.indexOf(QRegularExpression("^\\[CQ:image,file=(.+?).image,.*url=(.+)\\]$")) > -1)
             {
-                // 不显示文字了，直接用图片！
-                int maxWidth = us->bannerContentWidth;
-                int maxHeight = us->bannerContentHeight - us->bannerHeaderSize;
-
                 // 支持GIF
                 QMovie* movie = new QMovie(path, "gif", this);
                 if (movie->frameCount() > 0) // 有帧，表示是GIF
@@ -174,13 +175,14 @@ void MessageView::setMessage(const MsgBean& msg)
             // 伸缩、圆角
             QString originPath = path;
             QPixmap pixmap(path, "1");
-            if (pixmap.width() > us->bannerContentWidth || pixmap.height() > us->bannerContentHeight - us->bannerHeaderSize)
-                pixmap = pixmap.scaled(us->bannerContentWidth, us->bannerContentHeight - us->bannerHeaderSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            if (pixmap.width() > maxWidth || pixmap.height() > maxHeight)
+                pixmap = pixmap.scaled(maxWidth, maxHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
             pixmap = NetImageUtil::toRoundedPixmap(pixmap, us->bannerBgRadius);
             path = rt->imageSCache(id);
             pixmap.save(path);
             // 替换为图片标签
             text.replace(match.captured(0), "<a href=\"file:///" + originPath + "\"><img src=\"" + path + "\" /></a>");
+            this->setMinimumWidth(pixmap.width());
         }
     }
 

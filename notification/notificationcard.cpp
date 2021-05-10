@@ -290,7 +290,7 @@ void NotificationCard::setGroupMsg(const MsgBean &msg)
             bg->setFixedForePos(true);
             bg->setFixedForeSize(true);
             bg->setPaddings(0);
-            ui->verticalSpacer->changeSize(0, 0);
+            ui->verticalSpacer->changeSize(1, ui->headerLabel->height());
             ui->headerLabel->hide();
         }
     }
@@ -484,7 +484,7 @@ void NotificationCard::createMsgBox(const MsgBean &msg, int index)
     // 设置消息
     msgView->setMessage(msg);
     msgView->setTextColor(cardColor.fg);
-    QSize sz = msgView->adjustSizeByTextWidth(us->bannerContentWidth - 12);
+    QSize sz = msgView->adjustSizeByTextWidth(us->bannerContentWidth); // 这里有个-12的，为什么呢
     msgView->resize(sz);
     msgView->setFixedHeight(sz.height());
     box->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
@@ -565,7 +565,7 @@ void NotificationCard::createBoxEdit(const MsgBean &msg, int index)
     // 设置消息
     msgView->setMessage(msg);
     msgView->setTextColor(cardColor.fg);
-    QSize sz = msgView->adjustSizeByTextWidth(us->bannerContentWidth - 12);
+    QSize sz = msgView->adjustSizeByTextWidth(us->bannerContentWidth); // 这里有个-12的，为什么呢
     msgView->resize(sz);
     msgView->setFixedHeight(sz.height());
     box->adjustSize();
