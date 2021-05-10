@@ -268,3 +268,41 @@ bool ImageUtil::getBgFgSgColor(QList<ColorOctree::ColorCount> colors, QColor *bg
     *sfg = colors.at(maxFIndex).toColor();
     return true;
 }
+
+QColor ImageUtil::getFastestColor(QColor bg, QList<QColor> palette)
+{
+    qint64 maxi = -1;
+    QColor maxiColor;
+    foreach (auto c, palette)
+    {
+        int r = c.red(), g = c.green(), b = c.blue();
+        qint64 delta = (r - bg.red()) * (r - bg.red())
+                + (g - bg.green()) * (g - bg.green())
+                + (b - bg.blue()) * (b - bg.blue());
+        if (delta > maxi)
+        {
+            maxi = delta;
+            maxiColor = c;
+        }
+    }
+    return maxiColor;
+}
+
+QColor ImageUtil::getFastestColor(QColor bg, QList<ColorOctree::ColorCount> palette)
+{
+    qint64 maxi = -1;
+    ColorOctree::ColorCount maxiColor;
+    foreach (auto c, palette)
+    {
+        int r = c.red, g = c.green, b = c.blue;
+        qint64 delta = (r - bg.red()) * (r - bg.red())
+                + (g - bg.green()) * (g - bg.green())
+                + (b - bg.blue()) * (b - bg.blue());
+        if (delta > maxi)
+        {
+            maxi = delta;
+            maxiColor = c;
+        }
+    }
+    return QColor(maxiColor.red, maxiColor.green, maxiColor.blue);
+}

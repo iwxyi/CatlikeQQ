@@ -28,6 +28,8 @@ private slots:
 
     void on_useHeaderGradientCheck_clicked();
 
+    void on_colorfulGroupMemberCheck_clicked();
+
 private:
     Ui::BannerWidget *ui;
 };

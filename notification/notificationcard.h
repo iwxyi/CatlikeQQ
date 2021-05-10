@@ -82,7 +82,7 @@ private:
     void addSingleSenderMsg(const MsgBean& msg);
     void createMsgEdit(const MsgBean &msg, int index = -1);
     void createMsgBox(const MsgBean &msg, int index = -1);
-    void createBoxEdit(const MsgBean &msg, int index = -1);
+    void createMsgBoxEdit(const MsgBean &msg, int index = -1);
     MessageView* newMsgView();
     int getReadDisplayDuration(QString text) const;
 

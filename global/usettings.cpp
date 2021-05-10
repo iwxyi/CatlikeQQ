@@ -18,6 +18,7 @@ void USettings::restoreSettings()
     assign(bannerWidth, "width");
     assign(bannerUseHeaderColor, "useHeaderColor");
     assign(bannerUseHeaderGradient, "useHeaderGradient");
+    assign(bannerColorfulGroupMember, "colorfulGroupMember");
     assign(bannerDisplayDuration, "displayDuration");
     assign(bannerTextReadSpeed, "textReadSpeed");
     assign(bannerAutoShowReply, "autoShowReply");

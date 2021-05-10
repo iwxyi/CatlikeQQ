@@ -361,7 +361,7 @@ void NotificationCard::appendGroupMsg(const MsgBean &msg)
     if (!msgs.size() || msgs.last().senderId != msg.senderId)
         createMsgBox(msg);
     else
-        createBoxEdit(msg);
+        createMsgBoxEdit(msg);
 }
 
 /// 一个卡片只显示一个人的消息的情况
@@ -370,6 +370,7 @@ void NotificationCard::addSingleSenderMsg(const MsgBean &msg)
     createMsgEdit(msg);
 }
 
+/// 仅创建消息正文
 void NotificationCard::createMsgEdit(const MsgBean& msg, int index)
 {
     // 先暂停时钟（获取图片有延迟）
@@ -428,6 +429,7 @@ void NotificationCard::createMsgEdit(const MsgBean& msg, int index)
     }
 }
 
+/// 创建完整的头像、昵称、消息内容
 void NotificationCard::createMsgBox(const MsgBean &msg, int index)
 {
     // 先暂停时钟（获取图片有延迟）
@@ -481,7 +483,6 @@ void NotificationCard::createMsgBox(const MsgBean &msg, int index)
     QPalette pa(ui->nicknameLabel->palette());
     pa.setColor(QPalette::Foreground, cardColor.fg);
     pa.setColor(QPalette::Text, cardColor.fg);
-    nameLabel->setPalette(pa);
     msgView->setPalette(pa);
 
     // 设置昵称
@@ -502,6 +503,33 @@ void NotificationCard::createMsgBox(const MsgBean &msg, int index)
         pixmap.save(rt->userHeader(msg.senderId));
         headerLabel->setPixmap(NetImageUtil::toRoundedPixmap(pixmap.scaled(headerLabel->size())));
     }
+
+    // 彩色用户昵称
+    if (us->bannerColorfulGroupMember)
+    {
+        auto getGroupMemberColor = [=](qint64 groupId, qint64 senderId) -> QColor {
+            if (ac->groupMemberColor.contains(groupId))
+            {
+                if (ac->groupMemberColor.value(groupId).contains(senderId))
+                {
+                    return ac->groupMemberColor.value(groupId).value(senderId);
+                }
+            }
+            else // 连群组都没有
+            {
+                ac->groupMemberColor.insert(groupId, QHash<qint64, QColor>());
+            }
+
+            AccountInfo::CardColor cc;
+            auto colors = ImageUtil::extractImageThemeColors(headerLabel->pixmap()->toImage(), 3);
+            auto color = ImageUtil::getFastestColor(cardColor.bg, colors); // 获取色差最大的
+            ac->groupMemberColor[groupId].insert(senderId, color);
+            return color;
+        };
+
+        pa.setColor(QPalette::Text, getGroupMemberColor(msg.groupId, msg.senderId));
+    }
+    nameLabel->setPalette(pa);
 
     // 设置消息
     msgView->setMessage(msg);
@@ -548,7 +576,7 @@ void NotificationCard::createMsgBox(const MsgBean &msg, int index)
 
 /// 仅显示编辑框，不显示头像
 /// 但是头像的占位还在的
-void NotificationCard::createBoxEdit(const MsgBean &msg, int index)
+void NotificationCard::createMsgBoxEdit(const MsgBean &msg, int index)
 {
     // 先暂停时钟（获取图片有延迟）
     int remain = -1;
@@ -775,7 +803,7 @@ void NotificationCard::sendReply()
     // 加到消息框中
     MsgBean msg(ac->myId, ac->myNickname, "你: " + text, 0, "");
     if (isGroup())
-        createBoxEdit(msg);
+        createMsgBoxEdit(msg);
     else
         appendPrivateMsg(msg);
 
@@ -979,7 +1007,7 @@ void NotificationCard::loadMsgHistory()
             }
             else
             {
-                createBoxEdit(msg, index);
+                createMsgBoxEdit(msg, index);
             }
         }
         senderId = msg.senderId;

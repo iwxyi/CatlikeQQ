@@ -24,6 +24,7 @@ public:
     QHash<qint64, CardColor> groupHeaderColor; // 群头像
     QHash<qint64, QList<MsgBean>> userMsgHistory; // 私聊消息记录（不包括自己）
     QHash<qint64, QList<MsgBean>> groupMsgHistory; // 群聊消息记录（不包括自己）
+    QHash<qint64, QHash<qint64, QColor>> groupMemberColor; // 群组里每位用户的颜色
 };
 
 extern AccountInfo* ac;
