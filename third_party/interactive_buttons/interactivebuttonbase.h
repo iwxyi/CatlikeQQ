@@ -305,6 +305,7 @@ public slots:
     void slotCloseState();
 
 protected:
+    // 各属性
     PaintModel model;
     QIcon icon;
     QString text;
@@ -312,7 +313,6 @@ protected:
     PaintAddin paint_addin;
     EdgeVal fore_paddings;
 
-protected:
     // 总体开关
     bool self_enabled, parent_enabled, fore_enabled; // 是否启用子类、启动父类、绘制子类前景
 

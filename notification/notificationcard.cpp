@@ -287,7 +287,10 @@ void NotificationCard::setGroupMsg(const MsgBean &msg)
                 NetImageUtil::toCircleTransparentGradient(headerPixmap).save(path);
             bg->setIcon(QIcon(path));
             bg->setAlign(Qt::AlignTop | Qt::AlignRight);
-            // ui->headerLabel->deleteLater();
+            bg->setFixedForePos(true);
+            bg->setFixedForeSize(true);
+            bg->setPaddings(0);
+            ui->verticalSpacer->changeSize(0, 0);
             ui->headerLabel->hide();
         }
     }
@@ -775,7 +778,7 @@ void NotificationCard::setColors(QColor bg, QColor fg)
     ui->replyButton->setPalette(pa);
     ui->replyButton->setTextColor(fg);
 
-    QString qss = "QLabel { color: " + QVariant(cardColor.fg).toString() + ";}";
+    QString qss = "QLabel { color: " + QVariant(cardColor.fg).toString() + "; }";
     ui->nicknameLabel->setStyleSheet(qss);
 
     // qss = "QLineEdit { color: " + QVariant(cardColor.fg).toString() + "; background: transparent; border: 1px solid" + QVariant(cardColor.fg).toString() + "; border-radius: " + snum(us->bannerBgRadius) + "px; padding-left:2px; padding-right: 2px;}";
