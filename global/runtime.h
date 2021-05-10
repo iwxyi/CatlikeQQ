@@ -10,7 +10,9 @@ public:
     explicit Runtime(QObject *parent = nullptr);
 
     QString userHeader(qint64 id) const;
+    QString userHeader(QString id) const;
     QString groupHeader(qint64 id) const;
+    QString groupHeader(QString id) const;
     QString imageCache(QString id) const;
     QString imageSCache(QString id) const;
     QString faceCache(QString id) const;

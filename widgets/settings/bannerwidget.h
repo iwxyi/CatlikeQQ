@@ -26,6 +26,8 @@ private slots:
 
     void on_retentionDurationSpin_editingFinished();
 
+    void on_useHeaderGradientCheck_clicked();
+
 private:
     Ui::BannerWidget *ui;
 };

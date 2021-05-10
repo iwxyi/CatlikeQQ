@@ -10,6 +10,7 @@ BannerWidget::BannerWidget(QWidget *parent) :
     ui->setupUi(this);
 
     ui->useHeaderColorCheck->setChecked(us->bannerUseHeaderColor);
+    ui->useHeaderGradientCheck->setChecked(us->bannerUseHeaderGradient);
     ui->displayDurationSpin->setValue(us->bannerDisplayDuration / 1000);
     ui->textReadSpeedSpin->setValue(us->bannerTextReadSpeed);
     ui->floatPixelSpin->setValue(us->bannerFloatPixel);
@@ -44,4 +45,9 @@ void BannerWidget::on_floatPixelSpin_editingFinished()
 void BannerWidget::on_retentionDurationSpin_editingFinished()
 {
     us->set("banner/retentionDuration", us->bannerRetentionDuration = ui->retentionDurationSpin->value() * 1000);
+}
+
+void BannerWidget::on_useHeaderGradientCheck_clicked()
+{
+    us->set("banner/useHeaderGradient", us->bannerUseHeaderGradient = ui->useHeaderGradientCheck->isChecked());
 }

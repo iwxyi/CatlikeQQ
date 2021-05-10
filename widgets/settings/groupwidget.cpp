@@ -12,6 +12,8 @@ GroupWidget::GroupWidget(QWidget *parent) :
     ui(new Ui::GroupWidget)
 {
     ui->setupUi(this);
+    ui->enabledGroupButton->setBorderWidth(1);
+    ui->enabledGroupButton->setBorderColor(Qt::gray);
 
     ui->mainCheck->setChecked(us->enableGroupNotification);
 }

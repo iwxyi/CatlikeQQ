@@ -262,18 +262,33 @@ void NotificationCard::setGroupMsg(const MsgBean &msg)
 
     // 设置头像
     // 群头像API：http://p.qlogo.cn/gh/群号/群号/100
+    QPixmap headerPixmap;
     if (us->isGroupShow(msg.groupId))
     {
         if (isFileExist(rt->groupHeader(msg.groupId)))
         {
-            ui->headerLabel->setPixmap(NetImageUtil::toRoundedPixmap(QPixmap(rt->groupHeader(msg.groupId))));
+            headerPixmap = QPixmap(rt->groupHeader(msg.groupId));
         }
         else
         {
             QString url = "http://p.qlogo.cn/gh/" + snum(msg.groupId) + "/" + snum(msg.groupId) + "/100";
-            QPixmap pixmap = NetImageUtil::loadNetPixmap(url);
-            pixmap.save(rt->groupHeader(msg.groupId));
-            ui->headerLabel->setPixmap(NetImageUtil::toRoundedPixmap(pixmap));
+            headerPixmap = NetImageUtil::loadNetPixmap(url);
+            headerPixmap.save(rt->groupHeader(msg.groupId));
+        }
+
+        if (!us->bannerUseHeaderGradient)
+        {
+            ui->headerLabel->setPixmap(NetImageUtil::toRoundedPixmap(headerPixmap));
+        }
+        else
+        {
+            QString path = rt->groupHeader("ctg_" + snum(msg.groupId));
+            if (!isFileExist(path))
+                NetImageUtil::toCircleTransparentGradient(headerPixmap).save(path);
+            bg->setIcon(QIcon(path));
+            bg->setAlign(Qt::AlignTop | Qt::AlignRight);
+            // ui->headerLabel->deleteLater();
+            ui->headerLabel->hide();
         }
     }
 
@@ -283,7 +298,7 @@ void NotificationCard::setGroupMsg(const MsgBean &msg)
         if (ac->groupHeaderColor.contains(msg.groupId))
             cardColor = ac->groupHeaderColor.value(msg.groupId);
         else
-            ImageUtil::getBgFgColor(ImageUtil::extractImageThemeColors(ui->headerLabel->pixmap()->toImage(), 2), &cardColor.bg, &cardColor.fg);
+            ImageUtil::getBgFgColor(ImageUtil::extractImageThemeColors(headerPixmap.toImage(), 2), &cardColor.bg, &cardColor.fg);
         setColors(cardColor.bg, cardColor.fg);
     }
 

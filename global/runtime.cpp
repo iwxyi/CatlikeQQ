@@ -10,9 +10,19 @@ QString Runtime::userHeader(qint64 id) const
     return CACHE_USER_HEADER_PATH + QString::number(id) + ".png";
 }
 
+QString Runtime::userHeader(QString id) const
+{
+    return CACHE_USER_HEADER_PATH + id + ".png";
+}
+
 QString Runtime::groupHeader(qint64 id) const
 {
     return CACHE_GROUP_HEADER_PATH + QString::number(id) + ".png";
+}
+
+QString Runtime::groupHeader(QString id) const
+{
+    return CACHE_GROUP_HEADER_PATH + id + ".png";
 }
 
 QString Runtime::imageCache(QString id) const

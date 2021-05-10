@@ -49,6 +49,7 @@ public:
     int bannerRetentionDuration = 2000; // 失去焦点后滞留时长
     QColor bannerBgColor = QColor(255, 255, 255); // 默认背景颜色
     bool bannerUseHeaderColor = true; // 使用头像颜色填充背景颜色
+    bool bannerUseHeaderGradient = true; // 使用头像渐变
     int bannerBgRadius = 5; // 圆角大小
     int bannerBgShadow = 12; // 阴影大小，右下角会空出这么多的margin
     bool bannerShowImages = true; // 显示图片，还是只显示[图片]

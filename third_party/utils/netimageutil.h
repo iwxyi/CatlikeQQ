@@ -6,6 +6,7 @@
 #include <QNetworkReply>
 #include <QPainter>
 #include <QFile>
+#include <math.h>
 
 class NetImageUtil : QObject
 {
@@ -61,6 +62,40 @@ public:
         painter.setClipPath(path);
         painter.drawPixmap(rect, pixmap);
         return dest;
+    }
+
+    /// 绕中心点圆形渐变
+    static QPixmap toCircleTransparentGradient(const QPixmap& pixmap)
+    {
+        QPixmap rst(pixmap.size());
+        rst.fill(Qt::transparent);
+        QPainter painter(&rst);
+
+        QImage img = pixmap.toImage();
+        QPoint center(pixmap.rect().center());
+        int alpha0 = sqrt(qMin(center.x() * center.x(), center.y()* center.y())); // 这是距离的平方
+        int alpha255 = alpha0 / 9; // 确定开始渐变的距离
+
+        for (int x = 0; x < pixmap.width(); x++)
+        {
+            for (int y = 0; y < pixmap.height(); y++)
+            {
+                int dis2 = sqrt((x - center.x()) * (x - center.x())
+                        + (y - center.y()) * (y - center.y()));
+                int alpha = 0;
+                if (dis2 <= alpha255)
+                    alpha = 255;
+                else if (dis2 >= alpha0)
+                    alpha = 0;
+                else
+                    alpha = 255 - int(255 * double(dis2 - alpha255) / (alpha0 - alpha255));
+                QColor c = img.pixelColor(x, y);
+                c.setAlpha(alpha);
+                painter.setPen(c);
+                painter.drawPoint(x, y);
+            }
+        }
+        return rst;
     }
 };
 
