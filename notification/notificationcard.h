@@ -38,7 +38,7 @@ public:
     void showFrom(QPoint hi, QPoint sh);
     void setColors(QColor bg, QColor fg);
     void setMsg(const MsgBean& msg);
-    bool append(const MsgBean& msg, int& delta);
+    bool append(const MsgBean& msg);
     void adjustTop(int delta);
 
     bool isPrivate() const;
@@ -47,6 +47,7 @@ public:
     bool canMerge() const;
 
 signals:
+    void signalHeightChanged(int delta);
     void signalToHide();
     void signalHided();
     void signalReplyPrivate(qint64 senderId, const QString& message);

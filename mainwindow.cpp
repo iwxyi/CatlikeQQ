@@ -196,12 +196,10 @@ void MainWindow::showMessage(const MsgBean &msg)
         return ;
 
     // 判断有没有现有的卡片
-    int delta = 0;
     foreach (auto card, notificationCards)
     {
-        if (card->append(msg, delta))
+        if (card->append(msg))
         {
-            adjustUnderCardsTop(notificationCards.indexOf(card), delta);
             return ;
         }
     }
@@ -218,10 +216,13 @@ void MainWindow::createNotificationBanner(const MsgBean &msg)
     {
     case SideRight: // 右
     {
+        /* // 统计所有横幅的位置
         int top = us->bannerFloatPixel;
-        // 统计所有横幅的位置
         foreach (auto card, notificationCards)
-            top += card->height() + us->bannerSpacing;
+            top += card->height() + us->bannerSpacing; */
+        int top = us->bannerFloatPixel;
+        if (notificationCards.size())
+            top = notificationCards.last()->geometry().bottom() + us->bannerSpacing;
         startPos = QPoint(screenGeometry().width()-5, top);
         showPos = QPoint(screenGeometry().width() - us->bannerWidth - us->bannerSpacing, top);
     }
@@ -236,6 +237,9 @@ void MainWindow::createNotificationBanner(const MsgBean &msg)
     card->showFrom(startPos, showPos);
 
     notificationCards.append(card);
+    connect(card, &NotificationCard::signalHeightChanged, this, [=](int delta) {
+        adjustUnderCardsTop(notificationCards.indexOf(card), delta);
+    });
     connect(card, &NotificationCard::signalHided, this, [=]{
         int index = notificationCards.indexOf(card);
         adjustUnderCardsTop(index, -(card->height() + us->bannerSpacing));

@@ -169,7 +169,7 @@ void NotificationCard::setMsg(const MsgBean &msg)
  * 测试能否直接添加到这里，就是消息内容直接添加一行（可能是很长一行）
  * @return 修改后的卡片高度差
  */
-bool NotificationCard::append(const MsgBean &msg, int &delta)
+bool NotificationCard::append(const MsgBean &msg)
 {
     if (this->groupId != msg.groupId)
         return false;
@@ -199,8 +199,10 @@ bool NotificationCard::append(const MsgBean &msg, int &delta)
 
     // 调整尺寸
     this->layout()->activate();
-    resize(this->sizeHint());
-    delta = height() - h;
+    this->resize(this->sizeHint());
+    int hDelta = this->height() - h;
+    if (hDelta)
+        emit signalHeightChanged(hDelta);
     return true;
 }
 
@@ -733,6 +735,7 @@ void NotificationCard::sendReply()
     QString text = ui->messageEdit->text();
     if (text.isEmpty())
         return ;
+    int h = this->height();
 
     // 回复消息
     if (!groupId && senderId)
@@ -761,6 +764,12 @@ void NotificationCard::sendReply()
         hideReplyEdit();
         focusOut(true);
     }
+
+    this->layout()->activate();
+    this->resize(this->sizeHint());
+    int hDelta = this->height() - h;
+    if (hDelta)
+        emit signalHeightChanged(hDelta);
 }
 
 /**
@@ -890,6 +899,7 @@ void NotificationCard::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
 void NotificationCard::loadMsgHistory()
 {
     QList<MsgBean> *histories;
+    int h = this->height();
 
     Q_ASSERT(msgs.size());
     if (!groupId) // 加载私聊消息
@@ -951,4 +961,10 @@ void NotificationCard::loadMsgHistory()
         msgs.insert(index, msg);
     }
     bar->setSliderPosition(bar->maximum() - disBottom);
+
+    this->layout()->activate();
+    this->resize(this->sizeHint());
+    int hDelta = this->height() - h;
+    if (hDelta)
+        emit signalHeightChanged(hDelta);
 }
