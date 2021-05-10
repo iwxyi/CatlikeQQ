@@ -162,7 +162,7 @@ void NotificationCard::setMsg(const MsgBean &msg)
     // 自动展开
     if (us->bannerAutoShowReply)
     {
-        showReplyEdit();
+        showReplyEdit(false);
     }
 }
 
@@ -681,15 +681,8 @@ void NotificationCard::focusIn()
     {
         if (ui->messageEdit->isHidden())
         {
-            showReplyEdit(false);
+            showReplyEdit(true);
         }
-        // 如果加了动画，可能需要等待动画结束后再聚焦
-        QTimer::singleShot(100, [=]{
-            this->setFocus();
-            ui->replyButton->setFocus();
-            ui->messageEdit->setFocusPolicy(Qt::StrongFocus);
-            ui->messageEdit->setFocus();
-        });
     }
 }
 
@@ -719,9 +712,11 @@ void NotificationCard::showReplyEdit(bool focus)
     ui->replyButton->setText("发送");
     ui->messageEdit->show();
     if (focus)
+    {
+        this->activateWindow(); // 只有活动中的窗口，setFocus 才有效
         ui->messageEdit->setFocus();
+    }
     ui->replyHLayout->removeItem(ui->horizontalSpacer);
-    // delete ui->horizontalSpacer;
 }
 
 void NotificationCard::hideReplyEdit()
