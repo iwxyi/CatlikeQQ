@@ -68,6 +68,7 @@ public:
     int bannerMessageSpacing = 8; // 同一个卡片里面的消息的间距：itemSpace+margin*2
     bool bannerMessageSmoothScroll = true;
     int bannerMessageLoadCount = 20; // 一次性加载多少条历史记录
+    int bannerReplyIgnoreWithin = 200; // 热键聚焦时，忽视短期内来的卡片
 
     QList<qint64> enabledGroups;
 };

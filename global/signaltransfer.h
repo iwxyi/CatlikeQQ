@@ -13,6 +13,8 @@ signals:
 
     void loadGroupMembers(qint64 groupId);
     void groupMembersLoaded(qint64 groupId);
+
+    void setReplyKey(QString key);
 };
 
 extern SignalTransfer* sig;

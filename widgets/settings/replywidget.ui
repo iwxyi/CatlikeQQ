@@ -42,6 +42,13 @@
        </property>
       </widget>
      </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>回复快捷键</string>
+       </property>
+      </widget>
+     </item>
      <item row="1" column="0">
       <widget class="QCheckBox" name="autoFocusReplyCheck">
        <property name="toolTip">
@@ -53,6 +60,9 @@
         <string>自动聚焦回复框</string>
        </property>
       </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QKeySequenceEdit" name="replyKeyEdit"/>
      </item>
     </layout>
    </item>

@@ -22,6 +22,8 @@ private slots:
 
     void on_autoFocusReplyCheck_clicked();
 
+    void on_replyKeyEdit_editingFinished();
+
 private:
     Ui::ReplyWidget *ui;
 };

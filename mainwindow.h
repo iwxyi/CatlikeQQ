@@ -7,6 +7,9 @@
 #include "cqhttpservice.h"
 #include "notificationcard.h"
 #include "notificationbubble.h"
+#if defined(ENABLE_SHORTCUT)
+#include "qxtglobalshortcut.h"
+#endif
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -29,6 +32,7 @@ private:
     void initView();
     void initTray();
     void initService();
+    void initKey();
 
     void startMessageLoop();
 
@@ -38,9 +42,13 @@ public slots:
     void showMessage(const MsgBean& msg);
     void createNotificationBanner(const MsgBean& msg);
     void adjustUnderCardsTop(int aboveIndex, int deltaHeight);
+    void focusCardReply();
 
 protected:
     void closeEvent(QCloseEvent* e) override;
+
+private:
+    void returnToPrevWindow();
 
 private:
     Ui::MainWindow *ui;
@@ -48,5 +56,11 @@ private:
 
     QList<NotificationCard*> notificationCards;
     QList<NotificationBubble*> notificationBubbles;
+#if defined(ENABLE_SHORTCUT)
+    QxtGlobalShortcut* editShortcut;
+#endif
+#ifdef Q_OS_WIN32
+    HWND prevWindow = nullptr;
+#endif
 };
 #endif // MAINWINDOW_H

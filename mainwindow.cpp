@@ -13,6 +13,7 @@
 #include "widgets/settings/groupwidget.h"
 #include "widgets/settings/bannerwidget.h"
 #include "widgets/settings/replywidget.h"
+#include "windows.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -23,6 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
     initService();
     initView(); // 因为要绑定 service，所以要在 initService 后面
     initTray();
+    initKey();
 
     startMessageLoop();
 }
@@ -171,6 +173,26 @@ void MainWindow::initService()
     });
 }
 
+void MainWindow::initKey()
+{
+#if defined(ENABLE_SHORTCUT)
+    editShortcut = new QxtGlobalShortcut(this);
+    QString def_key = us->value("banner/replyKey", "shift+alt+x").toString();
+    editShortcut->setShortcut(QKeySequence(def_key));
+    connect(editShortcut, &QxtGlobalShortcut::activated, this, [=]() {
+#if defined(Q_OS_WIN32)
+        prevWindow = GetForegroundWindow();
+#endif
+        // this->activateWindow();
+        focusCardReply();
+    });
+#endif
+
+    connect(sig, &SignalTransfer::setReplyKey, this, [=](QString key) {
+        editShortcut->setShortcut(QKeySequence(key));
+    });
+}
+
 void MainWindow::closeEvent(QCloseEvent *e)
 {
     us->setValue("mainwindow/geometry", this->saveGeometry());
@@ -186,6 +208,15 @@ void MainWindow::closeEvent(QCloseEvent *e)
     });
 #else
     QMainWindow::closeEvent(e);
+#endif
+}
+
+void MainWindow::returnToPrevWindow()
+{
+#ifdef Q_OS_WIN32
+        if (this->prevWindow)
+            SwitchToThisWindow(prevWindow, true);
+        prevWindow = nullptr;
 #endif
 }
 
@@ -265,6 +296,9 @@ void MainWindow::createNotificationBanner(const MsgBean &msg)
         json.insert("echo", "send_group_msg");
         service->sendMessage(json.toBa());
     });
+    connect(card, &NotificationCard::signalCancelReply, this, [=]{
+        returnToPrevWindow();
+    });
 }
 
 /**
@@ -286,4 +320,39 @@ void MainWindow::adjustUnderCardsTop(int aboveIndex, int deltaHeight)
             continue;
         card->adjustTop(deltaHeight);
     }
+}
+
+/// 聚焦到最近一次有消息的卡片的回复
+/// 会忽视短期内的擦片
+void MainWindow::focusCardReply()
+{
+    qint64 current = QDateTime::currentMSecsSinceEpoch() - us->bannerReplyIgnoreWithin;
+    qDebug() << "聚焦时间戳" << current;
+
+    qint64 maxium = 0;
+    NotificationCard* targetCard = nullptr;
+    foreach (auto card, notificationCards)
+    {
+        if (card->isHidding())
+            continue;
+
+        auto msgs = card->getMsgs();
+        int index = msgs.size();
+        while (--index >= 0)
+        {
+            qint64 time = msgs.at(index).timestamp;
+            if (time > current) // 跳过新消息
+                continue;
+            if (time > maxium)
+            {
+                maxium = time;
+                targetCard = card;
+            }
+            else // 后面的都是旧消息了
+                break;
+        }
+    }
+
+    if (targetCard)
+        targetCard->showReplyEdit(true);
 }

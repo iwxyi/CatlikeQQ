@@ -17,7 +17,13 @@ RC_FILE += resources/resource.rc
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-DEFINES += ENABLE_TRAY
+DEFINES += ENABLE_TRAY ENABLE_SHORTCUT
+
+contains(DEFINES, ENABLE_SHORTCUT) {
+    include($$PWD/third_party/qxtglobalshortcut5/qxt.pri)
+}else{
+    message("shortcuts not support")
+}
 
 INCLUDEPATH += third_party/color_octree/\
     third_party/facile_menu/\

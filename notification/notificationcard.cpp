@@ -60,6 +60,7 @@ NotificationCard::NotificationCard(QWidget *parent) :
     connect(ui->messageEdit, &ReplyEdit::signalESC, this, [=]{
         hideReplyEdit();
         focusOut();
+        emit signalCancelReply();
     });
     connect(ui->messageEdit, SIGNAL(signalFocusOut()), this, SLOT(focusOut()));
     connect(bg, SIGNAL(clicked()), this, SLOT(cardClicked()));
@@ -396,8 +397,7 @@ void NotificationCard::createMsgEdit(const MsgBean& msg, int index)
     }
     ui->listWidget->setItemWidget(item, msgView);
 
-    QSize sz = msgView->adjustSizeByTextWidth(us->bannerContentWidth);
-    msgView->resize(sz);
+    msgView->adjustSizeByTextWidth(us->bannerContentWidth);
     item->setSizeHint(msgView->size());
 
     int sumHeight = ui->listWidget->spacing();
@@ -501,10 +501,8 @@ void NotificationCard::createMsgBox(const MsgBean &msg, int index)
 
     // 设置消息
     msgView->setMessage(msg);
+    msgView->adjustSizeByTextWidth(us->bannerContentWidth); // 这里有个-12的，为什么呢
     msgView->setTextColor(cardColor.fg);
-    QSize sz = msgView->adjustSizeByTextWidth(us->bannerContentWidth); // 这里有个-12的，为什么呢
-    msgView->resize(sz);
-    msgView->setFixedHeight(sz.height());
     box->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     box->adjustSize();
 
@@ -583,9 +581,7 @@ void NotificationCard::createBoxEdit(const MsgBean &msg, int index)
     // 设置消息
     msgView->setMessage(msg);
     msgView->setTextColor(cardColor.fg);
-    QSize sz = msgView->adjustSizeByTextWidth(us->bannerContentWidth); // 这里有个-12的，为什么呢
-    msgView->resize(sz);
-    msgView->setFixedHeight(sz.height());
+    msgView->adjustSizeByTextWidth(us->bannerContentWidth); // 这里有个-12的，为什么呢
     box->adjustSize();
 
     // 设置列表项
@@ -670,6 +666,11 @@ bool NotificationCard::isHidding() const
 bool NotificationCard::canMerge() const
 {
     return !hidding && !single;
+}
+
+const QList<MsgBean> &NotificationCard::getMsgs() const
+{
+    return msgs;
 }
 
 void NotificationCard::focusIn()
@@ -763,6 +764,7 @@ void NotificationCard::sendReply()
     {
         hideReplyEdit();
         focusOut(true);
+        emit signalCancelReply();
     }
 
     this->layout()->activate();

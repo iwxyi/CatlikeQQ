@@ -46,19 +46,24 @@ public:
     bool isHidding() const;
     bool canMerge() const;
 
+    const QList<MsgBean> &getMsgs() const;
+
 signals:
     void signalHeightChanged(int delta);
     void signalToHide();
     void signalHided();
     void signalReplyPrivate(qint64 senderId, const QString& message);
     void signalReplyGroup(qint64 groupId, const QString& message);
+    void signalCancelReply();
+
+public slots:
+    void showReplyEdit();
+    void showReplyEdit(bool focus);
+    void hideReplyEdit();
 
 private slots:
     void focusIn();
     void focusOut(bool force = false);
-    void showReplyEdit();
-    void showReplyEdit(bool focus);
-    void hideReplyEdit();
     void sendReply();
     void toHide();
     void cardClicked();
