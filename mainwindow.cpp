@@ -181,7 +181,17 @@ void MainWindow::initKey()
     editShortcut->setShortcut(QKeySequence(def_key));
     connect(editShortcut, &QxtGlobalShortcut::activated, this, [=]() {
 #if defined(Q_OS_WIN32)
-        prevWindow = GetForegroundWindow();
+        auto hwnd = GetForegroundWindow();
+        bool isMe = false;
+        foreach (auto card, notificationCards)
+            if (HWND(card->winId()) == hwnd)
+            {
+                isMe = true;
+                break;
+            }
+        // 如果不是自己的通知卡片
+        if (!isMe)
+            prevWindow = hwnd;
 #endif
         // this->activateWindow();
         focusCardReply();
