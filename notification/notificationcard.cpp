@@ -55,14 +55,18 @@ NotificationCard::NotificationCard(QWidget *parent) :
     CREATE_SHADOW(bg);
 
     // 焦点处理
-    connect(bg, SIGNAL(signalMouseEnter()), this, SLOT(focusIn()));
-    connect(bg, SIGNAL(signalMouseLeave()), this, SLOT(focusOut()));
+    connect(bg, SIGNAL(signalMouseEnter()), this, SLOT(mouseEnter()));
+    connect(bg, SIGNAL(signalMouseLeave()), this, SLOT(mouseLeave()));
     connect(ui->messageEdit, &ReplyEdit::signalESC, this, [=]{
         hideReplyEdit();
         focusOut();
         emit signalCancelReply();
     });
-    connect(ui->messageEdit, SIGNAL(signalFocusOut()), this, SLOT(focusOut()));
+    connect(ui->messageEdit, &ReplyEdit::signalFocusOut, this, [=]{
+        if (bg->isInArea(bg->mapFromGlobal(QCursor::pos())))
+            return ;
+        focusOut();
+    });
     connect(bg, SIGNAL(clicked()), this, SLOT(cardClicked()));
     connect(bg, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(cardMenu()));
     connect(ui->listWidget, SIGNAL(signalLoadTop()), this, SLOT(loadMsgHistory()));
@@ -668,29 +672,52 @@ bool NotificationCard::canMerge() const
     return !hidding && !single;
 }
 
+void NotificationCard::setFastFocus()
+{
+    this->fastFocus = true;
+}
+
 const QList<MsgBean> &NotificationCard::getMsgs() const
 {
     return msgs;
 }
 
-void NotificationCard::focusIn()
+void NotificationCard::mouseEnter()
 {
-    displayTimer->stop();
+    focusIn();
 
     if (us->bannerAutoFocusReply)
     {
         if (ui->messageEdit->isHidden())
         {
+            fastFocus = true;
             showReplyEdit(true);
         }
     }
 }
 
-void NotificationCard::focusOut(bool force)
+void NotificationCard::mouseLeave()
 {
-    if (!force && ((ui->messageEdit->isVisible() && ui->messageEdit->hasFocus())
-            || bg->isInArea(bg->mapFromGlobal(QCursor::pos()))))
+    if (fastFocus && us->bannerAutoFocusReply)
+    {
+        fastFocus = false;
+        emit signalCancelReply();
+    }
+    else if (ui->messageEdit->isVisible() && ui->messageEdit->hasFocus())
+    {
         return ;
+    }
+    focusOut();
+}
+
+/// 鼠标移入、快捷键回复，都会导致 focusIn
+void NotificationCard::focusIn()
+{
+    displayTimer->stop();
+}
+
+void NotificationCard::focusOut()
+{
     displayTimer->setInterval(us->bannerRetentionDuration);
     displayTimer->start();
 }
@@ -717,6 +744,7 @@ void NotificationCard::showReplyEdit(bool focus)
         ui->messageEdit->setFocus();
     }
     ui->replyHLayout->removeItem(ui->horizontalSpacer);
+    displayTimer->stop();
 }
 
 void NotificationCard::hideReplyEdit()
@@ -758,7 +786,7 @@ void NotificationCard::sendReply()
     if (us->bannerCloseAfterReply)
     {
         hideReplyEdit();
-        focusOut(true);
+        focusOut();
         emit signalCancelReply();
     }
 

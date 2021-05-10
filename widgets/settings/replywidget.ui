@@ -44,6 +44,10 @@
      </item>
      <item row="3" column="0">
       <widget class="QLabel" name="label">
+       <property name="toolTip">
+        <string>快速打开最新消息的回复框
+注意：会忽略按下快捷键前一瞬间收到的消息，回复x毫秒之前的最新消息</string>
+       </property>
        <property name="text">
         <string>回复快捷键</string>
        </property>

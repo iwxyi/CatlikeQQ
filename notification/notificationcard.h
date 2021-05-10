@@ -45,6 +45,7 @@ public:
     bool isGroup() const;
     bool isHidding() const;
     bool canMerge() const;
+    void setFastFocus();
 
     const QList<MsgBean> &getMsgs() const;
 
@@ -62,8 +63,10 @@ public slots:
     void hideReplyEdit();
 
 private slots:
+    void mouseEnter();
+    void mouseLeave();
     void focusIn();
-    void focusOut(bool force = false);
+    void focusOut();
     void sendReply();
     void toHide();
     void cardClicked();
@@ -104,6 +107,8 @@ private:
     bool hidding = false;
     bool single = false;
     AccountInfo::CardColor cardColor;
+
+    bool fastFocus = false;
 };
 
 #endif // NOTIFICATIONCARD_H

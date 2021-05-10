@@ -327,7 +327,6 @@ void MainWindow::adjustUnderCardsTop(int aboveIndex, int deltaHeight)
 void MainWindow::focusCardReply()
 {
     qint64 current = QDateTime::currentMSecsSinceEpoch() - us->bannerReplyIgnoreWithin;
-    qDebug() << "聚焦时间戳" << current;
 
     qint64 maxium = 0;
     NotificationCard* targetCard = nullptr;
@@ -354,5 +353,8 @@ void MainWindow::focusCardReply()
     }
 
     if (targetCard)
+    {
+        targetCard->setFastFocus();
         targetCard->showReplyEdit(true);
+    }
 }
