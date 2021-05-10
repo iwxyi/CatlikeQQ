@@ -65,6 +65,7 @@ public slots:
 private slots:
     void mouseEnter();
     void mouseLeave();
+    void displayTimeout();
     void focusIn();
     void focusOut();
     void sendReply();

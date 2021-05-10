@@ -24,7 +24,7 @@ NotificationCard::NotificationCard(QWidget *parent) :
 
     displayTimer = new QTimer(this);
     displayTimer->setInterval(us->bannerDisplayDuration);
-    connect(displayTimer, SIGNAL(timeout()), this, SLOT(toHide()));
+    connect(displayTimer, SIGNAL(timeout()), this, SLOT(displayTimeout()));
 
     ui->headerLabel->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     ui->nicknameLabel->setAttribute(Qt::WA_TransparentForMouseEvents, true);
@@ -736,6 +736,13 @@ void NotificationCard::mouseLeave()
         return ;
     }
     focusOut();
+}
+
+void NotificationCard::displayTimeout()
+{
+    if (bg->isInArea(bg->mapFromGlobal(QCursor::pos())))
+        return ; // 会等待下一波的timeout
+    toHide();
 }
 
 /// 鼠标移入、快捷键回复，都会导致 focusIn
