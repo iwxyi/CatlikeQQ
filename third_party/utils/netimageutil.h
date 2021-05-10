@@ -64,7 +64,7 @@ public:
         return dest;
     }
 
-    /// 绕中心点圆形现行渐变
+    /// 绕中心点圆形透明渐变
     static QPixmap toCircleTransparentGradient(const QPixmap& pixmap)
     {
         QPixmap rst(pixmap.size());
@@ -95,6 +95,56 @@ public:
                 painter.drawPoint(x, y);
             }
         }
+        return rst;
+    }
+
+    /// 绕右上角透明渐变
+    static QPixmap toCornelTransparentGradient(const QPixmap& pixmap, int radius)
+    {
+        QPixmap rst(pixmap.size());
+        rst.fill(Qt::transparent);
+        QPainter painter(&rst);
+
+        // 裁剪右边的圆角
+        if (radius)
+        {
+            QPainterPath path;
+            path.addRect(0, 0, radius+1, pixmap.height());
+            path.addRoundedRect(0, 0, pixmap.width(), pixmap.height(), radius, radius);
+            painter.setClipPath(path);
+        }
+
+        // 设置透明度变化
+        QImage img = pixmap.toImage();
+        int w = pixmap.width(), h = pixmap.height();
+        double effc = 2.5;
+        int alpha0 = int(qMin(pow(w, effc), pow(h, effc))); // 这是距离的平方
+        int alpha255 = 0; // 确定开始渐变的距离
+        int maxAlpha = 200;
+
+        auto getAlpha = [=](int dis2) {
+            if (dis2 <= alpha255)
+                return maxAlpha;
+            else if (dis2 >= alpha0)
+                return 0;
+            else
+                return maxAlpha - int(maxAlpha * double(dis2 - alpha255) / (alpha0 - alpha255));
+        };
+
+        // 挨个像素修改透明度
+        for (int x = 0; x < w; x++)
+        {
+            for (int y = 0; y < h; y++)
+            {
+                int dis = int(pow((w-x), effc) + pow(y, effc)); // 使用sqrt来判断是否需要线性渐变
+
+                QColor c = img.pixelColor(x, y);
+                c.setAlpha(getAlpha(dis));
+                painter.setPen(c);
+                painter.drawPoint(x, y);
+            }
+        }
+
         return rst;
     }
 };

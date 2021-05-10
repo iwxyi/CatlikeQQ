@@ -226,19 +226,36 @@ void NotificationCard::setPrivateMsg(const MsgBean &msg)
 
     // 设置头像
     // 用户头像API：http://q1.qlogo.cn/g?b=qq&nk=QQ号&s=100&t=
+    QPixmap headerPixmap;
     if (isFileExist(rt->userHeader(msg.senderId)))
     {
-        ui->headerLabel->setPixmap(NetImageUtil::toRoundedPixmap(QPixmap(rt->userHeader(msg.senderId))));
+        headerPixmap = QPixmap(rt->userHeader(msg.senderId));
     }
     else // 没有头像，联网获取
     {
         QString url = "http://q1.qlogo.cn/g?b=qq&nk=" + snum(msg.senderId) + "&s=100&t=";
-        QPixmap pixmap = NetImageUtil::loadNetPixmap(url);
-        if (!us->bannerUseHeaderColor)
-            pixmap = NetImageUtil::toRoundedPixmap(pixmap);
-        pixmap.save(rt->userHeader(msg.senderId));
-        ui->headerLabel->setPixmap(NetImageUtil::toRoundedPixmap(pixmap));
+        headerPixmap = NetImageUtil::loadNetPixmap(url);
+        headerPixmap.save(rt->userHeader(msg.senderId));
     }
+
+    if (!us->bannerUseHeaderGradient)
+    {
+        ui->headerLabel->setPixmap(NetImageUtil::toRoundedPixmap(headerPixmap));
+    }
+    else
+    {
+        QString path = rt->userHeader("ctg_" + snum(msg.senderId));
+        if (!isFileExist(path))
+            NetImageUtil::toCornelTransparentGradient(headerPixmap.scaledToWidth(us->bannerHeaderSize*2), us->bannerBgRadius).save(path);
+        bg->setIcon(QIcon(path));
+        bg->setAlign(Qt::AlignTop | Qt::AlignRight);
+        bg->setFixedForePos(true);
+        bg->setFixedForeSize(true);
+        bg->setPaddings(0);
+        ui->verticalSpacer->changeSize(1, ui->headerLabel->height());
+        ui->headerLabel->hide();
+    }
+
 
     // 设置背景颜色
     if (us->bannerUseHeaderColor)
@@ -246,7 +263,7 @@ void NotificationCard::setPrivateMsg(const MsgBean &msg)
         if (ac->userHeaderColor.contains(msg.senderId))
             cardColor = ac->userHeaderColor.value(msg.senderId);
         else
-            ImageUtil::getBgFgColor(ImageUtil::extractImageThemeColors(ui->headerLabel->pixmap()->toImage(), 2), &cardColor.bg, &cardColor.fg);
+            ImageUtil::getBgFgColor(ImageUtil::extractImageThemeColors(headerPixmap.toImage(), 2), &cardColor.bg, &cardColor.fg);
         setColors(cardColor.bg, cardColor.fg);
     }
 
@@ -257,42 +274,41 @@ void NotificationCard::setPrivateMsg(const MsgBean &msg)
 /// 设置第一个群聊消息
 void NotificationCard::setGroupMsg(const MsgBean &msg)
 {
+    Q_ASSERT(us->isGroupShow(msg.groupId));
+
     // 设置标题
     ui->nicknameLabel->setText(msg.groupName);
 
     // 设置头像
     // 群头像API：http://p.qlogo.cn/gh/群号/群号/100
     QPixmap headerPixmap;
-    if (us->isGroupShow(msg.groupId))
+    if (isFileExist(rt->groupHeader(msg.groupId)))
     {
-        if (isFileExist(rt->groupHeader(msg.groupId)))
-        {
-            headerPixmap = QPixmap(rt->groupHeader(msg.groupId));
-        }
-        else
-        {
-            QString url = "http://p.qlogo.cn/gh/" + snum(msg.groupId) + "/" + snum(msg.groupId) + "/100";
-            headerPixmap = NetImageUtil::loadNetPixmap(url);
-            headerPixmap.save(rt->groupHeader(msg.groupId));
-        }
+        headerPixmap = QPixmap(rt->groupHeader(msg.groupId));
+    }
+    else // 没有头像，联网获取
+    {
+        QString url = "http://p.qlogo.cn/gh/" + snum(msg.groupId) + "/" + snum(msg.groupId) + "/100";
+        headerPixmap = NetImageUtil::loadNetPixmap(url);
+        headerPixmap.save(rt->groupHeader(msg.groupId));
+    }
 
-        if (!us->bannerUseHeaderGradient)
-        {
-            ui->headerLabel->setPixmap(NetImageUtil::toRoundedPixmap(headerPixmap));
-        }
-        else
-        {
-            QString path = rt->groupHeader("ctg_" + snum(msg.groupId));
-            if (!isFileExist(path))
-                NetImageUtil::toCircleTransparentGradient(headerPixmap).save(path);
-            bg->setIcon(QIcon(path));
-            bg->setAlign(Qt::AlignTop | Qt::AlignRight);
-            bg->setFixedForePos(true);
-            bg->setFixedForeSize(true);
-            bg->setPaddings(0);
-            ui->verticalSpacer->changeSize(1, ui->headerLabel->height());
-            ui->headerLabel->hide();
-        }
+    if (!us->bannerUseHeaderGradient)
+    {
+        ui->headerLabel->setPixmap(NetImageUtil::toRoundedPixmap(headerPixmap));
+    }
+    else
+    {
+        QString path = rt->groupHeader("ctg_" + snum(msg.groupId));
+        if (!isFileExist(path))
+            NetImageUtil::toCornelTransparentGradient(headerPixmap.scaledToWidth(us->bannerHeaderSize*2), us->bannerBgRadius).save(path);
+        bg->setIcon(QIcon(path));
+        bg->setAlign(Qt::AlignTop | Qt::AlignRight);
+        bg->setFixedForePos(true);
+        bg->setFixedForeSize(true);
+        bg->setPaddings(0);
+        ui->verticalSpacer->changeSize(1, ui->headerLabel->height());
+        ui->headerLabel->hide();
     }
 
     // 设置背景颜色
