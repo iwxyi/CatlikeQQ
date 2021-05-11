@@ -13,6 +13,7 @@
 #include "runtime.h"
 #include "usettings.h"
 #include "netimageutil.h"
+#include "accountinfo.h"
 #include "myjson.h"
 
 MessageView::MessageView(QWidget *parent) : QLabel(parent)
@@ -202,7 +203,23 @@ void MessageView::setMessage(const MsgBean& msg)
 
         qint64 userId = match.captured(1).toLongLong();
         if (memberNames->contains(userId))
-            text.replace(match.captured(0), "@" + memberNames->value(userId));
+        {
+            QColor c = QColor::Invalid;
+            if (ac->groupMemberColor.contains(msg.groupId))
+            {
+                auto memberColor = ac->groupMemberColor.value(msg.groupId);
+                if (memberColor.contains(userId))
+                    c = memberColor.value(userId);
+            }
+            if (c.isValid())
+            {
+                text.replace(match.captured(0), "<font color=" + QVariant(c).toString() + ">@" + memberNames->value(userId) + "</font>");
+            }
+            else
+            {
+                text.replace(match.captured(0), "@" + memberNames->value(userId));
+            }
+        }
         else // 群组里没有这个人，刚加入？
         {
             emit needMemberNames();

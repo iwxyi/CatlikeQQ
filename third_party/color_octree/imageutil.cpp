@@ -295,11 +295,11 @@ QColor ImageUtil::getFastestColor(QColor bg, QList<QColor> palette)
 
 /// 获取色差最大的一项
 /// 但是也会参考数量，数量越多权重越高
-QColor ImageUtil::getFastestColor(QColor bg, QList<ColorOctree::ColorCount> palette, bool enableCount)
+QColor ImageUtil::getFastestColor(QColor bg, QList<ColorOctree::ColorCount> palette, int enableCount)
 {
     qint64 maxi = -1;
     ColorOctree::ColorCount maxiColor;
-    qDebug() << "~~~~~~~~~~~~~~~~" << bg.red() << bg.green() << bg.blue();
+//    qDebug() << "~~~~~~~~~~~~~~~~" << bg.red() << bg.green() << bg.blue();
     int rr = bg.red(), gg = bg.green(), bb = bg.blue();
     foreach (auto c, palette)
     {
@@ -307,16 +307,18 @@ QColor ImageUtil::getFastestColor(QColor bg, QList<ColorOctree::ColorCount> pale
         qint64 delta = 3 * (r - rr) * (r - rr)
                 + 4 * (g - gg) * (g - gg)
                 + 2 * (b - bb) * (b - bb);
-        if (enableCount)
+        if (enableCount == 1)
+            delta *= c.count;
+        else if (enableCount == 2)
             delta *= qint64(sqrt(c.count + 1));
         if (delta > maxi)
         {
             maxi = delta;
             maxiColor = c;
         }
-        qDebug() << "        " << r << g << b << c.count << delta;
+//        qDebug() << "        " << r << g << b << c.count << delta;
     }
-    qDebug() << maxi << maxiColor.red << maxiColor.green << maxiColor.blue;
+//    qDebug() << maxi << maxiColor.red << maxiColor.green << maxiColor.blue;
     return QColor(maxiColor.red, maxiColor.green, maxiColor.blue);
 }
 

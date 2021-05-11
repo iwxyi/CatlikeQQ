@@ -4,6 +4,7 @@
 #include <QEventLoop>
 #include <QNetworkReply>
 #include <QPainter>
+#include <QtConcurrent/QtConcurrent>
 #include "cqhttpservice.h"
 #include "myjson.h"
 #include "fileutil.h"
@@ -86,7 +87,8 @@ void CqhttpService::messageReceived(const QString &message)
     // 先判断是不是主动发消息过去，回复的
     if (json.contains("echo"))
     {
-        parseEchoMessage(json);
+        // 因为可能会收到很长很长的数据（例如群成员），所以用了多线程
+        QtConcurrent::run(this, &CqhttpService::parseEchoMessage, json);
         return ;
     }
 

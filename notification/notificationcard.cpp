@@ -44,7 +44,6 @@ NotificationCard::NotificationCard(QWidget *parent) :
     ui->listWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     connect(ui->replyButton, SIGNAL(clicked()), this, SLOT(showReplyEdit()));
-    connect(ui->messageEdit, SIGNAL(returnPressed()), this, SLOT(sendReply()));
 
     // 绘制背景
     bg = new InteractiveButtonBase(this);
@@ -57,6 +56,11 @@ NotificationCard::NotificationCard(QWidget *parent) :
     // 焦点处理
     connect(bg, SIGNAL(signalMouseEnter()), this, SLOT(mouseEnter()));
     connect(bg, SIGNAL(signalMouseLeave()), this, SLOT(mouseLeave()));
+    connect(bg, SIGNAL(clicked()), this, SLOT(cardClicked()));
+    connect(bg, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(cardMenu()));
+
+    connect(ui->listWidget, SIGNAL(signalLoadTop()), this, SLOT(loadMsgHistory()));
+
     connect(ui->messageEdit, &ReplyEdit::signalESC, this, [=]{
         hideReplyEdit();
         focusOut();
@@ -67,9 +71,36 @@ NotificationCard::NotificationCard(QWidget *parent) :
             return ;
         focusOut();
     });
-    connect(bg, SIGNAL(clicked()), this, SLOT(cardClicked()));
-    connect(bg, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(cardMenu()));
-    connect(ui->listWidget, SIGNAL(signalLoadTop()), this, SLOT(loadMsgHistory()));
+    connect(ui->messageEdit, SIGNAL(signalUp()), this, SIGNAL(signalFocusPrevCard()));
+    connect(ui->messageEdit, SIGNAL(signalDown()), this, SIGNAL(signalFocusNextCard()));
+    connect(ui->messageEdit, &ReplyEdit::signalMove, this, [=](int index){
+        // 因为键盘上从1开始，而数据里从0开始
+        if (index > 0)
+            index--;
+        emit signalFocusCard(index);
+    });
+    connect(ui->messageEdit, &ReplyEdit::returnPressed, this, [=]{
+        sendReply();
+
+        // 关闭对话框
+        if (us->bannerCloseAfterReply)
+        {
+            hideReplyEdit();
+            focusOut();
+            emit signalCancelReply();
+        }
+    });
+    connect(ui->messageEdit, &ReplyEdit::signalCtrlEnter, this, [=]{
+        sendReply();
+
+        // 关闭对话框
+        if (!us->bannerCloseAfterReply)
+        {
+            hideReplyEdit();
+            focusOut();
+            emit signalCancelReply();
+        }
+    });
 
     // 样式表
     QString qss = "/* 整个滚动条背景 */\
@@ -176,6 +207,8 @@ void NotificationCard::setMsg(const MsgBean &msg)
  */
 bool NotificationCard::append(const MsgBean &msg)
 {
+    if (isHidding())
+        return false;
     if (this->groupId != msg.groupId)
         return false;
     if (this->isPrivate() && this->senderId != msg.senderId)
@@ -208,6 +241,13 @@ bool NotificationCard::append(const MsgBean &msg)
     int hDelta = this->height() - h;
     if (hDelta)
         emit signalHeightChanged(hDelta);
+
+    // 如果正则隐藏的时候收到了消息
+    /* if (isHidding())
+    {
+        showFrom(this->pos(), showPoint);
+    } */
+
     return true;
 }
 
@@ -522,12 +562,15 @@ void NotificationCard::createMsgBox(const MsgBean &msg, int index)
 
             AccountInfo::CardColor cc;
             auto colors = ImageUtil::extractImageThemeColors(headerLabel->pixmap()->toImage(), 4);
-            auto color = ImageUtil::getFastestColor(us->bannerUseHeaderColor ? cardColor.bg : us->bannerBgColor, colors, false); // 获取色差最大的
+            auto color = ImageUtil::getFastestColor(us->bannerUseHeaderColor ? cardColor.bg : us->bannerBgColor, colors, 2); // 获取色差最大的
+            // auto color = colors.first().toColor();
             ac->groupMemberColor[groupId].insert(senderId, color);
             return color;
         };
 
-        pa.setColor(QPalette::Text, getGroupMemberColor(msg.groupId, msg.senderId));
+        QColor c = getGroupMemberColor(msg.groupId, msg.senderId);
+        pa.setColor(QPalette::Text, c);
+        nameLabel->setStyleSheet("color: " + QVariant(c).toString() + ";");
     }
     nameLabel->setPalette(pa);
 
@@ -741,7 +784,10 @@ void NotificationCard::mouseLeave()
 void NotificationCard::displayTimeout()
 {
     if (bg->isInArea(bg->mapFromGlobal(QCursor::pos())))
+    {
+        displayTimer->setInterval(us->bannerDisplayDuration);
         return ; // 会等待下一波的timeout
+    }
     toHide();
 }
 
@@ -817,14 +863,6 @@ void NotificationCard::sendReply()
     // 清空输入框
     ui->messageEdit->clear();
 
-    // 关闭对话框
-    if (us->bannerCloseAfterReply)
-    {
-        hideReplyEdit();
-        focusOut();
-        emit signalCancelReply();
-    }
-
     this->layout()->activate();
     this->resize(this->sizeHint());
     int hDelta = this->height() - h;
@@ -840,6 +878,7 @@ void NotificationCard::showFrom(QPoint hi, QPoint sh)
     this->showPoint = sh;
     this->hidePoint = hi;
     move(hi);
+    hidding = false;
 
     QPropertyAnimation* ani = new QPropertyAnimation(this, "pos");
     ani->setStartValue(hi);

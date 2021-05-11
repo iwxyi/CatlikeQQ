@@ -56,6 +56,9 @@ signals:
     void signalReplyPrivate(qint64 senderId, const QString& message);
     void signalReplyGroup(qint64 groupId, const QString& message);
     void signalCancelReply();
+    void signalFocusPrevCard();
+    void signalFocusNextCard();
+    void signalFocusCard(int index);
 
 public slots:
     void showReplyEdit();

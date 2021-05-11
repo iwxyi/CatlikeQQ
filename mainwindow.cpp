@@ -309,6 +309,31 @@ void MainWindow::createNotificationBanner(const MsgBean &msg)
     connect(card, &NotificationCard::signalCancelReply, this, [=]{
         returnToPrevWindow();
     });
+
+    connect(card, &NotificationCard::signalFocusPrevCard, this, [=]{
+        int index = notificationCards.indexOf(card);
+        Q_ASSERT(index > -1);
+        index--;
+        if (index < 0)
+            index = notificationCards.size() - 1;
+        notificationCards.at(index)->showReplyEdit(true);
+    });
+    connect(card, &NotificationCard::signalFocusNextCard, this, [=]{
+        int index = notificationCards.indexOf(card);
+        Q_ASSERT(index > -1);
+        index++;
+        if (index >= notificationCards.size())
+            index = 0;
+        notificationCards.at(index)->showReplyEdit(true);
+    });
+    connect(card, &NotificationCard::signalFocusCard, this, [=](int index){
+        Q_ASSERT(notificationCards.size());
+        if (index < 0)
+            index = 0;
+        if (index >= notificationCards.size())
+            index = notificationCards.size() - 1;
+        notificationCards.at(index)->showReplyEdit(true);
+    });
 }
 
 /**
