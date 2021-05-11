@@ -1,3 +1,4 @@
+#include <math.h>
 #include "imageutil.h"
 
 /**
@@ -50,7 +51,7 @@ QList<ColorOctree::ColorCount> ImageUtil::extractImageThemeColors(QImage image, 
     // 可以过滤太少的颜色，看情况开关
     int maxCount = result.first().count;
     int minCount = maxCount / 1000; // 小于最大项1‰的都去掉
-    while (result.last().count < minCount)
+    while (result.last().count < minCount || result.size() > count)
         result.removeLast();
 
     return result;
@@ -269,16 +270,20 @@ bool ImageUtil::getBgFgSgColor(QList<ColorOctree::ColorCount> colors, QColor *bg
     return true;
 }
 
+/// 获取色差最大的一项
+/// 由于RGB颜色空间不是均匀颜色空间,按照空间距离得到的色差并不完全符合人的视觉,
+/// 在实际应用时经常采取给各颜色分量加上一定权值的办法，一般加权取值(3,4,2)
 QColor ImageUtil::getFastestColor(QColor bg, QList<QColor> palette)
 {
     qint64 maxi = -1;
     QColor maxiColor;
+    int rr = bg.red(), gg = bg.green(), bb = bg.blue();
     foreach (auto c, palette)
     {
         int r = c.red(), g = c.green(), b = c.blue();
-        qint64 delta = (r - bg.red()) * (r - bg.red())
-                + (g - bg.green()) * (g - bg.green())
-                + (b - bg.blue()) * (b - bg.blue());
+        qint64 delta = 3 * (r - rr) * (r - rr)
+                + 4 * (g - gg) * (g - gg)
+                + 2 * (b - bb) * (b - bb);
         if (delta > maxi)
         {
             maxi = delta;
@@ -288,16 +293,20 @@ QColor ImageUtil::getFastestColor(QColor bg, QList<QColor> palette)
     return maxiColor;
 }
 
+/// 获取色差最大的一项
+/// 但是也会参考数量，数量越多权重越高
 QColor ImageUtil::getFastestColor(QColor bg, QList<ColorOctree::ColorCount> palette)
 {
     qint64 maxi = -1;
     ColorOctree::ColorCount maxiColor;
+    int rr = bg.red(), gg = bg.green(), bb = bg.blue();
     foreach (auto c, palette)
     {
         int r = c.red, g = c.green, b = c.blue;
-        qint64 delta = (r - bg.red()) * (r - bg.red())
-                + (g - bg.green()) * (g - bg.green())
-                + (b - bg.blue()) * (b - bg.blue());
+        qint64 delta = 3 * (r - rr) * (r - rr)
+                + 4 * (g - gg) * (g - gg)
+                + 2 * (b - bb) * (b - bb);
+        delta *= qint64(sqrt(c.count + 1));
         if (delta > maxi)
         {
             maxi = delta;
@@ -305,4 +314,10 @@ QColor ImageUtil::getFastestColor(QColor bg, QList<ColorOctree::ColorCount> pale
         }
     }
     return QColor(maxiColor.red, maxiColor.green, maxiColor.blue);
+}
+
+/// 返回随机深色调
+QColor ImageUtil::randomColor()
+{
+    return QColor::fromHsl(rand()%360,rand()%256,rand()%200);
 }

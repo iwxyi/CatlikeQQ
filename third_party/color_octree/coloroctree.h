@@ -12,7 +12,7 @@ class ColorOctree
 {
 public:
     ColorOctree();
-    ColorOctree(QImage image, int maxPool = 250000, int maxCount = 20);
+    ColorOctree(QImage image, int maxPool = 250000, int maxCount = 8);
     ~ColorOctree();
 
     struct RGB
