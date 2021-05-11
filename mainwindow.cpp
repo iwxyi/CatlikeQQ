@@ -7,13 +7,14 @@
 #include "fileutil.h"
 #include "imageutil.h"
 #include "signaltransfer.h"
+#include "windows.h"
 #include "widgets/customtabstyle.h"
 #include "widgets/settings/accountwidget.h"
 #include "widgets/settings/debugwidget.h"
 #include "widgets/settings/groupwidget.h"
 #include "widgets/settings/bannerwidget.h"
 #include "widgets/settings/replywidget.h"
-#include "windows.h"
+#include "widgets/settings/aboutwidget.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -70,6 +71,7 @@ void MainWindow::initView()
     ui->auxiliaryTabWidget->addTab(new QWidget(), QIcon("://icons/model.png"), "模型训练");
 
     ui->dataTabWidget->clear();
+    ui->dataTabWidget->addTab(new AboutWidget(this), QIcon("://icons/about.png"), "关于程序");
     ui->dataTabWidget->addTab(new DebugWidget(service, this), QIcon("://icons/debug.png"), "开发调试");
     ui->dataTabWidget->addTab(new QWidget(), QIcon("://icons/history_message.png"), "历史消息");
     ui->dataTabWidget->addTab(new QWidget(), QIcon("://icons/statistical.png"), "数据统计");

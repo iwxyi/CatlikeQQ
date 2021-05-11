@@ -51,6 +51,7 @@ SOURCES += \
     third_party/utils/fileutil.cpp \
     third_party/utils/stringutil.cpp \
     third_party/utils/textinputdialog.cpp \
+    widgets/settings/aboutwidget.cpp \
     widgets/settings/accountwidget.cpp \
     widgets/settings/bannerwidget.cpp \
     widgets/settings/debugwidget.cpp \
@@ -89,6 +90,7 @@ HEADERS += \
     web_service/msgbean.h \
     widgets/customtabstyle.h \
     widgets/lefttabwidget.h \
+    widgets/settings/aboutwidget.h \
     widgets/settings/accountwidget.h \
     widgets/settings/bannerwidget.h \
     widgets/settings/debugwidget.h \
@@ -100,6 +102,7 @@ FORMS += \
     notification/notificationbubble.ui \
     notification/notificationcard.ui \
     third_party/utils/textinputdialog.ui \
+    widgets/settings/aboutwidget.ui \
     widgets/settings/accountwidget.ui \
     widgets/settings/bannerwidget.ui \
     widgets/settings/debugwidget.ui \

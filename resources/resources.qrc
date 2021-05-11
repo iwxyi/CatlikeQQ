@@ -21,6 +21,7 @@
         <file>icons/quit.png</file>
         <file>icons/silent.png</file>
         <file>icons/debug.png</file>
+        <file>icons/about.png</file>
     </qresource>
     <qresource prefix="/qq">
         <file>qq-face/0.gif</file>

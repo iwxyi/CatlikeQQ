@@ -293,6 +293,7 @@ QSize MessageView::adjustSizeByTextWidth(int w)
 #ifdef MESSAGE_LABEL
     setFixedWidth(w);
     adjustSize();
+    setFixedHeight(this->height());
     return this->size();
 #else
 //    setMaximumWidth(w);

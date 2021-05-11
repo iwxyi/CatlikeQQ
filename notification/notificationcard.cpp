@@ -293,7 +293,7 @@ void NotificationCard::setPrivateMsg(const MsgBean &msg)
     {
         QString path = rt->userHeader("ctg_" + snum(msg.senderId));
         if (!isFileExist(path))
-            NetImageUtil::toCornelTransparentGradient(headerPixmap.scaledToWidth(us->bannerHeaderSize*2), us->bannerBgRadius).save(path);
+            NetImageUtil::toCornelTransparentGradient(headerPixmap.scaledToWidth(us->bannerHeaderSize*3), us->bannerBgRadius).save(path);
         bg->setIcon(QIcon(path));
         bg->setAlign(Qt::AlignTop | Qt::AlignRight);
         bg->setFixedForePos(true);
@@ -302,7 +302,6 @@ void NotificationCard::setPrivateMsg(const MsgBean &msg)
         ui->verticalSpacer->changeSize(1, ui->headerLabel->height());
         ui->headerLabel->hide();
     }
-
 
     // 设置背景颜色
     if (us->bannerUseHeaderColor)
@@ -348,7 +347,7 @@ void NotificationCard::setGroupMsg(const MsgBean &msg)
     {
         QString path = rt->groupHeader("ctg_" + snum(msg.groupId));
         if (!isFileExist(path))
-            NetImageUtil::toCornelTransparentGradient(headerPixmap.scaledToWidth(us->bannerHeaderSize*2), us->bannerBgRadius).save(path);
+            NetImageUtil::toCornelTransparentGradient(headerPixmap.scaledToWidth(us->bannerHeaderSize*3), us->bannerBgRadius).save(path);
         bg->setIcon(QIcon(path));
         bg->setAlign(Qt::AlignTop | Qt::AlignRight);
         bg->setFixedForePos(true);
