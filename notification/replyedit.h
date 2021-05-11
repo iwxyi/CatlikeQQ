@@ -31,20 +31,20 @@ protected:
             e->accept();
             return ;
         }
+        else if (key == Qt::Key_Up)
+        {
+            emit signalUp();
+            return e->accept();
+        }
+        else if (key == Qt::Key_Down)
+        {
+            emit signalDown();
+            return e->accept();
+        }
 
         if (modifies & Qt::ControlModifier)
         {
-            if (key == Qt::Key_Up)
-            {
-                emit signalUp();
-                return e->accept();
-            }
-            else if (key == Qt::Key_Down)
-            {
-                emit signalDown();
-                return e->accept();
-            }
-            else if (key >= Qt::Key_0 && key <= Qt::Key_9)
+            if (key >= Qt::Key_0 && key <= Qt::Key_9)
             {
                 emit signalMove(key - Qt::Key_0);
                 return e->accept();

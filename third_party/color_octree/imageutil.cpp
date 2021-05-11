@@ -298,7 +298,7 @@ QColor ImageUtil::getFastestColor(QColor bg, QList<QColor> palette)
 QColor ImageUtil::getFastestColor(QColor bg, QList<ColorOctree::ColorCount> palette, int enableCount)
 {
     qint64 maxi = -1;
-    ColorOctree::ColorCount maxiColor;
+    QColor maxiColor = QColor::Invalid;
 //    qDebug() << "~~~~~~~~~~~~~~~~" << bg.red() << bg.green() << bg.blue();
     int rr = bg.red(), gg = bg.green(), bb = bg.blue();
     foreach (auto c, palette)
@@ -314,12 +314,12 @@ QColor ImageUtil::getFastestColor(QColor bg, QList<ColorOctree::ColorCount> pale
         if (delta > maxi)
         {
             maxi = delta;
-            maxiColor = c;
+            maxiColor = c.toColor();
         }
 //        qDebug() << "        " << r << g << b << c.count << delta;
     }
 //    qDebug() << maxi << maxiColor.red << maxiColor.green << maxiColor.blue;
-    return QColor(maxiColor.red, maxiColor.green, maxiColor.blue);
+    return maxiColor;
 }
 
 /// 返回随机深色调
