@@ -26,7 +26,7 @@ public:
 
     static QColor getFastestColor(QColor bg, QList<QColor> palette);
 
-    static QColor getFastestColor(QColor bg, QList<ColorOctree::ColorCount> palette);
+    static QColor getFastestColor(QColor bg, QList<ColorOctree::ColorCount> palette, bool enableCount = true);
 
     static QColor randomColor();
 };

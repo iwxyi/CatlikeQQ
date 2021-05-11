@@ -270,7 +270,7 @@ void NotificationCard::setPrivateMsg(const MsgBean &msg)
         if (ac->userHeaderColor.contains(msg.senderId))
             cardColor = ac->userHeaderColor.value(msg.senderId);
         else
-            ImageUtil::getBgFgColor(ImageUtil::extractImageThemeColors(headerPixmap.toImage(), 4), &cardColor.bg, &cardColor.fg);
+            ImageUtil::getBgFgColor(ImageUtil::extractImageThemeColors(headerPixmap.toImage(), 8), &cardColor.bg, &cardColor.fg);
         setColors(cardColor.bg, cardColor.fg);
     }
 
@@ -324,7 +324,7 @@ void NotificationCard::setGroupMsg(const MsgBean &msg)
         if (ac->groupHeaderColor.contains(msg.groupId))
             cardColor = ac->groupHeaderColor.value(msg.groupId);
         else
-            ImageUtil::getBgFgColor(ImageUtil::extractImageThemeColors(headerPixmap.toImage(), 4), &cardColor.bg, &cardColor.fg);
+            ImageUtil::getBgFgColor(ImageUtil::extractImageThemeColors(headerPixmap.toImage(), 8), &cardColor.bg, &cardColor.fg);
         setColors(cardColor.bg, cardColor.fg);
     }
 
@@ -522,7 +522,7 @@ void NotificationCard::createMsgBox(const MsgBean &msg, int index)
 
             AccountInfo::CardColor cc;
             auto colors = ImageUtil::extractImageThemeColors(headerLabel->pixmap()->toImage(), 4);
-            auto color = ImageUtil::getFastestColor(cardColor.bg, colors); // 获取色差最大的
+            auto color = ImageUtil::getFastestColor(us->bannerUseHeaderColor ? cardColor.bg : us->bannerBgColor, colors, false); // 获取色差最大的
             ac->groupMemberColor[groupId].insert(senderId, color);
             return color;
         };
