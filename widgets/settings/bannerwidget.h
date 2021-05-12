@@ -36,6 +36,8 @@ private slots:
 
     void on_titleColorButton_clicked();
 
+    void on_frostedGlassOpacitySpin_editingFinished();
+
 private:
     Ui::BannerWidget *ui;
 };

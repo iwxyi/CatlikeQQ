@@ -92,6 +92,7 @@ private:
     void createMsgBoxEdit(const MsgBean &msg, int index = -1);
     MessageView* newMsgView();
     int getReadDisplayDuration(QString text) const;
+    void createFrostGlass();
 
 protected:
     void showEvent(QShowEvent *event) override;
@@ -112,10 +113,10 @@ private:
     QTimer* displayTimer;
     bool focusing = false;
     bool hidding = false;
-    bool single = false;
-    AccountInfo::CardColor cardColor;
-
     bool fastFocus = false;
+    AccountInfo::CardColor cardColor;
+    QLabel* frostGlassLabel = nullptr;
+    QPixmap frostGlassPixmap;
 };
 
 #endif // NOTIFICATIONCARD_H

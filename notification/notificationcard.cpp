@@ -756,7 +756,7 @@ bool NotificationCard::isHidding() const
 
 bool NotificationCard::canMerge() const
 {
-    return !hidding && !single;
+    return !hidding;
 }
 
 void NotificationCard::setFastFocus()
@@ -903,6 +903,7 @@ void NotificationCard::showFrom(QPoint hi, QPoint sh)
 {
     this->showPoint = sh;
     this->hidePoint = hi;
+    createFrostGlass();
     move(hi);
     hidding = false;
 
@@ -997,6 +998,49 @@ int NotificationCard::getReadDisplayDuration(QString text) const
     text.replace(QRegularExpression("<.+?>"), "").replace(QRegularExpression("\\[CQ:.+?\\]"), "");
     int length = text.length();
     return us->bannerDisplayDuration + (length * 1000 / us->bannerTextReadSpeed);
+}
+
+/// 创建对应的位置
+/// 已有 showPoint，根据最大大小保存
+void NotificationCard::createFrostGlass()
+{
+    if (!us->bannerFrostedGlassBg || !us->bannerFrostedGlassOpacity)
+        return ;
+
+    QRect cardRect(showPoint.x(), showPoint.y(), us->bannerWidth, us->bannerContentWidth + (this->height() - ui->listWidget->height()));
+    QT_BEGIN_NAMESPACE
+        extern Q_WIDGETS_EXPORT void qt_blurImage( QPainter *p, QImage &blurImage, qreal radius, bool quality, bool alphaOnly, int transposed = 0 );
+    QT_END_NAMESPACE
+
+    // 获取窗口背景
+    const int radius = 12; // 模糊半径
+    QScreen* screen = QApplication::screenAt(QCursor::pos());
+    QPixmap bg = screen->grabWindow(QApplication::desktop()->winId(), cardRect.left() - radius, cardRect.top() - radius, cardRect.width() + radius*2, cardRect.height() + radius*2);
+
+    // 开始模糊
+    QPixmap pixmap = bg;
+    QPainter painter( &pixmap );
+    QImage img = pixmap.toImage(); // img -blur-> painter(pixmap)
+    qt_blurImage( &painter, img, radius, true, false );
+
+    QPixmap blured(pixmap.size());
+    blured.fill(Qt::transparent);
+    QPainter painter2(&blured);
+    painter2.setOpacity(us->bannerFrostedGlassOpacity / 255.0);
+    painter2.drawPixmap(blured.rect(), pixmap);
+
+    // 裁剪掉边缘（模糊后会有黑边）
+    int c = qMin(bg.width(), bg.height());
+    c = qMin(c/2, radius);
+    frostGlassPixmap = blured.copy(c, c, blured.width()-c*2, blured.height()-c*2);
+
+    frostGlassLabel = new QLabel(this);
+    frostGlassLabel->lower();
+    this->bg->lower();
+    frostGlassLabel->setAttribute(Qt::WA_TransparentForMouseEvents, true);
+    frostGlassLabel->setPixmap(frostGlassPixmap);
+    frostGlassLabel->setFixedSize(cardRect.size());
+    frostGlassLabel->move(this->bg->x(), 0);
 }
 
 void NotificationCard::showEvent(QShowEvent *event)

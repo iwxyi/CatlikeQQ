@@ -54,6 +54,7 @@ public:
     bool bannerUseHeaderGradient = false; // 使用头像渐变
     bool bannerColorfulGroupMember = false; // 群组用户昵称使用头像颜色
     bool bannerFrostedGlassBg = false; // 毛玻璃背景
+    int bannerFrostedGlassOpacity = 32; // 毛玻璃不透明度
     int bannerBgRadius = 5; // 圆角大小
     int bannerBgShadow = 12; // 阴影大小，右下角会空出这么多的margin
     bool bannerShowImages = true; // 显示图片，还是只显示[图片]

@@ -18,6 +18,7 @@ BannerWidget::BannerWidget(QWidget *parent) :
     ui->useHeaderGradientCheck->setChecked(us->bannerUseHeaderGradient);
     ui->colorfulGroupMemberCheck->setChecked(us->bannerColorfulGroupMember);
     ui->frostedGlassBgCheck->setChecked(us->bannerFrostedGlassBg);
+    ui->frostedGlassOpacitySpin->setValue(us->bannerFrostedGlassOpacity);
 
     ui->bgColorButton->setBorderColor(Qt::gray);
     ui->titleColorButton->setBorderColor(Qt::gray);
@@ -79,4 +80,9 @@ void BannerWidget::on_titleColorButton_clicked()
     QColor c = QColorDialog::getColor(us->bannerTitleColor, this, "通知卡片文字颜色", QColorDialog::ShowAlphaChannel);
     us->set("banner/titleColor", us->bannerTitleColor = c);
     us->set("banner/contentColor", us->bannerContentColor = c);
+}
+
+void BannerWidget::on_frostedGlassOpacitySpin_editingFinished()
+{
+    us->set("banner/frostedGlassOpacity", us->bannerFrostedGlassOpacity = ui->frostedGlassOpacitySpin->value());
 }
