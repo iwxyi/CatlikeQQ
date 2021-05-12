@@ -1,3 +1,4 @@
+#include <QColorDialog>
 #include "bannerwidget.h"
 #include "ui_bannerwidget.h"
 #include "defines.h"
@@ -16,6 +17,10 @@ BannerWidget::BannerWidget(QWidget *parent) :
     ui->useHeaderColorCheck->setChecked(us->bannerUseHeaderColor);
     ui->useHeaderGradientCheck->setChecked(us->bannerUseHeaderGradient);
     ui->colorfulGroupMemberCheck->setChecked(us->bannerColorfulGroupMember);
+    ui->frostedGlassBgCheck->setChecked(us->bannerFrostedGlassBg);
+
+    ui->bgColorButton->setBorderColor(Qt::gray);
+    ui->titleColorButton->setBorderColor(Qt::gray);
 }
 
 BannerWidget::~BannerWidget()
@@ -56,4 +61,22 @@ void BannerWidget::on_useHeaderGradientCheck_clicked()
 void BannerWidget::on_colorfulGroupMemberCheck_clicked()
 {
     us->set("banner/colorfulGroupMember", us->bannerColorfulGroupMember = ui->colorfulGroupMemberCheck->isChecked());
+}
+
+void BannerWidget::on_bgColorButton_clicked()
+{
+    QColor c = QColorDialog::getColor(us->bannerBgColor, this, "通知卡片背景颜色", QColorDialog::ShowAlphaChannel);
+    us->set("banner/bgColor", us->bannerBgColor = c);
+}
+
+void BannerWidget::on_frostedGlassBgCheck_clicked()
+{
+    us->set("banner/frostedGlassBg", us->bannerFrostedGlassBg = ui->frostedGlassBgCheck->isChecked());
+}
+
+void BannerWidget::on_titleColorButton_clicked()
+{
+    QColor c = QColorDialog::getColor(us->bannerTitleColor, this, "通知卡片文字颜色", QColorDialog::ShowAlphaChannel);
+    us->set("banner/titleColor", us->bannerTitleColor = c);
+    us->set("banner/contentColor", us->bannerContentColor = c);
 }

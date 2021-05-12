@@ -2,6 +2,7 @@
 #define MYSETTINGS_H
 
 #include <QSettings>
+#include <QColor>
 
 class MySettings : public QSettings
 {
@@ -49,6 +50,11 @@ public:
         return QSettings::value(key, def).toBool();
     }
 
+    QColor c(QString key, QVariant def = QVariant())
+    {
+        return QSettings::value(key, def).toString();
+    }
+
     double d(QString key, QVariant def = QVariant())
     {
         return QSettings::value(key, def).toDouble();
@@ -90,6 +96,11 @@ public:
     }
 
     void assign(QString& val, QString key)
+    {
+        val = value(key, val).toString();
+    }
+
+    void assign(QColor& val, QString key)
     {
         val = value(key, val).toString();
     }

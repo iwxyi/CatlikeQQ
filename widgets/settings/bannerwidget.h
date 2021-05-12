@@ -30,6 +30,12 @@ private slots:
 
     void on_colorfulGroupMemberCheck_clicked();
 
+    void on_bgColorButton_clicked();
+
+    void on_frostedGlassBgCheck_clicked();
+
+    void on_titleColorButton_clicked();
+
 private:
     Ui::BannerWidget *ui;
 };

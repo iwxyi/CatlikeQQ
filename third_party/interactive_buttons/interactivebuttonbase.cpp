@@ -447,6 +447,7 @@ void InteractiveButtonBase::setNormalColor(QColor color)
 void InteractiveButtonBase::setBorderColor(QColor color)
 {
     border_bg = color;
+    setBorderWidth(1);
 }
 
 /**

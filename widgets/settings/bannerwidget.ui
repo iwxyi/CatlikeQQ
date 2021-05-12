@@ -25,28 +25,13 @@
      <property name="spacing">
       <number>12</number>
      </property>
-     <item row="1" column="1">
-      <widget class="QSpinBox" name="textReadSpeedSpin">
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_2">
        <property name="toolTip">
-        <string/>
+        <string>根据内容的长度，自动调整横幅通知显示的时长</string>
        </property>
-       <property name="suffix">
-        <string>字</string>
-       </property>
-       <property name="prefix">
-        <string>每秒</string>
-       </property>
-       <property name="minimum">
-        <number>1</number>
-       </property>
-       <property name="maximum">
-        <number>60</number>
-       </property>
-       <property name="singleStep">
-        <number>1</number>
-       </property>
-       <property name="value">
-        <number>10</number>
+       <property name="text">
+        <string>文字阅读速度</string>
        </property>
       </widget>
      </item>
@@ -75,21 +60,10 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_4">
-       <property name="toolTip">
-        <string>失去焦点（鼠标移开/回复框关闭）后多久时间隐藏
-一个小技巧：慢慢移开可快速隐藏通知，快速移开则可以继续保留</string>
-       </property>
+     <item row="4" column="1">
+      <widget class="InteractiveButtonBase" name="titleColorButton">
        <property name="text">
-        <string>鼠标移开后再停留</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>横幅显示时长</string>
+        <string>文字颜色</string>
        </property>
       </widget>
      </item>
@@ -100,23 +74,6 @@
        </property>
        <property name="text">
         <string>横幅出现位置</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="0">
-      <widget class="QCheckBox" name="useHeaderGradientCheck">
-       <property name="text">
-        <string>使用头像渐变</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_2">
-       <property name="toolTip">
-        <string>根据内容的长度，自动调整横幅通知显示的时长</string>
-       </property>
-       <property name="text">
-        <string>文字阅读速度</string>
        </property>
       </widget>
      </item>
@@ -145,6 +102,17 @@
        </property>
       </widget>
      </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_4">
+       <property name="toolTip">
+        <string>失去焦点（鼠标移开/回复框关闭）后多久时间隐藏
+一个小技巧：慢慢移开可快速隐藏通知，快速移开则可以继续保留</string>
+       </property>
+       <property name="text">
+        <string>鼠标移开后再停留</string>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="1">
       <widget class="QSpinBox" name="displayDurationSpin">
        <property name="suffix">
@@ -165,13 +133,66 @@
       </widget>
      </item>
      <item row="4" column="0">
+      <widget class="InteractiveButtonBase" name="bgColorButton">
+       <property name="text">
+        <string>背景颜色</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>横幅显示时长</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QSpinBox" name="textReadSpeedSpin">
+       <property name="toolTip">
+        <string/>
+       </property>
+       <property name="suffix">
+        <string>字</string>
+       </property>
+       <property name="prefix">
+        <string>每秒</string>
+       </property>
+       <property name="minimum">
+        <number>1</number>
+       </property>
+       <property name="maximum">
+        <number>60</number>
+       </property>
+       <property name="singleStep">
+        <number>1</number>
+       </property>
+       <property name="value">
+        <number>10</number>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
       <widget class="QCheckBox" name="useHeaderColorCheck">
        <property name="text">
         <string>跟随头像变色</string>
        </property>
       </widget>
      </item>
+     <item row="5" column="1">
+      <widget class="QCheckBox" name="frostedGlassBgCheck">
+       <property name="text">
+        <string>毛玻璃背景</string>
+       </property>
+      </widget>
+     </item>
      <item row="6" column="0">
+      <widget class="QCheckBox" name="useHeaderGradientCheck">
+       <property name="text">
+        <string>使用头像渐变</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="1">
       <widget class="QCheckBox" name="colorfulGroupMemberCheck">
        <property name="text">
         <string>群组成员彩色昵称</string>
@@ -195,6 +216,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>InteractiveButtonBase</class>
+   <extends>QPushButton</extends>
+   <header>interactivebuttonbase.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

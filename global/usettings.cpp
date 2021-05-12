@@ -16,6 +16,9 @@ void USettings::restoreSettings()
     assign(bannerFloatPixel, "pixel");
     assign(bannerSpacing, "spacing");
     assign(bannerWidth, "width");
+    assign(bannerBgColor, "bgColor");
+    assign(bannerTitleColor, "titleColor");
+    assign(bannerContentColor, "contentColor");
     assign(bannerUseHeaderColor, "useHeaderColor");
     assign(bannerUseHeaderGradient, "useHeaderGradient");
     assign(bannerColorfulGroupMember, "colorfulGroupMember");
@@ -24,6 +27,7 @@ void USettings::restoreSettings()
     assign(bannerAutoShowReply, "autoShowReply");
     assign(bannerAutoFocusReply, "autoFocusReply");
     assign(bannerCloseAfterReply, "closeAfterReply");
+    assign(bannerFrostedGlassBg, "frostedGlassBg");
     endGroup();
 
     beginGroup("group");

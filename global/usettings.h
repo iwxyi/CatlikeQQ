@@ -47,10 +47,13 @@ public:
     int bannerDisplayDuration = 7000;  // 横幅显示的时长
     int bannerTextReadSpeed = 10; // 按字数增加时长，每秒钟看多少字
     int bannerRetentionDuration = 2000; // 失去焦点后滞留时长
-    QColor bannerBgColor = QColor(255, 255, 255); // 默认背景颜色
+    QColor bannerTitleColor = QColor(0, 0, 0, 255); // 默认背景颜色
+    QColor bannerContentColor = QColor(32, 32, 32, 255); // 默认背景颜色
+    QColor bannerBgColor = QColor(255, 255, 255, 255); // 默认背景颜色
     bool bannerUseHeaderColor = true; // 使用头像颜色填充背景颜色
     bool bannerUseHeaderGradient = false; // 使用头像渐变
     bool bannerColorfulGroupMember = false; // 群组用户昵称使用头像颜色
+    bool bannerFrostedGlassBg = false; // 毛玻璃背景
     int bannerBgRadius = 5; // 圆角大小
     int bannerBgShadow = 12; // 阴影大小，右下角会空出这么多的margin
     bool bannerShowImages = true; // 显示图片，还是只显示[图片]

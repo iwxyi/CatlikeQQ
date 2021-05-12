@@ -37,6 +37,7 @@ NotificationCard::NotificationCard(QWidget *parent) :
     QFont font;
     font.setPointSize(font.pointSize() + us->bannerTitleLarger);
     ui->nicknameLabel->setFont(font);
+    cardColor = AccountInfo::CardColor{us->bannerBgColor, us->bannerTitleColor};
 
     ui->listWidget->setFixedHeight(0);
     ui->listWidget->setMinimumHeight(0);
@@ -311,8 +312,8 @@ void NotificationCard::setPrivateMsg(const MsgBean &msg)
             cardColor = ac->userHeaderColor.value(msg.senderId);
         else
             ImageUtil::getBgFgColor(ImageUtil::extractImageThemeColors(headerPixmap.toImage(), 8), &cardColor.bg, &cardColor.fg);
-        setColors(cardColor.bg, cardColor.fg);
     }
+    setColors(cardColor.bg, cardColor.fg, cardColor.fg);
 
     // 添加消息
     createMsgEdit(msg);
@@ -372,8 +373,8 @@ void NotificationCard::setGroupMsg(const MsgBean &msg)
             cardColor = ac->groupHeaderColor.value(msg.groupId);
         else
             ImageUtil::getBgFgColor(ImageUtil::extractImageThemeColors(headerPixmap.toImage(), 8), &cardColor.bg, &cardColor.fg);
-        setColors(cardColor.bg, cardColor.fg);
     }
+    setColors(cardColor.bg, cardColor.fg,cardColor.fg);
 
     // 列表是需要移动到外面来的（头像单独一列）
     ui->verticalLayout->removeWidget(ui->listWidget);
@@ -915,17 +916,20 @@ void NotificationCard::showFrom(QPoint hi, QPoint sh)
     show();
 }
 
-void NotificationCard::setColors(QColor bg, QColor fg)
+void NotificationCard::setColors(QColor bg, QColor title, QColor content)
 {
     this->bg->setBgColor(bg);
     QPalette pa(ui->nicknameLabel->palette());
-    pa.setColor(QPalette::Foreground, fg);
-    pa.setColor(QPalette::Text, fg);
+    pa.setColor(QPalette::Foreground, title);
+    pa.setColor(QPalette::Text, title);
     ui->nicknameLabel->setPalette(pa); // 不知道为什么没有用
+
+    pa.setColor(QPalette::Foreground, content);
+    pa.setColor(QPalette::Text, content);
     ui->listWidget->setPalette(pa);
     ui->messageEdit->setPalette(pa);
     ui->replyButton->setPalette(pa);
-    ui->replyButton->setTextColor(fg);
+    ui->replyButton->setTextColor(content);
 
     QString qss = "QLabel { color: " + QVariant(cardColor.fg).toString() + "; }";
     ui->nicknameLabel->setStyleSheet(qss);
@@ -933,6 +937,8 @@ void NotificationCard::setColors(QColor bg, QColor fg)
     // qss = "QLineEdit { color: " + QVariant(cardColor.fg).toString() + "; background: transparent; border: 1px solid" + QVariant(cardColor.fg).toString() + "; border-radius: " + snum(us->bannerBgRadius) + "px; padding-left:2px; padding-right: 2px;}";
     qss = "QLineEdit { color: " + QVariant(cardColor.fg).toString() + "; background: transparent; }";
     ui->messageEdit->setStyleSheet(qss);
+
+    // 再绘制一层淡淡的毛玻璃效果
 }
 
 /**
