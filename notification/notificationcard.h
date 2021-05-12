@@ -45,6 +45,7 @@ public:
     bool isGroup() const;
     bool isHidding() const;
     bool canMerge() const;
+    bool isFixing() const;
     void setFastFocus();
 
     const QList<MsgBean> &getMsgs() const;
@@ -117,6 +118,7 @@ private:
     bool focusing = false;
     bool hidding = false;
     bool fastFocus = false;
+    bool fixing = false;
     AccountInfo::CardColor cardColor;
     QLabel* frostGlassLabel = nullptr;
     QPixmap frostGlassPixmap;

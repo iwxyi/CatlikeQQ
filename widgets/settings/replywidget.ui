@@ -31,7 +31,8 @@
      <item row="2" column="0">
       <widget class="QCheckBox" name="closeAfterReplyCheck">
        <property name="toolTip">
-        <string>回复消息后快速隐藏，等待时间等同于失去焦点后保留显示的时长。</string>
+        <string>回复消息后快速隐藏，等待时间等同于失去焦点后保留显示的时长。
+如果是快捷键打开回复，则自动关闭回复框，返回原先程序</string>
        </property>
        <property name="text">
         <string>回复后快速隐藏</string>

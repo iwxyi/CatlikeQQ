@@ -16,7 +16,7 @@
 #include "accountinfo.h"
 #include "myjson.h"
 
-MessageView::MessageView(QWidget *parent) : QLabel(parent)
+MessageView::MessageView(QWidget *parent) : QLabel(parent), msg(0, "")
 {
 #ifdef MESSAGE_LABEL
     setWordWrap(true);
@@ -39,6 +39,7 @@ MessageView::MessageView(QWidget *parent) : QLabel(parent)
 /// 设置动图表情的方法：https://blog.csdn.net/qq_46495964/article/details/113795814
 void MessageView::setMessage(const MsgBean& msg)
 {
+    this->msg = msg;
     QString text = msg.message;
     QRegularExpression re;
     QRegularExpressionMatch match;
@@ -193,40 +194,44 @@ void MessageView::setMessage(const MsgBean& msg)
     // 艾特
     re = QRegularExpression("\\[CQ:at,qq=(\\d+)\\]");
     int pos = 0;
-    while ((pos = text.indexOf(re, pos, &match)) > -1)
+    if (msg.groupId && text.indexOf(re) > -1)
     {
-        if (!memberNames)
+        const auto memberNames = ac->groupMemberNames.contains(msg.groupId) ? &ac->groupMemberNames[msg.groupId] : nullptr;
+        while ((pos = text.indexOf(re, pos, &match)) > -1)
         {
-            emit needMemberNames();
-            break;
-        }
+            if (!memberNames)
+            {
+                emit needMemberNames();
+                break;
+            }
 
-        qint64 userId = match.captured(1).toLongLong();
-        if (memberNames->contains(userId))
-        {
-            QColor c = QColor::Invalid;
-            if (ac->groupMemberColor.contains(msg.groupId))
+            qint64 userId = match.captured(1).toLongLong();
+            if (memberNames->contains(userId))
             {
-                auto memberColor = ac->groupMemberColor.value(msg.groupId);
-                if (memberColor.contains(userId))
-                    c = memberColor.value(userId);
+                QColor c = QColor::Invalid;
+                if (ac->groupMemberColor.contains(msg.groupId))
+                {
+                    auto memberColor = ac->groupMemberColor.value(msg.groupId);
+                    if (memberColor.contains(userId))
+                        c = memberColor.value(userId);
+                }
+                if (c.isValid())
+                {
+                    text.replace(match.captured(0), "<font color=" + QVariant(c).toString() + ">@" + memberNames->value(userId) + "</font>");
+                }
+                else
+                {
+                    text.replace(match.captured(0), "@" + memberNames->value(userId));
+                }
             }
-            if (c.isValid())
+            else // 群组里没有这个人，刚加入？
             {
-                text.replace(match.captured(0), "<font color=" + QVariant(c).toString() + ">@" + memberNames->value(userId) + "</font>");
-            }
-            else
-            {
-                text.replace(match.captured(0), "@" + memberNames->value(userId));
+                emit needMemberNames();
+                pos++;
             }
         }
-        else // 群组里没有这个人，刚加入？
-        {
-            emit needMemberNames();
-            pos++;
-        }
+        text.replace(QRegExp("\\[CQ:at,qq=(\\d+)\\]"), "@\\1"); // 万一有没有替换完的呢
     }
-    text.replace(QRegExp("\\[CQ:at,qq=(\\d+)\\]"), "@\\1"); // 万一有没有替换完的呢
 
     // json
     if (text.indexOf(QRegularExpression("\\[CQ:json,data=(.+?)\\]"), 0, &match) > -1)
@@ -262,8 +267,10 @@ void MessageView::setMessage(const MsgBean& msg)
 /// 把形如 @123456 的格式统统替换为 @某某
 void MessageView::replaceGroupAt()
 {
+    const auto memberNames = ac->groupMemberNames.contains(msg.groupId) ? &ac->groupMemberNames[msg.groupId] : nullptr;
     if (!memberNames)
         return ;
+
     QString text = this->text();
     if (text.isEmpty())
         return ;
@@ -274,10 +281,11 @@ void MessageView::replaceGroupAt()
     bool replaced = false;
     while ((pos = text.indexOf(re, pos, &match)) > -1)
     {
-        qint64 userId = match.captured(1).toInt();
+        qint64 userId = match.captured(1).toLongLong();
         if (!memberNames->contains(userId))
         {
             pos++;
+            qWarning() << "不存在@的用户：" << userId << match.captured(1) << text;
             continue;
         }
 
@@ -310,10 +318,5 @@ void MessageView::setTextColor(QColor c)
     pa.setColor(QPalette::Foreground, c);
     pa.setColor(QPalette::Text, c);
     setPalette(pa);
-}
-
-void MessageView::setGroupMembers(QHash<qint64, QString> *memberNames)
-{
-    this->memberNames = memberNames;
 }
 

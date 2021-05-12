@@ -390,10 +390,8 @@ void NotificationCard::setGroupMsg(const MsgBean &msg)
             return ;
 
         Q_ASSERT(ac->groupMemberNames.contains(groupId));
-        QHash<qint64, QString> *groupMembers = &ac->groupMemberNames[groupId];
         foreach (auto view, msgViews)
         {
-            view->setGroupMembers(groupMembers);
             view->replaceGroupAt();
         }
     });
@@ -590,6 +588,10 @@ void NotificationCard::createMsgBox(const MsgBean &msg, int index)
         pa.setColor(QPalette::Text, c);
         nameLabel->setStyleSheet("color: " + QVariant(c).toString() + ";");
     }
+    else
+    {
+        nameLabel->setStyleSheet("color: " + QVariant(cardColor.fg).toString() + ";");
+    }
     nameLabel->setPalette(pa);
 
     // 设置消息
@@ -720,9 +722,6 @@ MessageView *NotificationCard::newMsgView()
 
     if (groupId)
     {
-        if (ac->groupMemberNames.contains(groupId))
-            view->setGroupMembers(&ac->groupMemberNames[groupId]);
-
         connect(view, &MessageView::needMemberNames, this, [=]{
             if (ac->groupMemberNames.contains(groupId))
             {
@@ -759,6 +758,11 @@ bool NotificationCard::isHidding() const
 bool NotificationCard::canMerge() const
 {
     return !hidding;
+}
+
+bool NotificationCard::isFixing() const
+{
+    return fixing;
 }
 
 void NotificationCard::setFastFocus()
@@ -817,6 +821,8 @@ void NotificationCard::focusIn()
 
 void NotificationCard::focusOut()
 {
+    if (fixing)
+        return ;
     displayTimer->setInterval(us->bannerRetentionDuration);
     displayTimer->start();
 }
@@ -860,12 +866,14 @@ void NotificationCard::hideReplyEdit()
 
 void NotificationCard::showGrougInfo(qint64 groupId, QPoint pos)
 {
-
+    Q_UNUSED(groupId)
+    Q_UNUSED(pos)
 }
 
 void NotificationCard::showUserInfo(qint64 userId, QPoint pos)
 {
-
+    Q_UNUSED(userId)
+    Q_UNUSED(pos)
 }
 
 void NotificationCard::sendReply()
@@ -1045,6 +1053,14 @@ void NotificationCard::cardMenu()
     menu->addAction(QIcon(), "立即关闭", [=]{
         this->toHide();
     });
+    menu->addAction(QIcon(), "固定卡片", [=]{
+        fixing = !fixing;
+        if (fixing)
+            displayTimer->stop();
+        else
+            if (bg->isInArea(bg->mapFromGlobal(QCursor::pos())))
+                displayTimer->start();
+    })->text(fixing, "取消固定");
     menu->addAction(QIcon(), "消息历史", [=]{
 
     })->disable();
@@ -1054,7 +1070,7 @@ void NotificationCard::cardMenu()
         this->toHide();
         qInfo() << "不显示群组通知：" << groupId;
     })->hide(!groupId);
-    menu->addAction(QIcon(), "关闭全部通知", [=]{
+    menu->addAction(QIcon(), "关闭所有通知", [=]{
         emit signalCloseAllCards();
     });
     menu->exec();

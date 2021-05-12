@@ -19,8 +19,6 @@ public:
 
     void setTextColor(QColor c);
 
-    void setGroupMembers(QHash<qint64, QString> *memberNames);
-
 signals:
     void needMemberNames();
 
@@ -28,7 +26,7 @@ public slots:
     void replaceGroupAt();
 
 private:
-    QHash<qint64, QString> *memberNames = nullptr;
+    MsgBean msg;
 };
 
 #endif // MESSAGEEDIT_H
