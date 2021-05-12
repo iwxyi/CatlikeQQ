@@ -31,7 +31,8 @@ INCLUDEPATH += third_party/color_octree/\
     third_party/utils/\
     global/\
     notification/\
-    web_service/
+    web_service/\
+    widgets/
 
 SOURCES += \
     global/usettings.cpp \
@@ -88,6 +89,7 @@ HEADERS += \
     third_party/utils/stringutil.h \
     third_party/utils/textinputdialog.h \
     web_service/msgbean.h \
+    widgets/clicklabel.h \
     widgets/customtabstyle.h \
     widgets/lefttabwidget.h \
     widgets/settings/aboutwidget.h \

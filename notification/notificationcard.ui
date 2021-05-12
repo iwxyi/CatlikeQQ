@@ -42,7 +42,7 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QLabel" name="headerLabel">
+        <widget class="ClickLabel" name="headerLabel">
          <property name="minimumSize">
           <size>
            <width>32</width>
@@ -84,7 +84,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0">
        <item>
-        <widget class="QLabel" name="nicknameLabel">
+        <widget class="ClickLabel" name="nicknameLabel">
          <property name="text">
           <string>nickname</string>
          </property>
@@ -189,6 +189,11 @@
    <class>SmoothListWidget</class>
    <extends>QListWidget</extends>
    <header>smoothlistwidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ClickLabel</class>
+   <extends>QLabel</extends>
+   <header>clicklabel.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

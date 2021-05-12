@@ -72,9 +72,9 @@ void MainWindow::initView()
 
     ui->dataTabWidget->clear();
     ui->dataTabWidget->addTab(new AboutWidget(this), QIcon("://icons/about.png"), "关于程序");
-    ui->dataTabWidget->addTab(new DebugWidget(service, this), QIcon("://icons/debug.png"), "开发调试");
-    ui->dataTabWidget->addTab(new QWidget(), QIcon("://icons/history_message.png"), "历史消息");
     ui->dataTabWidget->addTab(new QWidget(), QIcon("://icons/statistical.png"), "数据统计");
+    ui->dataTabWidget->addTab(new QWidget(), QIcon("://icons/history_message.png"), "历史消息");
+    ui->dataTabWidget->addTab(new DebugWidget(service, this), QIcon("://icons/debug.png"), "开发调试");
 
 
     ui->sideButtons->setCurrentRow(us->i("mainwindow/sideIndex"));

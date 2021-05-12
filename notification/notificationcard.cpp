@@ -11,6 +11,7 @@
 #include "fileutil.h"
 #include "imageutil.h"
 #include "facilemenu.h"
+#include "clicklabel.h"
 
 NotificationCard::NotificationCard(QWidget *parent) :
     QWidget(parent),
@@ -315,6 +316,13 @@ void NotificationCard::setPrivateMsg(const MsgBean &msg)
 
     // 添加消息
     createMsgEdit(msg);
+
+    connect(ui->headerLabel, &ClickLabel::leftClicked, this, [=]{
+        showUserInfo(msg.senderId);
+    });
+    connect(ui->nicknameLabel, &ClickLabel::leftClicked, this, [=]{
+        showUserInfo(msg.senderId);
+    });
 }
 
 /// 设置第一个群聊消息
@@ -385,6 +393,13 @@ void NotificationCard::setGroupMsg(const MsgBean &msg)
             view->setGroupMembers(groupMembers);
             view->replaceGroupAt();
         }
+    });
+
+    connect(ui->headerLabel, &ClickLabel::leftClicked, this, [=]{
+        showGrougInfo(msg.groupId);
+    });
+    connect(ui->nicknameLabel, &ClickLabel::leftClicked, this, [=]{
+        showGrougInfo(msg.groupId);
     });
 }
 
@@ -513,6 +528,7 @@ void NotificationCard::createMsgBox(const MsgBean &msg, int index)
     msgView->setAttribute(Qt::WA_TransparentForMouseEvents, false);
     spacer->setFixedWidth(1);
     headerLabel->setFixedSize(ui->headerLabel->size());
+    nameLabel->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
 
     QFont font;
     font.setPointSize(font.pointSize() + us->bannerSubTitleLarger);
@@ -832,6 +848,16 @@ void NotificationCard::hideReplyEdit()
     ui->messageEdit->hide(); // 会触发 FocusOut 事件
     ui->replyHLayout->insertItem(0, ui->horizontalSpacer);
     ui->replyButton->setText("回复");
+}
+
+void NotificationCard::showGrougInfo(qint64 groupId, QPoint pos)
+{
+
+}
+
+void NotificationCard::showUserInfo(qint64 userId, QPoint pos)
+{
+
 }
 
 void NotificationCard::sendReply()

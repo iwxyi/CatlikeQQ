@@ -65,6 +65,9 @@ public slots:
     void showReplyEdit(bool focus);
     void hideReplyEdit();
 
+    void showGrougInfo(qint64 groupId, QPoint pos = QPoint(-1, -1));
+    void showUserInfo(qint64 userId, QPoint pos = QPoint(-1, -1));
+
 private slots:
     void mouseEnter();
     void mouseLeave();
