@@ -24,6 +24,8 @@ private slots:
 
     void on_replyKeyEdit_editingFinished();
 
+    void on_AIReplyCheck_clicked();
+
 private:
     Ui::ReplyWidget *ui;
 };

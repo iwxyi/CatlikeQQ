@@ -25,6 +25,9 @@
      <property name="spacing">
       <number>12</number>
      </property>
+     <item row="4" column="1">
+      <widget class="QKeySequenceEdit" name="replyKeyEdit"/>
+     </item>
      <item row="2" column="0">
       <widget class="QCheckBox" name="closeAfterReplyCheck">
        <property name="toolTip">
@@ -42,17 +45,6 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label">
-       <property name="toolTip">
-        <string>快速打开最新消息的回复框
-注意：会忽略按下快捷键前一瞬间收到的消息，回复x毫秒之前的最新消息</string>
-       </property>
-       <property name="text">
-        <string>回复快捷键</string>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="0">
       <widget class="QCheckBox" name="autoFocusReplyCheck">
        <property name="toolTip">
@@ -65,8 +57,23 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
-      <widget class="QKeySequenceEdit" name="replyKeyEdit"/>
+     <item row="4" column="0">
+      <widget class="QLabel" name="label">
+       <property name="toolTip">
+        <string>快速打开最新消息的回复框
+注意：会忽略按下快捷键前一瞬间收到的消息，回复x毫秒之前的最新消息</string>
+       </property>
+       <property name="text">
+        <string>回复快捷键</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QCheckBox" name="AIReplyCheck">
+       <property name="text">
+        <string>AI回复参考</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

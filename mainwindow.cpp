@@ -308,6 +308,7 @@ void MainWindow::createNotificationBanner(const MsgBean &msg)
     notificationCards.append(card);
     connect(card, &NotificationCard::signalHeightChanged, this, [=](int delta) {
         adjustUnderCardsTop(notificationCards.indexOf(card), delta);
+        qDebug() << "~~~~~~~~heightChanged:" << notificationCards.indexOf(card) << delta;
     });
     connect(card, &NotificationCard::signalHided, this, [=]{
         int index = notificationCards.indexOf(card);
@@ -361,6 +362,10 @@ void MainWindow::createNotificationBanner(const MsgBean &msg)
         if (index >= notificationCards.size())
             index = notificationCards.size() - 1;
         notificationCards.at(index)->showReplyEdit(true);
+    });
+    connect(card, &NotificationCard::signalCloseAllCards, this, [=]{
+        foreach (auto card, notificationCards)
+            card->toHide();
     });
 }
 

@@ -29,6 +29,7 @@ void USettings::restoreSettings()
     assign(bannerCloseAfterReply, "closeAfterReply");
     assign(bannerFrostedGlassBg, "frostedGlassBg");
     assign(bannerFrostedGlassOpacity, "frostedGlassOpacity");
+    assign(bannerAIReply, "AIReply");
     endGroup();
 
     beginGroup("group");

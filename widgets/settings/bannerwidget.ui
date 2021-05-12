@@ -187,6 +187,10 @@
      </item>
      <item row="5" column="0">
       <widget class="QCheckBox" name="frostedGlassBgCheck">
+       <property name="toolTip">
+        <string>使用简单的毛玻璃背景效果
+注意：仅在出现时静态模糊，不会随着底部内容的修改而变化</string>
+       </property>
        <property name="text">
         <string>毛玻璃背景</string>
        </property>

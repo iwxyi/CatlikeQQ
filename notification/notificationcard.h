@@ -59,11 +59,14 @@ signals:
     void signalFocusPrevCard();
     void signalFocusNextCard();
     void signalFocusCard(int index);
+    void signalCloseAllCards();
 
 public slots:
     void showReplyEdit();
     void showReplyEdit(bool focus);
     void hideReplyEdit();
+    void toHide();
+    void triggerAIReply(int retry = 0);
 
     void showGrougInfo(qint64 groupId, QPoint pos = QPoint(-1, -1));
     void showUserInfo(qint64 userId, QPoint pos = QPoint(-1, -1));
@@ -75,7 +78,6 @@ private slots:
     void focusIn();
     void focusOut();
     void sendReply();
-    void toHide();
     void cardClicked();
     void cardMenu();
     void on_listWidget_itemDoubleClicked(QListWidgetItem *item);
@@ -93,6 +95,7 @@ private:
     MessageView* newMsgView();
     int getReadDisplayDuration(QString text) const;
     void createFrostGlass();
+    QString getValiableMessage(QString text) const;
 
 protected:
     void showEvent(QShowEvent *event) override;

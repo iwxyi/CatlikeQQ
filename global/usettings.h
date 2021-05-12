@@ -74,6 +74,7 @@ public:
     bool bannerMessageSmoothScroll = true;
     int bannerMessageLoadCount = 20; // 一次性加载多少条历史记录
     int bannerReplyIgnoreWithin = 200; // 热键聚焦时，忽视短期内来的卡片
+    int bannerAIReply = false; // 触发回复时，进行AI提示
 
     QList<qint64> enabledGroups;
 };

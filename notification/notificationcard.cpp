@@ -12,6 +12,8 @@
 #include "imageutil.h"
 #include "facilemenu.h"
 #include "clicklabel.h"
+#include "netutil.h"
+#include "myjson.h"
 
 NotificationCard::NotificationCard(QWidget *parent) :
     QWidget(parent),
@@ -839,9 +841,14 @@ void NotificationCard::showReplyEdit(bool focus)
     {
         this->activateWindow(); // 只有活动中的窗口，setFocus 才有效
         ui->messageEdit->setFocus();
+        if (!ui->messageEdit->text().isEmpty())
+            ui->messageEdit->selectAll();
     }
     ui->replyHLayout->removeItem(ui->horizontalSpacer);
     displayTimer->stop();
+
+    if (us->bannerAIReply && ui->messageEdit->text().isEmpty())
+        triggerAIReply();
 }
 
 void NotificationCard::hideReplyEdit()
@@ -963,6 +970,63 @@ void NotificationCard::toHide()
     ani->start();
 }
 
+void NotificationCard::triggerAIReply(int retry)
+{
+    auto msg = msgs.last();
+    QString text = getValiableMessage(msg.message);
+    if (text.isEmpty())
+        return ;
+
+    // 参数信息
+    QString url = "https://api.ai.qq.com/fcgi-bin/nlp/nlp_textchat";
+    QString nonce_str = "replyAPPKEY";
+    QStringList params{"app_id", "2159207490",
+                       "nonce_str", nonce_str,
+                "question", text,
+                "session", snum(msg.senderId) + snum(retry),
+                "time_stamp", QString::number(QDateTime::currentSecsSinceEpoch()),
+                      };
+
+    // 接口鉴权
+    QString pinjie;
+    for (int i = 0; i < params.size()-1; i+=2)
+        if (!params.at(i+1).isEmpty())
+            pinjie += params.at(i) + "=" + QUrl::toPercentEncoding(params.at(i+1)) + "&";
+    QString appkey = "sTuC8iS3R9yLNbL9";
+    pinjie += "app_key="+appkey;
+
+    QString sign = QString(QCryptographicHash::hash(pinjie.toLocal8Bit(), QCryptographicHash::Md5).toHex().data()).toUpper();
+    params << "sign" << sign;
+//    qDebug() << pinjie << sign;
+
+    // 获取信息
+    connect(new NetUtil(url, params), &NetUtil::finished, this, [=](QString result){
+        // 已经有字打上去了
+        if (!ui->messageEdit->text().isEmpty())
+            return ;
+
+        MyJson json(result.toUtf8());
+        if (json.value("ret").toInt() != 0)
+        {
+            QString msg = json.value("msg").toString();
+            qWarning() << "AI回复：" << msg << text;
+            if (msg == "chat answer not found" && retry < 3)
+                triggerAIReply(retry + 1);
+            return ;
+        }
+
+        QString answer = json.value("data").toObject().value("answer").toString();
+
+        // 过滤文字
+        if (answer.contains("未搜到")
+                || answer.isEmpty())
+            return ;
+
+        ui->messageEdit->setText(answer);
+        ui->messageEdit->selectAll();
+    });
+}
+
 void NotificationCard::cardClicked()
 {
     if (!msgs.size())
@@ -990,12 +1054,15 @@ void NotificationCard::cardMenu()
         this->toHide();
         qInfo() << "不显示群组通知：" << groupId;
     })->hide(!groupId);
+    menu->addAction(QIcon(), "关闭全部通知", [=]{
+        emit signalCloseAllCards();
+    });
     menu->exec();
 }
 
 int NotificationCard::getReadDisplayDuration(QString text) const
 {
-    text.replace(QRegularExpression("<.+?>"), "").replace(QRegularExpression("\\[CQ:.+?\\]"), "");
+    text = getValiableMessage(text);
     int length = text.length();
     return us->bannerDisplayDuration + (length * 1000 / us->bannerTextReadSpeed);
 }
@@ -1056,6 +1123,11 @@ void NotificationCard::createFrostGlass()
         painter.fillPath(clipPath, Qt::white);
         frostGlassLabel->setMask(mask.mask());
     }
+}
+
+QString NotificationCard::getValiableMessage(QString text) const
+{
+    return text.replace(QRegularExpression("<.+?>"), "").replace(QRegularExpression("\\[CQ:.+?\\]"), "").trimmed();
 }
 
 void NotificationCard::showEvent(QShowEvent *event)

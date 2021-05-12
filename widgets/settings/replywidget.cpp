@@ -15,6 +15,7 @@ ReplyWidget::ReplyWidget(QWidget *parent) :
     ui->autoFocusReplyCheck->setChecked(us->bannerAutoFocusReply);
     ui->closeAfterReplyCheck->setChecked(us->bannerCloseAfterReply);
     ui->replyKeyEdit->setKeySequence(QKeySequence(us->s("banner/replyKey", "shift+alt+x")));
+    ui->AIReplyCheck->setChecked(us->bannerAIReply);
 }
 
 ReplyWidget::~ReplyWidget()
@@ -43,4 +44,9 @@ void ReplyWidget::on_replyKeyEdit_editingFinished()
     qInfo() << "设置回复快捷键：" << key;
     us->set("banner/replyKey", key);
     emit sig->setReplyKey(key);
+}
+
+void ReplyWidget::on_AIReplyCheck_clicked()
+{
+    us->set("banner/AIReply", us->bannerAIReply = ui->AIReplyCheck->isChecked());
 }
