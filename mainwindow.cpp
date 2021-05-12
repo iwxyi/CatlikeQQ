@@ -91,12 +91,31 @@ void MainWindow::initView()
     connect(ui->dataTabWidget, &QTabWidget::currentChanged, this, [=](int index) {
         us->set("mainwindow/dataTabIndex", index);
     });
+
+    // 应用更改按钮
+    confirmButton = new InteractiveButtonBase("应用更改", this);
+    confirmButton->setBorderColor(Qt::gray);
+    confirmButton->setFixedForeSize();
+    confirmButton->setFixedForePos();
+    confirmButton->move(this->rect().bottomRight() - QPoint(confirmButton->width(), confirmButton->height()));
+    confirmButton->setFocusPolicy(Qt::StrongFocus);
+    if (ui->sideButtons->currentRow() != 0)
+        confirmButton->hide();
 }
 
 void MainWindow::on_sideButtons_currentRowChanged(int currentRow)
 {
     ui->stackedWidget->setCurrentIndex(currentRow);
     us->set("mainwindow/sideIndex", currentRow);
+
+    // 只有设置才显示应用更改
+    if (confirmButton)
+    {
+        if (currentRow == 0)
+            this->confirmButton->show();
+        else
+            this->confirmButton->hide();
+    }
 }
 
 void MainWindow::startMessageLoop()
@@ -221,6 +240,13 @@ void MainWindow::closeEvent(QCloseEvent *e)
 #else
     QMainWindow::closeEvent(e);
 #endif
+}
+
+void MainWindow::resizeEvent(QResizeEvent *e)
+{
+    QMainWindow::resizeEvent(e);
+
+    confirmButton->move(this->rect().bottomRight() - QPoint(confirmButton->width() + us->bannerSpacing, confirmButton->height() + us->bannerSpacing));
 }
 
 void MainWindow::returnToPrevWindow()

@@ -1034,6 +1034,7 @@ void NotificationCard::createFrostGlass()
     c = qMin(c/2, radius);
     frostGlassPixmap = blured.copy(c, c, blured.width()-c*2, blured.height()-c*2);
 
+    // 设置label的图片
     frostGlassLabel = new QLabel(this);
     frostGlassLabel->lower();
     this->bg->lower();
@@ -1041,6 +1042,20 @@ void NotificationCard::createFrostGlass()
     frostGlassLabel->setPixmap(frostGlassPixmap);
     frostGlassLabel->setFixedSize(cardRect.size());
     frostGlassLabel->move(this->bg->x(), 0);
+
+    // 设置Mask
+    {
+        QPixmap mask(this->size());
+        mask.fill(Qt::transparent);
+        QPainter painter(&mask);
+        QPainterPath path;
+        path.addRoundedRect(this->bg->geometry(), us->bannerBgRadius, us->bannerBgRadius);
+        QPainterPath clipPath;
+        clipPath.addRect(this->rect());
+        clipPath -= path;
+        painter.fillPath(clipPath, Qt::white);
+        frostGlassLabel->setMask(mask.mask());
+    }
 }
 
 void NotificationCard::showEvent(QShowEvent *event)
@@ -1058,6 +1073,22 @@ void NotificationCard::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent(event);
     bg->resize(event->size() - QSize(us->bannerBgShadow, us->bannerBgShadow));
+
+    // 设置Mask
+    if (frostGlassLabel)
+    {
+        QPixmap mask(this->size());
+        mask.fill(Qt::transparent);
+        QPainter painter(&mask);
+        QPainterPath path;
+        path.addRoundedRect(this->bg->geometry(), us->bannerBgRadius, us->bannerBgRadius);
+        QPainterPath clipPath;
+        clipPath.addRect(this->rect());
+        clipPath -= path;
+        painter.fillPath(clipPath, Qt::white);
+        frostGlassLabel->clearMask();
+        frostGlassLabel->setMask(mask);
+    }
 }
 
 void NotificationCard::on_listWidget_itemDoubleClicked(QListWidgetItem *item)

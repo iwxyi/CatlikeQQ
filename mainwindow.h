@@ -46,12 +46,14 @@ public slots:
 
 protected:
     void closeEvent(QCloseEvent* e) override;
+    void resizeEvent(QResizeEvent* e) override;
 
 private:
     void returnToPrevWindow();
 
 private:
     Ui::MainWindow *ui;
+    InteractiveButtonBase* confirmButton = nullptr;
     CqhttpService* service;
 
     QList<NotificationCard*> notificationCards;
