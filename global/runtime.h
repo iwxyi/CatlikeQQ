@@ -29,6 +29,8 @@ public:
     QString CACHE_USER_HEADER_PATH;
     QString CACHE_GROUP_HEADER_PATH;
 
+    bool notificationSlient = false;
+
 private:
     const QString imageSuffix = ".png";
 };

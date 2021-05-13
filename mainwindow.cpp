@@ -155,17 +155,21 @@ void MainWindow::trayAction(QSystemTrayIcon::ActivationReason reason)
         if (!this->isHidden())
             this->hide();
         else
+        {
             this->showNormal();
+            this->activateWindow();
+        }
         break;
     case QSystemTrayIcon::MiddleClick:
-
         break;
     case QSystemTrayIcon::Context:
     {
         FacileMenu* menu = new FacileMenu;
         menu->addAction(QIcon("://icons/silent.png"), "静默", [=] {
-
-        });
+            rt->notificationSlient = !rt->notificationSlient;
+            if (rt->notificationSlient)
+                closeAllCard();
+        })->check(rt->notificationSlient);
         menu->addAction(QIcon("://icons/quit.png"), "退出", [=] {
             qApp->quit();
         });
@@ -260,6 +264,10 @@ void MainWindow::returnToPrevWindow()
 
 void MainWindow::showMessage(const MsgBean &msg)
 {
+    // 静默模式
+    if (rt->notificationSlient)
+        return ;
+
     // 判断是否需要显示
     if (msg.isGroup() && !us->isGroupShow(msg.groupId)) // 群组消息开关
         return ;
@@ -363,12 +371,7 @@ void MainWindow::createNotificationBanner(const MsgBean &msg)
         notificationCards.at(index)->showReplyEdit(true);
     });
     connect(card, &NotificationCard::signalCloseAllCards, this, [=]{
-        foreach (auto card, notificationCards)
-        {
-            if (card->isFixing())
-                continue;
-            card->toHide();
-        }
+        closeAllCard();
     });
 }
 
@@ -427,5 +430,15 @@ void MainWindow::focusCardReply()
     {
         targetCard->setFastFocus();
         targetCard->showReplyEdit(true);
+    }
+}
+
+void MainWindow::closeAllCard()
+{
+    foreach (auto card, notificationCards)
+    {
+        if (card->isFixing())
+            continue;
+        card->toHide();
     }
 }

@@ -44,6 +44,10 @@ void MessageView::setMessage(const MsgBean& msg)
     QRegularExpression re;
     QRegularExpressionMatch match;
 
+    auto grayText = [=](QString text) {
+        return "<font color='gray'>" + text + "</font>";
+    };
+
     // #处理HTML
     text.replace("<", "&lt;").replace(">", "&gt;");
 
@@ -51,7 +55,7 @@ void MessageView::setMessage(const MsgBean& msg)
     // 文件
     if (!msg.fileId.isEmpty())
     {
-        text = "[文件] " + msg.fileName;
+        text = grayText("[文件] " + msg.fileName);
     }
 
     // 表情
@@ -90,7 +94,7 @@ void MessageView::setMessage(const MsgBean& msg)
 #endif
         if (!isFileExist(":/qq/qq-face/" + match.captured(1) + ".png")) // 不在表情库中的表情
         {
-            text.replace(QRegExp("\\[CQ:face,id=(\\d+)\\]"), "[表情]");
+            text.replace(QRegExp("\\[CQ:face,id=(\\d+)\\]"), grayText("[表情]"));
         }
         else
         {
@@ -110,7 +114,7 @@ void MessageView::setMessage(const MsgBean& msg)
 
     // 闪照
     // [CQ:image,type=flash,file=27194ea0bc4ef666c06ba6fe716e31ad.image]
-    text.replace(QRegExp("\\[CQ:image,type=flash,.+\\]"), "[闪照]");
+    text.replace(QRegExp("\\[CQ:image,type=flash,.+\\]"), grayText("[闪照]"));
 
     // 图片
     // 图片格式：[CQ:image,file=e9f40e7fb43071e7471a2add0df33b32.image,url=http://gchat.qpic.cn/gchatpic_new/707049914/3934208404-2722739418-E9F40E7FB43071E7471A2ADD0DF33B32/0?term=3]
@@ -189,7 +193,7 @@ void MessageView::setMessage(const MsgBean& msg)
     }
 
     // 回复
-    text.replace(QRegExp("\\[CQ:reply,id=-?\\d+\\]\\[CQ:at,qq=\\d+\\]"), "[回复]");
+    text.replace(QRegExp("\\[CQ:reply,id=-?\\d+\\]\\[CQ:at,qq=\\d+\\]"), grayText("[回复]"));
 
     // 艾特
     re = QRegularExpression("\\[CQ:at,qq=(\\d+)\\]");
@@ -247,7 +251,7 @@ void MessageView::setMessage(const MsgBean& msg)
     }
 
     // 其他格式
-    text.replace(QRegExp("\\[CQ:(\\w+),.+\\]"), "[\\1]");
+    text.replace(QRegExp("\\[CQ:(\\w+),.+\\]"), grayText("[\\1]"));
 
     // 实体
     text.replace("&#91;", "[").replace("&#93;", "]");

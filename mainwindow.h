@@ -43,6 +43,7 @@ public slots:
     void createNotificationBanner(const MsgBean& msg);
     void adjustUnderCardsTop(int aboveIndex, int deltaHeight);
     void focusCardReply();
+    void closeAllCard();
 
 protected:
     void closeEvent(QCloseEvent* e) override;
