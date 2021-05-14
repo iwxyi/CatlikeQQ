@@ -30,6 +30,8 @@ void USettings::restoreSettings()
     assign(bannerFrostedGlassBg, "frostedGlassBg");
     assign(bannerFrostedGlassOpacity, "frostedGlassOpacity");
     assign(bannerAIReply, "AIReply");
+    assign(bannerPrivateKeepShowing, "privateKeepShowing");
+    assign(bannerGroupKeepShowing, "groupKeepShowing");
     endGroup();
 
     beginGroup("group");

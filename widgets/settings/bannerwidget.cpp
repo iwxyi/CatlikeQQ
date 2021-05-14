@@ -19,6 +19,8 @@ BannerWidget::BannerWidget(QWidget *parent) :
     ui->colorfulGroupMemberCheck->setChecked(us->bannerColorfulGroupMember);
     ui->frostedGlassBgCheck->setChecked(us->bannerFrostedGlassBg);
     ui->frostedGlassOpacitySpin->setValue(us->bannerFrostedGlassOpacity);
+    ui->privateKeepShowingCheck->setChecked(us->bannerPrivateKeepShowing);
+    ui->groupKeepShowingCheck->setChecked(us->bannerGroupKeepShowing);
 
     ui->bgColorButton->setBorderColor(Qt::gray);
     ui->titleColorButton->setBorderColor(Qt::gray);
@@ -85,4 +87,14 @@ void BannerWidget::on_titleColorButton_clicked()
 void BannerWidget::on_frostedGlassOpacitySpin_editingFinished()
 {
     us->set("banner/frostedGlassOpacity", us->bannerFrostedGlassOpacity = ui->frostedGlassOpacitySpin->value());
+}
+
+void BannerWidget::on_privateKeepShowingCheck_clicked()
+{
+    us->set("banner/privateKeepShowing", us->bannerPrivateKeepShowing = ui->privateKeepShowingCheck->isChecked());
+}
+
+void BannerWidget::on_groupKeepShowingCheck_clicked()
+{
+    us->set("banner/groupKeepShowing", us->bannerGroupKeepShowing = ui->groupKeepShowingCheck->isChecked());
 }

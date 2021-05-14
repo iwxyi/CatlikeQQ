@@ -235,8 +235,17 @@ bool NotificationCard::append(const MsgBean &msg)
     // 调整显示时间
     if (displayTimer->isActive())
     {
-        displayTimer->setInterval(qMax(0, displayTimer->remainingTime() - us->bannerDisplayDuration) + getReadDisplayDuration(msg.displayString()));
-        displayTimer->start();
+
+        if ((msg.isPrivate() && us->bannerPrivateKeepShowing)
+                || (msg.isGroup() && us->bannerGroupKeepShowing))
+        {
+            displayTimer->stop();
+        }
+        else
+        {
+            displayTimer->setInterval(qMax(0, displayTimer->remainingTime() - us->bannerDisplayDuration) + getReadDisplayDuration(msg.displayString()));
+            displayTimer->start();
+        }
     }
 
     // 调整尺寸
@@ -407,12 +416,16 @@ void NotificationCard::setGroupMsg(const MsgBean &msg)
 /// 添加一个私聊消息
 void NotificationCard::appendPrivateMsg(const MsgBean &msg)
 {
+    if (displayTimer->isActive() && us->bannerPrivateKeepShowing)
+        displayTimer->stop();
     createMsgEdit(msg);
 }
 
 /// 添加一个群组消息，每条都有可能是独立的头像、昵称（二级标题）
 void NotificationCard::appendGroupMsg(const MsgBean &msg)
 {
+    if (displayTimer->isActive() && us->bannerGroupKeepShowing)
+        displayTimer->stop();
     if (!msgs.size() || msgs.last().senderId != msg.senderId)
         createMsgBox(msg);
     else
@@ -578,7 +591,7 @@ void NotificationCard::createMsgBox(const MsgBean &msg, int index)
 
             AccountInfo::CardColor cc;
             auto colors = ImageUtil::extractImageThemeColors(headerLabel->pixmap()->toImage(), 4);
-            auto color = ImageUtil::getFastestColor(us->bannerUseHeaderColor ? cardColor.bg : us->bannerBgColor, colors, 2); // 获取色差最大的
+            auto color = ImageUtil::getFastestColor(us->bannerUseHeaderColor ? cardColor.bg : us->bannerBgColor, colors, 1); // 获取色差最大的
             // auto color = colors.first().toColor();
             ac->groupMemberColor[groupId].insert(senderId, color);
             return color;
@@ -1150,7 +1163,16 @@ void NotificationCard::showEvent(QShowEvent *event)
 {
     QWidget::showEvent(event);
 
-    displayTimer->start();
+    auto msg = msgs.last();
+    if ((msg.isPrivate() && us->bannerPrivateKeepShowing)
+            || (msg.isGroup() && us->bannerGroupKeepShowing))
+    {
+        displayTimer->stop();
+    }
+    else
+    {
+        displayTimer->start();
+    }
 }
 
 void NotificationCard::paintEvent(QPaintEvent *)

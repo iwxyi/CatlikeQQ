@@ -38,6 +38,10 @@ private slots:
 
     void on_frostedGlassOpacitySpin_editingFinished();
 
+    void on_privateKeepShowingCheck_clicked();
+
+    void on_groupKeepShowingCheck_clicked();
+
 private:
     Ui::BannerWidget *ui;
 };
