@@ -11,11 +11,13 @@ void USettings::restoreSettings()
 
     beginGroup("banner");
     assign(bannerFloatPixel, "floatPixel");
+    assign(bannerFixedWidth, "fixedWidth");
+    assign(bannerContentMaxHeight, "contentMaxHeight");
     bannerFloatSide = Side(i("side", int(bannerFloatSide)));
     bannerFloatDirection = Direction(i("direction", bannerFloatDirection));
     assign(bannerFloatPixel, "pixel");
     assign(bannerSpacing, "spacing");
-    assign(bannerWidth, "width");
+    assign(bannerFixedWidth, "width");
     assign(bannerBgColor, "bgColor");
     assign(bannerTitleColor, "titleColor");
     assign(bannerContentColor, "contentColor");

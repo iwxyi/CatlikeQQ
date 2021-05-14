@@ -43,7 +43,7 @@ NotificationCard::NotificationCard(QWidget *parent) :
 
     ui->listWidget->setFixedHeight(0);
     ui->listWidget->setMinimumHeight(0);
-    ui->listWidget->setMaximumHeight(us->bannerContentHeight);
+    ui->listWidget->setMaximumHeight(us->bannerContentMaxHeight);
 //    ui->listWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     ui->listWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
@@ -188,7 +188,7 @@ void NotificationCard::setMsg(const MsgBean &msg)
     }
 
     // 设置大小
-    setFixedWidth(us->bannerWidth);
+    setFixedWidth(us->bannerFixedWidth);
     this->layout()->activate();
     resize(this->sizeHint());
 
@@ -479,7 +479,7 @@ void NotificationCard::createMsgEdit(const MsgBean& msg, int index)
         auto widget = ui->listWidget->itemWidget(ui->listWidget->item(i));
         sumHeight += widget->height() + ui->listWidget->spacing() * 2;
     }
-    ui->listWidget->setFixedHeight(qMin(sumHeight, us->bannerContentHeight));
+    ui->listWidget->setFixedHeight(qMin(sumHeight, us->bannerContentMaxHeight));
     this->adjustSize();
 
     // 滚动
@@ -634,7 +634,7 @@ void NotificationCard::createMsgBox(const MsgBean &msg, int index)
         auto widget = ui->listWidget->itemWidget(ui->listWidget->item(i));
         sumHeight += widget->height() + ui->listWidget->spacing() * 2; // us->bannerMessageSpacing;
     }
-    ui->listWidget->setFixedHeight(qMin(sumHeight, us->bannerContentHeight));
+    ui->listWidget->setFixedHeight(qMin(sumHeight, us->bannerContentMaxHeight));
     this->adjustSize();
 
     // 滚动
@@ -712,7 +712,7 @@ void NotificationCard::createMsgBoxEdit(const MsgBean &msg, int index)
         auto widget = ui->listWidget->itemWidget(ui->listWidget->item(i));
         sumHeight += widget->height() + ui->listWidget->spacing() * 2; // us->bannerMessageSpacing;
     }
-    ui->listWidget->setFixedHeight(qMin(sumHeight, us->bannerContentHeight));
+    ui->listWidget->setFixedHeight(qMin(sumHeight, us->bannerContentMaxHeight));
     this->adjustSize();
 
     // 滚动
@@ -1103,7 +1103,7 @@ void NotificationCard::createFrostGlass()
     if (!us->bannerFrostedGlassBg || !us->bannerFrostedGlassOpacity)
         return ;
 
-    QRect cardRect(showPoint.x(), showPoint.y(), us->bannerWidth, us->bannerContentWidth + (this->height() - ui->listWidget->height()));
+    QRect cardRect(showPoint.x(), showPoint.y(), us->bannerFixedWidth, us->bannerContentWidth + (this->height() - ui->listWidget->height()));
     QT_BEGIN_NAMESPACE
         extern Q_WIDGETS_EXPORT void qt_blurImage( QPainter *p, QImage &blurImage, qreal radius, bool quality, bool alphaOnly, int transposed = 0 );
     QT_END_NAMESPACE

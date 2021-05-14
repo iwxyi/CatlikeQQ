@@ -13,6 +13,8 @@ BannerWidget::BannerWidget(QWidget *parent) :
     ui->displayDurationSpin->setValue(us->bannerDisplayDuration / 1000);
     ui->textReadSpeedSpin->setValue(us->bannerTextReadSpeed);
     ui->floatPixelSpin->setValue(us->bannerFloatPixel);
+    ui->fixedWidthSpin->setValue(us->bannerFixedWidth);
+    ui->contentMaxHeightSpin->setValue(us->bannerContentMaxHeight);
     ui->retentionDurationSpin->setValue(us->bannerRetentionDuration / 1000);
     ui->useHeaderColorCheck->setChecked(us->bannerUseHeaderColor);
     ui->useHeaderGradientCheck->setChecked(us->bannerUseHeaderGradient);
@@ -97,4 +99,14 @@ void BannerWidget::on_privateKeepShowingCheck_clicked()
 void BannerWidget::on_groupKeepShowingCheck_clicked()
 {
     us->set("banner/groupKeepShowing", us->bannerGroupKeepShowing = ui->groupKeepShowingCheck->isChecked());
+}
+
+void BannerWidget::on_fixedWidthSpin_editingFinished()
+{
+    us->set("banner/fixedWidth", us->bannerFixedWidth = ui->fixedWidthSpin->value());
+}
+
+void BannerWidget::on_contentMaxHeightSpin_editingFinished()
+{
+    us->set("banner/contentMaxHeight", us->bannerContentMaxHeight = ui->contentMaxHeightSpin->value());
 }

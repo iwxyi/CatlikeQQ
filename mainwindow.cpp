@@ -301,7 +301,7 @@ void MainWindow::createNotificationBanner(const MsgBean &msg)
         if (notificationCards.size())
             top = notificationCards.last()->geometry().bottom() + us->bannerSpacing;
         startPos = QPoint(screenGeometry().width()-5, top);
-        showPos = QPoint(screenGeometry().width() - us->bannerWidth - us->bannerSpacing, top);
+        showPos = QPoint(screenGeometry().width() - us->bannerFixedWidth - us->bannerSpacing, top);
     }
         break;
     default:

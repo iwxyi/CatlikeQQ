@@ -42,6 +42,10 @@ private slots:
 
     void on_groupKeepShowingCheck_clicked();
 
+    void on_fixedWidthSpin_editingFinished();
+
+    void on_contentMaxHeightSpin_editingFinished();
+
 private:
     Ui::BannerWidget *ui;
 };

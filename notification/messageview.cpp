@@ -135,7 +135,7 @@ void MessageView::setMessage(const MsgBean& msg)
 
             // 图片尺寸
             int maxWidth = us->bannerContentWidth;
-            int maxHeight = us->bannerContentHeight - us->bannerHeaderSize;
+            int maxHeight = us->bannerContentMaxHeight - us->bannerHeaderSize;
 #ifdef MESSAGE_LABEL
             // 如果是单张图片，支持显示gif
             if (text.indexOf(QRegularExpression("^\\[CQ:image,file=(.+?).image,.*url=(.+)\\]$")) > -1)
