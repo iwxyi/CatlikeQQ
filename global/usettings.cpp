@@ -13,6 +13,7 @@ void USettings::restoreSettings()
     assign(bannerFloatPixel, "floatPixel");
     assign(bannerFixedWidth, "fixedWidth");
     assign(bannerContentMaxHeight, "contentMaxHeight");
+    bannerContentWidth = bannerFixedWidth - bannerContentWidthDelta;
     bannerFloatSide = Side(i("side", int(bannerFloatSide)));
     bannerFloatDirection = Direction(i("direction", bannerFloatDirection));
     assign(bannerFloatPixel, "pixel");

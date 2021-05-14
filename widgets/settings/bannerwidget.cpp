@@ -104,6 +104,7 @@ void BannerWidget::on_groupKeepShowingCheck_clicked()
 void BannerWidget::on_fixedWidthSpin_editingFinished()
 {
     us->set("banner/fixedWidth", us->bannerFixedWidth = ui->fixedWidthSpin->value());
+    us->bannerContentWidth = us->bannerFixedWidth - us->bannerContentWidthDelta;
 }
 
 void BannerWidget::on_contentMaxHeightSpin_editingFinished()
