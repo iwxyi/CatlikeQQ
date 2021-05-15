@@ -37,6 +37,8 @@ private:
 
 private:
     QWebSocket* socket = nullptr;
+    QString host;
+    QTimer* retryTimer = nullptr;
 };
 
 #endif // CQHTTPSERVICE_H

@@ -28,10 +28,23 @@ void CqhttpService::initWS()
     connect(socket, &QWebSocket::connected, this, [=]{
         loopStarted();
         emit sig->socketStateChanged(true);
+
+        if (retryTimer)
+            retryTimer->stop();
     });
 
     connect(socket, &QWebSocket::disconnected, this, [=]{
         emit sig->socketStateChanged(false);
+
+        if (!retryTimer)
+        {
+            retryTimer = new QTimer(this);
+            connect(retryTimer, &QTimer::timeout, this, [=]{
+                openHost(this->host);
+            });
+        }
+        retryTimer->setInterval(30000);
+        retryTimer->start();
     });
 }
 
@@ -64,12 +77,16 @@ void CqhttpService::loopStarted()
 
 void CqhttpService::openHost(QString host)
 {
+    if (host.isEmpty())
+        return ;
+
     // 设置安全套接字连接模式（不知道有啥用）
     QSslConfiguration config = socket->sslConfiguration();
     config.setPeerVerifyMode(QSslSocket::VerifyNone);
     config.setProtocol(QSsl::TlsV1SslV3);
     socket->setSslConfiguration(config);
 
+    this->host = host;
     socket->open(host);
 }
 
