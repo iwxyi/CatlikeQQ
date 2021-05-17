@@ -20,6 +20,15 @@ enum Direction
     BottomToTop
 };
 
+#define Unimportant -1
+#define UnimportantText "不重要"
+#define NormalImportant 0
+#define NormalImportantText "一般"
+#define Important 1
+#define ImportantText "重要"
+#define VeryImportant 2
+#define VeryImportantText "很重要"
+
 class USettings : public MySettings
 {
 public:
@@ -47,7 +56,7 @@ public:
     int bannerShowEasingCurve = 6;     // 动画的曲线设定
     int bannerDisplayDuration = 7000;  // 横幅显示的时长
     int bannerTextReadSpeed = 10; // 按字数增加时长，每秒钟看多少字
-    int bannerRetentionDuration = 2000; // 失去焦点后滞留时长
+    int bannerRetentionDuration = 1000; // 失去焦点后滞留时长
     QColor bannerTitleColor = QColor(0, 0, 0, 255); // 默认背景颜色
     QColor bannerContentColor = QColor(32, 32, 32, 255); // 默认背景颜色
     QColor bannerBgColor = QColor(255, 255, 255, 255); // 默认背景颜色
@@ -80,6 +89,11 @@ public:
     bool bannerGroupKeepShowing = false; // 群聊等待回复
 
     QList<qint64> enabledGroups;
+    QHash<qint64, int> userImportance;
+    QHash<qint64, int> groupImportance;
+    int lowestImportance = NormalImportant; // 当前弹窗的最低重要程度
+    int userDefaultImportance = Important;
+    int groupDefaultImportance = NormalImportant;
 };
 
 extern USettings* us;

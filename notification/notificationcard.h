@@ -49,6 +49,7 @@ public:
     void setFastFocus();
 
     const QList<MsgBean> &getMsgs() const;
+    int getImportance() const;
 
 signals:
     void signalHeightChanged(int delta);
@@ -68,6 +69,7 @@ public slots:
     void hideReplyEdit();
     void toHide();
     void triggerAIReply(int retry = 0);
+    void shallToHide();
 
     void showGrougInfo(qint64 groupId, QPoint pos = QPoint(-1, -1));
     void showUserInfo(qint64 userId, QPoint pos = QPoint(-1, -1));

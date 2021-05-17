@@ -41,6 +41,12 @@ void USettings::restoreSettings()
     assign(enableGroupNotification, "enabled");
     assign(enabledGroups, "enables");
     endGroup();
+
+    beginGroup("importance");
+    assign(userImportance, "userImportance");
+    assign(groupImportance, "groupImportance");
+    assign(lowestImportance, "lowestImportance");
+    endGroup();
 }
 
 /// 是否展示该群组的通知

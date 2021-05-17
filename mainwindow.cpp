@@ -170,6 +170,24 @@ void MainWindow::trayAction(QSystemTrayIcon::ActivationReason reason)
             if (rt->notificationSlient)
                 closeAllCard();
         })->check(rt->notificationSlient);
+
+        auto importanceMenu = menu->addMenu("过滤重要性");
+        auto setImportance = [=](int im) {
+            us->set("importance/lowestImportance", us->lowestImportance = im);
+        };
+        importanceMenu->addAction("很重要", [=]{
+            setImportance(VeryImportant);
+        })->check(us->lowestImportance == VeryImportant);
+        importanceMenu->addAction("重要", [=]{
+            setImportance(Important);
+        })->check(us->lowestImportance == Important);
+        importanceMenu->addAction("一般", [=]{
+            setImportance(NormalImportant);
+        })->check(us->lowestImportance == NormalImportant);
+        importanceMenu->addAction("不重要", [=]{
+            setImportance(Unimportant);
+        })->check(us->lowestImportance == Unimportant);
+
         menu->addAction(QIcon("://icons/quit.png"), "退出", [=] {
             qApp->quit();
         });
@@ -268,8 +286,17 @@ void MainWindow::showMessage(const MsgBean &msg)
     if (rt->notificationSlient)
         return ;
 
-    // 判断是否需要显示
+    // 判断群组显示开关
     if (msg.isGroup() && !us->isGroupShow(msg.groupId)) // 群组消息开关
+        return ;
+
+    // 判断消息级别开关
+    int im = NormalImportant;
+    if (msg.isPrivate())
+        im = us->userImportance.value(msg.senderId, us->userDefaultImportance);
+    else if (msg.isGroup())
+        im = us->groupImportance.value(msg.groupId, us->groupDefaultImportance);
+    if (im < us->lowestImportance)
         return ;
 
     // 判断有没有现有的卡片

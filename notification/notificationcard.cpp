@@ -788,6 +788,18 @@ const QList<MsgBean> &NotificationCard::getMsgs() const
     return msgs;
 }
 
+int NotificationCard::getImportance() const
+{
+    if (!msgs.size())
+        return NormalImportant;
+    auto msg = msgs.last();
+    if (isPrivate())
+        return us->userImportance.value(msg.senderId, us->userDefaultImportance);
+    if (isGroup())
+        return us->groupImportance.value(msg.groupId, us->groupDefaultImportance);
+    return NormalImportant;
+}
+
 void NotificationCard::mouseEnter()
 {
     focusIn();
@@ -1048,6 +1060,14 @@ void NotificationCard::triggerAIReply(int retry)
     });
 }
 
+/// 看情况是否需要隐藏
+/// 前面有暂停时钟，但是不一定需要隐藏
+void NotificationCard::shallToHide()
+{
+    if (!displayTimer->isActive() && !bg->isInArea(bg->mapFromGlobal(QCursor::pos())) && !ui->messageEdit->hasFocus())
+        displayTimer->start();
+}
+
 void NotificationCard::cardClicked()
 {
     if (!msgs.size())
@@ -1074,9 +1094,47 @@ void NotificationCard::cardMenu()
             if (bg->isInArea(bg->mapFromGlobal(QCursor::pos())))
                 displayTimer->start();
     })->text(fixing, "取消固定");
-    menu->addAction(QIcon(), "消息历史", [=]{
+
+
+    auto importanceMenu = menu->addMenu("消息重要性");
+    importanceMenu->setDisabled(!isPrivate() && !isGroup());
+    auto setImportance = [=](int im){
+        auto msg = msgs.last();
+        if (isPrivate())
+        {
+            if (im == us->userDefaultImportance)
+                us->userImportance.remove(msg.senderId);
+            else
+                us->userImportance[msg.senderId] = im;
+            us->set("importance/userImportance", us->userImportance);
+        }
+        else if (isGroup())
+        {
+            if (im == us->groupDefaultImportance)
+                us->groupImportance.remove(msg.groupId);
+            else
+                us->groupImportance[msg.groupId] = im;
+            us->set("importance/groupImportance", us->groupImportance);
+        }
+    };
+    int importance = getImportance();
+    importanceMenu->addAction(QIcon(), "很重要", [=]{
+        setImportance(VeryImportant);
+    })->check(importance == VeryImportant);
+    importanceMenu->addAction(QIcon(), "重要", [=]{
+        setImportance(Important);
+    })->check(importance == Important);
+    importanceMenu->addAction(QIcon(), "一般", [=]{
+        setImportance(NormalImportant);
+    })->check(importance == NormalImportant);
+    importanceMenu->addAction(QIcon(), "不重要", [=]{
+        setImportance(Unimportant);
+    })->check(importance == Unimportant);
+
+    menu->split()->addAction(QIcon(), "消息历史", [=]{
 
     })->disable();
+
     menu->split()->addAction(QIcon(), "不显示该群通知", [=]{
         us->enabledGroups.removeOne(groupId);
         us->set("group/enables", us->enabledGroups);
@@ -1086,7 +1144,14 @@ void NotificationCard::cardMenu()
     menu->addAction(QIcon(), "关闭所有通知", [=]{
         emit signalCloseAllCards();
     });
+
+    bool ti = displayTimer->isActive();
+    displayTimer->stop();
     menu->exec();
+    connect(menu, &FacileMenu::signalHidden, this, [=]{
+        if (ti)
+            shallToHide();
+    });
 }
 
 int NotificationCard::getReadDisplayDuration(QString text) const

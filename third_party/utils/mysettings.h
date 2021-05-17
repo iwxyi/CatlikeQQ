@@ -45,6 +45,14 @@ public:
         set(key, sl);
     }
 
+    void set(QString key, QHash<qint64, int> hash)
+    {
+        QStringList sl;
+        for (auto it = hash.begin(); it != hash.end(); it++)
+            sl.append(QString::number(it.key())+ ":" + QString::number(it.value()));
+        set(key, sl);
+    }
+
     bool b(QString key, QVariant def = QVariant())
     {
         return QSettings::value(key, def).toBool();
@@ -110,6 +118,18 @@ public:
         QStringList sl = value(key).toStringList();
         foreach (auto s, sl)
             val.append(s.toLongLong());
+    }
+
+    void assign(QHash<qint64, int>& val, QString key)
+    {
+        QStringList sl = value(key).toStringList();
+        foreach (auto s, sl)
+        {
+            QStringList l = s.split(":");
+            if (l.size() != 2)
+                continue;
+            val.insert(l.at(0).toLongLong(), l.at(1).toInt());
+        }
     }
 };
 

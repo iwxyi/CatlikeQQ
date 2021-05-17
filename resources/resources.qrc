@@ -22,6 +22,7 @@
         <file>icons/silent.png</file>
         <file>icons/debug.png</file>
         <file>icons/about.png</file>
+        <file alias="sub_menu_arrow">icons/sub_menu_arrow.png</file>
     </qresource>
     <qresource prefix="/qq">
         <file>qq-face/0.gif</file>
