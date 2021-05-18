@@ -173,7 +173,7 @@ void MainWindow::trayAction(QSystemTrayIcon::ActivationReason reason)
             us->leaveMode = !us->leaveMode;
         })->check(us->leaveMode);
 
-        menu->addAction(QIcon("://icons/silent.png"), "静默模式", [=] {
+        menu->addAction(QIcon("://icons/silent.png"), "临时静默", [=] {
             // 这里的静默模式不会保存，重启后还是以设置中为准
             rt->notificationSlient = !rt->notificationSlient;
             if (rt->notificationSlient)
@@ -310,6 +310,18 @@ void MainWindow::showMessage(const MsgBean &msg)
         im = us->groupImportance.value(msg.groupId, us->groupDefaultImportance);
     if (im < us->lowestImportance)
         return ;
+
+    // 保存最后显示的
+    if (msg.isPrivate())
+    {
+        ac->lastReceiveShowIsUser = true;
+        ac->lastReceiveShowId = msg.senderId;
+    }
+    else if (msg.isGroup())
+    {
+        ac->lastReceiveShowIsUser = false;
+        ac->lastReceiveShowId = msg.groupId;
+    }
 
     // 判断有没有现有的卡片
     foreach (auto card, notificationCards)
@@ -469,8 +481,42 @@ void MainWindow::focusCardReply()
 
     if (targetCard)
     {
-        targetCard->setFastFocus();
         targetCard->showReplyEdit(true);
+        targetCard->setFastFocus();
+    }
+    else // 没有卡片，那么就聚焦到最后一次有消息的
+    {
+        if (!ac->lastReceiveShowId) // 没有最后一次消息
+            return ;
+
+        // 显示卡片
+        if (ac->lastReceiveShowIsUser)
+        {
+            const auto& history = ac->userMsgHistory.value(ac->lastReceiveShowId, QList<MsgBean>());
+            if (!history.size())
+            {
+                qWarning() << "不存在的用户消息记录：" << ac->lastReceiveShowId;
+                return ;
+            }
+
+            showMessage(history.last());
+        }
+        else
+        {
+            const auto& history = ac->groupMsgHistory.value(ac->lastReceiveShowId, QList<MsgBean>());
+            if (!history.size())
+            {
+                qWarning() << "不存在的群组消息记录：" << ac->lastReceiveShowId;
+                return ;
+            }
+
+            showMessage(history.last());
+        }
+        targetCard = notificationCards.last();
+
+        // 再聚焦
+        targetCard->showReplyEdit(true);
+        targetCard->setFastFocus();
     }
 }
 

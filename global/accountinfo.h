@@ -27,6 +27,9 @@ public:
     QHash<qint64, QHash<qint64, QColor>> groupMemberColor; // 群组里每位用户的颜色
     QHash<qint64, qint64> aiReplyUserTime; // 用户最近一次自动回复
     QHash<qint64, qint64> aiReplyGroupTime; // 群组最近一次自动回复
+
+    bool lastReceiveShowIsUser = false; // 最后接受到的一条消息是用户true还是群组false
+    qint64 lastReceiveShowId = 0; // 最后接收到的用户ID或者群组ID
 };
 
 extern AccountInfo* ac;

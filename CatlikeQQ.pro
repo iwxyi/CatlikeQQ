@@ -120,6 +120,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES += \
+    README.md \
     qxtglobalshortcut5/qxt.pri \
     resources/icons/account.png \
     resources/icons/application.png \
