@@ -121,6 +121,14 @@
      </layout>
     </widget>
    </item>
+   <item>
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>本处使用的AI暂用【神奇弹幕】的AI回复功能实现
+可能会出现相关自称，不影响使用</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources/>

@@ -47,6 +47,15 @@ void USettings::restoreSettings()
     assign(groupImportance, "groupImportance");
     assign(lowestImportance, "lowestImportance");
     endGroup();
+
+    beginGroup("leave");
+    assign(leaveMode, "leaveMode");
+    assign(aiReplyPrivate, "aiReplyPrivate");
+    assign(aiReplyPrefix, "aiReplyPrefix");
+    assign(aiReplySuffix, "aiReplySuffix");
+    assign(aiReplyDefault, "aiReplyDefault");
+    assign(aiReplyInterval, "aiReplyInterval");
+    endGroup();
 }
 
 /// 是否展示该群组的通知

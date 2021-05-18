@@ -167,13 +167,20 @@ void MainWindow::trayAction(QSystemTrayIcon::ActivationReason reason)
     case QSystemTrayIcon::Context:
     {
         FacileMenu* menu = new FacileMenu;
-        menu->addAction(QIcon("://icons/silent.png"), "静默", [=] {
+
+        menu->addAction(QIcon("://icons/leaveMode.png"), "临时离开", [=] {
+            // 这里的离开模式不会保存，重启后还是以设置中为准
+            us->leaveMode = !us->leaveMode;
+        })->check(us->leaveMode);
+
+        menu->addAction(QIcon("://icons/silent.png"), "静默模式", [=] {
+            // 这里的静默模式不会保存，重启后还是以设置中为准
             rt->notificationSlient = !rt->notificationSlient;
             if (rt->notificationSlient)
                 closeAllCard();
         })->check(rt->notificationSlient);
 
-        auto importanceMenu = menu->addMenu(QIcon("://icons/importance.png"), "过滤重要性");
+        auto importanceMenu = menu->split()->addMenu(QIcon("://icons/importance.png"), "过滤重要性");
         auto setImportance = [=](int im) {
             us->set("importance/lowestImportance", us->lowestImportance = im);
         };
@@ -193,6 +200,7 @@ void MainWindow::trayAction(QSystemTrayIcon::ActivationReason reason)
         menu->split()->addAction(QIcon("://icons/quit.png"), "退出", [=] {
             qApp->quit();
         });
+
         menu->exec(QCursor::pos());
     }
         break;
@@ -489,6 +497,8 @@ void MainWindow::aiReplyMessage(const MsgBean &msg)
     }
 }
 
+/// 触发AI回复
+/// 已确保回复条件
 void MainWindow::triggerAiReply(const MsgBean &msg, int retry)
 {
     QString text = NotificationCard::getValiableMessage(msg.message);

@@ -20,16 +20,17 @@ private slots:
 
     void on_aiReplyPrivateCheck_clicked();
 
-    void on_aiReplyPrefixEdit_undoAvailable(bool);
-
-    void on_aiReplySuffixEdit_undoAvailable(bool);
-
-    void on_aiReplyDefaultEdit_undoAvailable(bool);
-
     void on_aiReplyIntervalSpin_editingFinished();
+
+    void on_aiReplyPrefixEdit_textChanged();
+
+    void on_aiReplySuffixEdit_textChanged();
+
+    void on_aiReplyDefaultEdit_textChanged();
 
 private:
     Ui::LeaveModeWidget *ui;
+    bool opening = true;
 };
 
 #endif // LEAVEMODEWIDGET_H
