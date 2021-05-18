@@ -23,6 +23,16 @@
         <file>icons/debug.png</file>
         <file>icons/about.png</file>
         <file alias="sub_menu_arrow">icons/sub_menu_arrow.png</file>
+        <file>icons/importance.png</file>
+        <file>icons/important.png</file>
+        <file>icons/normalImportant.png</file>
+        <file>icons/unimportant.png</file>
+        <file>icons/veryImportant.png</file>
+        <file>icons/hideView.png</file>
+        <file>icons/closeUser.png</file>
+        <file>icons/history.png</file>
+        <file>icons/fixed.png</file>
+        <file>icons/close.png</file>
     </qresource>
     <qresource prefix="/qq">
         <file>qq-face/0.gif</file>

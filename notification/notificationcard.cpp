@@ -1083,10 +1083,10 @@ void NotificationCard::cardClicked()
 void NotificationCard::cardMenu()
 {
     FacileMenu* menu = new FacileMenu(this);
-    menu->addAction(QIcon(), "立即关闭", [=]{
+    menu->addAction(QIcon("://icons/close.png"), "立即关闭", [=]{
         this->toHide();
     });
-    menu->addAction(QIcon(), "固定卡片", [=]{
+    menu->addAction(QIcon("://icons/fixed.png"), "固定卡片", [=]{
         fixing = !fixing;
         if (fixing)
             displayTimer->stop();
@@ -1096,7 +1096,7 @@ void NotificationCard::cardMenu()
     })->text(fixing, "取消固定");
 
 
-    auto importanceMenu = menu->addMenu("消息重要性");
+    auto importanceMenu = menu->addMenu(QIcon("://icons/importance.png"), "消息重要性");
     importanceMenu->setDisabled(!isPrivate() && !isGroup());
     auto setImportance = [=](int im){
         auto msg = msgs.last();
@@ -1118,30 +1118,30 @@ void NotificationCard::cardMenu()
         }
     };
     int importance = getImportance();
-    importanceMenu->addAction(QIcon(), "很重要", [=]{
+    importanceMenu->addAction(QIcon("://icons/veryImportant.png"), "很重要", [=]{
         setImportance(VeryImportant);
     })->check(importance == VeryImportant);
-    importanceMenu->addAction(QIcon(), "重要", [=]{
+    importanceMenu->addAction(QIcon("://icons/important.png"), "重要", [=]{
         setImportance(Important);
     })->check(importance == Important);
-    importanceMenu->addAction(QIcon(), "一般", [=]{
+    importanceMenu->addAction(QIcon("://icons/normalImportant.png"), "一般", [=]{
         setImportance(NormalImportant);
     })->check(importance == NormalImportant);
-    importanceMenu->addAction(QIcon(), "不重要", [=]{
+    importanceMenu->addAction(QIcon("://icons/unimportant.png"), "不重要", [=]{
         setImportance(Unimportant);
     })->check(importance == Unimportant);
 
-    menu->split()->addAction(QIcon(), "消息历史", [=]{
+    menu->split()->addAction(QIcon("://icons/history.png"), "消息历史", [=]{
 
     })->disable();
 
-    menu->split()->addAction(QIcon(), "不显示该群通知", [=]{
+    menu->split()->addAction(QIcon("://icons/closeUser.png"), "不显示该群通知", [=]{
         us->enabledGroups.removeOne(groupId);
         us->set("group/enables", us->enabledGroups);
         this->toHide();
         qInfo() << "不显示群组通知：" << groupId;
     })->hide(!groupId);
-    menu->addAction(QIcon(), "关闭所有通知", [=]{
+    menu->addAction(QIcon("://icons/hideView.png"), "立刻关闭所有通知", [=]{
         emit signalCloseAllCards();
     });
 

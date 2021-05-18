@@ -171,20 +171,20 @@ void MainWindow::trayAction(QSystemTrayIcon::ActivationReason reason)
                 closeAllCard();
         })->check(rt->notificationSlient);
 
-        auto importanceMenu = menu->addMenu("过滤重要性");
+        auto importanceMenu = menu->addMenu(QIcon("://icons/importance.png"), "过滤重要性");
         auto setImportance = [=](int im) {
             us->set("importance/lowestImportance", us->lowestImportance = im);
         };
-        importanceMenu->addAction("很重要", [=]{
+        importanceMenu->addAction(QIcon("://icons/veryImportant.png"), "很重要", [=]{
             setImportance(VeryImportant);
         })->check(us->lowestImportance == VeryImportant);
-        importanceMenu->addAction("重要", [=]{
+        importanceMenu->addAction(QIcon("://icons/important.png"), "重要", [=]{
             setImportance(Important);
         })->check(us->lowestImportance == Important);
-        importanceMenu->addAction("一般", [=]{
+        importanceMenu->addAction(QIcon("://icons/normalImportant.png"), "一般", [=]{
             setImportance(NormalImportant);
         })->check(us->lowestImportance == NormalImportant);
-        importanceMenu->addAction("不重要", [=]{
+        importanceMenu->addAction(QIcon("://icons/unimportant.png"), "不重要", [=]{
             setImportance(Unimportant);
         })->check(us->lowestImportance == Unimportant);
 
