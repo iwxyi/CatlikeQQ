@@ -45,6 +45,9 @@ public slots:
     void focusCardReply();
     void closeAllCard();
 
+    void aiReplyMessage(const MsgBean& msg);
+    void triggerAiReply(const MsgBean& msg, int retry = 0);
+
 protected:
     void closeEvent(QCloseEvent* e) override;
     void resizeEvent(QResizeEvent* e) override;

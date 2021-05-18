@@ -50,6 +50,7 @@ public:
 
     const QList<MsgBean> &getMsgs() const;
     int getImportance() const;
+    static QString getValiableMessage(QString text);
 
 signals:
     void signalHeightChanged(int delta);
@@ -98,7 +99,6 @@ private:
     MessageView* newMsgView();
     int getReadDisplayDuration(QString text) const;
     void createFrostGlass();
-    QString getValiableMessage(QString text) const;
 
 protected:
     void showEvent(QShowEvent *event) override;

@@ -6,6 +6,7 @@
 #include "myjson.h"
 #include "fileutil.h"
 #include "imageutil.h"
+#include "netutil.h"
 #include "signaltransfer.h"
 #include "windows.h"
 #include "widgets/customtabstyle.h"
@@ -206,6 +207,8 @@ void MainWindow::initService()
 
     connect(service, SIGNAL(signalMessage(const MsgBean&)), this, SLOT(showMessage(const MsgBean&)));
 
+    connect(service, SIGNAL(signalMessage(const MsgBean&)), this, SLOT(aiReplyMessage(const MsgBean&)));
+
     connect(sig, &SignalTransfer::loadGroupMembers, service, [=](qint64 groupId) {
         MyJson json;
         json.insert("action", "get_group_member_list");
@@ -359,6 +362,7 @@ void MainWindow::createNotificationBanner(const MsgBean &msg)
         json.insert("params", params);
         json.insert("echo", "send_private_msg");
         service->sendMessage(json.toBa());
+        emit sig->myReplyUser(userId, message);
     });
     connect(card, &NotificationCard::signalReplyGroup, this, [=](qint64 groupId, const QString& message) {
         MyJson json;
@@ -369,6 +373,7 @@ void MainWindow::createNotificationBanner(const MsgBean &msg)
         json.insert("params", params);
         json.insert("echo", "send_group_msg");
         service->sendMessage(json.toBa());
+        emit sig->myReplyGroup(groupId, message);
     });
     connect(card, &NotificationCard::signalCancelReply, this, [=]{
         returnToPrevWindow();
@@ -469,4 +474,92 @@ void MainWindow::closeAllCard()
             continue;
         card->toHide();
     }
+}
+
+void MainWindow::aiReplyMessage(const MsgBean &msg)
+{
+    if (msg.isPrivate() && us->leaveMode && us->aiReplyPrivate)
+    {
+        qint64 userId = msg.senderId;
+        qint64 time = QDateTime::currentMSecsSinceEpoch();
+        if (ac->aiReplyUserTime.value(userId, 0) + us->aiReplyInterval >= time) // 未到间隔时间
+            return ;
+        ac->aiReplyUserTime[userId] = time;
+        triggerAiReply(msg);
+    }
+}
+
+void MainWindow::triggerAiReply(const MsgBean &msg, int retry)
+{
+    QString text = NotificationCard::getValiableMessage(msg.message);
+    if (text.isEmpty())
+        return ;
+
+    // 参数信息
+    QString url = "https://api.ai.qq.com/fcgi-bin/nlp/nlp_textchat";
+    QString nonce_str = "replyAPPKEY";
+    QStringList params{"app_id", "2159207490",
+                       "nonce_str", nonce_str,
+                "question", text,
+                "session", snum(msg.senderId) + snum(retry),
+                "time_stamp", QString::number(QDateTime::currentSecsSinceEpoch()),
+                      };
+
+    // 接口鉴权
+    QString pinjie;
+    for (int i = 0; i < params.size()-1; i+=2)
+        if (!params.at(i+1).isEmpty())
+            pinjie += params.at(i) + "=" + QUrl::toPercentEncoding(params.at(i+1)) + "&";
+    QString appkey = "sTuC8iS3R9yLNbL9";
+    pinjie += "app_key="+appkey;
+
+    QString sign = QString(QCryptographicHash::hash(pinjie.toLocal8Bit(), QCryptographicHash::Md5).toHex().data()).toUpper();
+    params << "sign" << sign;
+
+    // 获取信息
+    connect(new NetUtil(url, params), &NetUtil::finished, this, [=](QString result){
+        MyJson json(result.toUtf8());
+        QString answer;
+        int ret = json.value("ret").toInt();
+        if (ret != 0)
+        {
+            QString rep = json.value("msg").toString();
+            qWarning() << "AI回复：" << rep << text;
+            if (rep == "chat answer not found" && retry < 3)
+            {
+                triggerAiReply(msg, retry + 1);
+                return ;
+            }
+            else if (retry >= 3)
+            {
+            }
+            else
+            {
+                return ;
+            }
+        }
+
+        if (ret != 0) // 使用默认的
+        {
+            answer = us->aiReplyDefault;
+            qInfo() << "[离开模式.默认回复]" << answer;
+        }
+        else
+        {
+            answer = json.value("data").toObject().value("answer").toString();
+            qInfo() << "[离开模式.AI回复]" << answer;
+            answer = us->aiReplyPrefix + answer + us->aiReplySuffix;
+        }
+
+        json = MyJson();
+        json.insert("action", "send_private_msg");
+        MyJson params;
+        params.insert("user_id", msg.senderId);
+        params.insert("message", answer);
+        json.insert("params", params);
+        json.insert("echo", "send_private_msg");
+        service->sendMessage(json.toBa());
+
+        emit sig->myReplyUser(msg.senderId, answer);
+    });
 }

@@ -15,6 +15,8 @@ signals:
     void groupMembersLoaded(qint64 groupId);
 
     void setReplyKey(QString key);
+    void myReplyUser(qint64 userId, QString message);
+    void myReplyGroup(qint64 groupId, QString message);
 };
 
 extern SignalTransfer* sig;

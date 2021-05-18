@@ -1219,7 +1219,7 @@ void NotificationCard::createFrostGlass()
     }
 }
 
-QString NotificationCard::getValiableMessage(QString text) const
+QString NotificationCard::getValiableMessage(QString text)
 {
     return text.replace(QRegularExpression("<.+?>"), "").replace(QRegularExpression("\\[CQ:.+?\\]"), "").trimmed();
 }
