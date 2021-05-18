@@ -45,7 +45,7 @@ public slots:
     void focusCardReply();
     void closeAllCard();
 
-    void aiReplyMessage(const MsgBean& msg);
+    void autoReplyMessage(const MsgBean& msg);
     void triggerAiReply(const MsgBean& msg, int retry = 0);
 
 protected:

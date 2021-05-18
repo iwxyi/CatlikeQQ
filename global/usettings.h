@@ -97,6 +97,7 @@ public:
 
     bool leaveMode = false; // 离开模式（开启回复）
     bool aiReplyPrivate = false; // 自动回复私聊
+    QList<qint64> aiReplyUsers;
     QString aiReplyPrefix = "[AI回复] "; // 自动回复前缀
     QString aiReplySuffix = ""; // 自动回复后缀
     QString aiReplyDefault = "[自动回复] 您好，我现在有事不在，一会儿也不和您联系~"; // 自动回复默认内容（需包含前缀后缀）

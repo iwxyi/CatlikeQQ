@@ -215,7 +215,7 @@ void MainWindow::initService()
 
     connect(service, SIGNAL(signalMessage(const MsgBean&)), this, SLOT(showMessage(const MsgBean&)));
 
-    connect(service, SIGNAL(signalMessage(const MsgBean&)), this, SLOT(aiReplyMessage(const MsgBean&)));
+    connect(service, SIGNAL(signalMessage(const MsgBean&)), this, SLOT(autoReplyMessage(const MsgBean&)));
 
     connect(sig, &SignalTransfer::loadGroupMembers, service, [=](qint64 groupId) {
         MyJson json;
@@ -484,15 +484,22 @@ void MainWindow::closeAllCard()
     }
 }
 
-void MainWindow::aiReplyMessage(const MsgBean &msg)
+void MainWindow::autoReplyMessage(const MsgBean &msg)
 {
     if (msg.isPrivate() && us->leaveMode && us->aiReplyPrivate)
     {
         qint64 userId = msg.senderId;
+
+        // 判断是否回复
+        if (!us->aiReplyUsers.contains(userId))
+            return ;
+
+        // 判断回复间隔
         qint64 time = QDateTime::currentMSecsSinceEpoch();
-        if (ac->aiReplyUserTime.value(userId, 0) + us->aiReplyInterval >= time) // 未到间隔时间
+        if (ac->aiReplyUserTime.value(userId, 0) + us->aiReplyInterval >= time)
             return ;
         ac->aiReplyUserTime[userId] = time;
+
         triggerAiReply(msg);
     }
 }

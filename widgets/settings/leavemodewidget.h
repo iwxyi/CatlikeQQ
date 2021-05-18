@@ -28,6 +28,8 @@ private slots:
 
     void on_aiReplyDefaultEdit_textChanged();
 
+    void on_aiReplyAllowButton_clicked();
+
 private:
     Ui::LeaveModeWidget *ui;
     bool opening = true;

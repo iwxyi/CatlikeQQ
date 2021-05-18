@@ -56,6 +56,13 @@
     </layout>
    </item>
    <item>
+    <widget class="InteractiveButtonBase" name="aiReplyAllowButton">
+     <property name="text">
+      <string>允许自动回复</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>前缀</string>
@@ -131,6 +138,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>InteractiveButtonBase</class>
+   <extends>QPushButton</extends>
+   <header>interactivebuttonbase.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

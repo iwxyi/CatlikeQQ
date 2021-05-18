@@ -55,6 +55,7 @@ void USettings::restoreSettings()
     assign(aiReplySuffix, "aiReplySuffix");
     assign(aiReplyDefault, "aiReplyDefault");
     assign(aiReplyInterval, "aiReplyInterval");
+    assign(aiReplyUsers, "aiReplyUsers");
     endGroup();
 }
 
