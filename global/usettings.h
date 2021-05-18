@@ -94,6 +94,13 @@ public:
     int lowestImportance = NormalImportant; // 当前弹窗的最低重要程度
     int userDefaultImportance = Important;
     int groupDefaultImportance = NormalImportant;
+
+    bool leaveMode = false; // 离开模式（开启回复）
+    bool aiReplyPrivate = false; // 自动回复私聊
+    QString aiReplyPrefix = "[AI回复] "; // 自动回复前缀
+    QString aiReplySuffix = ""; // 自动回复后缀
+    QString aiReplyDefault = "[自动回复] 您好，我现在有事不在，一会儿也不和您联系~"; // 自动回复默认内容（需包含前缀后缀）
+    int aiReplyInterval = 3000; // 自动回复的最短间隔
 };
 
 extern USettings* us;

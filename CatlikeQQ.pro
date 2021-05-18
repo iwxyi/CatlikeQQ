@@ -57,6 +57,7 @@ SOURCES += \
     widgets/settings/bannerwidget.cpp \
     widgets/settings/debugwidget.cpp \
     widgets/settings/groupwidget.cpp \
+    widgets/settings/leavemodewidget.cpp \
     widgets/settings/replywidget.cpp
 
 HEADERS += \
@@ -97,6 +98,7 @@ HEADERS += \
     widgets/settings/bannerwidget.h \
     widgets/settings/debugwidget.h \
     widgets/settings/groupwidget.h \
+    widgets/settings/leavemodewidget.h \
     widgets/settings/replywidget.h
 
 FORMS += \
@@ -109,6 +111,7 @@ FORMS += \
     widgets/settings/bannerwidget.ui \
     widgets/settings/debugwidget.ui \
     widgets/settings/groupwidget.ui \
+    widgets/settings/leavemodewidget.ui \
     widgets/settings/replywidget.ui
 
 # Default rules for deployment.

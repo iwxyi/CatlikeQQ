@@ -15,6 +15,7 @@
 #include "widgets/settings/bannerwidget.h"
 #include "widgets/settings/replywidget.h"
 #include "widgets/settings/aboutwidget.h"
+#include "widgets/settings/leavemodewidget.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -60,20 +61,20 @@ void MainWindow::initView()
     ui->settingsTabWidget->addTab(new GroupWidget(this), QIcon("://icons/group.png"), "群组消息");
     ui->settingsTabWidget->addTab(new BannerWidget(this), QIcon("://icons/banner.png"), "横幅通知");
     ui->settingsTabWidget->addTab(new ReplyWidget(this), QIcon("://icons/reply.png"), "通知回复");
-    ui->settingsTabWidget->addTab(new QWidget(), QIcon("://icons/bubble.png"), "气泡样式");
-    ui->settingsTabWidget->addTab(new QWidget(), QIcon("://icons/care.png"), "特别关心");
-    ui->settingsTabWidget->addTab(new QWidget(), QIcon("://icons/animation.png"), "动画调整");
-    ui->settingsTabWidget->addTab(new QWidget(), QIcon("://icons/startup.png"), "程序启动");
+    ui->settingsTabWidget->addTab(new QWidget(this), QIcon("://icons/bubble.png"), "气泡样式");
+    ui->settingsTabWidget->addTab(new QWidget(this), QIcon("://icons/care.png"), "特别关心");
+    ui->settingsTabWidget->addTab(new QWidget(this), QIcon("://icons/animation.png"), "动画调整");
+    ui->settingsTabWidget->addTab(new QWidget(this), QIcon("://icons/startup.png"), "程序启动");
 
     ui->auxiliaryTabWidget->clear();
-    ui->auxiliaryTabWidget->addTab(new QWidget(), QIcon("://icons/reply.png"), "快速回复");
-    ui->auxiliaryTabWidget->addTab(new QWidget(), QIcon("://icons/ai.png"), "智能聊天");
-    ui->auxiliaryTabWidget->addTab(new QWidget(), QIcon("://icons/model.png"), "模型训练");
+    ui->auxiliaryTabWidget->addTab(new LeaveModeWidget(this), QIcon("://icons/ai.png"), "离开模式");
+    ui->auxiliaryTabWidget->addTab(new QWidget(this), QIcon("://icons/reply.png"), "快速回复");
+    ui->auxiliaryTabWidget->addTab(new QWidget(this), QIcon("://icons/model.png"), "模型训练");
 
     ui->dataTabWidget->clear();
     ui->dataTabWidget->addTab(new AboutWidget(this), QIcon("://icons/about.png"), "关于程序");
-    ui->dataTabWidget->addTab(new QWidget(), QIcon("://icons/statistical.png"), "数据统计");
-    ui->dataTabWidget->addTab(new QWidget(), QIcon("://icons/history_message.png"), "历史消息");
+    ui->dataTabWidget->addTab(new QWidget(this), QIcon("://icons/statistical.png"), "数据统计");
+    ui->dataTabWidget->addTab(new QWidget(this), QIcon("://icons/history_message.png"), "历史消息");
     ui->dataTabWidget->addTab(new DebugWidget(service, this), QIcon("://icons/debug.png"), "开发调试");
 
 
@@ -99,7 +100,7 @@ void MainWindow::initView()
     confirmButton->setFixedForePos();
     confirmButton->move(this->rect().bottomRight() - QPoint(confirmButton->width(), confirmButton->height()));
     confirmButton->setFocusPolicy(Qt::StrongFocus);
-    if (ui->sideButtons->currentRow() != 0)
+    if (ui->sideButtons->currentRow() == 2)
         confirmButton->hide();
 }
 
@@ -111,7 +112,7 @@ void MainWindow::on_sideButtons_currentRowChanged(int currentRow)
     // 只有设置才显示应用更改
     if (confirmButton)
     {
-        if (currentRow == 0)
+        if (currentRow == 0 || currentRow == 1)
             this->confirmButton->show();
         else
             this->confirmButton->hide();
@@ -188,7 +189,7 @@ void MainWindow::trayAction(QSystemTrayIcon::ActivationReason reason)
             setImportance(Unimportant);
         })->check(us->lowestImportance == Unimportant);
 
-        menu->addAction(QIcon("://icons/quit.png"), "退出", [=] {
+        menu->split()->addAction(QIcon("://icons/quit.png"), "退出", [=] {
             qApp->quit();
         });
         menu->exec(QCursor::pos());
