@@ -217,15 +217,7 @@ void MainWindow::initService()
 
     connect(service, SIGNAL(signalMessage(const MsgBean&)), this, SLOT(autoReplyMessage(const MsgBean&)));
 
-    connect(sig, &SignalTransfer::loadGroupMembers, service, [=](qint64 groupId) {
-        MyJson json;
-        json.insert("action", "get_group_member_list");
-        MyJson params;
-        params.insert("group_id", groupId);
-        json.insert("params", params);
-        json.insert("echo", "get_group_member_list:" + snum(groupId));
-        service->sendMessage(json.toBa());
-    });
+    connect(sig, &SignalTransfer::loadGroupMembers, service, &CqhttpService::refreshGroupMembers);
 }
 
 void MainWindow::initKey()
@@ -373,28 +365,10 @@ void MainWindow::createNotificationBanner(const MsgBean &msg)
         adjustUnderCardsTop(index, -(card->height() + us->bannerSpacing));
         notificationCards.removeOne(card);
     });
-    connect(card, &NotificationCard::signalReplyPrivate, this, [=](qint64 userId, const QString& message) {
-        MyJson json;
-        json.insert("action", "send_private_msg");
-        MyJson params;
-        params.insert("user_id", userId);
-        params.insert("message", message);
-        json.insert("params", params);
-        json.insert("echo", "send_private_msg");
-        service->sendMessage(json.toBa());
-        emit sig->myReplyUser(userId, message);
-    });
-    connect(card, &NotificationCard::signalReplyGroup, this, [=](qint64 groupId, const QString& message) {
-        MyJson json;
-        json.insert("action", "send_group_msg");
-        MyJson params;
-        params.insert("group_id", groupId);
-        params.insert("message", message);
-        json.insert("params", params);
-        json.insert("echo", "send_group_msg");
-        service->sendMessage(json.toBa());
-        emit sig->myReplyGroup(groupId, message);
-    });
+    connect(card, &NotificationCard::signalReplyPrivate, service,  &CqhttpService::sendUserMsg);
+
+    connect(card, &NotificationCard::signalReplyGroup, service, &CqhttpService::sendGroupMsg);
+
     connect(card, &NotificationCard::signalCancelReply, this, [=]{
         returnToPrevWindow();
     });
@@ -614,15 +588,6 @@ void MainWindow::triggerAiReply(const MsgBean &msg, int retry)
             answer = us->aiReplyPrefix + answer + us->aiReplySuffix;
         }
 
-        json = MyJson();
-        json.insert("action", "send_private_msg");
-        MyJson params;
-        params.insert("user_id", msg.senderId);
-        params.insert("message", answer);
-        json.insert("params", params);
-        json.insert("echo", "send_private_msg");
-        service->sendMessage(json.toBa());
-
-        emit sig->myReplyUser(msg.senderId, answer);
+        service->sendUserMsg(msg.senderId, answer);
     });
 }

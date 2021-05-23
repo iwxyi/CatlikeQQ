@@ -29,12 +29,6 @@ AccountWidget::~AccountWidget()
 void AccountWidget::resotreSettings()
 {
     QString host = us->host;
-    // 加密
-    QRegularExpressionMatch match;
-    if (host.indexOf(QRegularExpression(":(\\d+)"), 0, &match) > -1)
-        host.replace(match.captured(1), repeatString("*", match.captured(1).length()));
-    if (host.indexOf(QRegularExpression("://(\\w+)"), 0, &match) > -1)
-        host.replace(match.captured(1), repeatString("*", match.captured(1).length()));
     ui->hostEdit->setText(host);
 
     QString token = us->accessToken;

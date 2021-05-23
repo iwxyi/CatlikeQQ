@@ -59,20 +59,10 @@ void CqhttpService::loopStarted()
         socket->sendTextMessage(json.toBa());
     }
     // 获取好友列表
-    {
-        MyJson json;
-        json.insert("action", "get_friend_list");
-        json.insert("echo", "get_friend_list");
-        socket->sendTextMessage(json.toBa());
-    }
+    refreshFriends();
 
     // 获取群列表
-    {
-        MyJson json;
-        json.insert("action", "get_group_list");
-        json.insert("echo", "get_group_list");
-        socket->sendTextMessage(json.toBa());
-    }
+    refreshGroups();
 }
 
 void CqhttpService::openHost(QString host, QString token)
@@ -304,4 +294,57 @@ void CqhttpService::parseGroupUpload(const MyJson &json)
                        .file(id, name, size);
     emit signalMessage(msg);
     qInfo() << "收到群文件消息：" << group_id << ac->groupNames.value(group_id) << user_id << ac->friendNames.value(user_id) << name << size << id;
+}
+
+void CqhttpService::refreshFriends()
+{
+    MyJson json;
+    json.insert("action", "get_friend_list");
+    json.insert("echo", "get_friend_list");
+    socket->sendTextMessage(json.toBa());
+}
+
+void CqhttpService::refreshGroups()
+{
+    MyJson json;
+    json.insert("action", "get_group_list");
+    json.insert("echo", "get_group_list");
+    socket->sendTextMessage(json.toBa());
+}
+
+void CqhttpService::refreshGroupMembers(qint64 groupId)
+{
+    MyJson json;
+    json.insert("action", "get_group_member_list");
+    MyJson params;
+    params.insert("group_id", groupId);
+    json.insert("params", params);
+    json.insert("echo", "get_group_member_list:" + snum(groupId));
+    sendMessage(json.toBa());
+}
+
+void CqhttpService::sendUserMsg(qint64 userId, const QString& message)
+{
+    MyJson json;
+    json.insert("action", "send_private_msg");
+    MyJson params;
+    params.insert("user_id", userId);
+    params.insert("message", message);
+    json.insert("params", params);
+    json.insert("echo", "send_private_msg");
+    sendMessage(json.toBa());
+    emit sig->myReplyUser(userId, message);
+}
+
+void CqhttpService::sendGroupMsg(qint64 groupId, const QString& message)
+{
+    MyJson json;
+    json.insert("action", "send_group_msg");
+    MyJson params;
+    params.insert("group_id", groupId);
+    params.insert("message", message);
+    json.insert("params", params);
+    json.insert("echo", "send_group_msg");
+    sendMessage(json.toBa());
+    emit sig->myReplyGroup(groupId, message);
 }

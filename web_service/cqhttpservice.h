@@ -29,6 +29,12 @@ public slots:
     void sendMessage(const QString& text);
     void messageReceived(const QString &message);
 
+    void refreshFriends();
+    void refreshGroups();
+    void refreshGroupMembers(qint64 groupId);
+    void sendUserMsg(qint64 userId, const QString &message);
+    void sendGroupMsg(qint64 groupId, const QString &message);
+
 private:
     void parseEchoMessage(const MyJson& json);
     void parsePrivateMessage(const MyJson& json);
