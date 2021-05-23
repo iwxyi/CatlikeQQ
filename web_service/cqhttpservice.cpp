@@ -26,7 +26,6 @@ void CqhttpService::initWS()
     connect(socket, SIGNAL(textMessageReceived(const QString&)), this, SLOT(messageReceived(const QString&)));
 
     connect(socket, &QWebSocket::connected, this, [=]{
-        qDebug() << "connected";
         loopStarted();
         emit sig->socketStateChanged(true);
 
@@ -35,7 +34,6 @@ void CqhttpService::initWS()
     });
 
     connect(socket, &QWebSocket::disconnected, this, [=]{
-        qDebug() << "disconnected";
         emit sig->socketStateChanged(false);
 
         if (!retryTimer)
@@ -91,11 +89,10 @@ void CqhttpService::openHost(QString host, QString token)
     this->host = host;
     this->accessToken = token;
 
+    QNetworkRequest req(host);
     if (!token.isEmpty())
-        host = host + "?access_token=" + token;
-
-    socket->open(host);
-    qDebug() << "连接：" << host;
+        req.setRawHeader("Authorization", ("Bearer " + token).toUtf8());
+    socket->open(req);
 }
 
 void CqhttpService::sendMessage(const QString &text)
@@ -134,7 +131,7 @@ void CqhttpService::messageReceived(const QString &message)
         }
         else
         {
-            qDebug() << "未处理类型的消息：" << json;
+            qWarning() << "未处理类型的消息：" << json;
         }
     }
     else if (post_type == "notice")
@@ -146,12 +143,12 @@ void CqhttpService::messageReceived(const QString &message)
         }
         else
         {
-            qDebug() << "未处理类型的通知：" << json;
+            qWarning() << "未处理类型的通知：" << json;
         }
     }
     else
     {
-        qDebug() << "未处理类型的数据" << json;
+        qWarning() << "未处理类型的数据" << json;
     }
 }
 
@@ -232,7 +229,7 @@ void CqhttpService::parseEchoMessage(const MyJson &json)
     }
     else
     {
-        qDebug() << "未处理类型的返回：" << json;
+        qWarning() << "未处理类型的返回：" << json;
     }
     return ;
 }
