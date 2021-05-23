@@ -8,6 +8,7 @@ USettings::USettings(QObject *parent) : MySettings("settings.ini", QSettings::Fo
 void USettings::restoreSettings()
 {
     host = s("net/host");
+    accessToken = s("net/accessToken");
 
     beginGroup("banner");
     assign(bannerFloatPixel, "floatPixel");

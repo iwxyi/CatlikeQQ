@@ -25,7 +25,7 @@ signals:
     void signalMessage(const MsgBean& msg);
 
 public slots:
-    void openHost(QString host);
+    void openHost(QString host, QString token);
     void sendMessage(const QString& text);
     void messageReceived(const QString &message);
 
@@ -38,6 +38,7 @@ private:
 private:
     QWebSocket* socket = nullptr;
     QString host;
+    QString accessToken;
     QTimer* retryTimer = nullptr;
 };
 

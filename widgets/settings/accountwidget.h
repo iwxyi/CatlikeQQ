@@ -20,7 +20,9 @@ public:
     void resotreSettings();
 
 private slots:
-    void on_lineEdit_editingFinished();
+    void on_hostEdit_editingFinished();
+
+    void on_tokenEdit_editingFinished();
 
 private:
     Ui::AccountWidget *ui;

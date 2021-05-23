@@ -7,7 +7,7 @@ class SignalTransfer : public QObject
 {
     Q_OBJECT
 signals:
-    void hostChanged(QString host);
+    void hostChanged(QString host, QString token);
     void socketStateChanged(bool connected);
     void myAccount(qint64 id, QString nickname);
 

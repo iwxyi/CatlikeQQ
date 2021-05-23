@@ -28,22 +28,22 @@ AccountWidget::~AccountWidget()
 
 void AccountWidget::resotreSettings()
 {
-    if (!us->host.isEmpty())
-    {
-        QString host = us->host;
-        // 加密
-        QRegularExpressionMatch match;
-        if (host.indexOf(QRegularExpression(":(\\d+)"), 0, &match) > -1)
-            host.replace(match.captured(1), repeatString("*", match.captured(1).length()));
-        if (host.indexOf(QRegularExpression("://(\\w+)"), 0, &match) > -1)
-            host.replace(match.captured(1), repeatString("*", match.captured(1).length()));
-        ui->lineEdit->setText(host);
-    }
+    QString host = us->host;
+    // 加密
+    QRegularExpressionMatch match;
+    if (host.indexOf(QRegularExpression(":(\\d+)"), 0, &match) > -1)
+        host.replace(match.captured(1), repeatString("*", match.captured(1).length()));
+    if (host.indexOf(QRegularExpression("://(\\w+)"), 0, &match) > -1)
+        host.replace(match.captured(1), repeatString("*", match.captured(1).length()));
+    ui->hostEdit->setText(host);
+
+    QString token = us->accessToken;
+    ui->tokenEdit->setText(token.replace(QRegExp("\\w"), "*"));
 }
 
-void AccountWidget::on_lineEdit_editingFinished()
+void AccountWidget::on_hostEdit_editingFinished()
 {
-    QString host = ui->lineEdit->text().trimmed();
+    QString host = ui->hostEdit->text().trimmed();
     if (host == us->host || host.contains("*"))
         return ;
 
@@ -52,5 +52,15 @@ void AccountWidget::on_lineEdit_editingFinished()
         host = "ws://" + host;
 
     us->set("net/host", us->host = host);
-    emit sig->hostChanged(host);
+    emit sig->hostChanged(us->host, us->accessToken);
+}
+
+void AccountWidget::on_tokenEdit_editingFinished()
+{
+    QString token = ui->tokenEdit->text();
+    if (token == us->accessToken || token.contains("*"))
+        return ;
+
+    us->set("net/accessToken", us->accessToken = token);
+    emit sig->hostChanged(us->host, us->accessToken);
 }

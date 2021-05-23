@@ -124,7 +124,7 @@ void MainWindow::startMessageLoop()
 {
     if (!us->host.isEmpty() && !us->host.contains("*"))
     {
-        emit sig->hostChanged(us->host);
+        emit sig->hostChanged(us->host, us->accessToken);
     }
 }
 

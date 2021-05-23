@@ -42,6 +42,7 @@ public:
 
 public:
     QString host;
+    QString accessToken;
 
     Side bannerFloatSide = SideRight; // 边：0上，1左，2右，3下，-1任意
     Direction bannerFloatDirection = TopToBottom; // 方向：0从左到右，1从右到左，2从上到下，3从下到上

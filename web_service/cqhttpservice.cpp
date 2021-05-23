@@ -16,7 +16,7 @@ CqhttpService::CqhttpService(QObject *parent) : QObject(parent)
 {
     initWS();
 
-    connect(sig, SIGNAL(hostChanged(QString)), this, SLOT(openHost(QString)));
+    connect(sig, SIGNAL(hostChanged(QString, QString)), this, SLOT(openHost(QString, QString)));
 }
 
 void CqhttpService::initWS()
@@ -26,6 +26,7 @@ void CqhttpService::initWS()
     connect(socket, SIGNAL(textMessageReceived(const QString&)), this, SLOT(messageReceived(const QString&)));
 
     connect(socket, &QWebSocket::connected, this, [=]{
+        qDebug() << "connected";
         loopStarted();
         emit sig->socketStateChanged(true);
 
@@ -34,13 +35,14 @@ void CqhttpService::initWS()
     });
 
     connect(socket, &QWebSocket::disconnected, this, [=]{
+        qDebug() << "disconnected";
         emit sig->socketStateChanged(false);
 
         if (!retryTimer)
         {
             retryTimer = new QTimer(this);
             connect(retryTimer, &QTimer::timeout, this, [=]{
-                openHost(this->host);
+                openHost(this->host, this->accessToken);
             });
         }
         retryTimer->setInterval(30000);
@@ -75,7 +77,7 @@ void CqhttpService::loopStarted()
     }
 }
 
-void CqhttpService::openHost(QString host)
+void CqhttpService::openHost(QString host, QString token)
 {
     if (host.isEmpty())
         return ;
@@ -87,7 +89,13 @@ void CqhttpService::openHost(QString host)
     socket->setSslConfiguration(config);
 
     this->host = host;
+    this->accessToken = token;
+
+    if (!token.isEmpty())
+        host = host + "?access_token=" + token;
+
     socket->open(host);
+    qDebug() << "连接：" << host;
 }
 
 void CqhttpService::sendMessage(const QString &text)
