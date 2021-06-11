@@ -1131,10 +1131,6 @@ void NotificationCard::cardMenu()
         setImportance(Unimportant);
     })->check(importance == Unimportant);
 
-    menu->split()->addAction(QIcon("://icons/history.png"), "消息历史", [=]{
-
-    })->disable();
-
     menu->split()->addAction(QIcon("://icons/closeUser.png"), "不显示该群通知", [=]{
         us->enabledGroups.removeOne(groupId);
         us->set("group/enables", us->enabledGroups);

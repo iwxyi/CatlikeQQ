@@ -154,9 +154,9 @@ bool ImageUtil::getBgFgColor(QList<ColorOctree::ColorCount> colors, QColor *bg, 
             if (j == i)
                 continue;
             ColorOctree::ColorCount c2 = colors.at(j);
-            qint64 variant = (r - c2.red) * (r - c2.red)
-                    + (g - c2.green) * (g - c2.green)
-                    + (b - c2.blue) * (b - c2.blue);
+            qint64 variant = 3 * (r - c2.red) * (r - c2.red)
+                    + 4 * (g - c2.green) * (g - c2.green)
+                    + 2 * (b - c2.blue) * (b - c2.blue);
             variant *= c2.count;
             sumVariance += variant;
         }
@@ -198,12 +198,12 @@ bool ImageUtil::getBgFgSgColor(QList<ColorOctree::ColorCount> colors, QColor *bg
             continue;
 
         int r = c.red, g = c.green, b = c.blue, n = c.count;
-        qint64 variantBg = (r - bg->red()) * (r - bg->red())
-                + (g - bg->green()) * (g - bg->green())
-                + (b - bg->blue()) * (b - bg->blue());
-        qint64 variantFg = (r - fg->red()) * (r - fg->red())
-                + (g - fg->green()) * (g - fg->green())
-                + (b - fg->blue()) * (b - fg->blue());
+        qint64 variantBg = 3 * (r - bg->red()) * (r - bg->red())
+                + 4 * (g - bg->green()) * (g - bg->green())
+                + 2 * (b - bg->blue()) * (b - bg->blue());
+        qint64 variantFg = 3 * (r - fg->red()) * (r - fg->red())
+                + 4 * (g - fg->green()) * (g - fg->green())
+                + 2 * (b - fg->blue()) * (b - fg->blue());
         qint64 sum = variantBg + variantFg * 2; // 文字占比比较大
         if (sum > maxVariance)
         {
@@ -234,8 +234,9 @@ bool ImageUtil::getBgFgSgColor(QList<ColorOctree::ColorCount> colors, QColor *bg
         return false;
     }
 
-    int maxBIndex = -1, maxFIndex = -1;
-    qint64 maxBVariance = 0, maxFVariance = 0;
+    // 计算辅助背景色
+    int maxIndex = -1;
+    qint64 maxVariance = 0;
     for (int i = 0; i < colors.size(); i++)
     {
         ColorOctree::ColorCount c = colors.at(i);
@@ -243,30 +244,43 @@ bool ImageUtil::getBgFgSgColor(QList<ColorOctree::ColorCount> colors, QColor *bg
             continue;
 
         int r = c.red, g = c.green, b = c.blue, n = c.count;
-        qint64 variantBg = (r - bg->red()) * (r - bg->red())
-                + (g - bg->green()) * (g - bg->green())
-                + (b - bg->blue()) * (b - bg->blue());
-        qint64 variantFg = (r - fg->red()) * (r - fg->red())
-                + (g - fg->green()) * (g - fg->green())
-                + (b - fg->blue()) * (b - fg->blue());
+        qint64 variantBg = 3 * (r - bg->red()) * (r - bg->red())
+                + 4 * (g - bg->green()) * (g - bg->green())
+                + 2 * (b - bg->blue()) * (b - bg->blue());
+        qint64 variantFg = 3 * (r - fg->red()) * (r - fg->red())
+                + 4 * (g - fg->green()) * (g - fg->green())
+                + 2 * (b - fg->blue()) * (b - fg->blue());
 
-        qint64 sum = variantBg + variantFg * 2; // 文字占比比较大
-        if (sum > maxBVariance)
+        qint64 variant = variantBg + variantFg * 2; // 文字占比比较大
+        if (variant > maxVariance)
         {
-            maxBVariance = sum;
-            maxBIndex = i;
-        }
-
-        sum = variantBg * 2 + variantFg; // 背景占比比较大
-        if (sum > maxFVariance)
-        {
-            maxFVariance = sum;
-            maxFIndex = i;
+            maxVariance = variant;
+            maxIndex = i;
         }
     }
+    *sbg = colors.at(maxIndex).toColor();
 
-    *sbg = colors.at(maxBIndex).toColor();
-    *sfg = colors.at(maxFIndex).toColor();
+    // 根据辅助背景色计算辅助前景色
+    maxIndex = -1;
+    maxVariance = 0;
+    for (int i = 0; i < colors.size(); i++)
+    {
+        ColorOctree::ColorCount c = colors.at(i);
+        if (c.toColor() == *sbg)
+            continue;
+
+        int r = c.red, g = c.green, b = c.blue, n = c.count;
+        qint64 variant = 3 * (r - sbg->red()) * (r - sbg->red())
+                + 4 * (g - sbg->green()) * (g - sbg->green())
+                + 2 * (b - sbg->blue()) * (b - sbg->blue());
+
+        if (variant > maxVariance)
+        {
+            maxVariance = variant;
+            maxIndex = i;
+        }
+    }
+    *sfg = colors.at(maxIndex).toColor();
     return true;
 }
 
@@ -299,7 +313,6 @@ QColor ImageUtil::getFastestColor(QColor bg, QList<ColorOctree::ColorCount> pale
 {
     qint64 maxi = -1;
     QColor maxiColor = QColor::Invalid;
-//    qDebug() << "~~~~~~~~~~~~~~~~" << bg.red() << bg.green() << bg.blue();
     int rr = bg.red(), gg = bg.green(), bb = bg.blue();
     foreach (auto c, palette)
     {
@@ -316,9 +329,7 @@ QColor ImageUtil::getFastestColor(QColor bg, QList<ColorOctree::ColorCount> pale
             maxi = delta;
             maxiColor = c.toColor();
         }
-//        qDebug() << "        " << r << g << b << c.count << delta;
     }
-//    qDebug() << maxi << maxiColor.red << maxiColor.green << maxiColor.blue;
     return maxiColor;
 }
 
