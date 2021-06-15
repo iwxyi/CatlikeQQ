@@ -32,7 +32,7 @@ void AccountWidget::resotreSettings()
     ui->hostEdit->setText(host);
 
     QString token = us->accessToken;
-    ui->tokenEdit->setText(token.replace(QRegExp("\\w"), "*"));
+    ui->tokenEdit->setText(token);
 }
 
 void AccountWidget::on_hostEdit_editingFinished()
@@ -52,7 +52,7 @@ void AccountWidget::on_hostEdit_editingFinished()
 void AccountWidget::on_tokenEdit_editingFinished()
 {
     QString token = ui->tokenEdit->text();
-    if (token == us->accessToken || token.contains("*"))
+    if (token == us->accessToken)
         return ;
 
     us->set("net/accessToken", us->accessToken = token);
