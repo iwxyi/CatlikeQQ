@@ -34,6 +34,7 @@
         <file>icons/fixed.png</file>
         <file>icons/close.png</file>
         <file>icons/leaveMode.png</file>
+        <file>icons/control.png</file>
     </qresource>
     <qresource prefix="/qq">
         <file>qq-face/0.gif</file>

@@ -10,6 +10,7 @@
 #if defined(ENABLE_SHORTCUT)
 #include "qxtglobalshortcut.h"
 #endif
+#include "remotecontrolservie.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -58,7 +59,8 @@ private:
 private:
     Ui::MainWindow *ui;
     InteractiveButtonBase* confirmButton = nullptr;
-    CqhttpService* service;
+    CqhttpService* cqhttpService;
+    RemoteControlServie* remoteControlService;
 
     QList<NotificationCard*> notificationCards;
     QList<NotificationBubble*> notificationBubbles;

@@ -32,9 +32,11 @@ INCLUDEPATH += third_party/color_octree/\
     global/\
     notification/\
     web_service/\
-    widgets/
+    widgets/\
+    control_service/
 
 SOURCES += \
+    control_service/remotecontrolservie.cpp \
     global/usettings.cpp \
     notification/messageview.cpp \
     notification/smoothlistwidget.cpp \
@@ -58,9 +60,11 @@ SOURCES += \
     widgets/settings/debugwidget.cpp \
     widgets/settings/groupwidget.cpp \
     widgets/settings/leavemodewidget.cpp \
+    widgets/settings/remotecontrolwidget.cpp \
     widgets/settings/replywidget.cpp
 
 HEADERS += \
+    control_service/remotecontrolservie.h \
     global/accountinfo.h \
     global/defines.h \
     global/signaltransfer.h \
@@ -99,6 +103,7 @@ HEADERS += \
     widgets/settings/debugwidget.h \
     widgets/settings/groupwidget.h \
     widgets/settings/leavemodewidget.h \
+    widgets/settings/remotecontrolwidget.h \
     widgets/settings/replywidget.h
 
 FORMS += \
@@ -112,6 +117,7 @@ FORMS += \
     widgets/settings/debugwidget.ui \
     widgets/settings/groupwidget.ui \
     widgets/settings/leavemodewidget.ui \
+    widgets/settings/remotecontrolwidget.ui \
     widgets/settings/replywidget.ui
 
 # Default rules for deployment.

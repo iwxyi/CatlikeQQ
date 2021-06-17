@@ -17,6 +17,7 @@
 #include "widgets/settings/replywidget.h"
 #include "widgets/settings/aboutwidget.h"
 #include "widgets/settings/leavemodewidget.h"
+#include "widgets/settings/remotecontrolwidget.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -58,7 +59,7 @@ void MainWindow::initView()
 
 
     ui->settingsTabWidget->clear();
-    ui->settingsTabWidget->addTab(new AccountWidget(service, this), QIcon("://icons/account.png"), "账号绑定");
+    ui->settingsTabWidget->addTab(new AccountWidget(cqhttpService, this), QIcon("://icons/account.png"), "账号绑定");
     ui->settingsTabWidget->addTab(new GroupWidget(this), QIcon("://icons/group.png"), "群组消息");
     ui->settingsTabWidget->addTab(new BannerWidget(this), QIcon("://icons/banner.png"), "横幅通知");
     ui->settingsTabWidget->addTab(new ReplyWidget(this), QIcon("://icons/reply.png"), "通知回复");
@@ -69,6 +70,7 @@ void MainWindow::initView()
 
     ui->auxiliaryTabWidget->clear();
     ui->auxiliaryTabWidget->addTab(new LeaveModeWidget(this), QIcon("://icons/ai.png"), "离开模式");
+    ui->auxiliaryTabWidget->addTab(new RemoteControlWidget(this), QIcon("://icons/control.png"), "远程控制");
     ui->auxiliaryTabWidget->addTab(new QWidget(this), QIcon("://icons/reply.png"), "快速回复");
     ui->auxiliaryTabWidget->addTab(new QWidget(this), QIcon("://icons/model.png"), "模型训练");
 
@@ -76,7 +78,7 @@ void MainWindow::initView()
     ui->dataTabWidget->addTab(new AboutWidget(this), QIcon("://icons/about.png"), "关于程序");
     ui->dataTabWidget->addTab(new QWidget(this), QIcon("://icons/statistical.png"), "数据统计");
     ui->dataTabWidget->addTab(new QWidget(this), QIcon("://icons/history_message.png"), "历史消息");
-    ui->dataTabWidget->addTab(new DebugWidget(service, this), QIcon("://icons/debug.png"), "开发调试");
+    ui->dataTabWidget->addTab(new DebugWidget(cqhttpService, this), QIcon("://icons/debug.png"), "开发调试");
 
 
     ui->sideButtons->setCurrentRow(us->i("mainwindow/sideIndex"));
@@ -184,15 +186,19 @@ void MainWindow::trayAction(QSystemTrayIcon::ActivationReason reason)
         auto setImportance = [=](int im) {
             us->set("importance/lowestImportance", us->lowestImportance = im);
         };
+
         importanceMenu->addAction(QIcon("://icons/veryImportant.png"), "很重要", [=]{
             setImportance(VeryImportant);
         })->check(us->lowestImportance == VeryImportant);
+
         importanceMenu->addAction(QIcon("://icons/important.png"), "重要", [=]{
             setImportance(Important);
         })->check(us->lowestImportance == Important);
+
         importanceMenu->addAction(QIcon("://icons/normalImportant.png"), "一般", [=]{
             setImportance(NormalImportant);
         })->check(us->lowestImportance == NormalImportant);
+
         importanceMenu->addAction(QIcon("://icons/unimportant.png"), "不重要", [=]{
             setImportance(Unimportant);
         })->check(us->lowestImportance == Unimportant);
@@ -211,13 +217,17 @@ void MainWindow::trayAction(QSystemTrayIcon::ActivationReason reason)
 
 void MainWindow::initService()
 {
-    service = new CqhttpService(this);
+    // 网络服务
+    cqhttpService = new CqhttpService(this);
 
-    connect(service, SIGNAL(signalMessage(const MsgBean&)), this, SLOT(showMessage(const MsgBean&)));
+    connect(cqhttpService, SIGNAL(signalMessage(const MsgBean&)), this, SLOT(showMessage(const MsgBean&)));
 
-    connect(service, SIGNAL(signalMessage(const MsgBean&)), this, SLOT(autoReplyMessage(const MsgBean&)));
+    connect(cqhttpService, SIGNAL(signalMessage(const MsgBean&)), this, SLOT(autoReplyMessage(const MsgBean&)));
 
-    connect(sig, &SignalTransfer::loadGroupMembers, service, &CqhttpService::refreshGroupMembers);
+    connect(sig, &SignalTransfer::loadGroupMembers, cqhttpService, &CqhttpService::refreshGroupMembers);
+
+    // 远程控制
+    remoteControlService = new RemoteControlServie(this);
 }
 
 void MainWindow::initKey()
@@ -334,6 +344,7 @@ void MainWindow::showMessage(const MsgBean &msg, bool blockSelf)
 
 void MainWindow::createNotificationBanner(const MsgBean &msg)
 {
+    // 判断卡片的位置
     QPoint startPos; // 开始出现的位置
     QPoint showPos;  // 显示的最终位置
     switch (int(us->bannerFloatSide))
@@ -356,11 +367,12 @@ void MainWindow::createNotificationBanner(const MsgBean &msg)
         return ;
     }
 
+    // 创建卡片
     NotificationCard* card = new NotificationCard(nullptr);
     card->setMsg(msg);
     card->showFrom(startPos, showPos);
-
     notificationCards.append(card);
+
     connect(card, &NotificationCard::signalHeightChanged, this, [=](int delta) {
         adjustUnderCardsTop(notificationCards.indexOf(card), delta);
     });
@@ -369,9 +381,9 @@ void MainWindow::createNotificationBanner(const MsgBean &msg)
         adjustUnderCardsTop(index, -(card->height() + us->bannerSpacing));
         notificationCards.removeOne(card);
     });
-    connect(card, &NotificationCard::signalReplyPrivate, service,  &CqhttpService::sendUserMsg);
+    connect(card, &NotificationCard::signalReplyPrivate, cqhttpService,  &CqhttpService::sendUserMsg);
 
-    connect(card, &NotificationCard::signalReplyGroup, service, &CqhttpService::sendGroupMsg);
+    connect(card, &NotificationCard::signalReplyGroup, cqhttpService, &CqhttpService::sendGroupMsg);
 
     connect(card, &NotificationCard::signalCancelReply, this, [=]{
         returnToPrevWindow();
@@ -508,9 +520,19 @@ void MainWindow::closeAllCard()
     }
 }
 
+/// 收到消息（所有消息），判断是否需要自动回复
 void MainWindow::autoReplyMessage(const MsgBean &msg)
 {
-    if (msg.isPrivate() && us->leaveMode && us->aiReplyPrivate)
+    if (msg.senderId == ac->myId) // 自己的消息，不用管
+    {
+        if (msg.targetId == ac->myId) // 自己发给自己的，尝试进行远程控制
+        {
+            remoteControlService->execCmd(msg.message);
+        }
+        return ;
+    }
+
+    if (msg.isPrivate() && us->leaveMode && us->aiReplyPrivate) // 离开模式，自动回复
     {
         qint64 userId = msg.senderId;
 
@@ -525,6 +547,7 @@ void MainWindow::autoReplyMessage(const MsgBean &msg)
         ac->aiReplyUserTime[userId] = time;
 
         triggerAiReply(msg);
+        return ;
     }
 }
 
@@ -592,6 +615,6 @@ void MainWindow::triggerAiReply(const MsgBean &msg, int retry)
             answer = us->aiReplyPrefix + answer + us->aiReplySuffix;
         }
 
-        service->sendUserMsg(msg.senderId, answer);
+        cqhttpService->sendUserMsg(msg.senderId, answer);
     });
 }
