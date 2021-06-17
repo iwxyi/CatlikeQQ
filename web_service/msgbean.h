@@ -14,6 +14,8 @@ struct MsgBean
     QString subType;
     QString remark; // 自己对TA的备注
 
+    qint64 targetId = 0; // 准备发给谁，给对方还是给自己
+
     qint64 groupId = 0;
     QString groupName;
     QString groupCard; // 群昵称
@@ -42,6 +44,15 @@ struct MsgBean
         if (nickname.isEmpty())
             nickname = QString::number(senderId);
         timestamp = QDateTime::currentMSecsSinceEpoch();
+    }
+
+    MsgBean& privt(qint64 targetId)
+    {
+        if (targetId == 0)
+            this->targetId = senderId;
+        else
+            this->targetId = targetId;
+        return *this;
     }
 
     MsgBean& group(qint64 groupId, QString groupName, QString card = "")

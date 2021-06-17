@@ -16,6 +16,7 @@ ReplyWidget::ReplyWidget(QWidget *parent) :
     ui->closeAfterReplyCheck->setChecked(us->bannerCloseAfterReply);
     ui->replyKeyEdit->setKeySequence(QKeySequence(us->s("banner/replyKey", "shift+alt+x")));
     ui->AIReplyCheck->setChecked(us->bannerAIReply);
+    ui->showMySendCheck->setChecked(us->bannerShowMySend);
 }
 
 ReplyWidget::~ReplyWidget()
@@ -49,4 +50,9 @@ void ReplyWidget::on_replyKeyEdit_editingFinished()
 void ReplyWidget::on_AIReplyCheck_clicked()
 {
     us->set("banner/AIReply", us->bannerAIReply = ui->AIReplyCheck->isChecked());
+}
+
+void ReplyWidget::on_showMySendCheck_clicked()
+{
+    us->set("banner/showMySend", us->bannerShowMySend = ui->showMySendCheck->isChecked());
 }

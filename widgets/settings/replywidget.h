@@ -26,6 +26,8 @@ private slots:
 
     void on_AIReplyCheck_clicked();
 
+    void on_showMySendCheck_clicked();
+
 private:
     Ui::ReplyWidget *ui;
 };

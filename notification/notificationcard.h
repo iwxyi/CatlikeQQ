@@ -56,7 +56,7 @@ signals:
     void signalHeightChanged(int delta);
     void signalToHide();
     void signalHided();
-    void signalReplyPrivate(qint64 senderId, const QString& message);
+    void signalReplyPrivate(qint64 userId, const QString& message);
     void signalReplyGroup(qint64 groupId, const QString& message);
     void signalCancelReply();
     void signalFocusPrevCard();
@@ -108,7 +108,7 @@ protected:
 private:
     Ui::NotificationCard *ui;
 
-    qint64 senderId = 0;
+    qint64 userId = 0;
     qint64 groupId = 0;
     QList<MsgBean> msgs; // 可能会合并多条消息
     QList<MessageView*> msgViews;

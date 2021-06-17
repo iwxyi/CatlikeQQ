@@ -40,6 +40,7 @@ private:
     void parsePrivateMessage(const MyJson& json);
     void parseGroupMessage(const MyJson& json);
     void parseGroupUpload(const MyJson& json);
+    void parseMessageSent(const MyJson& json);
 
 private:
     QWebSocket* socket = nullptr;

@@ -28,6 +28,8 @@ void USettings::restoreSettings()
     assign(bannerColorfulGroupMember, "colorfulGroupMember");
     assign(bannerDisplayDuration, "displayDuration");
     assign(bannerTextReadSpeed, "textReadSpeed");
+
+    assign(bannerShowMySend, "showMySend");
     assign(bannerAutoShowReply, "autoShowReply");
     assign(bannerAutoFocusReply, "autoFocusReply");
     assign(bannerCloseAfterReply, "closeAfterReply");

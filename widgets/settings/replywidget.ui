@@ -25,10 +25,28 @@
      <property name="spacing">
       <number>12</number>
      </property>
-     <item row="4" column="1">
+     <item row="5" column="0">
+      <widget class="QLabel" name="label">
+       <property name="toolTip">
+        <string>快速打开最新消息的回复框
+注意：会忽略按下快捷键前一瞬间收到的消息，回复x毫秒之前的最新消息</string>
+       </property>
+       <property name="text">
+        <string>回复快捷键</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QCheckBox" name="AIReplyCheck">
+       <property name="text">
+        <string>AI回复参考</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
       <widget class="QKeySequenceEdit" name="replyKeyEdit"/>
      </item>
-     <item row="2" column="0">
+     <item row="3" column="0">
       <widget class="QCheckBox" name="closeAfterReplyCheck">
        <property name="toolTip">
         <string>回复消息后快速隐藏，等待时间等同于失去焦点后保留显示的时长。
@@ -39,14 +57,14 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="0">
+     <item row="1" column="0">
       <widget class="QCheckBox" name="autoShowReplyCheck">
        <property name="text">
         <string>自动展开回复框</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="0">
+     <item row="2" column="0">
       <widget class="QCheckBox" name="autoFocusReplyCheck">
        <property name="toolTip">
         <string>鼠标移入通知时，自动聚集焦点至回复消息的输入框。
@@ -58,21 +76,14 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="label">
+     <item row="0" column="0">
+      <widget class="QCheckBox" name="showMySendCheck">
        <property name="toolTip">
-        <string>快速打开最新消息的回复框
-注意：会忽略按下快捷键前一瞬间收到的消息，回复x毫秒之前的最新消息</string>
+        <string>回复后，显示自己发送的消息
+如果在cqhttp的配置中开启了上报自身消息（report-self-message），则会显示两条，此时不建议开启</string>
        </property>
        <property name="text">
-        <string>回复快捷键</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QCheckBox" name="AIReplyCheck">
-       <property name="text">
-        <string>AI回复参考</string>
+        <string>显示发送的消息</string>
        </property>
       </widget>
      </item>

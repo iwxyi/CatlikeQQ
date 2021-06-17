@@ -136,6 +136,11 @@ void CqhttpService::messageReceived(const QString &message)
             qWarning() << "未处理类型的通知：" << json;
         }
     }
+    else if (post_type == "message_sent") // 自己发送的
+    {
+        JS(json, sub_type);
+        parseMessageSent(json);
+    }
     else
     {
         qWarning() << "未处理类型的数据" << json;
@@ -226,23 +231,45 @@ void CqhttpService::parseEchoMessage(const MyJson &json)
 
 void CqhttpService::parsePrivateMessage(const MyJson &json)
 {
+    /* {
+        "font": 0,
+        "message": "。。。",
+        "message_id": -546429301,
+        "message_type": "private",
+        "post_type": "message",
+        "raw_message": "。。。",
+        "self_id": 1600631528,
+        "sender": {
+            "age": 0,
+            "nickname": "三界仙霖之雨",
+            "sex": "unknown",
+            "user_id": 3308218798 // 发出的，自己发给别人，或者别人发给自己，或者自己发给自己
+        },
+        "sub_type": "friend",
+        "target_id": 1600631528, // 发向的，同上，三种情况
+        "time": 1623898608,
+        "user_id": 3308218798
+    }*/
+
     JS(json, sub_type); // 好友：friend，群临时会话：group，群里自己发送：group_self
     JS(json, message); // 消息内容
     JS(json, raw_message);
     JL(json, message_id);
 
+    JL(json, target_id);
     JO(json, sender); // 发送者，但不保证存在
     JL(sender, user_id); // 发送者用户QQ号
     JS(sender, nickname);
 
     MsgBean msg = MsgBean(user_id, nickname, message, message_id, sub_type)
-            .frind(ac->friendNames.value(user_id, ""));
+            .frind(ac->friendNames.value(user_id, "")).privt(target_id);
     emit signalMessage(msg);
 
-    if (!ac->userMsgHistory.contains(user_id))
-        ac->userMsgHistory.insert(user_id, QList<MsgBean>());
-    ac->userMsgHistory[user_id].append(msg);
-    qInfo() << "收到好友消息：" << user_id << nickname << message << message_id;
+    qint64 oppo_id = user_id == ac->myId ? target_id : user_id;
+    if (!ac->userMsgHistory.contains(oppo_id))
+        ac->userMsgHistory.insert(oppo_id, QList<MsgBean>());
+    ac->userMsgHistory[oppo_id].append(msg);
+    qInfo() << "收到私聊消息：" << user_id << "->" << target_id << nickname << message << message_id;
 
     // 图片消息：文字1\r\n[CQ:image,file=8f84df65ee005b52f7f798697765a81b.image,url=http://c2cpicdw.qpic.cn/offpic_new/1600631528//1600631528-3839913603-8F84DF65EE005B52F7F798697765A81B/0?term=3]\r\n文字二……
 }
@@ -294,6 +321,65 @@ void CqhttpService::parseGroupUpload(const MyJson &json)
                        .file(id, name, size);
     emit signalMessage(msg);
     qInfo() << "收到群文件消息：" << group_id << ac->groupNames.value(group_id) << user_id << ac->friendNames.value(user_id) << name << size << id;
+}
+
+void CqhttpService::parseMessageSent(const MyJson &json)
+{
+    JS(json, message_type);
+    JS(json, sub_type);
+    if (message_type == "group") // 自己发送的群聊消息
+    {
+        /*{
+            "anonymous": null,
+            "font": 0,
+            "group_id": 461245039,
+            "message": "还以为开的瓜是那个瓜",
+            "message_id": 1508336484,
+            "message_seq": 149753,
+            "message_type": "group",
+            "post_type": "message_sent",
+            "raw_message": "还以为开的瓜是那个瓜",
+            "self_id": 1600631528,
+            "sender": {
+                "age": 0,
+                "area": "",
+                "card": "懒一夕智能科技",
+                "level": "",
+                "nickname": "小乂",
+                "role": "admin",
+                "sex": "unknown",
+                "title": "",
+                "user_id": 1600631528
+            },
+            "sub_type": "normal",
+            "time": 1623896873,
+            "user_id": 1600631528
+        }*/
+        parseGroupMessage(json);
+    }
+    else if (message_type == "private") // 自己发送的私聊消息
+    {
+        /*{
+            "font": 0,
+            "message": "唉",
+            "message_id": 462908353,
+            "message_type": "private",
+            "post_type": "message_sent",
+            "raw_message": "唉",
+            "self_id": 1600631528,
+            "sender": {
+                "age": 0,
+                "nickname": "小乂",
+                "sex": "unknown",
+                "user_id": 1600631528
+            },
+            "sub_type": "friend",
+            "target_id": 3308218798,
+            "time": 1623897521,
+            "user_id": 1600631528
+        }*/
+        parsePrivateMessage(json);
+    }
 }
 
 void CqhttpService::refreshFriends()

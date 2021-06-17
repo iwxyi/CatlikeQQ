@@ -174,8 +174,10 @@ NotificationCard::~NotificationCard()
 
 void NotificationCard::setMsg(const MsgBean &msg)
 {
-    this->senderId = msg.senderId;
+    this->userId = msg.senderId;
     this->groupId = msg.groupId;
+    if (!this->groupId && msg.senderId == ac->myId) // 最后一条是自己私发给别人的
+        this->userId = msg.targetId;
     msgs.append(msg);
 
     if (msg.isPrivate())
@@ -215,12 +217,12 @@ bool NotificationCard::append(const MsgBean &msg)
         return false;
     if (this->groupId != msg.groupId)
         return false;
-    if (this->isPrivate() && this->senderId != msg.senderId)
+    if (this->isPrivate() && this->userId != msg.senderId && this->userId != msg.targetId)
         return false;
 
     int h = height();
 
-    if (!msg.isGroup())
+    if (msg.isPrivate())
     {
         appendPrivateMsg(msg);
     }
@@ -235,16 +237,19 @@ bool NotificationCard::append(const MsgBean &msg)
     // 调整显示时间
     if (displayTimer->isActive())
     {
-
-        if ((msg.isPrivate() && us->bannerPrivateKeepShowing)
-                || (msg.isGroup() && us->bannerGroupKeepShowing))
+        if (msg.senderId != ac->myId
+                && ((msg.isPrivate() && us->bannerPrivateKeepShowing)
+                    || (msg.isGroup() && us->bannerGroupKeepShowing))) // 收到消息一直显示，除非自己回复
         {
             displayTimer->stop();
         }
-        else
+        else // 收到消息，调整显示时长
         {
-            displayTimer->setInterval(qMax(0, displayTimer->remainingTime() - us->bannerDisplayDuration) + getReadDisplayDuration(msg.displayString()));
-            displayTimer->start();
+            if (msg.senderId != ac->myId)
+            {
+                displayTimer->setInterval(qMax(0, displayTimer->remainingTime() - us->bannerDisplayDuration) + getReadDisplayDuration(msg.displayString()));
+                displayTimer->start();
+            }
         }
     }
 
@@ -282,20 +287,24 @@ void NotificationCard::adjustTop(int delta)
 void NotificationCard::setPrivateMsg(const MsgBean &msg)
 {
     // 设置标题
-    ui->nicknameLabel->setText(msg.displayNickname());
+    if (msg.senderId == ac->myId) // 自己的消息，需要手动更新昵称
+        ui->nicknameLabel->setText(ac->friendNames.value(msg.targetId, "[未备注]"));
+    else // 直接设置名字
+        ui->nicknameLabel->setText(msg.displayNickname());
+
 
     // 设置头像
     // 用户头像API：http://q1.qlogo.cn/g?b=qq&nk=QQ号&s=100&t=
     QPixmap headerPixmap;
-    if (isFileExist(rt->userHeader(msg.senderId)))
+    if (isFileExist(rt->userHeader(this->userId)))
     {
-        headerPixmap = QPixmap(rt->userHeader(msg.senderId));
+        headerPixmap = QPixmap(rt->userHeader(this->userId));
     }
     else // 没有头像，联网获取
     {
-        QString url = "http://q1.qlogo.cn/g?b=qq&nk=" + snum(msg.senderId) + "&s=100&t=";
+        QString url = "http://q1.qlogo.cn/g?b=qq&nk=" + snum(this->userId) + "&s=100&t=";
         headerPixmap = NetImageUtil::loadNetPixmap(url);
-        headerPixmap.save(rt->userHeader(msg.senderId));
+        headerPixmap.save(rt->userHeader(this->userId));
     }
 
     if (!us->bannerUseHeaderGradient)
@@ -304,7 +313,7 @@ void NotificationCard::setPrivateMsg(const MsgBean &msg)
     }
     else
     {
-        QString path = rt->userHeader("ctg_" + snum(msg.senderId));
+        QString path = rt->userHeader("ctg_" + snum(this->userId));
         if (!isFileExist(path))
             NetImageUtil::toCornelTransparentGradient(headerPixmap.scaledToWidth(us->bannerHeaderSize*3), us->bannerBgRadius).save(path);
         bg->setIcon(QIcon(path));
@@ -319,8 +328,8 @@ void NotificationCard::setPrivateMsg(const MsgBean &msg)
     // 设置背景颜色
     if (us->bannerUseHeaderColor)
     {
-        if (ac->userHeaderColor.contains(msg.senderId))
-            cardColor = ac->userHeaderColor.value(msg.senderId);
+        if (ac->userHeaderColor.contains(this->userId))
+            cardColor = ac->userHeaderColor.value(this->userId);
         else
             ImageUtil::getBgFgColor(ImageUtil::extractImageThemeColors(headerPixmap.toImage(), 8), &cardColor.bg, &cardColor.fg);
     }
@@ -330,10 +339,10 @@ void NotificationCard::setPrivateMsg(const MsgBean &msg)
     createMsgEdit(msg);
 
     connect(ui->headerLabel, &ClickLabel::leftClicked, this, [=]{
-        showUserInfo(msg.senderId);
+        showUserInfo(this->userId);
     });
     connect(ui->nicknameLabel, &ClickLabel::leftClicked, this, [=]{
-        showUserInfo(msg.senderId);
+        showUserInfo(this->userId);
     });
 }
 
@@ -416,15 +425,24 @@ void NotificationCard::setGroupMsg(const MsgBean &msg)
 /// 添加一个私聊消息
 void NotificationCard::appendPrivateMsg(const MsgBean &msg)
 {
-    if (displayTimer->isActive() && us->bannerPrivateKeepShowing)
+    if (displayTimer->isActive() && us->bannerPrivateKeepShowing && msg.senderId != ac->myId)
         displayTimer->stop();
-    createMsgEdit(msg);
+    if (msg.targetId == this->userId) // 自己发给对面的
+    {
+        MsgBean m = msg;
+        m.message.insert(0, "你:");
+        createMsgEdit(m);
+    }
+    else
+    {
+        createMsgEdit(msg); // 对面发过来的
+    }
 }
 
 /// 添加一个群组消息，每条都有可能是独立的头像、昵称（二级标题）
 void NotificationCard::appendGroupMsg(const MsgBean &msg)
 {
-    if (displayTimer->isActive() && us->bannerGroupKeepShowing)
+    if (displayTimer->isActive() && us->bannerGroupKeepShowing && msg.senderId != ac->myId)
         displayTimer->stop();
     if (!msgs.size() || msgs.last().senderId != msg.senderId)
         createMsgBox(msg);
@@ -576,12 +594,12 @@ void NotificationCard::createMsgBox(const MsgBean &msg, int index)
     // 彩色用户昵称
     if (us->bannerColorfulGroupMember)
     {
-        auto getGroupMemberColor = [=](qint64 groupId, qint64 senderId) -> QColor {
+        auto getGroupMemberColor = [=](qint64 groupId, qint64 userId) -> QColor {
             if (ac->groupMemberColor.contains(groupId))
             {
-                if (ac->groupMemberColor.value(groupId).contains(senderId))
+                if (ac->groupMemberColor.value(groupId).contains(userId))
                 {
-                    return ac->groupMemberColor.value(groupId).value(senderId);
+                    return ac->groupMemberColor.value(groupId).value(userId);
                 }
             }
             else // 连群组都没有
@@ -593,7 +611,7 @@ void NotificationCard::createMsgBox(const MsgBean &msg, int index)
             auto colors = ImageUtil::extractImageThemeColors(headerLabel->pixmap()->toImage(), 4);
             auto color = ImageUtil::getFastestColor(us->bannerUseHeaderColor ? cardColor.bg : us->bannerBgColor, colors, 1); // 获取色差最大的
             // auto color = colors.first().toColor();
-            ac->groupMemberColor[groupId].insert(senderId, color);
+            ac->groupMemberColor[groupId].insert(this->userId, color);
             return color;
         };
 
@@ -909,8 +927,8 @@ void NotificationCard::sendReply()
     int h = this->height();
 
     // 回复消息
-    if (!groupId && senderId)
-        emit signalReplyPrivate(senderId, text);
+    if (!groupId && userId)
+        emit signalReplyPrivate(userId, text);
     else if (groupId)
         emit signalReplyGroup(groupId, text);
     else
@@ -920,11 +938,14 @@ void NotificationCard::sendReply()
     }
 
     // 加到消息框中
-    MsgBean msg(ac->myId, ac->myNickname, "你: " + text, 0, "");
-    if (isGroup())
-        createMsgBoxEdit(msg);
-    else
-        appendPrivateMsg(msg);
+    if (us->bannerShowMySend) // 不显示自己发送的消息
+    {
+        MsgBean msg(ac->myId, ac->myNickname, "你: " + text, 0, "");
+        if (isGroup())
+            createMsgBoxEdit(msg);
+        else
+            appendPrivateMsg(msg);
+    }
 
     // 清空输入框
     ui->messageEdit->clear();
@@ -1280,9 +1301,9 @@ void NotificationCard::loadMsgHistory()
     Q_ASSERT(msgs.size());
     if (!groupId) // 加载私聊消息
     {
-        if (!ac->userMsgHistory.contains(senderId))
+        if (!ac->userMsgHistory.contains(this->userId))
             return ;
-        histories = &ac->userMsgHistory[senderId];
+        histories = &ac->userMsgHistory[this->userId];
     }
     else // 加载群组消息
     {

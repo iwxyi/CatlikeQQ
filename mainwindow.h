@@ -39,7 +39,7 @@ private:
     QRect screenGeometry() const;
 
 public slots:
-    void showMessage(const MsgBean& msg);
+    void showMessage(const MsgBean& msg, bool blockSelf = true);
     void createNotificationBanner(const MsgBean& msg);
     void adjustUnderCardsTop(int aboveIndex, int deltaHeight);
     void focusCardReply();

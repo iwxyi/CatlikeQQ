@@ -284,7 +284,7 @@ void MainWindow::returnToPrevWindow()
 #endif
 }
 
-void MainWindow::showMessage(const MsgBean &msg)
+void MainWindow::showMessage(const MsgBean &msg, bool blockSelf)
 {
     // 静默模式
     if (rt->notificationSlient)
@@ -307,7 +307,7 @@ void MainWindow::showMessage(const MsgBean &msg)
     if (msg.isPrivate())
     {
         ac->lastReceiveShowIsUser = true;
-        ac->lastReceiveShowId = msg.senderId;
+        ac->lastReceiveShowId = msg.senderId == ac->myId ? msg.targetId : msg.senderId;
     }
     else if (msg.isGroup())
     {
@@ -323,6 +323,10 @@ void MainWindow::showMessage(const MsgBean &msg)
             return ;
         }
     }
+
+    // 自己发的消息，不新建卡片
+    if (blockSelf && msg.senderId == ac->myId)
+        return ;
 
     // 没有现有的，新建一个卡片
     createNotificationBanner(msg);
@@ -473,7 +477,7 @@ void MainWindow::focusCardReply()
                 return ;
             }
 
-            showMessage(history.last());
+            showMessage(history.last(), false);
         }
         else
         {
@@ -484,7 +488,7 @@ void MainWindow::focusCardReply()
                 return ;
             }
 
-            showMessage(history.last());
+            showMessage(history.last(), false);
         }
         targetCard = notificationCards.last();
 

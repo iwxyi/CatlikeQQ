@@ -69,6 +69,8 @@ public:
     int bannerBgRadius = 5; // 圆角大小
     int bannerBgShadow = 12; // 阴影大小，右下角会空出这么多的margin
     bool bannerShowImages = true; // 显示图片，还是只显示[图片]
+
+    bool bannerShowMySend = false; // 回复后，显示自己发送的消息；可能会与接收到的重复
     bool bannerAutoShowReply = false; // 自动显示回复框
     bool bannerAutoFocusReply = false; // hover的时候自动聚焦回复框
     bool bannerCloseAfterReply = true; // 回复后关闭对话框（Ctrl+Enter切换）
