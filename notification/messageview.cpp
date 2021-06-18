@@ -257,7 +257,7 @@ void MessageView::setMessage(const MsgBean& msg)
     // video
     if (text.indexOf(QRegularExpression("\\[CQ:video,file=(.+?),url=(.+)\\]"), 0, &match) > -1)
     {
-        QString file = match.captured(1); // asdqwezc.video
+        QString file = match.captured(1); // avsdqwezc.video
         QString url = match.captured(2); // http://xxx.xx?ver=xxx&rkey=xx&filetype=1003&videotype=1&subvideotype=0&term=unknow
         url.replace("&amp;", "&");
         text.replace(match.captured(0), "<a href='" + url + "'>[video]</a>");

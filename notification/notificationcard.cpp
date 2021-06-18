@@ -179,6 +179,7 @@ void NotificationCard::setMsg(const MsgBean &msg)
     if (!this->groupId && msg.senderId == ac->myId) // 最后一条是自己私发给别人的
         this->userId = msg.targetId;
     msgs.append(msg);
+    int h = height();
 
     if (msg.isPrivate())
     {
@@ -205,6 +206,12 @@ void NotificationCard::setMsg(const MsgBean &msg)
     {
         showReplyEdit(false);
     }
+
+    this->layout()->activate();
+    this->resize(this->sizeHint());
+    int hDelta = this->height() - h;
+    if (hDelta)
+        emit signalHeightChanged(hDelta);
 }
 
 /**

@@ -369,8 +369,6 @@ void MainWindow::createNotificationBanner(const MsgBean &msg)
 
     // 创建卡片
     NotificationCard* card = new NotificationCard(nullptr);
-    card->setMsg(msg);
-    card->showFrom(startPos, showPos);
     notificationCards.append(card);
 
     connect(card, &NotificationCard::signalHeightChanged, this, [=](int delta) {
@@ -416,6 +414,11 @@ void MainWindow::createNotificationBanner(const MsgBean &msg)
     connect(card, &NotificationCard::signalCloseAllCards, this, [=]{
         closeAllCard();
     });
+
+    // 先确定位置，因为在下载文件的时候后面可能会进入相同的数据
+    card->move(startPos);
+    card->setMsg(msg); // 这个可能是一个非常耗时的操作
+    card->showFrom(startPos, showPos);
 }
 
 /**
