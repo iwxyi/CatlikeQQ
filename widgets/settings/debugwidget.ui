@@ -108,7 +108,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="sendButton">
+      <widget class="InteractiveButtonBase" name="sendButton">
        <property name="text">
         <string>发送</string>
        </property>
@@ -116,8 +116,29 @@
      </item>
     </layout>
    </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QCheckBox" name="showWidgetBorderCheck">
+       <property name="text">
+        <string>显示控件边界</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>InteractiveButtonBase</class>
+   <extends>QPushButton</extends>
+   <header>interactivebuttonbase.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

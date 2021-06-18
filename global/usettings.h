@@ -105,6 +105,8 @@ public:
     QString aiReplySuffix = ""; // 自动回复后缀
     QString aiReplyDefault = "[自动回复] 您好，我现在有事不在，一会儿也不和您联系~"; // 自动回复默认内容（需包含前缀后缀）
     int aiReplyInterval = 3000; // 自动回复的最短间隔
+
+    bool showWidgetBorder = false;
 };
 
 extern USettings* us;

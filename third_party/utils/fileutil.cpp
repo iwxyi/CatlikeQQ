@@ -16,13 +16,13 @@ QString readTextFile(QString path, QTextCodec *codec)
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        qDebug() << "无法打开文件：" << path;
+        qWarning() << "无法打开文件：" << path;
 //        QMessageBox::critical(nullptr, QObject::tr("错误"), QObject::tr("无法打开文件\n路径：%1").arg(path));
         return "";
     }
     if (!file.isReadable())
     {
-        qDebug() << "无法打开文件：" << path;
+        qWarning() << "无法打开文件：" << path;
 //        QMessageBox::critical(nullptr, QObject::tr("错误"), QObject::tr("该文件不可读\n路径：%1").arg(path));
         return "";
     }

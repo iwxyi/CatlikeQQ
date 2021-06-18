@@ -336,7 +336,7 @@ void NotificationCard::setPrivateMsg(const MsgBean &msg)
     setColors(cardColor.bg, cardColor.fg, cardColor.fg);
 
     // 添加消息
-    createMsgEdit(msg);
+    createPureMsgView(msg);
 
     connect(ui->headerLabel, &ClickLabel::leftClicked, this, [=]{
         showUserInfo(this->userId);
@@ -431,11 +431,11 @@ void NotificationCard::appendPrivateMsg(const MsgBean &msg)
     {
         MsgBean m = msg;
         m.message.insert(0, "你:");
-        createMsgEdit(m);
+        createPureMsgView(m);
     }
     else
     {
-        createMsgEdit(msg); // 对面发过来的
+        createPureMsgView(msg); // 对面发过来的
     }
 }
 
@@ -447,17 +447,17 @@ void NotificationCard::appendGroupMsg(const MsgBean &msg)
     if (!msgs.size() || msgs.last().senderId != msg.senderId)
         createMsgBox(msg);
     else
-        createMsgBoxEdit(msg);
+        createBlankMsgBox(msg);
 }
 
 /// 一个卡片只显示一个人的消息的情况
 void NotificationCard::addSingleSenderMsg(const MsgBean &msg)
 {
-    createMsgEdit(msg);
+    createPureMsgView(msg);
 }
 
 /// 仅创建消息正文
-void NotificationCard::createMsgEdit(const MsgBean& msg, int index)
+void NotificationCard::createPureMsgView(const MsgBean& msg, int index)
 {
     // 先暂停时钟（获取图片有延迟）
     int remain = -1;
@@ -670,7 +670,7 @@ void NotificationCard::createMsgBox(const MsgBean &msg, int index)
 
 /// 仅显示编辑框，不显示头像
 /// 但是头像的占位还在的
-void NotificationCard::createMsgBoxEdit(const MsgBean &msg, int index)
+void NotificationCard::createBlankMsgBox(const MsgBean &msg, int index)
 {
     // 先暂停时钟（获取图片有延迟）
     int remain = -1;
@@ -942,7 +942,7 @@ void NotificationCard::sendReply()
     {
         MsgBean msg(ac->myId, ac->myNickname, "你: " + text, 0, "");
         if (isGroup())
-            createMsgBoxEdit(msg);
+            createBlankMsgBox(msg);
         else
             appendPrivateMsg(msg);
     }
@@ -1051,7 +1051,7 @@ void NotificationCard::triggerAIReply(int retry)
 
     QString sign = QString(QCryptographicHash::hash(pinjie.toLocal8Bit(), QCryptographicHash::Md5).toHex().data()).toUpper();
     params << "sign" << sign;
-//    qDebug() << pinjie << sign;
+//    qInfo() << pinjie << sign;
 
     // 获取信息
     connect(new NetUtil(url, params), &NetUtil::finished, this, [=](QString result){
@@ -1341,7 +1341,7 @@ void NotificationCard::loadMsgHistory()
         auto msg = histories->at(i);
         if (isPrivate())
         {
-            createMsgEdit(msg, index);
+            createPureMsgView(msg, index);
         }
         else
         {
@@ -1351,7 +1351,7 @@ void NotificationCard::loadMsgHistory()
             }
             else
             {
-                createMsgBoxEdit(msg, index);
+                createBlankMsgBox(msg, index);
             }
         }
         senderId = msg.senderId;

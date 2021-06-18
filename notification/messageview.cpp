@@ -30,9 +30,12 @@ MessageView::MessageView(QWidget *parent) : QLabel(parent), msg(0, "")
 #endif
     setContentsMargins(0, 0, 0, 0);
     connect(this, &QLabel::linkActivated, this, [=](const QString& link) {
-        qDebug() << "打开链接：" << link;
+        qInfo() << "打开链接：" << link;
         QDesktopServices::openUrl(QUrl(link));
     });
+
+    if (us->showWidgetBorder)
+        setStyleSheet("QLabel { background: transparent; border: 1px solid red; }"); // 测试边框
 }
 
 /// 设置带有表情、图片等多种类型的Message
@@ -178,9 +181,10 @@ void MessageView::setMessage(const MsgBean& msg)
                 delete movie;
             }
 #endif
-            // 伸缩、圆角
+            // 缩略图的伸缩、圆角
             QString originPath = path;
             QPixmap pixmap(path, "1");
+            maxWidth -= us->bannerBgRadius * 2; // 有个莫名的偏差
             if (pixmap.width() > maxWidth || pixmap.height() > maxHeight)
                 pixmap = pixmap.scaled(maxWidth, maxHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
             pixmap = NetImageUtil::toRoundedPixmap(pixmap, us->bannerBgRadius);

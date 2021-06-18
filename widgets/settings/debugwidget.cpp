@@ -1,11 +1,14 @@
 #include "debugwidget.h"
 #include "ui_debugwidget.h"
+#include "usettings.h"
 
 DebugWidget::DebugWidget(CqhttpService *service, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::DebugWidget), service(service)
 {
     ui->setupUi(this);
+
+    ui->showWidgetBorderCheck->setChecked(us->showWidgetBorder);
 }
 
 DebugWidget::~DebugWidget()
@@ -37,4 +40,9 @@ void DebugWidget::on_sendButton_clicked()
 
     // service-parseMsgDisplay(msg);
     emit service->signalMessage(msg);
+}
+
+void DebugWidget::on_showWidgetBorderCheck_clicked()
+{
+    us->set("debug/showWidgetBorder", us->showWidgetBorder = ui->showWidgetBorderCheck->isChecked());
 }

@@ -60,6 +60,10 @@ void USettings::restoreSettings()
     assign(aiReplyInterval, "aiReplyInterval");
     assign(aiReplyUsers, "aiReplyUsers");
     endGroup();
+
+    beginGroup("debug");
+    assign(showWidgetBorder, "showWidgetBorder");
+    endGroup();
 }
 
 /// 是否展示该群组的通知

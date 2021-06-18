@@ -93,9 +93,9 @@ private:
     void appendPrivateMsg(const MsgBean& msg);
     void appendGroupMsg(const MsgBean& msg);
     void addSingleSenderMsg(const MsgBean& msg);
-    void createMsgEdit(const MsgBean &msg, int index = -1);
+    void createPureMsgView(const MsgBean &msg, int index = -1);
     void createMsgBox(const MsgBean &msg, int index = -1);
-    void createMsgBoxEdit(const MsgBean &msg, int index = -1);
+    void createBlankMsgBox(const MsgBean &msg, int index = -1);
     MessageView* newMsgView();
     int getReadDisplayDuration(QString text) const;
     void createFrostGlass();
