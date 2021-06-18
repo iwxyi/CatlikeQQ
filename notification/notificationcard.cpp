@@ -259,6 +259,11 @@ bool NotificationCard::append(const MsgBean &msg)
             }
         }
     }
+    else if (!fixing && msg.senderId == ac->myId) // 自己回复了，该隐藏了
+    {
+        displayTimer->setInterval(us->bannerRetentionDuration);
+        displayTimer->start();
+    }
 
     // 调整尺寸
     this->layout()->activate();
