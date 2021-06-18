@@ -18,6 +18,7 @@
 #include "widgets/settings/aboutwidget.h"
 #include "widgets/settings/leavemodewidget.h"
 #include "widgets/settings/remotecontrolwidget.h"
+#include "widgets/settings/filewidget.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -42,6 +43,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::initView()
 {
+    // 设置属性
     ui->settingsTabWidget->setAttribute(Qt::WA_StyledBackground);
     ui->settingsTabWidget->setTabPosition(QTabWidget::West);
     ui->settingsTabWidget->tabBar()->setStyle(new CustomTabStyle);
@@ -57,13 +59,13 @@ void MainWindow::initView()
     ui->dataTabWidget->tabBar()->setStyle(new CustomTabStyle);
     ui->dataTabWidget->setCurrentIndex(us->i("mainwindow/settingsTabIndex"));
 
-
+    // 添加各种Tab页
     ui->settingsTabWidget->clear();
     ui->settingsTabWidget->addTab(new AccountWidget(cqhttpService, this), QIcon("://icons/account.png"), "账号绑定");
     ui->settingsTabWidget->addTab(new GroupWidget(this), QIcon("://icons/group.png"), "群组消息");
     ui->settingsTabWidget->addTab(new BannerWidget(this), QIcon("://icons/banner.png"), "横幅通知");
     ui->settingsTabWidget->addTab(new ReplyWidget(this), QIcon("://icons/reply.png"), "通知回复");
-    ui->settingsTabWidget->addTab(new QWidget(this), QIcon("://icons/file.png"), "文件管理");
+    ui->settingsTabWidget->addTab(new FileWidget(this), QIcon("://icons/file.png"), "文件管理");
     ui->settingsTabWidget->addTab(new QWidget(this), QIcon("://icons/care.png"), "特别关心");
     ui->settingsTabWidget->addTab(new QWidget(this), QIcon("://icons/bubble.png"), "气泡样式");
     ui->settingsTabWidget->addTab(new QWidget(this), QIcon("://icons/animation.png"), "动画调整");
@@ -81,7 +83,7 @@ void MainWindow::initView()
     ui->dataTabWidget->addTab(new QWidget(this), QIcon("://icons/history_message.png"), "历史消息");
     ui->dataTabWidget->addTab(new DebugWidget(cqhttpService, this), QIcon("://icons/debug.png"), "开发调试");
 
-
+    // 回复上次索引及索引改变信号
     ui->sideButtons->setCurrentRow(us->i("mainwindow/sideIndex"));
     ui->settingsTabWidget->setCurrentIndex(us->i("mainwindow/settingsTabIndex"));
     ui->auxiliaryTabWidget->setCurrentIndex(us->i("mainwindow/auxiliaryTabIndex"));

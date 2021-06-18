@@ -58,6 +58,7 @@ SOURCES += \
     widgets/settings/accountwidget.cpp \
     widgets/settings/bannerwidget.cpp \
     widgets/settings/debugwidget.cpp \
+    widgets/settings/filewidget.cpp \
     widgets/settings/groupwidget.cpp \
     widgets/settings/leavemodewidget.cpp \
     widgets/settings/remotecontrolwidget.cpp \
@@ -101,6 +102,7 @@ HEADERS += \
     widgets/settings/accountwidget.h \
     widgets/settings/bannerwidget.h \
     widgets/settings/debugwidget.h \
+    widgets/settings/filewidget.h \
     widgets/settings/groupwidget.h \
     widgets/settings/leavemodewidget.h \
     widgets/settings/remotecontrolwidget.h \
@@ -115,6 +117,7 @@ FORMS += \
     widgets/settings/accountwidget.ui \
     widgets/settings/bannerwidget.ui \
     widgets/settings/debugwidget.ui \
+    widgets/settings/filewidget.ui \
     widgets/settings/groupwidget.ui \
     widgets/settings/leavemodewidget.ui \
     widgets/settings/remotecontrolwidget.ui \

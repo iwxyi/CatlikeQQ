@@ -61,6 +61,16 @@ void USettings::restoreSettings()
     assign(aiReplyUsers, "aiReplyUsers");
     endGroup();
 
+    beginGroup("autoCache");
+    assign(autoCacheImage, "image");
+    assign(autoCacheSmallVideo, "smallVideo");
+    assign(autoCachePrivateVideo, "privateVideo");
+    assign(autoCacheFileMaxSize, "fileMaxSize");
+    autoCachePrivateFileTypes = s("privateFileTypes",
+                                  "doc docx ppt pptx xls xlsx pdf")
+            .split(" ", QString::SkipEmptyParts);
+    endGroup();
+
     beginGroup("debug");
     assign(showWidgetBorder, "showWidgetBorder");
     endGroup();

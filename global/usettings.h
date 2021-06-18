@@ -75,7 +75,6 @@ public:
     int bannerMessageAlpha = 255; // 消息透明度
     int bannerMaxMsgCount = 10; // 同时最多显示10条消息
     int bannerMsgMaxLength = 100; // 消息最大长度
-    bool bannerShowImages = true; // 显示图片，还是只显示[图片]
     bool bannerSingleSender = false; // 单个横幅卡片只放同一个人的消息
     int bannerMessageSpacing = 8; // 同一个卡片里面的消息的间距：itemSpace+margin*2
     bool bannerMessageSmoothScroll = true; // 平滑滚动
@@ -112,9 +111,11 @@ public:
     int aiReplyInterval = 3000; // 自动回复的最短间隔
 
     // 文件管理
-    bool autoDownloadSmallVideo = true; // 自动下载小视频
-    bool autoDownloadPrivateVideo = false; // 自动下载用户私聊的视频
-    QStringList autoDownloadPrivateFileTypes; // 自动下载用户私聊的文件类型（后缀名）
+    bool autoCacheImage = true; // 显示图片，还是只显示[图片]
+    bool autoCacheSmallVideo = true; // 自动缓存小视频
+    bool autoCachePrivateVideo = false; // 自动缓存用户私聊的视频
+    QStringList autoCachePrivateFileTypes; // 自动缓存用户私聊的文件类型（后缀名）
+    int autoCacheFileMaxSize = 10; // 自动缓存的文件上限，单位MB
 
     // 调试
     bool showWidgetBorder = false; // 显示控件边界，调试布局
