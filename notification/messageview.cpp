@@ -254,6 +254,15 @@ void MessageView::setMessage(const MsgBean& msg)
         }
     }
 
+    // video
+    if (text.indexOf(QRegularExpression("\\[CQ:video,file=(.+?),url=(.+)\\]"), 0, &match) > -1)
+    {
+        QString file = match.captured(1); // asdqwezc.video
+        QString url = match.captured(2); // http://xxx.xx?ver=xxx&rkey=xx&filetype=1003&videotype=1&subvideotype=0&term=unknow
+        url.replace("&amp;", "&");
+        text.replace(match.captured(0), "<a href='" + url + "'>[video]</a>");
+    }
+
     // 其他格式
     text.replace(QRegExp("\\[CQ:(\\w+),.+\\]"), grayText("[\\1]"));
 
@@ -261,8 +270,8 @@ void MessageView::setMessage(const MsgBean& msg)
     text.replace("&#91;", "[").replace("&#93;", "]");
 
     // 超链接
-    text.replace(QRegExp("((http|ftp)s?://[\\w\\.]+\\.\\w{2,5}([\\?\\/][\\S]*)?)"), "<a href=\"\\1\">\\1</a>");
-    text.replace(QRegExp("([a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+)"), "<a href=\"mailto:\\1\">\\1</a>");
+    text.replace(QRegularExpression("(?<!['\"])((http|ftp)s?://[\\w\\.]+\\.\\w{2,5}([\\?\\/][\\S]*)?)"), "<a href=\"\\1\">\\1</a>");
+    text.replace(QRegularExpression("([a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+)"), "<a href=\"mailto:\\1\">\\1</a>");
 
     // #处理长度（注意要忽略各种标签）
 //    if (text.length() > us->msgMaxLength)
