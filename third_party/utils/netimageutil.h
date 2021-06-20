@@ -49,6 +49,8 @@ public:
     /// radius: 半径，-1 时为圆形
     static QPixmap toRoundedPixmap(const QPixmap &pixmap, int radius = -1)
     {
+        if (pixmap.isNull())
+            return QPixmap();
         QPixmap dest(pixmap.size());
         dest.fill(Qt::transparent);
         QPainter painter(&dest);
