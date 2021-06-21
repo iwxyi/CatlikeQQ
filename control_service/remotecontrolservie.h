@@ -12,6 +12,8 @@ public:
 
     void execCmd(QString cmd);
 
+    void simulateKeys(QString seq, bool delay = false);
+
 signals:
 
 public slots:
