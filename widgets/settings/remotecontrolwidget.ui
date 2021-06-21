@@ -23,7 +23,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>发消息给自己，即可执行“control”文件夹下的同名bat脚本</string>
+      <string>发消息给自己，即可执行“control”文件夹下的同名bat/vbs脚本</string>
      </property>
     </widget>
    </item>

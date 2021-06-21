@@ -316,9 +316,11 @@ void MessageView::replaceGroupAt()
 QSize MessageView::adjustSizeByTextWidth(int w)
 {
 #ifdef MESSAGE_LABEL
+    this->fixedWidth = w;
     setFixedWidth(w);
     adjustSize();
     setFixedHeight(this->height());
+    qDebug() << this->size() << this->sizeHint();
     return this->size();
 #else
 //    setMaximumWidth(w);
@@ -327,6 +329,13 @@ QSize MessageView::adjustSizeByTextWidth(int w)
 //    doc->adjustSize();
 //    return (doc->size() + QSizeF(4, 0)).toSize(); // 横向肯定要加
 #endif
+}
+
+QSize MessageView::sizeHint() const
+{
+    if (fixedWidth)
+        return QSize(fixedWidth, QLabel::sizeHint().height());
+    return QLabel::sizeHint();
 }
 
 void MessageView::setTextColor(QColor c)

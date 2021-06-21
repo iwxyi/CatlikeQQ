@@ -25,8 +25,12 @@ signals:
 public slots:
     void replaceGroupAt();
 
+protected:
+    QSize sizeHint() const override;
+
 private:
     MsgBean msg;
+    int fixedWidth = 0;
 };
 
 #endif // MESSAGEEDIT_H
