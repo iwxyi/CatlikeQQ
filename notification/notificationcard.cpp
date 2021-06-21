@@ -261,8 +261,11 @@ bool NotificationCard::append(const MsgBean &msg)
     }
     else if (!fixing && msg.senderId == ac->myId) // 自己回复了，该隐藏了
     {
-        displayTimer->setInterval(us->bannerRetentionDuration);
-        displayTimer->start();
+        if (!bg->isInArea(bg->mapFromGlobal(QCursor::pos())) && !ui->messageEdit->hasFocus())
+        {
+            displayTimer->setInterval(us->bannerRetentionDuration);
+            displayTimer->start();
+        }
     }
 
     // 调整尺寸
@@ -321,7 +324,8 @@ void NotificationCard::setPrivateMsg(const MsgBean &msg)
 
     if (!us->bannerUseHeaderGradient)
     {
-        ui->headerLabel->setPixmap(NetImageUtil::toRoundedPixmap(headerPixmap));
+        if (!headerPixmap.isNull())
+            ui->headerLabel->setPixmap(NetImageUtil::toRoundedPixmap(headerPixmap));
     }
     else
     {
@@ -382,7 +386,8 @@ void NotificationCard::setGroupMsg(const MsgBean &msg)
 
     if (!us->bannerUseHeaderGradient)
     {
-        ui->headerLabel->setPixmap(NetImageUtil::toRoundedPixmap(headerPixmap));
+        if (!headerPixmap.isNull())
+            ui->headerLabel->setPixmap(NetImageUtil::toRoundedPixmap(headerPixmap));
     }
     else
     {
@@ -589,9 +594,11 @@ void NotificationCard::createMsgBox(const MsgBean &msg, int index)
 
     // 设置头像
     // 用户头像API：http://q1.qlogo.cn/g?b=qq&nk=QQ号&s=100&t=
+    bool headerValid = false;
     if (isFileExist(rt->userHeader(msg.senderId)))
     {
         headerLabel->setPixmap(NetImageUtil::toRoundedPixmap(QPixmap(rt->userHeader(msg.senderId)).scaled(headerLabel->size())));
+        headerValid = true;
     }
     else // 没有头像，联网获取
     {
@@ -600,11 +607,15 @@ void NotificationCard::createMsgBox(const MsgBean &msg, int index)
         if (!us->bannerUseHeaderColor)
             pixmap = NetImageUtil::toRoundedPixmap(pixmap);
         pixmap.save(rt->userHeader(msg.senderId));
-        headerLabel->setPixmap(NetImageUtil::toRoundedPixmap(pixmap.scaled(headerLabel->size())));
+        if (!pixmap.isNull())
+        {
+            headerLabel->setPixmap(NetImageUtil::toRoundedPixmap(pixmap.scaled(headerLabel->size())));
+            headerValid = true;
+        }
     }
 
     // 彩色用户昵称
-    if (us->bannerColorfulGroupMember)
+    if (us->bannerColorfulGroupMember && headerValid)
     {
         auto getGroupMemberColor = [=](qint64 groupId, qint64 userId) -> QColor {
             if (ac->groupMemberColor.contains(groupId))
