@@ -299,13 +299,16 @@ void CqhttpService::parseGroupMessage(const MyJson &json)
     }
 
     MsgBean msg = MsgBean(user_id, nickname, message, message_id, sub_type)
+            .frind(ac->friendNames.value(user_id, ""))
             .group(group_id, ac->groupNames.value(group_id), card);
     emit signalMessage(msg);
 
     if (!ac->groupMsgHistory.contains(group_id))
         ac->groupMsgHistory.insert(group_id, QList<MsgBean>());
     ac->groupMsgHistory[group_id].append(msg);
-    qInfo() << "收到群消息：" << group_id << ac->groupNames.value(group_id) << user_id << ac->friendNames.value(user_id) << message << message_id;
+    qInfo() << "收到群消息：" << group_id << ac->groupNames.value(group_id)
+            << user_id << nickname << ac->friendNames.value(user_id)
+            << message << message_id;
 }
 
 void CqhttpService::parseGroupUpload(const MyJson &json)

@@ -198,7 +198,7 @@ void NotificationCard::setMsg(const MsgBean &msg)
     // 调整显示的时长
     if (us->bannerTextReadSpeed)
     {
-        displayTimer->setInterval(getReadDisplayDuration(msg.displayString()));
+        displayTimer->setInterval(getReadDisplayDuration(msg.displayMessage()));
     }
 
     // 自动展开
@@ -254,7 +254,7 @@ bool NotificationCard::append(const MsgBean &msg)
         {
             if (msg.senderId != ac->myId)
             {
-                displayTimer->setInterval(qMax(0, displayTimer->remainingTime() - us->bannerDisplayDuration) + getReadDisplayDuration(msg.displayString()));
+                displayTimer->setInterval(qMax(0, displayTimer->remainingTime() - us->bannerDisplayDuration) + getReadDisplayDuration(msg.displayMessage()));
                 displayTimer->start();
             }
         }

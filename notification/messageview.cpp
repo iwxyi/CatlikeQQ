@@ -320,7 +320,6 @@ QSize MessageView::adjustSizeByTextWidth(int w)
     setFixedWidth(w);
     adjustSize();
     setFixedHeight(this->height());
-    qDebug() << this->size() << this->sizeHint();
     return this->size();
 #else
 //    setMaximumWidth(w);

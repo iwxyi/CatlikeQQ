@@ -82,14 +82,14 @@ struct MsgBean
 
     QString displayNickname() const
     {
-        if (!groupCard.isEmpty())
+        if (!groupCard.trimmed().isEmpty())
             return groupCard;
-        if (!remark.isEmpty())
+        if (!remark.trimmed().isEmpty())
             return remark;
         return nickname;
     }
 
-    QString displayString() const
+    QString displayMessage() const
     {
         if (!display.isEmpty())
             return display;
