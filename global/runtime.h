@@ -15,6 +15,7 @@ public:
     QString groupHeader(QString id) const;
     QString imageCache(QString id) const;
     QString imageSCache(QString id) const;
+    QString videoCache(QString id) const;
     QString faceCache(QString id) const;
 
 public:

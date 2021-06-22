@@ -25,6 +25,9 @@
      <property name="enabled">
       <bool>true</bool>
      </property>
+     <property name="toolTip">
+      <string>如果不缓存，将无法显示图片，使用“[图片]”来代替</string>
+     </property>
      <property name="text">
       <string>自动缓存图片、表情包</string>
      </property>

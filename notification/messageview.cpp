@@ -7,6 +7,8 @@
 #include <QDesktopServices>
 #include <QBitmap>
 #include <QTimer>
+#include <QMultimedia>
+#include <QHBoxLayout>
 #include "fileutil.h"
 #include "messageview.h"
 #include "defines.h"
@@ -15,6 +17,8 @@
 #include "netimageutil.h"
 #include "accountinfo.h"
 #include "myjson.h"
+#include "video/videolabel.h"
+#include "video/videowidget.h"
 
 MessageView::MessageView(QWidget *parent) : QLabel(parent), msg(0, "")
 {
@@ -255,12 +259,43 @@ void MessageView::setMessage(const MsgBean& msg)
     }
 
     // video
-    if (text.indexOf(QRegularExpression("\\[CQ:video,file=(.+?),url=(.+)\\]"), 0, &match) > -1)
+    if (text.indexOf(QRegularExpression("\\[CQ:video,file=(.+?)(?:.video)?,url=(.+)\\]"), 0, &match) > -1)
     {
         QString file = match.captured(1); // avsdqwezc.video
-        QString url = match.captured(2); // http://xxx.xx?ver=xxx&rkey=xx&filetype=1003&videotype=1&subvideotype=0&term=unknow
-        url.replace("&amp;", "&");
-        text.replace(match.captured(0), "<a href='" + url + "'>[video]</a>");
+        QString url = match.captured(2).replace("&amp;", "&"); // http://xxx.xx?ver=xxx&rkey=xx&filetype=1003&videotype=1&subvideotype=0&term=unknow
+        QString path = rt->videoCache(file);
+
+        if (us->autoCacheSmallVideo) // 缓存视频
+        {
+            if (!isFileExist(path)) // 可能重复发送，也可能从历史消息加载，所以不重复读取
+            {
+                NetImageUtil::saveNetFile(url, path);
+            }
+
+            // 图片尺寸
+            int maxWidth = us->bannerContentWidth;
+            int maxHeight = us->bannerContentMaxHeight - us->bannerHeaderSize;
+
+            // 控件
+            QHBoxLayout* lay = new QHBoxLayout(this);
+            VideoLabel* vw = new VideoLabel(this);
+//            VideoWidget* vw = new VideoWidget(this);
+            lay->addWidget(vw);
+            lay->setMargin(0);
+
+            // 播放视频
+            vw->setRadius(us->bannerBgRadius);
+            vw->setMedia(path);
+            vw->show();
+            this->setFixedHeight(maxHeight);
+
+            // 设置文字
+            text = "";
+        }
+        else // 不缓存视频
+        {
+            text.replace(match.captured(0), "<a href='" + url + "'>[video]</a>"); // 加上超链接
+        }
     }
 
     // 其他格式

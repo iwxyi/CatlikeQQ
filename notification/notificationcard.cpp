@@ -31,7 +31,6 @@ NotificationCard::NotificationCard(QWidget *parent) :
 
     ui->headerLabel->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     ui->nicknameLabel->setAttribute(Qt::WA_TransparentForMouseEvents, true);
-    // ui->listWidget->setAttribute(Qt::WA_TransparentForMouseEvents, true); // 不能穿透
     ui->listWidget->setAttribute(Qt::WA_TranslucentBackground, true);
     ui->replyButton->setRadius(us->bannerBgRadius);
     ui->messageEdit->hide();

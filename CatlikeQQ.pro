@@ -1,4 +1,4 @@
-QT       += core gui network websockets
+QT       += core gui network websockets multimedia multimediawidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -62,7 +62,10 @@ SOURCES += \
     widgets/settings/groupwidget.cpp \
     widgets/settings/leavemodewidget.cpp \
     widgets/settings/remotecontrolwidget.cpp \
-    widgets/settings/replywidget.cpp
+    widgets/settings/replywidget.cpp \
+    widgets/video/videolabel.cpp \
+    widgets/video/videosurface.cpp \
+    widgets/video/videowidget.cpp
 
 HEADERS += \
     control_service/remotecontrolservie.h \
@@ -106,7 +109,10 @@ HEADERS += \
     widgets/settings/groupwidget.h \
     widgets/settings/leavemodewidget.h \
     widgets/settings/remotecontrolwidget.h \
-    widgets/settings/replywidget.h
+    widgets/settings/replywidget.h \
+    widgets/video/videolabel.h \
+    widgets/video/videosurface.h \
+    widgets/video/videowidget.h
 
 FORMS += \
     mainwindow.ui \
