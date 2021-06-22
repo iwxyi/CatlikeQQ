@@ -549,7 +549,7 @@ void NotificationCard::createMsgBox(const MsgBean &msg, int index)
     // 创建控件
     QWidget* box = new QWidget(this);
     QLabel* headerLabel = new QLabel(box);
-    QLabel* nameLabel = new QLabel(msg.groupName, box);
+    QLabel* nameLabel = new QLabel(msg.groupName.isEmpty() ? msg.nickname : msg.groupName, box);
     MessageView* msgView = newMsgView();
     QWidget* spacer = new QWidget(this);
     QVBoxLayout* headerVlayout = new QVBoxLayout;

@@ -65,6 +65,11 @@ void RemoteControlServie::execCmd(QString cmd)
         simulateKeys(text);
     }
 
+    // 菜单等自定义文字
+    else if (hasCmd(cmd))
+    {
+        emit reply(readTextFile(rt->DATA_PATH + "control/" + cmd));
+    }
 }
 
 void RemoteControlServie::simulateKeys(QString seq, bool delay)

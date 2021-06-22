@@ -15,6 +15,7 @@ public:
     void simulateKeys(QString seq, bool delay = false);
 
 signals:
+    void reply(QString text);
 
 public slots:
 };

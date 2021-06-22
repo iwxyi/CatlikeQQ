@@ -262,7 +262,8 @@ void CqhttpService::parsePrivateMessage(const MyJson &json)
     JS(sender, nickname);
 
     MsgBean msg = MsgBean(user_id, nickname, message, message_id, sub_type)
-            .frind(ac->friendNames.value(user_id, "")).privt(target_id);
+            .frind(ac->friendNames.value(user_id, ""))
+            .privt(target_id);
     emit signalMessage(msg);
 
     qint64 oppo_id = user_id == ac->myId ? target_id : user_id;
@@ -297,7 +298,8 @@ void CqhttpService::parseGroupMessage(const MyJson &json)
         Q_UNUSED(id)
     }
 
-    MsgBean msg = MsgBean(user_id, nickname, message, message_id, sub_type).group(group_id, ac->groupNames.value(group_id), card);
+    MsgBean msg = MsgBean(user_id, nickname, message, message_id, sub_type)
+            .group(group_id, ac->groupNames.value(group_id), card);
     emit signalMessage(msg);
 
     if (!ac->groupMsgHistory.contains(group_id))

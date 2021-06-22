@@ -8,7 +8,7 @@
 struct MsgBean
 {
     qint64 senderId = 0;
-    QString nickname;
+    QString nickname; // 优先群昵称/好友备注，才是原昵称
     QString message;
     qint64 messageId = 0;
     QString subType;
