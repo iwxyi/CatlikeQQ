@@ -3,7 +3,7 @@
 #include <QBitmap>
 #include "videolabel.h"
 
-VideoLabel::VideoLabel(QWidget *parent) : QLabel(parent)
+VideoLabel::VideoLabel(QWidget *parent) : ClickLabel(parent)
 {
     setStyleSheet("QLabel{background: transparent;}");
 

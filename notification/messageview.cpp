@@ -290,6 +290,11 @@ void MessageView::setMessage(const MsgBean& msg)
             vw->show();
             this->setFixedHeight(maxHeight);
 
+            vw->setCursor(Qt::PointingHandCursor);
+            connect(vw, &ClickLabel::leftClicked, this, [=]{
+                QDesktopServices::openUrl(QUrl(path));
+            });
+
             // 设置文字
             text = "";
         }

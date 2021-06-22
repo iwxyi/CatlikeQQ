@@ -3,9 +3,10 @@
 
 #include <QLabel>
 #include <QMediaPlayer>
+#include "clicklabel.h"
 #include "videosurface.h"
 
-class VideoLabel : public QLabel
+class VideoLabel : public ClickLabel
 {
     Q_OBJECT
 public:
