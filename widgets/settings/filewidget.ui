@@ -39,7 +39,7 @@
    <item>
     <widget class="QCheckBox" name="autoCacheSmallVideoCheck">
      <property name="text">
-      <string>自动缓存20s以内的视频</string>
+      <string>自动缓存所有视频</string>
      </property>
      <property name="checked">
       <bool>true</bool>
@@ -49,7 +49,7 @@
    <item>
     <widget class="QCheckBox" name="autoCachePrivateVideoCheck">
      <property name="text">
-      <string>自动缓存所有私聊视频</string>
+      <string>自动缓存私聊视频</string>
      </property>
     </widget>
    </item>

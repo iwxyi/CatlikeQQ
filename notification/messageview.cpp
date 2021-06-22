@@ -265,7 +265,8 @@ void MessageView::setMessage(const MsgBean& msg)
         QString url = match.captured(2).replace("&amp;", "&"); // http://xxx.xx?ver=xxx&rkey=xx&filetype=1003&videotype=1&subvideotype=0&term=unknow
         QString path = rt->videoCache(file);
 
-        if (us->autoCacheSmallVideo) // 缓存视频
+        if (us->autoCacheSmallVideo // 缓存所有视频
+                || (msg.isPrivate() && us->autoCachePrivateVideo) ) // 缓存私聊视频
         {
             if (!isFileExist(path)) // 可能重复发送，也可能从历史消息加载，所以不重复读取
             {
@@ -279,7 +280,7 @@ void MessageView::setMessage(const MsgBean& msg)
             // 控件
             QHBoxLayout* lay = new QHBoxLayout(this);
             VideoLabel* vw = new VideoLabel(this);
-//            VideoWidget* vw = new VideoWidget(this);
+//            VideoWidget* vw = new VideoWidget(this); // 透明窗口不能使用 QVideoWidget，很无奈
             lay->addWidget(vw);
             lay->setMargin(0);
 
