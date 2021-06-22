@@ -23,6 +23,7 @@ struct MsgBean
     QString fileId;
     QString fileName;
     qint64 fileSize;
+    QString fileUrl; // 下载地址
 
     QString display; // 显示的纯文本
 
@@ -66,11 +67,12 @@ struct MsgBean
         return *this;
     }
 
-    MsgBean& file(QString fileId, QString fileName, qint64 fileSize)
+    MsgBean& file(QString fileId, QString fileName, qint64 fileSize, QString fileUrl = "")
     {
         this->fileId = fileId;
         this->fileName = fileName;
         this->fileSize = fileSize;
+        this->fileUrl = fileUrl;
         return *this;
     }
 

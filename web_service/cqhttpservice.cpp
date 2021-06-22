@@ -131,6 +131,10 @@ void CqhttpService::messageReceived(const QString &message)
         {
             parseGroupUpload(json);
         }
+        else if (notice_type == "offline_file")
+        {
+            parseOfflineFile(json);
+        }
         else
         {
             qWarning() << "未处理类型的通知：" << json;
@@ -328,6 +332,36 @@ void CqhttpService::parseGroupUpload(const MyJson &json)
     MsgBean msg = MsgBean(user_id, ac->friendNames.value(user_id))
                        .group(group_id, ac->groupNames.value(group_id))
                        .file(id, name, size);
+    emit signalMessage(msg);
+}
+
+void CqhttpService::parseOfflineFile(const MyJson &json)
+{
+    /*{
+        "file": {
+            "name": "hwpe_eda.vsdx",
+            "size": 724289,
+            "url": "http://183.247.242.34/ftn_handler/ed5fde809720294dced4364198424b4e17f5adf6fa7234a73de6dd012ec6cad620996e9c99c919b750ea9857b1f5247c28beed0195fa667faad3761e3a375f4e"
+        },
+        "notice_type": "offline_file",
+        "post_type": "notice",
+        "self_id": 1600631528,
+        "time": 1624352580,
+        "user_id": 3308218798
+    }*/
+
+    JL(json, user_id);
+
+    JO(json, file);
+    JS(file, name);
+    JL(file, size);
+    JS(file, url);
+
+    qInfo() << "收到离线文件消息：" << user_id << ac->friendNames.value(user_id) << name << size;
+
+    QString fileId = name + "_" + snum(size);
+    MsgBean msg = MsgBean(user_id, ac->friendNames.value(user_id))
+                       .file(fileId, name, size, url);
     emit signalMessage(msg);
 }
 

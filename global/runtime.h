@@ -17,6 +17,7 @@ public:
     QString imageSCache(QString id) const;
     QString videoCache(QString id) const;
     QString faceCache(QString id) const;
+    QString fileCache(QString name) const;
 
 public:
     QString APP_PATH;
@@ -27,6 +28,7 @@ public:
     QString CACHE_IMAGE_PATH;
     QString CACHE_IMAGE_S_PATH;
     QString CACHE_FACE_PATH;
+    QString CACHE_FILE_PATH;
     QString CACHE_USER_HEADER_PATH;
     QString CACHE_GROUP_HEADER_PATH;
 

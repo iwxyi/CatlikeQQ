@@ -44,3 +44,8 @@ QString Runtime::faceCache(QString id) const
 {
     return CACHE_FACE_PATH + id + imageSuffix;
 }
+
+QString Runtime::fileCache(QString name) const
+{
+    return CACHE_FILE_PATH + name;
+}

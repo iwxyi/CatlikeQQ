@@ -63,9 +63,11 @@ void USettings::restoreSettings()
 
     beginGroup("autoCache");
     assign(autoCacheImage, "image");
-    assign(autoCacheSmallVideo, "smallVideo");
     assign(autoCachePrivateVideo, "privateVideo");
+    assign(autoCacheSmallVideo, "smallVideo");
     assign(autoCacheFileMaxSize, "fileMaxSize");
+    assign(autoCachePrivateFile, "privateFile");
+    assign(autoCachePrivateFileType, "privateFileType");
     autoCachePrivateFileTypes = s("privateFileTypes",
                                   "doc docx ppt pptx xls xlsx pdf")
             .split(" ", QString::SkipEmptyParts);

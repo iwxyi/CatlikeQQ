@@ -26,6 +26,10 @@ private slots:
 
     void on_autoCachePrivateFileTypesEdit_editingFinished();
 
+    void on_autoCachePrivateFileCheck_clicked();
+
+    void on_autoCachePrivateFileTypeCheck_clicked();
+
 private:
     Ui::FileWidget *ui;
 };

@@ -112,8 +112,10 @@ public:
 
     // 文件管理
     bool autoCacheImage = true; // 显示图片，还是只显示[图片]
-    bool autoCacheSmallVideo = true; // 自动缓存小视频
-    bool autoCachePrivateVideo = false; // 自动缓存用户私聊的视频
+    bool autoCachePrivateVideo = true; // 自动缓存用户私聊的视频
+    bool autoCacheSmallVideo = true; // 自动缓存所有视频
+    bool autoCachePrivateFile = true; // 自动缓存用户私聊的视频
+    bool autoCachePrivateFileType = true; // 仅自动缓存指定格式的文件
     QStringList autoCachePrivateFileTypes; // 自动缓存用户私聊的文件类型（后缀名）
     int autoCacheFileMaxSize = 10; // 自动缓存的文件上限，单位MB
 

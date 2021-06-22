@@ -55,16 +55,14 @@ void MessageView::setMessage(const MsgBean& msg)
         return "<font color='gray'>" + text + "</font>";
     };
 
+    auto linkText = [=](QString text, QString link) {
+        return "<a href=\"" +link + "\"><span style=\"text-decoration: none; color:#8cc2d4;\">" + text + "</span></a>";
+    };
+
     // #处理HTML
     text.replace("<", "&lt;").replace(">", "&gt;");
 
     // #替换CQ
-    // 文件
-    if (!msg.fileId.isEmpty())
-    {
-        text = grayText("[文件] " + msg.fileName);
-    }
-
     // 表情
     if (text.indexOf(QRegularExpression("\\[CQ:face,id=(\\d+)\\]"), 0, &match) > -1)
     {
@@ -139,6 +137,7 @@ void MessageView::setMessage(const MsgBean& msg)
             QString path = rt->imageCache(id);
             if (!isFileExist(path)) // 可能重复发送，也可能从历史消息加载，所以不重复读取
                 NetImageUtil::saveNetFile(url, path);
+            this->filePath = path;
 
             // 图片尺寸
             int maxWidth = us->bannerContentWidth;
@@ -269,9 +268,8 @@ void MessageView::setMessage(const MsgBean& msg)
                 || (msg.isPrivate() && us->autoCachePrivateVideo) ) // 缓存私聊视频
         {
             if (!isFileExist(path)) // 可能重复发送，也可能从历史消息加载，所以不重复读取
-            {
                 NetImageUtil::saveNetFile(url, path);
-            }
+            this->filePath = path;
 
             // 图片尺寸
             int maxWidth = us->bannerContentWidth;
@@ -300,7 +298,40 @@ void MessageView::setMessage(const MsgBean& msg)
         }
         else // 不缓存视频
         {
-            text.replace(match.captured(0), "<a href='" + url + "'>[video]</a>"); // 加上超链接
+            // text.replace(match.captured(0), "<a href='" + url + "'>[video]</a>"); // 加上超链接
+            text = linkText("[video]", match.captured(0));
+        }
+    }
+
+    // 文件
+    if (!msg.fileId.isEmpty())
+    {
+        QString suffix = "";
+        int index = msg.fileName.lastIndexOf(".");
+        if (index != -1)
+            suffix = msg.fileName.right(msg.fileName.length() - index - 1);
+        if (msg.isPrivate()
+                && us->autoCachePrivateFile
+                && (!us->autoCachePrivateFileType
+                    || (!suffix.isEmpty() && us->autoCachePrivateFileTypes.contains(suffix)))
+                && (us->autoCacheFileMaxSize == 0 || msg.fileSize <= us->autoCacheFileMaxSize * 1024 * 1024)
+                && !msg.fileUrl.isEmpty())
+        {
+            QString path = rt->fileCache(msg.fileName);
+            if (!isFileExist(path))
+            {
+                qInfo() << "自动下载文件：" << path;
+                NetImageUtil::saveNetFile(msg.fileUrl, path);
+            }
+            this->filePath = path;
+            text = linkText("[文件]" + msg.fileName, path);
+        }
+        else // 不下载文件
+        {
+            if (msg.fileUrl.isEmpty())
+                text = grayText("[文件] " + msg.fileName);
+            else
+                text = linkText("[文件] " + msg.fileName, msg.fileUrl);
         }
     }
 

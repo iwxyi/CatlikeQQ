@@ -40,11 +40,13 @@ int main(int argc, char *argv[])
     rt->CACHE_FACE_PATH = rt->CACHE_PATH + "faces/";
     rt->CACHE_USER_HEADER_PATH = rt->CACHE_PATH + "user_headers/";
     rt->CACHE_GROUP_HEADER_PATH = rt->CACHE_PATH + "group_headers/";
+    rt->CACHE_FILE_PATH = rt->CACHE_PATH + "files/";
     ensureDirExist(rt->CACHE_IMAGE_PATH);
     ensureDirExist(rt->CACHE_IMAGE_S_PATH);
     ensureDirExist(rt->CACHE_FACE_PATH);
     ensureDirExist(rt->CACHE_USER_HEADER_PATH);
     ensureDirExist(rt->CACHE_GROUP_HEADER_PATH);
+    ensureDirExist(rt->CACHE_FILE_PATH);
 
     MainWindow w;
     w.show();

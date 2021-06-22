@@ -9,10 +9,12 @@ FileWidget::FileWidget(QWidget *parent) :
     ui->setupUi(this);
 
     ui->autoCacheImageCheck->setChecked(us->autoCacheImage);
-    ui->autoCacheSmallVideoCheck->setChecked(us->autoCacheSmallVideo);
     ui->autoCachePrivateVideoCheck->setChecked(us->autoCachePrivateVideo);
-    ui->autoCacheFileMaxSizeSpin->setValue(us->autoCacheFileMaxSize);
+    ui->autoCacheSmallVideoCheck->setChecked(us->autoCacheSmallVideo);
+    ui->autoCachePrivateFileCheck->setChecked(us->autoCachePrivateVideo);
+    ui->autoCachePrivateFileTypeCheck->setChecked(us->autoCachePrivateFileType);
     ui->autoCachePrivateFileTypesEdit->setText(us->autoCachePrivateFileTypes.join(" "));
+    ui->autoCacheFileMaxSizeSpin->setValue(us->autoCacheFileMaxSize);
 }
 
 FileWidget::~FileWidget()
@@ -45,4 +47,14 @@ void FileWidget::on_autoCachePrivateFileTypesEdit_editingFinished()
     QString s = ui->autoCachePrivateFileTypesEdit->text();
     us->set("autoCache/privateFileTypes", s);
     us->autoCachePrivateFileTypes = s.split(" ", QString::SkipEmptyParts);
+}
+
+void FileWidget::on_autoCachePrivateFileCheck_clicked()
+{
+    us->set("autoCache/privateFile", us->autoCachePrivateFile = ui->autoCachePrivateFileCheck->isChecked());
+}
+
+void FileWidget::on_autoCachePrivateFileTypeCheck_clicked()
+{
+    us->set("autoCache/privateFileType", us->autoCachePrivateFileType = ui->autoCachePrivateFileTypeCheck->isChecked());
 }

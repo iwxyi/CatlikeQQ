@@ -306,7 +306,6 @@ void NotificationCard::setPrivateMsg(const MsgBean &msg)
     else // 直接设置名字
         ui->nicknameLabel->setText(msg.displayNickname());
 
-
     // 设置头像
     // 用户头像API：http://q1.qlogo.cn/g?b=qq&nk=QQ号&s=100&t=
     QPixmap headerPixmap;

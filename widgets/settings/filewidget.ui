@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>300</height>
+    <height>364</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,74 +21,55 @@
     <number>9</number>
    </property>
    <item>
-    <widget class="QCheckBox" name="autoCacheImageCheck">
-     <property name="enabled">
-      <bool>true</bool>
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
      </property>
-     <property name="toolTip">
-      <string>如果不缓存，将无法显示图片，使用“[图片]”来代替</string>
+     <property name="title">
+      <string>自动缓存媒体</string>
      </property>
-     <property name="text">
-      <string>自动缓存图片、表情包</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item>
+       <widget class="QCheckBox" name="autoCacheImageCheck">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="toolTip">
+         <string>如果不缓存，将无法显示图片，使用“[图片]”来代替</string>
+        </property>
+        <property name="text">
+         <string>图片、表情包</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="autoCachePrivateVideoCheck">
+        <property name="text">
+         <string>私聊视频</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="autoCacheSmallVideoCheck">
+        <property name="toolTip">
+         <string>将会下载所有发过来的视频（包括私聊视频）</string>
+        </property>
+        <property name="text">
+         <string>所有视频</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
-   </item>
-   <item>
-    <widget class="QCheckBox" name="autoCacheSmallVideoCheck">
-     <property name="text">
-      <string>自动缓存所有视频</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QCheckBox" name="autoCachePrivateVideoCheck">
-     <property name="text">
-      <string>自动缓存私聊视频</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <property name="topMargin">
-      <number>0</number>
-     </property>
-     <item>
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>自动缓存文件上限</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QSpinBox" name="autoCacheFileMaxSizeSpin">
-       <property name="toolTip">
-        <string>这是单个文件的上限，不是累计的
-太大会延迟许久才有弹窗（全部下载完才会显示）</string>
-       </property>
-       <property name="suffix">
-        <string>MB</string>
-       </property>
-       <property name="minimum">
-        <number>1</number>
-       </property>
-       <property name="maximum">
-        <number>1048576</number>
-       </property>
-       <property name="singleStep">
-        <number>10</number>
-       </property>
-       <property name="value">
-        <number>10</number>
-       </property>
-      </widget>
-     </item>
-    </layout>
    </item>
    <item>
     <widget class="QGroupBox" name="groupBox">
@@ -99,9 +80,29 @@
       </size>
      </property>
      <property name="title">
-      <string>自动缓存的文件类型</string>
+      <string>自动下载文件</string>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout">
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QCheckBox" name="autoCachePrivateFileCheck">
+        <property name="text">
+         <string>私聊文件</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="autoCachePrivateFileTypeCheck">
+        <property name="text">
+         <string>仅限指定格式文件</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
       <item>
        <widget class="QLineEdit" name="autoCachePrivateFileTypesEdit">
         <property name="toolTip">
@@ -122,6 +123,44 @@
          <string>doc docx ppt pptx xls xlsx pdf</string>
         </property>
        </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>自动缓存文件上限</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="autoCacheFileMaxSizeSpin">
+          <property name="toolTip">
+           <string>单个文件不超过多大时自动缓存，收到后可快速打开
+设置为0时表示不缓存
+太大会延迟许久才有弹窗（全部下载完才会显示）</string>
+          </property>
+          <property name="suffix">
+           <string>MB</string>
+          </property>
+          <property name="minimum">
+           <number>0</number>
+          </property>
+          <property name="maximum">
+           <number>1048576</number>
+          </property>
+          <property name="singleStep">
+           <number>10</number>
+          </property>
+          <property name="value">
+           <number>10</number>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>
@@ -145,7 +184,7 @@
       <string notr="true">color: gray;</string>
      </property>
      <property name="text">
-      <string>仅对显示出来的横幅消息进行缓存</string>
+      <string>仅下载弹出通知的文件</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -158,7 +197,7 @@
       <string notr="true">color: gray;</string>
      </property>
      <property name="text">
-      <string>将在程序退出后清空，请按需备份</string>
+      <string>程序退出后将全部清空</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
