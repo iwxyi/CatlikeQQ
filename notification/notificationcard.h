@@ -35,7 +35,8 @@ public:
     explicit NotificationCard(QWidget *parent = nullptr);
     ~NotificationCard() override;
 
-    void showFrom(QPoint hi, QPoint sh);
+    void setShowPos(QPoint startPos, QPoint showPos);
+    void showFrom();
     void setColors(QColor bg, QColor title, QColor content);
     void setMsg(const MsgBean& msg);
     bool append(const MsgBean& msg);

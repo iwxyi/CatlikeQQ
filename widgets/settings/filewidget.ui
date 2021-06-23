@@ -96,7 +96,7 @@
       <item>
        <widget class="QCheckBox" name="autoCachePrivateFileTypeCheck">
         <property name="text">
-         <string>仅限指定格式文件</string>
+         <string>仅限指定格式</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -132,7 +132,7 @@
         <item>
          <widget class="QLabel" name="label">
           <property name="text">
-           <string>自动缓存文件上限</string>
+           <string>大小上限</string>
           </property>
          </widget>
         </item>

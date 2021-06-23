@@ -572,10 +572,10 @@ void NotificationCard::createMsgBox(const MsgBean &msg, int index)
     mainHlayout->setMargin(0);
 
     connectUserHeader(headerLabel);
-    /* spacer->setAttribute(Qt::WA_TransparentForMouseEvents, true);
-    headerLabel->setAttribute(Qt::WA_TransparentForMouseEvents, true);
-    nameLabel->setAttribute(Qt::WA_TransparentForMouseEvents, true);
-    msgView->setAttribute(Qt::WA_TransparentForMouseEvents, false); */
+    spacer->setAttribute(Qt::WA_TransparentForMouseEvents, true);
+    headerLabel->setAttribute(Qt::WA_TransparentForMouseEvents, false);
+    nameLabel->setAttribute(Qt::WA_TransparentForMouseEvents, false);
+    msgView->setAttribute(Qt::WA_TransparentForMouseEvents, false);
     spacer->setFixedWidth(1);
     headerLabel->setFixedSize(ui->headerLabel->size());
     nameLabel->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
@@ -641,11 +641,11 @@ void NotificationCard::createMsgBox(const MsgBean &msg, int index)
 
         QColor c = getGroupMemberColor(msg.groupId, msg.senderId);
         pa.setColor(QPalette::Text, c);
-        nameLabel->setStyleSheet("color: " + QVariant(c).toString() + ";");
+        nameLabel->setStyleSheet("QLabel { color: " + QVariant(c).toString() + "; }");
     }
     else
     {
-        nameLabel->setStyleSheet("color: " + QVariant(cardColor.fg).toString() + ";");
+        nameLabel->setStyleSheet("QLabel { color: " + QVariant(cardColor.fg).toString() + "; }");
     }
     nameLabel->setPalette(pa);
 
@@ -1033,19 +1033,27 @@ void NotificationCard::sendReply()
 }
 
 /**
+ * 预先设置坐标
+ * 展示前可能会出现改变
+ */
+void NotificationCard::setShowPos(QPoint startPos, QPoint showPos)
+{
+    this->hidePoint = startPos;
+    this->showPoint = showPos;
+    move(startPos);
+}
+
+/**
  * 从某一个点开始出现，直到完全展示出来
  */
-void NotificationCard::showFrom(QPoint hi, QPoint sh)
+void NotificationCard::showFrom()
 {
-    this->showPoint = sh;
-    this->hidePoint = hi;
     createFrostGlass();
-    move(hi);
     hidding = false;
 
     QPropertyAnimation* ani = new QPropertyAnimation(this, "pos");
-    ani->setStartValue(hi);
-    ani->setEndValue(sh);
+    ani->setStartValue(this->hidePoint);
+    ani->setEndValue(this->showPoint);
     ani->setEasingCurve(QEasingCurve::Type(us->bannerShowEasingCurve));
     ani->setDuration(us->bannerAnimationDuration);
     connect(ani, SIGNAL(finished()), ani, SLOT(deleteLater()));

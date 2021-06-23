@@ -419,9 +419,10 @@ void MainWindow::createNotificationBanner(const MsgBean &msg)
     });
 
     // 先确定位置，因为在下载文件的时候后面可能会进入相同的数据
+    card->setShowPos(startPos, showPos);
     card->move(startPos);
-    card->setMsg(msg); // 这个可能是一个非常耗时的操作
-    card->showFrom(startPos, showPos);
+    card->setMsg(msg); // 这个可能是一个非常耗时的操作，引起坐标的改变
+    card->showFrom();
 }
 
 /**
