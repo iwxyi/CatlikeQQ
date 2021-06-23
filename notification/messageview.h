@@ -7,7 +7,11 @@
 
 #define MESSAGE_LABEL
 
+#ifdef MESSAGE_LABEL
 class MessageView : public QLabel
+#else
+class MessageView : public QTextBrowser
+#endif
 {
     Q_OBJECT
 public:
@@ -25,6 +29,8 @@ signals:
 public slots:
     void replaceGroupAt();
 
+    void showMenu();
+
 protected:
     QSize sizeHint() const override;
 
@@ -32,6 +38,7 @@ private:
     MsgBean msg;
     int fixedWidth = 0;
     QString filePath;
+    QPixmap filePixmap;
 };
 
 #endif // MESSAGEEDIT_H

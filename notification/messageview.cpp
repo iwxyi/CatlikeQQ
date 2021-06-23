@@ -9,6 +9,9 @@
 #include <QTimer>
 #include <QMultimedia>
 #include <QHBoxLayout>
+#include <QClipboard>
+#include <QMimeData>
+#include <QProcess>
 #include "fileutil.h"
 #include "messageview.h"
 #include "defines.h"
@@ -19,27 +22,36 @@
 #include "myjson.h"
 #include "video/videolabel.h"
 #include "video/videowidget.h"
+#include "facilemenu.h"
 
-MessageView::MessageView(QWidget *parent) : QLabel(parent), msg(0, "")
+MessageView::MessageView(QWidget *parent)
+#ifdef MESSAGE_LABEL
+    : QLabel(parent),
+#else
+    : QTextBrowser(parent),
+#endif
+      msg(0, "")
 {
 #ifdef MESSAGE_LABEL
     setWordWrap(true);
     setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
     setTextFormat(Qt::RichText);
-#else
-    setReadOnly(true);
-    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    setWordWrapMode(QTextOption::WrapMode::WrapAnywhere);
-    setStyleSheet("QTextEdit{ background: transparent; border: none; padding: 0px; margin: 0px; }");
-#endif
-    setContentsMargins(0, 0, 0, 0);
+
     connect(this, &QLabel::linkActivated, this, [=](const QString& link) {
         qInfo() << "打开链接：" << link;
         QDesktopServices::openUrl(QUrl(link));
     });
+#else
+    setReadOnly(true);
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setWordWrapMode(QTextOption::WrapMode::WrapAnywhere);
+#endif
+    setContentsMargins(0, 0, 0, 0);
+    // setContextMenuPolicy(Qt::CustomContextMenu);
+    // connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showMenu()));
 
     if (us->showWidgetBorder)
-        setStyleSheet("QLabel { background: transparent; border: 1px solid red; }"); // 测试边框
+        setStyleSheet("QLabel, QTextBrowser { background: transparent; border: 1px solid red; }"); // 测试边框
 }
 
 /// 设置带有表情、图片等多种类型的Message
@@ -360,7 +372,11 @@ void MessageView::replaceGroupAt()
     if (!memberNames)
         return ;
 
+#ifdef MESSAGE_LABEL
     QString text = this->text();
+#else
+    QString text = this->toPlainText();
+#endif
     if (text.isEmpty())
         return ;
 
@@ -385,6 +401,52 @@ void MessageView::replaceGroupAt()
         setText(text);
 }
 
+void MessageView::showMenu()
+{
+    FacileMenu* menu = new FacileMenu(this);
+
+    if (!filePath.isEmpty())
+    {
+        menu->addAction("打开文件夹", [=]{
+            const QString explorer = "explorer";
+            QStringList param;
+            if (!QFileInfo(filePath).isDir())
+                param << QLatin1String("/select,");
+            QProcess::startDetached(explorer, param);
+        });
+
+        menu->addAction("复制文件", [=]{
+            QMimeData* mime = new QMimeData();
+            mime->setText(QFileInfo(filePath).absoluteFilePath());
+            mime->setUrls(QList<QUrl>{QUrl(QFileInfo(filePath).absoluteFilePath())});
+            mime->setData("x-special/gnome-copied-files", QByteArray("copy\n") + QUrl::fromLocalFile(filePath).toEncoded());
+            QApplication::clipboard()->setMimeData(mime);
+        });
+
+        menu->split();
+    }
+
+#ifdef MESSAGE_LABEL
+    menu->addAction("复制", [=]{
+        if (this->hasSelectedText())
+        {
+            QApplication::clipboard()->setText(this->selectedText());
+        }
+        else
+        {
+            QApplication::clipboard()->setText(this->text());
+        }
+    })->text(this->hasSelectedText(), "复制全部");
+
+    menu->addAction("全选", [=]{
+        this->setSelection(0, this->text().length());
+    });
+#else
+#endif
+
+    menu->exec();
+}
+
 QSize MessageView::adjustSizeByTextWidth(int w)
 {
 #ifdef MESSAGE_LABEL
@@ -405,8 +467,13 @@ QSize MessageView::adjustSizeByTextWidth(int w)
 QSize MessageView::sizeHint() const
 {
     if (fixedWidth)
+#ifdef MESSAGE_LABEL
         return QSize(fixedWidth, QLabel::sizeHint().height());
     return QLabel::sizeHint();
+#else
+        return QSize(fixedWidth, QTextBrowser::sizeHint().height());
+    return QTextBrowser::sizeHint();
+#endif
 }
 
 void MessageView::setTextColor(QColor c)
@@ -415,5 +482,6 @@ void MessageView::setTextColor(QColor c)
     pa.setColor(QPalette::Foreground, c);
     pa.setColor(QPalette::Text, c);
     setPalette(pa);
+    setStyleSheet(this->styleSheet() + "QLabel { color: " + QVariant(c).toString() + "; }");
 }
 
