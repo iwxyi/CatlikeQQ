@@ -102,6 +102,7 @@ private:
     void connectUserHeader(QLabel *label);
     int getReadDisplayDuration(QString text) const;
     void createFrostGlass();
+    void suspendHide();
 
 protected:
     void showEvent(QShowEvent *event) override;
@@ -123,7 +124,7 @@ private:
     bool focusing = false;
     bool hidding = false;
     bool fastFocus = false;
-    bool fixing = false;
+    bool fixing = false; // 固定不自动隐藏
     AccountInfo::CardColor cardColor;
     QLabel* frostGlassLabel = nullptr;
     QPixmap frostGlassPixmap;

@@ -792,6 +792,14 @@ MessageView *NotificationCard::newMsgView()
         });
     }
 
+    connect(view, &MessageView::keepShowing, this, [=]{
+        suspendHide();
+    });
+
+    connect(view, &MessageView::restoreTimerIfNecessary, this, [=]{
+        shallToHide();
+    });
+
     return view;
 }
 
@@ -800,6 +808,7 @@ void NotificationCard::connectGroupHeader(QLabel *label)
 {
     label->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(label, &QLabel::customContextMenuRequested, this, [=](const QPoint&){
+        suspendHide();
         FacileMenu* menu = new FacileMenu(this);
 
         menu->addAction("群组信息", [=]{
@@ -811,6 +820,9 @@ void NotificationCard::connectGroupHeader(QLabel *label)
         })->disable();
 
         menu->exec();
+        menu->finished([=]{
+            shallToHide();
+        });
     });
 }
 
@@ -820,6 +832,7 @@ void NotificationCard::connectUserHeader(QLabel* label)
 {
     label->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(label, &QLabel::customContextMenuRequested, this, [=](const QPoint&){
+        suspendHide();
         FacileMenu* menu = new FacileMenu(this);
 
         menu->addAction("查看资料", [=]{
@@ -843,6 +856,9 @@ void NotificationCard::connectUserHeader(QLabel* label)
         })->disable();
 
         menu->exec();
+        menu->finished([=]{
+            shallToHide();
+        });
     });
 }
 
@@ -1168,7 +1184,9 @@ void NotificationCard::triggerAIReply(int retry)
 /// 前面有暂停时钟，但是不一定需要隐藏
 void NotificationCard::shallToHide()
 {
-    if (!displayTimer->isActive() && !bg->isInArea(bg->mapFromGlobal(QCursor::pos())) && !ui->messageEdit->hasFocus())
+    if (!displayTimer->isActive() && !fixing
+            && !bg->isInArea(bg->mapFromGlobal(QCursor::pos()))
+            && !ui->messageEdit->hasFocus())
         displayTimer->start();
 }
 
@@ -1317,6 +1335,11 @@ void NotificationCard::createFrostGlass()
         painter.fillPath(clipPath, Qt::white);
         frostGlassLabel->setMask(mask.mask());
     }
+}
+
+void NotificationCard::suspendHide()
+{
+    displayTimer->stop();
 }
 
 QString NotificationCard::getValiableMessage(QString text)

@@ -64,7 +64,8 @@ void MessageView::setMessage(const MsgBean& msg)
     QRegularExpressionMatch match;
 
     auto grayText = [=](QString text) {
-        return "<font color='gray'>" + text + "</font>";
+        return text;
+        // return "<font color='gray'>" + text + "</font>";
     };
 
     auto linkText = [=](QString text, QString link) {
@@ -404,6 +405,7 @@ void MessageView::replaceGroupAt()
 
 void MessageView::showMenu()
 {
+    emit keepShowing();
     FacileMenu* menu = new FacileMenu(this);
 
     if (!filePixmap.isNull())
@@ -432,12 +434,28 @@ void MessageView::showMenu()
             mime->setData("x-special/gnome-copied-files", QByteArray("copy\n") + QUrl::fromLocalFile(path).toEncoded());
             QApplication::clipboard()->setMimeData(mime);
         });
-
-        menu->split();
     }
 
+    if (!filePath.isNull() || !filePath.isEmpty())
+        menu->split();
+
+    menu->addAction("回复", [=]{
+
+    })->disable();
+
+    menu->addAction("CQ码", [=]{
+        // 必须要有一个拷贝的副本，因为 msg 可能因为通知超时隐藏而删除
+        QString cqCode = msg.message;
+        auto btn = QMessageBox::information(this->parentWidget(), "CQ码", cqCode, "取消", "复制", nullptr, 0);
+        if (btn == 1)
+        {
+            QApplication::clipboard()->setText(cqCode);
+        }
+    });
+
+
 #ifdef MESSAGE_LABEL
-    menu->addAction("复制", [=]{
+    menu->split()->addAction("复制", [=]{
         if (this->hasSelectedText())
         {
             QApplication::clipboard()->setText(this->selectedText());
@@ -455,6 +473,10 @@ void MessageView::showMenu()
 #endif
 
     menu->exec();
+
+    menu->finished([=]{
+        emit restoreTimerIfNecessary();
+    });
 }
 
 QSize MessageView::adjustSizeByTextWidth(int w)

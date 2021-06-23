@@ -25,6 +25,8 @@ public:
 
 signals:
     void needMemberNames();
+    void keepShowing();
+    void restoreTimerIfNecessary();
 
 public slots:
     void replaceGroupAt();
