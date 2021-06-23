@@ -37,6 +37,7 @@ protected:
 private:
     MsgBean msg;
     int fixedWidth = 0;
+
     QString filePath;
     QPixmap filePixmap;
 };

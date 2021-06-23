@@ -196,9 +196,10 @@ void MessageView::setMessage(const MsgBean& msg)
                 delete movie;
             }
 #endif
-            // 缩略图的伸缩、圆角
+            // 静态图片；缩略图的伸缩、圆角
             QString originPath = path;
             QPixmap pixmap(path, "1");
+            this->filePixmap = pixmap;
             maxWidth -= us->bannerBgRadius * 2; // 有个莫名的偏差
             if (pixmap.width() > maxWidth || pixmap.height() > maxHeight)
                 pixmap = pixmap.scaled(maxWidth, maxHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
@@ -404,6 +405,13 @@ void MessageView::replaceGroupAt()
 void MessageView::showMenu()
 {
     FacileMenu* menu = new FacileMenu(this);
+
+    if (!filePixmap.isNull())
+    {
+        menu->addAction("复制图片", [=]{
+            QApplication::clipboard()->setPixmap(filePixmap);
+        });
+    }
 
     if (!filePath.isEmpty())
     {
