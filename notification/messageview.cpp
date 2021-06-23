@@ -47,8 +47,8 @@ MessageView::MessageView(QWidget *parent)
     setWordWrapMode(QTextOption::WrapMode::WrapAnywhere);
 #endif
     setContentsMargins(0, 0, 0, 0);
-    // setContextMenuPolicy(Qt::CustomContextMenu);
-    // connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showMenu()));
+    setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showMenu()));
 
     if (us->showWidgetBorder)
         setStyleSheet("QLabel, QTextBrowser { background: transparent; border: 1px solid red; }"); // 测试边框

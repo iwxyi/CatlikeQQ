@@ -183,10 +183,12 @@ void NotificationCard::setMsg(const MsgBean &msg)
     if (msg.isPrivate())
     {
         setPrivateMsg(msg);
+        connectUserHeader(ui->headerLabel);
     }
     else
     {
         setGroupMsg(msg);
+        connectGroupHeader(ui->headerLabel);
     }
 
     // 设置大小
@@ -569,10 +571,11 @@ void NotificationCard::createMsgBox(const MsgBean &msg, int index)
     mainHlayout->setAlignment(Qt::AlignLeft);
     mainHlayout->setMargin(0);
 
-    spacer->setAttribute(Qt::WA_TransparentForMouseEvents, true);
+    connectUserHeader(headerLabel);
+    /* spacer->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     headerLabel->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     nameLabel->setAttribute(Qt::WA_TransparentForMouseEvents, true);
-    msgView->setAttribute(Qt::WA_TransparentForMouseEvents, false);
+    msgView->setAttribute(Qt::WA_TransparentForMouseEvents, false); */
     spacer->setFixedWidth(1);
     headerLabel->setFixedSize(ui->headerLabel->size());
     nameLabel->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
@@ -790,6 +793,57 @@ MessageView *NotificationCard::newMsgView()
     }
 
     return view;
+}
+
+/// 连接群组头像事件
+void NotificationCard::connectGroupHeader(QLabel *label)
+{
+    label->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(label, &QLabel::customContextMenuRequested, this, [=](const QPoint&){
+        FacileMenu* menu = new FacileMenu(this);
+
+        menu->addAction("群组信息", [=]{
+
+        })->disable();
+
+        menu->addAction("群成员", [=]{
+
+        })->disable();
+
+        menu->exec();
+    });
+}
+
+/// 连接用户头像事件
+/// 要区分私聊的主图像、群聊的次头像
+void NotificationCard::connectUserHeader(QLabel* label)
+{
+    label->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(label, &QLabel::customContextMenuRequested, this, [=](const QPoint&){
+        FacileMenu* menu = new FacileMenu(this);
+
+        menu->addAction("查看资料", [=]{
+
+        })->disable();
+
+        menu->split()->addAction("发送消息", [=]{
+
+        })->disable();
+
+        menu->addAction("@ TA", [=]{
+
+        })->disable();
+
+        menu->split()->addAction("特别关注", [=]{
+
+        })->disable();
+
+        menu->addAction("屏蔽此人", [=]{
+            // 本地屏蔽
+        })->disable();
+
+        menu->exec();
+    });
 }
 
 bool NotificationCard::isPrivate() const
