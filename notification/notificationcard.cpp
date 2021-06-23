@@ -29,7 +29,7 @@ NotificationCard::NotificationCard(QWidget *parent) :
     displayTimer->setInterval(us->bannerDisplayDuration);
     connect(displayTimer, SIGNAL(timeout()), this, SLOT(displayTimeout()));
 
-    ui->headerLabel->setAttribute(Qt::WA_TransparentForMouseEvents, true);
+    ui->headerLabel->setAttribute(Qt::WA_TransparentForMouseEvents, false);
     ui->nicknameLabel->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     ui->listWidget->setAttribute(Qt::WA_TranslucentBackground, true);
     ui->replyButton->setRadius(us->bannerBgRadius);

@@ -407,19 +407,21 @@ void MessageView::showMenu()
 
     if (!filePath.isEmpty())
     {
+        QString path = filePath;
+        path.replace("/", "\\");
         menu->addAction("打开文件夹", [=]{
             const QString explorer = "explorer";
             QStringList param;
-            if (!QFileInfo(filePath).isDir())
-                param << QLatin1String("/select,");
+            param << QLatin1String("/select,");
+            param << path;
             QProcess::startDetached(explorer, param);
         });
 
         menu->addAction("复制文件", [=]{
             QMimeData* mime = new QMimeData();
-            mime->setText(QFileInfo(filePath).absoluteFilePath());
-            mime->setUrls(QList<QUrl>{QUrl(QFileInfo(filePath).absoluteFilePath())});
-            mime->setData("x-special/gnome-copied-files", QByteArray("copy\n") + QUrl::fromLocalFile(filePath).toEncoded());
+            mime->setText(QFileInfo(path).absoluteFilePath());
+            mime->setUrls(QList<QUrl>{QUrl::fromLocalFile(path)});
+            mime->setData("x-special/gnome-copied-files", QByteArray("copy\n") + QUrl::fromLocalFile(path).toEncoded());
             QApplication::clipboard()->setMimeData(mime);
         });
 
@@ -436,7 +438,7 @@ void MessageView::showMenu()
         {
             QApplication::clipboard()->setText(this->text());
         }
-    })->text(this->hasSelectedText(), "复制全部");
+    })->text(!this->hasSelectedText(), "复制全部");
 
     menu->addAction("全选", [=]{
         this->setSelection(0, this->text().length());
