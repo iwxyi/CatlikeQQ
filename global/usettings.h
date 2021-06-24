@@ -101,6 +101,18 @@ public:
     int userDefaultImportance = Important; // 未设置用户的默认重要性
     int groupDefaultImportance = NormalImportant; // 未设置群组的默认重要性
 
+    // 文件管理
+    bool autoCacheImage = true; // 显示图片，还是只显示[图片]
+    bool autoCachePrivateVideo = true; // 自动缓存用户私聊的视频
+    bool autoCacheSmallVideo = true; // 自动缓存所有视频
+    bool autoCachePrivateFile = true; // 自动缓存用户私聊的视频
+    bool autoCachePrivateFileType = true; // 仅自动缓存指定格式的文件
+    QStringList autoCachePrivateFileTypes; // 自动缓存用户私聊的文件类型（后缀名）
+    int autoCacheFileMaxSize = 10; // 自动缓存的文件上限，单位MB
+
+    // 远程控制
+    QString remoteControlPrefix;
+
     // 离开模式
     bool leaveMode = false; // 离开模式（开启回复）
     bool aiReplyPrivate = false; // 自动回复私聊
@@ -110,14 +122,8 @@ public:
     QString aiReplyDefault = "[自动回复] 您好，我现在有事不在，一会儿也不和您联系~"; // 自动回复默认内容（需包含前缀后缀）
     int aiReplyInterval = 3000; // 自动回复的最短间隔
 
-    // 文件管理
-    bool autoCacheImage = true; // 显示图片，还是只显示[图片]
-    bool autoCachePrivateVideo = true; // 自动缓存用户私聊的视频
-    bool autoCacheSmallVideo = true; // 自动缓存所有视频
-    bool autoCachePrivateFile = true; // 自动缓存用户私聊的视频
-    bool autoCachePrivateFileType = true; // 仅自动缓存指定格式的文件
-    QStringList autoCachePrivateFileTypes; // 自动缓存用户私聊的文件类型（后缀名）
-    int autoCacheFileMaxSize = 10; // 自动缓存的文件上限，单位MB
+    // 程序
+    bool startOnPowerOn = false; // 开机自启
 
     // 调试
     bool showWidgetBorder = false; // 显示控件边界，调试布局

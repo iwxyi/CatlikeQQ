@@ -19,6 +19,7 @@
 #include "widgets/settings/leavemodewidget.h"
 #include "widgets/settings/remotecontrolwidget.h"
 #include "widgets/settings/filewidget.h"
+#include "widgets/settings/applicationwidget.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -62,14 +63,14 @@ void MainWindow::initView()
     // 添加各种Tab页
     ui->settingsTabWidget->clear();
     ui->settingsTabWidget->addTab(new AccountWidget(cqhttpService, this), QIcon("://icons/account.png"), "账号绑定");
-    ui->settingsTabWidget->addTab(new GroupWidget(this), QIcon("://icons/group.png"), "群组消息");
-    ui->settingsTabWidget->addTab(new BannerWidget(this), QIcon("://icons/banner.png"), "横幅通知");
-    ui->settingsTabWidget->addTab(new ReplyWidget(this), QIcon("://icons/reply.png"), "通知回复");
+    ui->settingsTabWidget->addTab(new GroupWidget(this), QIcon("://icons/group.png"), "通知过滤");
+    ui->settingsTabWidget->addTab(new BannerWidget(this), QIcon("://icons/banner.png"), "横幅弹窗");
+    ui->settingsTabWidget->addTab(new ReplyWidget(this), QIcon("://icons/reply.png"), "消息回复");
     ui->settingsTabWidget->addTab(new FileWidget(this), QIcon("://icons/file.png"), "文件管理");
     ui->settingsTabWidget->addTab(new QWidget(this), QIcon("://icons/care.png"), "特别关心");
     ui->settingsTabWidget->addTab(new QWidget(this), QIcon("://icons/bubble.png"), "气泡样式");
     ui->settingsTabWidget->addTab(new QWidget(this), QIcon("://icons/animation.png"), "动画调整");
-    ui->settingsTabWidget->addTab(new QWidget(this), QIcon("://icons/startup.png"), "程序启动");
+    ui->settingsTabWidget->addTab(new ApplicationWidget(this), QIcon("://icons/startup.png"), "程序启动");
 
     ui->auxiliaryTabWidget->clear();
     ui->auxiliaryTabWidget->addTab(new LeaveModeWidget(this), QIcon("://icons/ai.png"), "离开模式");

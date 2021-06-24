@@ -9,6 +9,7 @@
 #ifdef Q_OS_WIN
 #include <windows.h>
 #endif
+#include "usettings.h"
 
 RemoteControlServie::RemoteControlServie(QObject *parent) : QObject(parent)
 {
@@ -17,6 +18,8 @@ RemoteControlServie::RemoteControlServie(QObject *parent) : QObject(parent)
 
 void RemoteControlServie::execCmd(QString cmd)
 {
+
+
     QRegularExpressionMatch match;
     if (cmd.endsWith(".bat"))
         cmd = cmd.left(cmd.length() - 4);

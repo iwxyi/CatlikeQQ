@@ -50,15 +50,6 @@ void USettings::restoreSettings()
     assign(groupImportance, "groupImportance");
     assign(lowestImportance, "lowestImportance");
     endGroup();
-
-    beginGroup("leave");
-    assign(leaveMode, "leaveMode");
-    assign(aiReplyPrivate, "aiReplyPrivate");
-    assign(aiReplyPrefix, "aiReplyPrefix");
-    assign(aiReplySuffix, "aiReplySuffix");
-    assign(aiReplyDefault, "aiReplyDefault");
-    assign(aiReplyInterval, "aiReplyInterval");
-    assign(aiReplyUsers, "aiReplyUsers");
     endGroup();
 
     beginGroup("autoCache");
@@ -71,6 +62,23 @@ void USettings::restoreSettings()
     autoCachePrivateFileTypes = s("privateFileTypes",
                                   "doc docx ppt pptx xls xlsx pdf")
             .split(" ", QString::SkipEmptyParts);
+    endGroup();
+
+    beginGroup("remoteControl");
+    assign(remoteControlPrefix, "prefix");
+    endGroup();
+
+    beginGroup("leave");
+    assign(leaveMode, "leaveMode");
+    assign(aiReplyPrivate, "aiReplyPrivate");
+    assign(aiReplyPrefix, "aiReplyPrefix");
+    assign(aiReplySuffix, "aiReplySuffix");
+    assign(aiReplyDefault, "aiReplyDefault");
+    assign(aiReplyInterval, "aiReplyInterval");
+    assign(aiReplyUsers, "aiReplyUsers");
+
+    beginGroup("app");
+    assign(startOnPowerOn, "startOnPowerOn");
     endGroup();
 
     beginGroup("debug");

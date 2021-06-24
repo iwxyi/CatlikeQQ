@@ -95,6 +95,13 @@
       <number>0</number>
      </property>
      <item>
+      <widget class="QCheckBox" name="showWidgetBorderCheck">
+       <property name="text">
+        <string>显示控件边界</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -111,20 +118,6 @@
       <widget class="InteractiveButtonBase" name="sendButton">
        <property name="text">
         <string>发送</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
-     <property name="topMargin">
-      <number>0</number>
-     </property>
-     <item>
-      <widget class="QCheckBox" name="showWidgetBorderCheck">
-       <property name="text">
-        <string>显示控件边界</string>
        </property>
       </widget>
      </item>

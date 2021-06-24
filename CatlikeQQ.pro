@@ -56,6 +56,7 @@ SOURCES += \
     third_party/utils/textinputdialog.cpp \
     widgets/settings/aboutwidget.cpp \
     widgets/settings/accountwidget.cpp \
+    widgets/settings/applicationwidget.cpp \
     widgets/settings/bannerwidget.cpp \
     widgets/settings/debugwidget.cpp \
     widgets/settings/filewidget.cpp \
@@ -103,6 +104,7 @@ HEADERS += \
     widgets/lefttabwidget.h \
     widgets/settings/aboutwidget.h \
     widgets/settings/accountwidget.h \
+    widgets/settings/applicationwidget.h \
     widgets/settings/bannerwidget.h \
     widgets/settings/debugwidget.h \
     widgets/settings/filewidget.h \
@@ -121,6 +123,7 @@ FORMS += \
     third_party/utils/textinputdialog.ui \
     widgets/settings/aboutwidget.ui \
     widgets/settings/accountwidget.ui \
+    widgets/settings/applicationwidget.ui \
     widgets/settings/bannerwidget.ui \
     widgets/settings/debugwidget.ui \
     widgets/settings/filewidget.ui \

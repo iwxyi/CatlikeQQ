@@ -68,6 +68,15 @@
       <string>前缀</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
+      <property name="leftMargin">
+       <number>6</number>
+      </property>
+      <property name="rightMargin">
+       <number>6</number>
+      </property>
+      <property name="bottomMargin">
+       <number>6</number>
+      </property>
       <item>
        <widget class="QPlainTextEdit" name="aiReplyPrefixEdit">
         <property name="minimumSize">
@@ -75,6 +84,13 @@
           <width>0</width>
           <height>24</height>
          </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPlainTextEdit
+{
+	background: transparent;
+	border: none;
+}</string>
         </property>
         <property name="placeholderText">
          <string>自动回复的前缀</string>
@@ -90,6 +106,15 @@
       <string>后缀</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
+      <property name="leftMargin">
+       <number>6</number>
+      </property>
+      <property name="rightMargin">
+       <number>6</number>
+      </property>
+      <property name="bottomMargin">
+       <number>6</number>
+      </property>
       <item>
        <widget class="QPlainTextEdit" name="aiReplySuffixEdit">
         <property name="minimumSize">
@@ -97,6 +122,16 @@
           <width>0</width>
           <height>24</height>
          </size>
+        </property>
+        <property name="toolTip">
+         <string/>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPlainTextEdit
+{
+    background: transparent;
+    border: none;
+}</string>
         </property>
         <property name="placeholderText">
          <string>自动回复的小尾巴</string>
@@ -112,6 +147,15 @@
       <string>默认（没找到回复的情况下）</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_5">
+      <property name="leftMargin">
+       <number>6</number>
+      </property>
+      <property name="rightMargin">
+       <number>6</number>
+      </property>
+      <property name="bottomMargin">
+       <number>6</number>
+      </property>
       <item>
        <widget class="QPlainTextEdit" name="aiReplyDefaultEdit">
         <property name="minimumSize">
@@ -119,6 +163,13 @@
           <width>0</width>
           <height>24</height>
          </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPlainTextEdit
+{
+    background: transparent;
+    border: none;
+}</string>
         </property>
         <property name="placeholderText">
          <string>没有AI回复的情况下回复的固定内容，不带前后缀</string>
