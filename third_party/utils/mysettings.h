@@ -120,6 +120,11 @@ public:
             val.append(s.toLongLong());
     }
 
+    void assign(QStringList& val, QString key)
+    {
+        val = value(key, val).toStringList();
+    }
+
     void assign(QHash<qint64, int>& val, QString key)
     {
         QStringList sl = value(key).toStringList();

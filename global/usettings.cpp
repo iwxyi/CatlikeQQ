@@ -50,7 +50,6 @@ void USettings::restoreSettings()
     assign(groupImportance, "groupImportance");
     assign(lowestImportance, "lowestImportance");
     endGroup();
-    endGroup();
 
     beginGroup("autoCache");
     assign(autoCacheImage, "image");
@@ -76,6 +75,7 @@ void USettings::restoreSettings()
     assign(aiReplyDefault, "aiReplyDefault");
     assign(aiReplyInterval, "aiReplyInterval");
     assign(aiReplyUsers, "aiReplyUsers");
+    endGroup();
 
     beginGroup("app");
     assign(startOnPowerOn, "startOnPowerOn");

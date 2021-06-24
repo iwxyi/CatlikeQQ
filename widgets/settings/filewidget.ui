@@ -14,6 +14,9 @@
    <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>12</number>
+   </property>
    <property name="leftMargin">
     <number>9</number>
    </property>
@@ -32,6 +35,21 @@
       <string>自动缓存媒体</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
+      <property name="spacing">
+       <number>9</number>
+      </property>
+      <property name="leftMargin">
+       <number>12</number>
+      </property>
+      <property name="topMargin">
+       <number>12</number>
+      </property>
+      <property name="rightMargin">
+       <number>12</number>
+      </property>
+      <property name="bottomMargin">
+       <number>12</number>
+      </property>
       <item>
        <widget class="QCheckBox" name="autoCacheImageCheck">
         <property name="enabled">
@@ -83,6 +101,9 @@
       <string>自动下载文件</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
+      <property name="spacing">
+       <number>9</number>
+      </property>
       <item>
        <widget class="QCheckBox" name="autoCachePrivateFileCheck">
         <property name="text">
@@ -106,7 +127,7 @@
       <item>
        <widget class="QLineEdit" name="autoCachePrivateFileTypesEdit">
         <property name="toolTip">
-         <string>需要自动缓存的文件后缀名
+         <string>允许自动缓存的文件后缀名
 多个后缀名之间使用空格隔开</string>
         </property>
         <property name="styleSheet">

@@ -9,6 +9,7 @@ DebugWidget::DebugWidget(CqhttpService *service, QWidget *parent) :
     ui->setupUi(this);
 
     ui->showWidgetBorderCheck->setChecked(us->showWidgetBorder);
+    ui->sendButton->setBorderColor(Qt::gray);
 }
 
 DebugWidget::~DebugWidget()

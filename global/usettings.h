@@ -111,7 +111,7 @@ public:
     int autoCacheFileMaxSize = 10; // 自动缓存的文件上限，单位MB
 
     // 远程控制
-    QString remoteControlPrefix;
+    QStringList remoteControlPrefix;
 
     // 离开模式
     bool leaveMode = false; // 离开模式（开启回复）

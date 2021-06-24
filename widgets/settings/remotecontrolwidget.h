@@ -15,6 +15,9 @@ public:
     explicit RemoteControlWidget(QWidget *parent = nullptr);
     ~RemoteControlWidget();
 
+private slots:
+    void on_prefixEdit_editingFinished();
+
 private:
     Ui::RemoteControlWidget *ui;
 };

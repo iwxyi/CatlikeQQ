@@ -32,6 +32,9 @@
       <string>介绍</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
+      <property name="spacing">
+       <number>12</number>
+      </property>
       <item>
        <widget class="QLabel" name="label">
         <property name="text">

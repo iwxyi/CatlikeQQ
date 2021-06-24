@@ -18,7 +18,20 @@ RemoteControlServie::RemoteControlServie(QObject *parent) : QObject(parent)
 
 void RemoteControlServie::execCmd(QString cmd)
 {
-
+    if (us->remoteControlPrefix.size())
+    {
+        bool find = false;
+        foreach (auto prefix, us->remoteControlPrefix)
+        {
+            if (!cmd.startsWith(prefix))
+                return ;
+            cmd.remove(0, prefix.length());
+            find = true;
+            break;
+        }
+        if (!find)
+            return ;
+    }
 
     QRegularExpressionMatch match;
     if (cmd.endsWith(".bat"))

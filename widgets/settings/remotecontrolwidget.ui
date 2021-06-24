@@ -14,11 +14,14 @@
    <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="leftMargin">
+   <property name="spacing">
     <number>12</number>
    </property>
+   <property name="leftMargin">
+    <number>18</number>
+   </property>
    <property name="rightMargin">
-    <number>12</number>
+    <number>18</number>
    </property>
    <item>
     <widget class="QLabel" name="label">
@@ -26,6 +29,31 @@
       <string>发消息给自己，即可执行“control”文件夹下的同名bat/vbs脚本</string>
      </property>
     </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="prefixLabel">
+       <property name="text">
+        <string>触发前缀</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="prefixEdit">
+       <property name="toolTip">
+        <string>当有多个设备时，可通过前缀来识别不同的设备
+或者进行组合，一口气控制多台设备</string>
+       </property>
+       <property name="placeholderText">
+        <string>多个前缀用空格分隔</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
     <spacer name="verticalSpacer">
