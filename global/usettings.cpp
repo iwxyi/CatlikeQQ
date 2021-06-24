@@ -64,7 +64,7 @@ void USettings::restoreSettings()
     endGroup();
 
     beginGroup("remoteControl");
-    assign(remoteControlPrefix, "prefix");
+    assign(remoteControlPrefixs, "prefixs");
     endGroup();
 
     beginGroup("leave");

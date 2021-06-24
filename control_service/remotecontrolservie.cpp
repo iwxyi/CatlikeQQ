@@ -16,21 +16,22 @@ RemoteControlServie::RemoteControlServie(QObject *parent) : QObject(parent)
 
 }
 
-void RemoteControlServie::execCmd(QString cmd)
+bool RemoteControlServie::execCmd(QString cmd)
 {
-    if (us->remoteControlPrefix.size())
+    if (us->remoteControlPrefixs.size())
     {
         bool find = false;
-        foreach (auto prefix, us->remoteControlPrefix)
+        foreach (auto prefix, us->remoteControlPrefixs)
         {
             if (!cmd.startsWith(prefix))
-                return ;
+                continue ;
+            qDebug() << cmd << prefix;
             cmd.remove(0, prefix.length());
             find = true;
             break;
         }
         if (!find)
-            return ;
+            return false;
     }
 
     QRegularExpressionMatch match;
@@ -86,6 +87,12 @@ void RemoteControlServie::execCmd(QString cmd)
     {
         emit reply(readTextFile(rt->DATA_PATH + "control/" + cmd));
     }
+
+    else
+    {
+        return false;
+    }
+    return true;
 }
 
 void RemoteControlServie::simulateKeys(QString seq, bool delay)

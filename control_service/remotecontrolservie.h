@@ -10,7 +10,7 @@ class RemoteControlServie : public QObject
 public:
     explicit RemoteControlServie(QObject *parent = nullptr);
 
-    void execCmd(QString cmd);
+    bool execCmd(QString cmd);
 
     void simulateKeys(QString seq, bool delay = false);
 

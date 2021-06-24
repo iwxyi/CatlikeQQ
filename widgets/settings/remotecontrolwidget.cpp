@@ -8,7 +8,7 @@ RemoteControlWidget::RemoteControlWidget(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->prefixEdit->setText(us->remoteControlPrefix.join(" "));
+    ui->prefixEdit->setText(us->remoteControlPrefixs.join(" "));
 }
 
 RemoteControlWidget::~RemoteControlWidget()
@@ -18,5 +18,5 @@ RemoteControlWidget::~RemoteControlWidget()
 
 void RemoteControlWidget::on_prefixEdit_editingFinished()
 {
-    us->set("remoteControl/prefix", us->remoteControlPrefix = ui->prefixEdit->text().split(" ", QString::SkipEmptyParts));
+    us->set("remoteControl/prefixs", us->remoteControlPrefixs = ui->prefixEdit->text().split(" ", QString::SkipEmptyParts));
 }
