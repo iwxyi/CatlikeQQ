@@ -264,13 +264,34 @@ void MainWindow::initKey()
     });
 }
 
+void MainWindow::showEvent(QShowEvent *e)
+{
+    QMainWindow::showEvent(e);
+
+    us->set("mainwindow/hide", false);
+
+    static bool first = true;
+    if (first)
+    {
+        first = false;
+        restoreGeometry(us->value("mainwindow/geometry").toByteArray());
+        restoreState(us->value("mainwindow/state").toByteArray());
+    }
+}
+
 void MainWindow::closeEvent(QCloseEvent *e)
 {
     us->setValue("mainwindow/geometry", this->saveGeometry());
+    us->setValue("mainwindow/state", this->saveState());
 
 #if defined(ENABLE_TRAY)
     e->ignore();
     this->hide();
+
+    // 因为关闭程序也会触发这个，所以需要定时一下
+    QTimer::singleShot(5000, [=]{
+        us->set("mainwindow/hide", true);
+    });
 
     QTimer::singleShot(5000, [=]{
         if (!this->isHidden())

@@ -50,6 +50,7 @@ public slots:
     void triggerAiReply(const MsgBean& msg, int retry = 0);
 
 protected:
+    void showEvent(QShowEvent* e) override;
     void closeEvent(QCloseEvent* e) override;
     void resizeEvent(QResizeEvent* e) override;
 
