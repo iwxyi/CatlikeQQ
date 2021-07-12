@@ -267,9 +267,10 @@ void CqhttpService::parsePrivateMessage(const MyJson &json)
 
     qInfo() << "收到私聊消息：" << user_id << "->" << target_id << nickname << message << message_id;
 
+    qint64 friendId = target_id == ac->myId ? user_id : target_id;
     MsgBean msg = MsgBean(user_id, nickname, message, message_id, sub_type)
             .frind(ac->friendNames.value(user_id, ""))
-            .privt(target_id);
+            .privt(target_id, friendId);
     emit signalMessage(msg);
 
     qint64 oppo_id = user_id == ac->myId ? target_id : user_id;

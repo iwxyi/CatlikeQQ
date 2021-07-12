@@ -15,7 +15,7 @@ struct MsgBean
     QString remark; // 自己对TA的备注
 
     qint64 targetId = 0; // 准备发给谁，给对方还是给自己
-
+    qint64 friendId = 0; // 如果是私聊消息，就是另一边的
     qint64 groupId = 0;
     QString groupName;
     QString groupCard; // 群昵称
@@ -26,7 +26,6 @@ struct MsgBean
     QString fileUrl; // 下载地址
 
     QString display; // 显示的纯文本
-
     QString imageId; // 显示唯一图片（不一定有）
     QColor bgColor; // 显示的背景（不一定有，除非开启动态背景）
     qint64 timestamp = 0; // 创建时间（毫秒级）
@@ -47,12 +46,13 @@ struct MsgBean
         timestamp = QDateTime::currentMSecsSinceEpoch();
     }
 
-    MsgBean& privt(qint64 targetId)
+    MsgBean& privt(qint64 targetId, qint64 friendId)
     {
         if (targetId == 0)
             this->targetId = senderId;
         else
             this->targetId = targetId;
+        this->friendId = friendId;
         return *this;
     }
 

@@ -173,10 +173,8 @@ NotificationCard::~NotificationCard()
 
 void NotificationCard::setMsg(const MsgBean &msg)
 {
-    this->userId = msg.senderId;
+    this->userId = msg.friendId;
     this->groupId = msg.groupId;
-    if (!this->groupId && msg.senderId == ac->myId) // 最后一条是自己私发给别人的
-        this->userId = msg.targetId;
     msgs.append(msg);
     int h = height();
 

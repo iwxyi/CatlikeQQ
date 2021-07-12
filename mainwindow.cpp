@@ -342,7 +342,7 @@ void MainWindow::showMessage(const MsgBean &msg, bool blockSelf)
     if (msg.isPrivate())
     {
         ac->lastReceiveShowIsUser = true;
-        ac->lastReceiveShowId = msg.senderId == ac->myId ? msg.targetId : msg.senderId;
+        ac->lastReceiveShowId = msg.friendId;
     }
     else if (msg.isGroup())
     {
