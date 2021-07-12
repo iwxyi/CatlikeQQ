@@ -211,16 +211,29 @@ void MainWindow::showHistoryListMenu()
 
         sz += vlayout->spacing() + hlayout->margin() * 2;
         w->setFixedSize(us->bannerFixedWidth, sz);
+        w->setDoubleClicked(true);
         connect(w, &InteractiveButtonBase::clicked, this, [=]{
             // 根据聊天信息，重新打开对应的对话框
-            focusOrShowMessageCard(msg);
+            focusOrShowMessageCard(msg, false);
         });
+        connect(w, &InteractiveButtonBase::doubleClicked, this, [=]{
+            // 因为要聚焦，所有这个popup的菜单必须要关闭
+            menu->close();
+            // 根据聊天信息，重新打开对应的对话框
+            focusOrShowMessageCard(msg, true);
+        });
+        if (cc.isValid())
+        {
+            w->setBgColor(cc.bg);
+            titleLabel->setStyleSheet("color:" + QVariant(cc.fg).toString());
+            messageLabel->setStyleSheet("color:" + QVariant(cc.fg).toString());
+        }
         menu->addWidget(w);
 
-        // 使用默认的菜单机制
+        // 使用默认的菜单机制（太朴素了）
         /* auto action = menu->addAction(pixmap.isNull() ? QIcon("://icons/hideView") : QIcon(pixmap), name, [=]{
             // 根据聊天信息，重新打开对应的对话框
-            focusOrShowMessageCard(msg);
+            focusOrShowMessageCard(msg, true);
         });
         if (cc.isValid())
         {
@@ -580,19 +593,20 @@ NotificationCard* MainWindow::createNotificationCard(const MsgBean &msg)
     return card;
 }
 
-void MainWindow::focusOrShowMessageCard(const MsgBean &msg)
+void MainWindow::focusOrShowMessageCard(const MsgBean &msg, bool focusEdit)
 {
     foreach (auto card, notificationCards)
     {
         if (card->is(msg))
         {
-            card->showReplyEdit(true);
+            if (focusEdit)
+                card->showReplyEdit(true);
             return ;
         }
     }
 
     auto card = createNotificationCard(msg);
-    if (card)
+    if (card && focusEdit)
     {
         card->showReplyEdit();
     }

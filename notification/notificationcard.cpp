@@ -345,7 +345,10 @@ void NotificationCard::setPrivateMsg(const MsgBean &msg)
         if (ac->userHeaderColor.contains(this->friendId))
             cardColor = ac->userHeaderColor.value(this->friendId);
         else
+        {
             ImageUtil::getBgFgColor(ImageUtil::extractImageThemeColors(headerPixmap.toImage(), 8), &cardColor.bg, &cardColor.fg);
+            ac->userHeaderColor[this->friendId] = cardColor;
+        }
     }
     setColors(cardColor.bg, cardColor.fg, cardColor.fg);
 
@@ -408,7 +411,10 @@ void NotificationCard::setGroupMsg(const MsgBean &msg)
         if (ac->groupHeaderColor.contains(msg.groupId))
             cardColor = ac->groupHeaderColor.value(msg.groupId);
         else
+        {
             ImageUtil::getBgFgColor(ImageUtil::extractImageThemeColors(headerPixmap.toImage(), 8), &cardColor.bg, &cardColor.fg);
+            ac->groupHeaderColor[msg.groupId] = cardColor;
+        }
     }
     setColors(cardColor.bg, cardColor.fg,cardColor.fg);
 

@@ -44,7 +44,7 @@ public slots:
     void messageReceived(const MsgBean& msg, bool blockSelf = true);
     NotificationCard *showMessageCard(const MsgBean& msg, bool blockSelf = false);
     NotificationCard *createNotificationCard(const MsgBean& msg);
-    void focusOrShowMessageCard(const MsgBean& msg);
+    void focusOrShowMessageCard(const MsgBean& msg, bool focusEdit);
     void adjustUnderCardsTop(int aboveIndex, int deltaHeight);
     void focusCardReply();
     void closeAllCard();
