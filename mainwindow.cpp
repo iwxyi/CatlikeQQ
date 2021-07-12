@@ -7,6 +7,7 @@
 #include "fileutil.h"
 #include "imageutil.h"
 #include "netutil.h"
+#include "netimageutil.h"
 #include "signaltransfer.h"
 #include "windows.h"
 #include "widgets/customtabstyle.h"
@@ -134,6 +135,64 @@ void MainWindow::startMessageLoop()
     }
 }
 
+void MainWindow::showListPanel()
+{
+    // 显示最多十个好友/群组
+    qint64 time = QDateTime::currentMSecsSinceEpoch() - 60 * 60 * 1000; // 只显示最近一小时的
+    QList<QList<MsgBean>> msgss = ac->userMsgHistory.values() + ac->groupMsgHistory.values();
+    QList<MsgBean> msgs;
+    for (int i = 0; i < msgss.size(); i++)
+    {
+        if (msgss.at(i).count() == 0 || msgss.at(i).last().timestamp < time)
+            msgss.removeAt(i--);
+        else
+            msgs.append(msgss.at(i).last());
+    }
+
+    std::sort(msgs.begin(), msgs.end(), [=](MsgBean a, MsgBean b) {
+        return a.timestamp > b.timestamp;
+    });
+
+    // 如果没有消息，就不做操作了吧
+    if (!msgs.size())
+        return ;
+
+    newFacileMenu;
+    int index = msgs.size() - 1;
+    if (index > 10)
+        index = 10;
+    for (int i = index; i >= 0; i--)
+    {
+        MsgBean msg = msgs.at(i);
+        QString name;
+        QPixmap pixmap;
+        if (msg.isPrivate())
+        {
+            name = ac->friendName(msg.friendId);
+            if (isFileExist(rt->userHeader(msg.senderId)))
+                pixmap = NetImageUtil::toRoundedPixmap(QPixmap(rt->userHeader(msg.senderId)));
+        }
+        else if (msg.isGroup())
+        {
+            name = ac->groupName(msg.groupId);
+            if (isFileExist(rt->groupHeader(msg.groupId)))
+                pixmap = QPixmap(rt->groupHeader(msg.groupId));
+        }
+
+        menu->addAction(pixmap.isNull() ? QIcon("://icons/hideView") : QIcon(pixmap), name, [=]{
+            openChatCard(msg);
+        });
+    }
+
+    menu->exec();
+}
+
+/// 根据聊天信息，重新打开对应的对话框
+void MainWindow::openChatCard(const MsgBean &msg)
+{
+
+}
+
 QRect MainWindow::screenGeometry() const
 {
     auto screens = QGuiApplication::screens();
@@ -160,15 +219,18 @@ void MainWindow::trayAction(QSystemTrayIcon::ActivationReason reason)
     switch(reason)
     {
     case QSystemTrayIcon::Trigger:
+        showListPanel();
+        break;
+    case QSystemTrayIcon::MiddleClick:
         if (!this->isHidden())
+        {
             this->hide();
+        }
         else
         {
             this->showNormal();
             this->activateWindow();
         }
-        break;
-    case QSystemTrayIcon::MiddleClick:
         break;
     case QSystemTrayIcon::Context:
     {

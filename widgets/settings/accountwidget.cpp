@@ -6,6 +6,7 @@
 #include "signaltransfer.h"
 #include "usettings.h"
 #include "netutil.h"
+#include "netimageutil.h"
 #include "accountinfo.h"
 
 AccountWidget::AccountWidget(CqhttpService *service, QWidget *parent) :
@@ -78,7 +79,7 @@ void AccountWidget::updateHeader(qint64 id)
     QByteArray ba = NetUtil::getWebFile(url);
     QPixmap pixmap;
     pixmap.loadFromData(ba);
-
+    pixmap = NetImageUtil::toRoundedPixmap(pixmap);
     ui->headerLabel->setPixmap(pixmap);
     emit sig->myHeader(pixmap);
 }

@@ -39,6 +39,11 @@ public:
         return friendList.contains(userId) ? friendList[userId].username() : "";
     }
 
+    QString groupName(qint64 groupId) const
+    {
+        return groupList.value(groupId).name;
+    }
+
     QString groupMemberName(qint64 groupId, qint64 userId)
     {
         if (!groupList.contains(groupId))

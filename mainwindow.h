@@ -36,6 +36,8 @@ private:
     void initKey();
 
     void startMessageLoop();
+    void showListPanel();
+    void openChatCard(const MsgBean& msg);
 
     QRect screenGeometry() const;
 
