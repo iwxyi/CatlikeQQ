@@ -177,14 +177,14 @@ void MainWindow::trayAction(QSystemTrayIcon::ActivationReason reason)
         menu->addAction(QIcon("://icons/leaveMode.png"), "临时离开", [=] {
             // 这里的离开模式不会保存，重启后还是以设置中为准
             us->leaveMode = !us->leaveMode;
-        })->check(us->leaveMode);
+        })->check(us->leaveMode)->tooltip("开启离开模式；重启后将恢复原来状态");
 
         menu->addAction(QIcon("://icons/silent.png"), "临时静默", [=] {
             // 这里的静默模式不会保存，重启后还是以设置中为准
             rt->notificationSlient = !rt->notificationSlient;
             if (rt->notificationSlient)
                 closeAllCard();
-        })->check(rt->notificationSlient);
+        })->check(rt->notificationSlient)->tooltip("临时屏蔽所有消息；重启后将恢复原来状态");
 
         auto importanceMenu = menu->split()->addMenu(QIcon("://icons/importance.png"), "过滤重要性");
         auto setImportance = [=](int im) {
@@ -207,7 +207,12 @@ void MainWindow::trayAction(QSystemTrayIcon::ActivationReason reason)
             setImportance(Unimportant);
         })->check(us->lowestImportance == Unimportant);
 
-        menu->split()->addAction(QIcon("://icons/quit.png"), "退出", [=] {
+        menu->split()->addAction(QIcon("://icons/settings.png"), "设置", [=]{
+            this->show();
+            this->activateWindow();
+        });
+
+        menu->addAction(QIcon("://icons/quit.png"), "退出", [=]{
             qApp->quit();
         });
 
@@ -231,7 +236,6 @@ void MainWindow::initService()
     connect(sig, &SignalTransfer::loadGroupMembers, cqhttpService, &CqhttpService::refreshGroupMembers);
 
     connect(sig, &SignalTransfer::myHeader, this, [=](const QPixmap& pixmap) {
-        setWindowIcon(pixmap);
         tray->setIcon(pixmap);
     });
 
