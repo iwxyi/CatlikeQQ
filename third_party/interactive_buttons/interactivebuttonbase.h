@@ -242,6 +242,9 @@ public:
     void setFixedTextPos(bool f = true);
 #endif
 
+    virtual bool inArea(QPoint point);
+    virtual bool inArea(QPointF point);
+
 protected:
     void enterEvent(QEvent *event) override;
     void leaveEvent(QEvent *event) override;
@@ -254,8 +257,6 @@ protected:
     void changeEvent(QEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
 
-    virtual bool inArea(QPoint point);
-    virtual bool inArea(QPointF point);
     virtual QPainterPath getBgPainterPath();
     virtual QPainterPath getWaterPainterPath(Water water);
     virtual void drawIconBeforeText(QPainter &painter, QRect icon_rect);

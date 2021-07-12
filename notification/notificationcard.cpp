@@ -70,7 +70,7 @@ NotificationCard::NotificationCard(QWidget *parent) :
         emit signalCancelReply();
     });
     connect(ui->messageEdit, &ReplyEdit::signalFocusOut, this, [=]{
-        if (bg->isInArea(bg->mapFromGlobal(QCursor::pos())))
+        if (bg->inArea(bg->mapFromGlobal(QCursor::pos())))
             return ;
         focusOut();
     });
@@ -260,7 +260,7 @@ bool NotificationCard::append(const MsgBean &msg)
     }
     else if (!fixing && msg.senderId == ac->myId) // 自己回复了，该隐藏了
     {
-        if (!bg->isInArea(bg->mapFromGlobal(QCursor::pos())) && !ui->messageEdit->hasFocus())
+        if (!bg->inArea(bg->mapFromGlobal(QCursor::pos())) && !ui->messageEdit->hasFocus())
         {
             displayTimer->setInterval(us->bannerRetentionDuration);
             displayTimer->start();
@@ -446,9 +446,7 @@ void NotificationCard::appendPrivateMsg(const MsgBean &msg)
         displayTimer->stop();
     if (msg.targetId == this->userId) // 自己发给对面的
     {
-        MsgBean m = msg;
-        m.message.insert(0, "你:");
-        createPureMsgView(m);
+        createPureMsgView(msg);
     }
     else
     {
@@ -930,7 +928,7 @@ void NotificationCard::mouseLeave()
 
 void NotificationCard::displayTimeout()
 {
-    if (bg->isInArea(bg->mapFromGlobal(QCursor::pos())))
+    if (bg->inArea(bg->mapFromGlobal(QCursor::pos())))
     {
         displayTimer->setInterval(us->bannerDisplayDuration);
         return ; // 会等待下一波的timeout
@@ -1176,7 +1174,7 @@ void NotificationCard::triggerAIReply(int retry)
 void NotificationCard::shallToHide()
 {
     if (!displayTimer->isActive() && !fixing
-            && !bg->isInArea(bg->mapFromGlobal(QCursor::pos()))
+            && !bg->inArea(bg->mapFromGlobal(QCursor::pos()))
             && !ui->messageEdit->hasFocus())
         displayTimer->start();
 }
@@ -1204,10 +1202,9 @@ void NotificationCard::cardMenu()
         if (fixing)
             displayTimer->stop();
         else
-            if (bg->isInArea(bg->mapFromGlobal(QCursor::pos())))
+            if (bg->inArea(bg->mapFromGlobal(QCursor::pos())))
                 displayTimer->start();
     })->text(fixing, "取消固定");
-
 
     auto importanceMenu = menu->addMenu(QIcon("://icons/importance.png"), "消息重要性");
     importanceMenu->setDisabled(!isPrivate() && !isGroup());
