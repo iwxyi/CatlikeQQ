@@ -135,7 +135,7 @@ void MainWindow::startMessageLoop()
     }
 }
 
-void MainWindow::showListPanel()
+void MainWindow::showHistoryListMenu()
 {
     // 显示最多十个好友/群组
     qint64 time = QDateTime::currentMSecsSinceEpoch() - 60 * 60 * 1000; // 只显示最近一小时的
@@ -166,25 +166,30 @@ void MainWindow::showListPanel()
         MsgBean msg = msgs.at(i);
         QString name;
         QPixmap pixmap;
+        AccountInfo::CardColor cc;
         if (msg.isPrivate())
         {
             name = ac->friendName(msg.friendId);
             if (isFileExist(rt->userHeader(msg.senderId)))
                 pixmap = NetImageUtil::toRoundedPixmap(QPixmap(rt->userHeader(msg.senderId)));
+            cc = ac->userHeaderColor.value(msg.friendId);
         }
         else if (msg.isGroup())
         {
             name = ac->groupName(msg.groupId);
             if (isFileExist(rt->groupHeader(msg.groupId)))
                 pixmap = NetImageUtil::toRoundedPixmap(QPixmap(rt->groupHeader(msg.groupId)));
+            cc = ac->groupHeaderColor.value(msg.groupId);
         }
 
-        menu->addAction(pixmap.isNull() ? QIcon("://icons/hideView") : QIcon(pixmap), name, [=]{
+        auto action = menu->addAction(pixmap.isNull() ? QIcon("://icons/hideView") : QIcon(pixmap), name, [=]{
             // 根据聊天信息，重新打开对应的对话框
-            auto card = createNotificationCard(msg);
-            if (card)
-                card->showReplyEdit();
+            focusOrShowMessageCard(msg);
         });
+        if (cc.isValid())
+        {
+            action->fgColor(cc.fg)->bgColor(cc.bg);
+        }
     }
 
     menu->exec();
@@ -216,7 +221,7 @@ void MainWindow::trayAction(QSystemTrayIcon::ActivationReason reason)
     switch(reason)
     {
     case QSystemTrayIcon::Trigger:
-        showListPanel();
+        showHistoryListMenu();
         break;
     case QSystemTrayIcon::MiddleClick:
         if (!this->isHidden())
@@ -236,14 +241,14 @@ void MainWindow::trayAction(QSystemTrayIcon::ActivationReason reason)
         menu->addAction(QIcon("://icons/leaveMode.png"), "临时离开", [=] {
             // 这里的离开模式不会保存，重启后还是以设置中为准
             us->leaveMode = !us->leaveMode;
-        })->check(us->leaveMode)->tooltip("开启离开模式；重启后将恢复原来状态");
+        })->check(us->leaveMode)->tooltip("开启离开模式，可能开启了私聊AI回复\n重启后将恢复原来状态");
 
         menu->addAction(QIcon("://icons/silent.png"), "临时静默", [=] {
             // 这里的静默模式不会保存，重启后还是以设置中为准
             rt->notificationSlient = !rt->notificationSlient;
             if (rt->notificationSlient)
                 closeAllCard();
-        })->check(rt->notificationSlient)->tooltip("临时屏蔽所有消息；重启后将恢复原来状态");
+        })->check(rt->notificationSlient)->tooltip("临时屏蔽所有消息\n重启后将恢复原来状态");
 
         auto importanceMenu = menu->split()->addMenu(QIcon("://icons/importance.png"), "过滤重要性");
         auto setImportance = [=](int im) {
@@ -421,7 +426,13 @@ void MainWindow::messageReceived(const MsgBean &msg, bool blockSelf)
     if (im < us->lowestImportance)
         return ;
 
-    // 保存最后显示的
+    showMessageCard(msg, blockSelf);
+}
+
+/// 显示通知卡片，可能是
+NotificationCard* MainWindow::showMessageCard(const MsgBean &msg, bool blockSelf)
+{
+    // 保存最后显示的（不是接收的）
     if (msg.isPrivate())
     {
         ac->lastReceiveShowIsUser = true;
@@ -438,16 +449,16 @@ void MainWindow::messageReceived(const MsgBean &msg, bool blockSelf)
     {
         if (card->append(msg))
         {
-            return ;
+            return card;
         }
     }
 
     // 自己发的消息，不新建卡片
     if (blockSelf && msg.senderId == ac->myId)
-        return ;
+        return nullptr;
 
     // 没有现有的，新建一个卡片
-    createNotificationCard(msg);
+    return createNotificationCard(msg);
 }
 
 NotificationCard* MainWindow::createNotificationCard(const MsgBean &msg)
@@ -531,6 +542,24 @@ NotificationCard* MainWindow::createNotificationCard(const MsgBean &msg)
     return card;
 }
 
+void MainWindow::focusOrShowMessageCard(const MsgBean &msg)
+{
+    foreach (auto card, notificationCards)
+    {
+        if (card->is(msg))
+        {
+            card->showReplyEdit(true);
+            return ;
+        }
+    }
+
+    auto card = createNotificationCard(msg);
+    if (card)
+    {
+        card->showReplyEdit();
+    }
+}
+
 /**
  * 调整下面所有卡片的位置
  * @param firstIndex  第一个开始调整的位置的上一个（即最后一个不需要调整的索引）
@@ -602,7 +631,7 @@ void MainWindow::focusCardReply()
                 return ;
             }
 
-            messageReceived(history.last(), false);
+            showMessageCard(history.last(), false);
         }
         else
         {
@@ -613,7 +642,7 @@ void MainWindow::focusCardReply()
                 return ;
             }
 
-            messageReceived(history.last(), false);
+            showMessageCard(history.last(), false);
         }
         targetCard = notificationCards.last();
 

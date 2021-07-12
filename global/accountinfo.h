@@ -13,6 +13,11 @@ public:
     {
         QColor bg;
         QColor fg;
+
+        bool isValid() const
+        {
+            return bg.isValid() && fg.isValid();
+        }
     };
 
     qint64 myId = 0; // 自己的QQ号

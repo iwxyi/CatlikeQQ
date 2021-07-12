@@ -173,7 +173,7 @@ NotificationCard::~NotificationCard()
 
 void NotificationCard::setMsg(const MsgBean &msg)
 {
-    this->userId = msg.friendId;
+    this->friendId = msg.friendId;
     this->groupId = msg.groupId;
     msgs.append(msg);
     int h = height();
@@ -223,7 +223,7 @@ bool NotificationCard::append(const MsgBean &msg)
         return false;
     if (this->groupId != msg.groupId)
         return false;
-    if (this->isPrivate() && this->userId != msg.senderId && this->userId != msg.targetId)
+    if (this->isPrivate() && this->friendId != msg.senderId && this->friendId != msg.targetId)
         return false;
 
     int h = height();
@@ -309,15 +309,15 @@ void NotificationCard::setPrivateMsg(const MsgBean &msg)
     // 设置头像
     // 用户头像API：http://q1.qlogo.cn/g?b=qq&nk=QQ号&s=100&t=
     QPixmap headerPixmap;
-    if (isFileExist(rt->userHeader(this->userId)))
+    if (isFileExist(rt->userHeader(this->friendId)))
     {
-        headerPixmap = QPixmap(rt->userHeader(this->userId));
+        headerPixmap = QPixmap(rt->userHeader(this->friendId));
     }
     else // 没有头像，联网获取
     {
-        QString url = "http://q1.qlogo.cn/g?b=qq&nk=" + snum(this->userId) + "&s=100&t=";
+        QString url = "http://q1.qlogo.cn/g?b=qq&nk=" + snum(this->friendId) + "&s=100&t=";
         headerPixmap = NetImageUtil::loadNetPixmap(url);
-        headerPixmap.save(rt->userHeader(this->userId));
+        headerPixmap.save(rt->userHeader(this->friendId));
     }
 
     if (!us->bannerUseHeaderGradient)
@@ -327,7 +327,7 @@ void NotificationCard::setPrivateMsg(const MsgBean &msg)
     }
     else
     {
-        QString path = rt->userHeader("ctg_" + snum(this->userId));
+        QString path = rt->userHeader("ctg_" + snum(this->friendId));
         if (!isFileExist(path))
             NetImageUtil::toCornelTransparentGradient(headerPixmap.scaledToWidth(us->bannerHeaderSize*3), us->bannerBgRadius).save(path);
         bg->setIcon(QIcon(path));
@@ -342,8 +342,8 @@ void NotificationCard::setPrivateMsg(const MsgBean &msg)
     // 设置背景颜色
     if (us->bannerUseHeaderColor)
     {
-        if (ac->userHeaderColor.contains(this->userId))
-            cardColor = ac->userHeaderColor.value(this->userId);
+        if (ac->userHeaderColor.contains(this->friendId))
+            cardColor = ac->userHeaderColor.value(this->friendId);
         else
             ImageUtil::getBgFgColor(ImageUtil::extractImageThemeColors(headerPixmap.toImage(), 8), &cardColor.bg, &cardColor.fg);
     }
@@ -356,10 +356,10 @@ void NotificationCard::setPrivateMsg(const MsgBean &msg)
     }
 
     connect(ui->headerLabel, &ClickLabel::leftClicked, this, [=]{
-        showUserInfo(this->userId);
+        showUserInfo(this->friendId);
     });
     connect(ui->nicknameLabel, &ClickLabel::leftClicked, this, [=]{
-        showUserInfo(this->userId);
+        showUserInfo(this->friendId);
     });
 }
 
@@ -448,7 +448,7 @@ void NotificationCard::appendPrivateMsg(const MsgBean &msg)
 {
     if (displayTimer->isActive() && us->bannerPrivateKeepShowing && msg.senderId != ac->myId)
         displayTimer->stop();
-    if (msg.targetId == this->userId) // 自己发给对面的
+    if (msg.targetId == this->friendId) // 自己发给对面的
     {
         createPureMsgView(msg);
     }
@@ -620,12 +620,12 @@ void NotificationCard::createMsgBox(const MsgBean &msg, int index)
     // 彩色用户昵称
     if (us->bannerColorfulGroupMember && headerValid)
     {
-        auto getGroupMemberColor = [=](qint64 groupId, qint64 userId) -> QColor {
+        auto getGroupMemberColor = [=](qint64 groupId, qint64 friendId) -> QColor {
             if (ac->groupMemberColor.contains(groupId))
             {
-                if (ac->groupMemberColor.value(groupId).contains(userId))
+                if (ac->groupMemberColor.value(groupId).contains(friendId))
                 {
-                    return ac->groupMemberColor.value(groupId).value(userId);
+                    return ac->groupMemberColor.value(groupId).value(friendId);
                 }
             }
             else // 连群组都没有
@@ -637,7 +637,7 @@ void NotificationCard::createMsgBox(const MsgBean &msg, int index)
             auto colors = ImageUtil::extractImageThemeColors(headerLabel->pixmap()->toImage(), 4);
             auto color = ImageUtil::getFastestColor(us->bannerUseHeaderColor ? cardColor.bg : us->bannerBgColor, colors, 1); // 获取色差最大的
             // auto color = colors.first().toColor();
-            ac->groupMemberColor[groupId].insert(this->userId, color);
+            ac->groupMemberColor[groupId].insert(this->friendId, color);
             return color;
         };
 
@@ -885,6 +885,11 @@ void NotificationCard::setFastFocus()
     this->fastFocus = true;
 }
 
+bool NotificationCard::is(const MsgBean &msg) const
+{
+    return this->friendId == msg.friendId && this->groupId == msg.groupId;
+}
+
 const QList<MsgBean> &NotificationCard::getMsgs() const
 {
     return msgs;
@@ -1011,8 +1016,8 @@ void NotificationCard::sendReply()
     int h = this->height();
 
     // 回复消息
-    if (!groupId && userId)
-        emit signalReplyPrivate(userId, text);
+    if (!groupId && friendId)
+        emit signalReplyPrivate(friendId, text);
     else if (groupId)
         emit signalReplyGroup(groupId, text);
     else
@@ -1399,9 +1404,9 @@ void NotificationCard::loadMsgHistory()
     Q_ASSERT(msgs.size());
     if (!groupId) // 加载私聊消息
     {
-        if (!ac->userMsgHistory.contains(this->userId))
+        if (!ac->userMsgHistory.contains(this->friendId))
             return ;
-        histories = &ac->userMsgHistory[this->userId];
+        histories = &ac->userMsgHistory[this->friendId];
     }
     else // 加载群组消息
     {

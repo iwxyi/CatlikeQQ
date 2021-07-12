@@ -48,6 +48,7 @@ public:
     bool canMerge() const;
     bool isFixing() const;
     void setFastFocus();
+    bool is(const MsgBean& msg) const;
 
     const QList<MsgBean> &getMsgs() const;
     int getImportance() const;
@@ -57,7 +58,7 @@ signals:
     void signalHeightChanged(int delta);
     void signalToHide();
     void signalHided();
-    void signalReplyPrivate(qint64 userId, const QString& message);
+    void signalReplyPrivate(qint64 friendId, const QString& message);
     void signalReplyGroup(qint64 groupId, const QString& message);
     void signalCancelReply();
     void signalFocusPrevCard();
@@ -74,7 +75,7 @@ public slots:
     void shallToHide();
 
     void showGrougInfo(qint64 groupId, QPoint pos = QPoint(-1, -1));
-    void showUserInfo(qint64 userId, QPoint pos = QPoint(-1, -1));
+    void showUserInfo(qint64 friendId, QPoint pos = QPoint(-1, -1));
 
 private slots:
     void mouseEnter();
@@ -112,7 +113,7 @@ protected:
 private:
     Ui::NotificationCard *ui;
 
-    qint64 userId = 0;
+    qint64 friendId = 0;
     qint64 groupId = 0;
     QList<MsgBean> msgs; // 可能会合并多条消息
     QList<MessageView*> msgViews;
