@@ -350,7 +350,10 @@ void NotificationCard::setPrivateMsg(const MsgBean &msg)
     setColors(cardColor.bg, cardColor.fg, cardColor.fg);
 
     // 添加消息
-    createPureMsgView(msg);
+    if (msg.isValid())
+    {
+        createPureMsgView(msg);
+    }
 
     connect(ui->headerLabel, &ClickLabel::leftClicked, this, [=]{
         showUserInfo(this->userId);
@@ -363,8 +366,6 @@ void NotificationCard::setPrivateMsg(const MsgBean &msg)
 /// 设置第一个群聊消息
 void NotificationCard::setGroupMsg(const MsgBean &msg)
 {
-    Q_ASSERT(us->isGroupShow(msg.groupId));
-
     // 设置标题
     ui->nicknameLabel->setText(msg.groupName);
 
@@ -416,7 +417,10 @@ void NotificationCard::setGroupMsg(const MsgBean &msg)
     ui->verticalLayout_2->insertWidget(1, ui->listWidget);
 
     // 添加消息组
-    createMsgBox(msg);
+    if (msg.isValid())
+    {
+        createMsgBox(msg);
+    }
 
     connect(sig, &SignalTransfer::groupMembersLoaded, this, [=](qint64 groupId) {
         if (groupId != this->groupId)

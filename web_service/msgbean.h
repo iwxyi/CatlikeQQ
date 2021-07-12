@@ -149,6 +149,11 @@ struct MsgBean
     {
         return groupId;
     }
+
+    bool isValid() const
+    {
+        return senderId != 0 || !message.isEmpty();
+    }
 };
 
 #endif // MSGBEAN_H

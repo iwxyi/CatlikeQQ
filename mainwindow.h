@@ -37,13 +37,12 @@ private:
 
     void startMessageLoop();
     void showListPanel();
-    void openChatCard(const MsgBean& msg);
 
     QRect screenGeometry() const;
 
 public slots:
     void messageReceived(const MsgBean& msg, bool blockSelf = true);
-    void createNotificationBanner(const MsgBean& msg);
+    NotificationCard *createNotificationCard(const MsgBean& msg);
     void adjustUnderCardsTop(int aboveIndex, int deltaHeight);
     void focusCardReply();
     void closeAllCard();

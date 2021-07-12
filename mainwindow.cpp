@@ -176,21 +176,18 @@ void MainWindow::showListPanel()
         {
             name = ac->groupName(msg.groupId);
             if (isFileExist(rt->groupHeader(msg.groupId)))
-                pixmap = QPixmap(rt->groupHeader(msg.groupId));
+                pixmap = NetImageUtil::toRoundedPixmap(QPixmap(rt->groupHeader(msg.groupId)));
         }
 
         menu->addAction(pixmap.isNull() ? QIcon("://icons/hideView") : QIcon(pixmap), name, [=]{
-            openChatCard(msg);
+            // 根据聊天信息，重新打开对应的对话框
+            auto card = createNotificationCard(msg);
+            if (card)
+                card->showReplyEdit();
         });
     }
 
     menu->exec();
-}
-
-/// 根据聊天信息，重新打开对应的对话框
-void MainWindow::openChatCard(const MsgBean &msg)
-{
-
 }
 
 QRect MainWindow::screenGeometry() const
@@ -450,10 +447,10 @@ void MainWindow::messageReceived(const MsgBean &msg, bool blockSelf)
         return ;
 
     // 没有现有的，新建一个卡片
-    createNotificationBanner(msg);
+    createNotificationCard(msg);
 }
 
-void MainWindow::createNotificationBanner(const MsgBean &msg)
+NotificationCard* MainWindow::createNotificationCard(const MsgBean &msg)
 {
     // 判断卡片的位置
     QPoint startPos; // 开始出现的位置
@@ -475,7 +472,7 @@ void MainWindow::createNotificationBanner(const MsgBean &msg)
         break;
     default:
         qCritical() << "暂不支持该位置";
-        return ;
+        return nullptr;
     }
 
     // 创建卡片
@@ -531,6 +528,7 @@ void MainWindow::createNotificationBanner(const MsgBean &msg)
     card->move(startPos);
     card->setMsg(msg); // 这个可能是一个非常耗时的操作，引起坐标的改变
     card->showFrom();
+    return card;
 }
 
 /**
