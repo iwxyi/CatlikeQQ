@@ -147,7 +147,7 @@ QRect MainWindow::screenGeometry() const
 
 void MainWindow::initTray()
 {
-    QSystemTrayIcon* tray = new QSystemTrayIcon(this);
+    tray = new QSystemTrayIcon(this);
     tray->setIcon(QIcon("://appicon"));
     tray->setToolTip(APPLICATION_NAME);
     tray->show();
@@ -224,11 +224,16 @@ void MainWindow::initService()
     // 网络服务
     cqhttpService = new CqhttpService(this);
 
-    connect(cqhttpService, SIGNAL(signalMessage(const MsgBean&)), this, SLOT(showMessage(const MsgBean&)));
+    connect(cqhttpService, SIGNAL(signalMessage(const MsgBean&)), this, SLOT(messageReceived(const MsgBean&)));
 
     connect(cqhttpService, SIGNAL(signalMessage(const MsgBean&)), this, SLOT(autoReplyMessage(const MsgBean&)));
 
     connect(sig, &SignalTransfer::loadGroupMembers, cqhttpService, &CqhttpService::refreshGroupMembers);
+
+    connect(sig, &SignalTransfer::myHeader, this, [=](const QPixmap& pixmap) {
+        setWindowIcon(pixmap);
+        tray->setIcon(pixmap);
+    });
 
     // 远程控制
     remoteControlService = new RemoteControlServie(this);
@@ -321,7 +326,7 @@ void MainWindow::returnToPrevWindow()
 
 /// 接收到的所有消息都会在这里（只要有解析过的）
 /// 在这里判断要不要显示
-void MainWindow::showMessage(const MsgBean &msg, bool blockSelf)
+void MainWindow::messageReceived(const MsgBean &msg, bool blockSelf)
 {
     // ========== 记录消息 ==========
     if (msg.isPrivate())
@@ -533,7 +538,7 @@ void MainWindow::focusCardReply()
                 return ;
             }
 
-            showMessage(history.last(), false);
+            messageReceived(history.last(), false);
         }
         else
         {
@@ -544,7 +549,7 @@ void MainWindow::focusCardReply()
                 return ;
             }
 
-            showMessage(history.last(), false);
+            messageReceived(history.last(), false);
         }
         targetCard = notificationCards.last();
 

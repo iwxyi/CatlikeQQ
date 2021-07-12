@@ -32,7 +32,6 @@ struct GroupInfo
 {
     qint64 groupId;
     QString name;
-    int memberNumber = 0;
     QHash<qint64, FriendInfo> members;
     qint64 lastMsgTime = 0;
 

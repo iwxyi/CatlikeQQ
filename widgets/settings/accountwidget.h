@@ -24,6 +24,8 @@ private slots:
 
     void on_tokenEdit_editingFinished();
 
+    void updateHeader(qint64 id);
+
 private:
     Ui::AccountWidget *ui;
     CqhttpService* service;

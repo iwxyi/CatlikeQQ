@@ -9,7 +9,11 @@ class SignalTransfer : public QObject
 signals:
     void hostChanged(QString host, QString token);
     void socketStateChanged(bool connected);
+
     void myAccount(qint64 id, QString nickname);
+    void myHeader(const QPixmap& pixmap);
+    void myFriendsLoaded();
+    void myGroupsLoaded();
 
     void loadGroupMembers(qint64 groupId);
     void groupMembersLoaded(qint64 groupId);

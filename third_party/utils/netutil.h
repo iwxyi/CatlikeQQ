@@ -85,6 +85,21 @@ public:
         return path;
     }
 
+    static QByteArray getWebFile(QString uri)
+    {
+        QNetworkAccessManager manager;
+        QEventLoop loop;
+        QNetworkReply *reply;
+
+        reply = manager.get(QNetworkRequest(QUrl(uri)));
+        QObject::connect(reply, SIGNAL(finished()), &loop, SLOT(quit())); //请求结束并下载完成后，退出子事件循环
+        loop.exec(); //开启子事件循环
+
+        QByteArray ba = reply->readAll();
+        reply->deleteLater();
+        return ba;
+    }
+
     // =======================================================================
 
     static void get(QString uri, NetResultFuncType func)

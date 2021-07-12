@@ -179,15 +179,18 @@ void CqhttpService::parseEchoMessage(const MyJson &json)
             JL(fri, user_id);
             ac->friendList.insert(user_id, FriendInfo(user_id, nickname, remark));
         });
+        emit sig->myFriendsLoaded();
     }
     else if (echo == "get_group_list")
     {
+        ac->groupList.clear();
         qInfo() << "读取群列表：" << json.a("data").size();
         json.each("data", [=](MyJson group) {
             JL(group, group_id);
             JS(group, group_name);
             ac->groupList.insert(group_id, GroupInfo(group_id, group_name));
         });
+        emit sig->myGroupsLoaded();
     }
     else if (echo == "send_private_msg" || echo == "send_group_msg")
     {

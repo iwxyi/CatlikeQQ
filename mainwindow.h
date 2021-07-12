@@ -40,7 +40,7 @@ private:
     QRect screenGeometry() const;
 
 public slots:
-    void showMessage(const MsgBean& msg, bool blockSelf = true);
+    void messageReceived(const MsgBean& msg, bool blockSelf = true);
     void createNotificationBanner(const MsgBean& msg);
     void adjustUnderCardsTop(int aboveIndex, int deltaHeight);
     void focusCardReply();
@@ -71,5 +71,6 @@ private:
 #ifdef Q_OS_WIN32
     HWND prevWindow = nullptr;
 #endif
+    QSystemTrayIcon* tray;
 };
 #endif // MAINWINDOW_H
