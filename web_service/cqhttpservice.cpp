@@ -127,11 +127,11 @@ void CqhttpService::messageReceived(const QString &message)
     else if (post_type == "notice")
     {
         JS(json, notice_type);
-        if (notice_type == "group_upload")
+        if (notice_type == "group_upload") // 群文件
         {
             parseGroupUpload(json);
         }
-        else if (notice_type == "offline_file")
+        else if (notice_type == "offline_file") // 私聊文件
         {
             parseOfflineFile(json);
         }
@@ -193,7 +193,7 @@ void CqhttpService::parseEchoMessage(const MyJson &json)
     {
         // 发送消息的回复，不做处理
     }
-    else if (echo.startsWith("get_group_member_list"))
+    else if (echo.startsWith("get_group_member_list")) // 加载群成员
     {
         QRegularExpression re("^get_group_member_list:(\\d+)$");
         QRegularExpressionMatch match;
@@ -259,6 +259,7 @@ void CqhttpService::parsePrivateMessage(const MyJson &json)
     JL(sender, user_id); // 发送者用户QQ号
     JS(sender, nickname);
 
+    ensureFriendExist(FriendInfo(user_id, nickname, ""));
     qInfo() << "收到私聊消息：" << user_id << "->" << target_id << nickname << message << message_id;
 
     qint64 friendId = target_id == ac->myId ? user_id : target_id;
@@ -298,6 +299,7 @@ void CqhttpService::parseGroupMessage(const MyJson &json)
         Q_UNUSED(id)
     }
 
+    ensureGroupExist(GroupInfo(group_id, ""));
     qInfo() << "收到群消息：" << group_id << ac->groupList.value(group_id).name
             << user_id << nickname << ac->friendName(user_id)
             << message << message_id;
@@ -322,6 +324,7 @@ void CqhttpService::parseGroupUpload(const MyJson &json)
     JS(file, name); // 文件名
     JL(file, size); // 文件大小（字节数）
 
+    ensureGroupExist(GroupInfo(group_id, ""));
     qInfo() << "收到群文件消息：" << group_id << ac->groupList.value(group_id).name << user_id << ac->friendName(user_id) << name << size << id;
 
     MsgBean msg = MsgBean(user_id, ac->friendName(user_id))
@@ -352,6 +355,7 @@ void CqhttpService::parseOfflineFile(const MyJson &json)
     JL(file, size);
     JS(file, url);
 
+    ensureFriendExist(FriendInfo(user_id, "", ""));
     qInfo() << "收到离线文件消息：" << user_id << ac->friendName(user_id) << name << size;
 
     QString fileId = name + "_" + snum(size);
@@ -417,6 +421,22 @@ void CqhttpService::parseMessageSent(const MyJson &json)
         }*/
         parsePrivateMessage(json);
     }
+}
+
+void CqhttpService::ensureFriendExist(FriendInfo user)
+{
+    if (ac->friendList.contains(user.userId))
+        return ;
+    ac->friendList.insert(user.userId, user);
+    qInfo() << "补充好友：" << user.userId << user.username();
+}
+
+void CqhttpService::ensureGroupExist(GroupInfo group)
+{
+    if (ac->groupList.contains(group.groupId))
+        return ;
+    ac->groupList.insert(group.groupId, group);
+    qInfo() << "补充群组：" << group.groupId << group.name;
 }
 
 void CqhttpService::refreshFriends()

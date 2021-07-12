@@ -17,6 +17,7 @@ public:
 
     qint64 myId = 0; // 自己的QQ号
     QString myNickname; // 自己的昵称
+
     QHash<qint64, FriendInfo> friendList; // 好友列表
     QHash<qint64, GroupInfo> groupList; // 群列表
 

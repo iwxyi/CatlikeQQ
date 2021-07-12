@@ -43,6 +43,9 @@ private:
     void parseOfflineFile(const MyJson& json);
     void parseMessageSent(const MyJson& json);
 
+    void ensureFriendExist(FriendInfo user);
+    void ensureGroupExist(GroupInfo group);
+
 private:
     QWebSocket* socket = nullptr;
     QString host;
