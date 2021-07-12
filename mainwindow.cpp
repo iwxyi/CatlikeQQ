@@ -161,8 +161,8 @@ void MainWindow::showHistoryListMenu()
     int maxIndex = msgs.size() - 1;
     if (maxIndex > 10)
         maxIndex = 10;
-    for (int i = 0; i <= maxIndex; i++)
-    // for (int i = maxIndex; i >= 0; i--) // 倒序
+    for (int i = 0; i <= maxIndex; i++) // 正序（最新消息在上面，符合习惯）
+    // for (int i = maxIndex; i >= 0; i--) // 倒序（最新消息在下面，交互方便）
     {
         MsgBean msg = msgs.at(i);
         QString name;
@@ -171,8 +171,8 @@ void MainWindow::showHistoryListMenu()
         if (msg.isPrivate())
         {
             name = ac->friendName(msg.friendId);
-            if (isFileExist(rt->userHeader(msg.senderId)))
-                pixmap = NetImageUtil::toRoundedPixmap(QPixmap(rt->userHeader(msg.senderId)));
+            if (isFileExist(rt->userHeader(msg.friendId)))
+                pixmap = NetImageUtil::toRoundedPixmap(QPixmap(rt->userHeader(msg.friendId)));
             cc = ac->userHeaderColor.value(msg.friendId);
         }
         else if (msg.isGroup())
