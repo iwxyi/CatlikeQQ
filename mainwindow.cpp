@@ -222,7 +222,7 @@ void MainWindow::showHistoryListMenu()
             // 根据聊天信息，重新打开对应的对话框
             focusOrShowMessageCard(msg, true);
         });
-        if (cc.isValid())
+        if (cc.isValid() && us->bannerUseHeaderColor)
         {
             w->setBgColor(cc.bg);
             titleLabel->setStyleSheet("color:" + QVariant(cc.fg).toString());
