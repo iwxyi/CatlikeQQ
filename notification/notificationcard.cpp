@@ -302,7 +302,7 @@ void NotificationCard::setPrivateMsg(const MsgBean &msg)
 {
     // 设置标题
     if (msg.senderId == ac->myId) // 自己的消息，需要手动更新昵称
-        ui->nicknameLabel->setText(ac->friendNames.value(msg.targetId, "[未备注]"));
+        ui->nicknameLabel->setText(ac->friendList.contains(msg.friendId) ? ac->friendList.value(msg.targetId).username() : "[未备注]");
     else // 直接设置名字
         ui->nicknameLabel->setText(msg.displayNickname());
 

@@ -319,8 +319,22 @@ void MainWindow::returnToPrevWindow()
 #endif
 }
 
+/// 接收到的所有消息都会在这里（只要有解析过的）
+/// 在这里判断要不要显示
 void MainWindow::showMessage(const MsgBean &msg, bool blockSelf)
 {
+    // ========== 记录消息 ==========
+    if (msg.isPrivate())
+    {
+        if (ac->friendList.contains(msg.friendId))
+            ac->friendList[msg.friendId].lastMsgTime = QDateTime::currentMSecsSinceEpoch();
+    }
+    else if (msg.isGroup())
+    {
+        ac->groupMsgTime[msg.groupId] = QDateTime::currentMSecsSinceEpoch();
+    }
+
+    // ========== 显示通知 ==========
     // 静默模式
     if (rt->notificationSlient)
         return ;
@@ -571,9 +585,9 @@ void MainWindow::autoReplyMessage(const MsgBean &msg)
 
         // 判断回复间隔
         qint64 time = QDateTime::currentMSecsSinceEpoch();
-        if (ac->aiReplyUserTime.value(userId, 0) + us->aiReplyInterval >= time)
+        if (ac->aiReplyPrivateTime.value(userId, 0) + us->aiReplyInterval >= time)
             return ;
-        ac->aiReplyUserTime[userId] = time;
+        ac->aiReplyPrivateTime[userId] = time;
 
         triggerAiReply(msg);
         return ;

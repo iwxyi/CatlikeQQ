@@ -68,6 +68,7 @@ void GroupWidget::on_enabledGroupButton_clicked()
     {
         QListWidgetItem* item = new QListWidgetItem(i.value(), view);
         item->setData( Qt::UserRole, i.key());
+        item->setData(Qt::UserRole + 1, ac->groupMsgTime.value(i.key(), 0));
         item->setData(Qt::CheckStateRole, enables.contains(i.key()) ? Qt::Checked : Qt::Unchecked);
     }
 

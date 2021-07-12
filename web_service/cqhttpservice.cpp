@@ -171,12 +171,13 @@ void CqhttpService::parseEchoMessage(const MyJson &json)
     }
     else if (echo == "get_friend_list")
     {
+        ac->friendList.clear();
         qInfo() << "读取好友列表：" << json.a("data").size();
         json.each("data", [=](MyJson fri) {
             JS(fri, nickname);
             JS(fri, remark); // 备注，如果为空则默认为nickname
             JL(fri, user_id);
-            ac->friendNames.insert(user_id, remark.isEmpty() ? nickname : remark);
+            ac->friendList.insert(user_id, FriendInfo(user_id, nickname, remark));
         });
     }
     else if (echo == "get_group_list")
@@ -216,8 +217,8 @@ void CqhttpService::parseEchoMessage(const MyJson &json)
             if (card.isEmpty()) // 没有群备注
             {
                 // 优先使用好友备注
-                if (ac->friendNames.contains(user_id))
-                    name = ac->friendNames.value(user_id);
+                if (ac->friendList.contains(user_id))
+                    name = ac->friendList.value(user_id).username();
                 if (name.isEmpty()) // 好友备注还是空的（应该不会，空的就已经用 nickname 了）
                     name = nickname;
             }
@@ -269,7 +270,7 @@ void CqhttpService::parsePrivateMessage(const MyJson &json)
 
     qint64 friendId = target_id == ac->myId ? user_id : target_id;
     MsgBean msg = MsgBean(user_id, nickname, message, message_id, sub_type)
-            .frind(ac->friendNames.value(user_id, ""))
+            .frind(ac->friendList.contains(friendId) ? ac->friendList[friendId].remark : "")
             .privt(target_id, friendId);
     emit signalMessage(msg);
 
@@ -305,11 +306,11 @@ void CqhttpService::parseGroupMessage(const MyJson &json)
     }
 
     qInfo() << "收到群消息：" << group_id << ac->groupNames.value(group_id)
-            << user_id << nickname << ac->friendNames.value(user_id)
+            << user_id << nickname << ac->friendName(user_id)
             << message << message_id;
 
     MsgBean msg = MsgBean(user_id, nickname, message, message_id, sub_type)
-            .frind(ac->friendNames.value(user_id, ""))
+            .frind(ac->friendList.contains(user_id) ? ac->friendList.value(user_id).remark : "")
             .group(group_id, ac->groupNames.value(group_id), card);
     emit signalMessage(msg);
 
@@ -328,9 +329,9 @@ void CqhttpService::parseGroupUpload(const MyJson &json)
     JS(file, name); // 文件名
     JL(file, size); // 文件大小（字节数）
 
-    qInfo() << "收到群文件消息：" << group_id << ac->groupNames.value(group_id) << user_id << ac->friendNames.value(user_id) << name << size << id;
+    qInfo() << "收到群文件消息：" << group_id << ac->groupNames.value(group_id) << user_id << ac->friendName(user_id) << name << size << id;
 
-    MsgBean msg = MsgBean(user_id, ac->friendNames.value(user_id))
+    MsgBean msg = MsgBean(user_id, ac->friendName(user_id))
                        .group(group_id, ac->groupNames.value(group_id))
                        .file(id, name, size);
     emit signalMessage(msg);
@@ -358,10 +359,10 @@ void CqhttpService::parseOfflineFile(const MyJson &json)
     JL(file, size);
     JS(file, url);
 
-    qInfo() << "收到离线文件消息：" << user_id << ac->friendNames.value(user_id) << name << size;
+    qInfo() << "收到离线文件消息：" << user_id << ac->friendName(user_id) << name << size;
 
     QString fileId = name + "_" + snum(size);
-    MsgBean msg = MsgBean(user_id, ac->friendNames.value(user_id))
+    MsgBean msg = MsgBean(user_id, ac->friendName(user_id))
                        .file(fileId, name, size, url);
     emit signalMessage(msg);
 }

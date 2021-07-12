@@ -99,11 +99,11 @@ void LeaveModeWidget::on_aiReplyAllowButton_clicked()
     layout->addLayout(btnLayout);
 
     // 生成model
-    const auto& users = ac->friendNames;
+    const auto& users = ac->friendList;
     auto& enables = us->aiReplyUsers;
     for (auto i = users.begin(); i != users.end(); i++)
     {
-        QListWidgetItem* item = new QListWidgetItem(i.value(), view);
+        QListWidgetItem* item = new QListWidgetItem(i.value().nickname, view);
         item->setData( Qt::UserRole, i.key());
         item->setData(Qt::CheckStateRole, enables.contains(i.key()) ? Qt::Checked : Qt::Unchecked);
     }

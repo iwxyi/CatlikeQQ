@@ -5,6 +5,47 @@
 #include <QPixmap>
 #include <QDateTime>
 
+struct FriendInfo
+{
+    qint64 userId = 0;
+    QString nickname;
+    QString remark;
+    qint64 lastMsgTime = 0;
+
+    FriendInfo()
+    {}
+
+    FriendInfo(qint64 userId, QString nickname, QString remark)
+    {
+        this->userId = userId;
+        this->nickname = nickname;
+        this->remark = remark;
+    }
+
+    QString username() const
+    {
+        return remark.isEmpty() ? nickname : remark;
+    }
+};
+
+struct GroupInfo
+{
+    qint64 groupId;
+    QString name;
+    int memberNumber = 0;
+    QList<FriendInfo> members;
+    qint64 lastMsgTime = 0;
+
+    GroupInfo()
+    {}
+
+    GroupInfo(qint64 groupId, QString name)
+    {
+        this->groupId = groupId;
+        this->name = name;
+    }
+};
+
 struct MsgBean
 {
     qint64 senderId = 0;
