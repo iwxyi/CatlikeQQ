@@ -700,8 +700,8 @@ void FacileMenu::execute()
 
     // 显示、动画
     QWidget::show();
-    setFocus();
     startAnimationOnShowed();
+    setFocus();
 }
 
 /**
@@ -930,6 +930,16 @@ FacileMenu *FacileMenu::setSplitInRow(bool split)
     return this;
 }
 
+void FacileMenu::setAppearAnimation(bool en)
+{
+    this->enable_appear_animation = en;
+}
+
+void FacileMenu::setDisappearAnimation(bool en)
+{
+    this->enable_disappear_animation = en;
+}
+
 void FacileMenu::itemMouseEntered(FacileMenuItem *item)
 {
     if (_showing_animation)
@@ -1122,6 +1132,8 @@ bool FacileMenu::isSubMenu() const
  */
 void FacileMenu::startAnimationOnShowed()
 {
+    if (!enable_appear_animation)
+        return ;
     main_vlayout->setEnabled(false);
     _showing_animation = true;
     QEasingCurve curve = QEasingCurve::OutBack;
@@ -1219,6 +1231,8 @@ void FacileMenu::startAnimationOnShowed()
  */
 void FacileMenu::startAnimationOnHidden(int focusIndex)
 {
+    if (!enable_disappear_animation)
+        return ;
     _showing_animation = true;
     // 控件移动动画
     main_vlayout->setEnabled(false);

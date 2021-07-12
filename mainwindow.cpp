@@ -158,10 +158,11 @@ void MainWindow::showHistoryListMenu()
         return ;
 
     newFacileMenu;
-    int index = msgs.size() - 1;
-    if (index > 10)
-        index = 10;
-    for (int i = index; i >= 0; i--)
+    int maxIndex = msgs.size() - 1;
+    if (maxIndex > 10)
+        maxIndex = 10;
+    for (int i = 0; i <= maxIndex; i++)
+    // for (int i = maxIndex; i >= 0; i--) // 倒序
     {
         MsgBean msg = msgs.at(i);
         QString name;
@@ -182,16 +183,53 @@ void MainWindow::showHistoryListMenu()
             cc = ac->groupHeaderColor.value(msg.groupId);
         }
 
-        auto action = menu->addAction(pixmap.isNull() ? QIcon("://icons/hideView") : QIcon(pixmap), name, [=]{
+        // 添加自定义控件
+        InteractiveButtonBase *w = new InteractiveButtonBase(menu);
+        QLabel* headerLabel = new QLabel(w);
+        QLabel* titleLabel = new QLabel(w);
+        QLabel* messageLabel = new QLabel(w);
+        QVBoxLayout* vlayout = new QVBoxLayout;
+        vlayout->addWidget(titleLabel);
+        vlayout->addWidget(messageLabel);
+        QHBoxLayout* hlayout = new QHBoxLayout(w);
+        hlayout->addWidget(headerLabel);
+        hlayout->addLayout(vlayout);
+
+        headerLabel->setPixmap(pixmap.isNull() ? QPixmap("://icons/ignore") : pixmap);
+        titleLabel->setText(name);
+        if (msg.isPrivate())
+            messageLabel->setText(MessageView::simpleMessage(msg));
+        else
+            messageLabel->setText(msg.nickname + ": " + MessageView::simpleMessage(msg));
+        titleLabel->setMaximumWidth(us->bannerFixedWidth);
+        messageLabel->setMaximumWidth(us->bannerFixedWidth);
+        headerLabel->setScaledContents(true);
+        titleLabel->adjustSize();
+        messageLabel->adjustSize();
+        int sz = titleLabel->height() + messageLabel->height();
+        headerLabel->setMaximumSize(sz, sz);
+
+        sz += vlayout->spacing() + hlayout->margin() * 2;
+        w->setFixedSize(us->bannerFixedWidth, sz);
+        connect(w, &InteractiveButtonBase::clicked, this, [=]{
+            // 根据聊天信息，重新打开对应的对话框
+            focusOrShowMessageCard(msg);
+        });
+        menu->addWidget(w);
+
+        // 使用默认的菜单机制
+        /* auto action = menu->addAction(pixmap.isNull() ? QIcon("://icons/hideView") : QIcon(pixmap), name, [=]{
             // 根据聊天信息，重新打开对应的对话框
             focusOrShowMessageCard(msg);
         });
         if (cc.isValid())
         {
             action->fgColor(cc.fg)->bgColor(cc.bg);
-        }
+        } */
     }
 
+    menu->adjustSize();
+    menu->setAppearAnimation(false);
     menu->exec();
 }
 
@@ -726,11 +764,11 @@ void MainWindow::triggerAiReply(const MsgBean &msg, int retry)
     connect(new NetUtil(url, params), &NetUtil::finished, this, [=](QString result){
         MyJson json(result.toUtf8());
         QString answer;
-        int ret = json.value("ret").toInt();
+        int ret = json.contains("ret") ? json.value("ret").toInt() : -1;
         if (ret != 0)
         {
             QString rep = json.value("msg").toString();
-            qWarning() << "AI回复：" << rep << text;
+            qWarning() << "AI回复：" << ret << rep << text;
             if (rep == "chat answer not found" && retry < 3)
             {
                 triggerAiReply(msg, retry + 1);
@@ -752,6 +790,7 @@ void MainWindow::triggerAiReply(const MsgBean &msg, int retry)
         }
         else
         {
+            qDebug() << json;
             answer = json.value("data").toObject().value("answer").toString();
             qInfo() << "[离开模式.AI回复]" << answer;
             answer = us->aiReplyPrefix + answer + us->aiReplySuffix;
