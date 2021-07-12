@@ -203,28 +203,21 @@ void CqhttpService::parseEchoMessage(const MyJson &json)
             return ;
         }
 
+        // 可能是新加入的群组，但是没有刷新
         qint64 groupId = match.captured(1).toLongLong();
-        if (!ac->groupMemberNames.contains(groupId))
-            ac->groupMemberNames.insert(groupId, QHash<qint64, QString>());
+        if (!ac->groupList.contains(groupId))
+            ac->groupList.insert(groupId, GroupInfo());
 
-        QHash<qint64, QString>* names = &ac->groupMemberNames[groupId];
-        names->clear();
-        json.each("data", [=](MyJson member) {
+        auto& members = ac->groupList[groupId].members;
+        members.clear();
+        json.each("data", [&](MyJson member) {
             JL(member, user_id);
             JS(member, card);
             JS(member, nickname);
             QString name = card;
-            if (card.isEmpty()) // 没有群备注
-            {
-                // 优先使用好友备注
-                if (ac->friendList.contains(user_id))
-                    name = ac->friendList.value(user_id).username();
-                if (name.isEmpty()) // 好友备注还是空的（应该不会，空的就已经用 nickname 了）
-                    name = nickname;
-            }
-            names->insert(user_id, name);
+            members[user_id] = FriendInfo(user_id, nickname, card);
         });
-        qInfo() << "加载群成员：" << groupId << names->size();
+        qInfo() << "加载群成员：" << groupId << members.size();
         emit sig->groupMembersLoaded(groupId);
     }
     else

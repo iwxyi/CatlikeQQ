@@ -221,17 +221,17 @@ void MessageView::setMessage(const MsgBean& msg)
     int pos = 0;
     if (msg.groupId && text.indexOf(re) > -1)
     {
-        const auto memberNames = ac->groupMemberNames.contains(msg.groupId) ? &ac->groupMemberNames[msg.groupId] : nullptr;
+        const auto members = ac->groupList.value(msg.groupId).members;
         while ((pos = text.indexOf(re, pos, &match)) > -1)
         {
-            if (!memberNames)
+            if (!members.size())
             {
                 emit needMemberNames();
                 break;
             }
 
             qint64 userId = match.captured(1).toLongLong();
-            if (memberNames->contains(userId))
+            if (ac->groupList.value(msg.groupId).members.contains(userId))
             {
                 QColor c = QColor::Invalid;
                 if (ac->groupMemberColor.contains(msg.groupId))
@@ -242,11 +242,11 @@ void MessageView::setMessage(const MsgBean& msg)
                 }
                 if (c.isValid())
                 {
-                    text.replace(match.captured(0), "<font color=" + QVariant(c).toString() + ">@" + memberNames->value(userId) + "</font>");
+                    text.replace(match.captured(0), "<font color=" + QVariant(c).toString() + ">@" + members.value(userId).username() + "</font>");
                 }
                 else
                 {
-                    text.replace(match.captured(0), "@" + memberNames->value(userId));
+                    text.replace(match.captured(0), "@" + members.value(userId).username());
                 }
             }
             else // 群组里没有这个人，刚加入？
@@ -370,8 +370,8 @@ void MessageView::setMessage(const MsgBean& msg)
 /// 把形如 @123456 的格式统统替换为 @某某
 void MessageView::replaceGroupAt()
 {
-    const auto memberNames = ac->groupMemberNames.contains(msg.groupId) ? &ac->groupMemberNames[msg.groupId] : nullptr;
-    if (!memberNames)
+    const auto members = ac->groupList.value(msg.groupId).members;
+    if (!members.size())
         return ;
 
 #ifdef MESSAGE_LABEL
@@ -389,14 +389,14 @@ void MessageView::replaceGroupAt()
     while ((pos = text.indexOf(re, pos, &match)) > -1)
     {
         qint64 userId = match.captured(1).toLongLong();
-        if (!memberNames->contains(userId))
+        if (!members.contains(userId))
         {
             pos++;
             qWarning() << "不存在@的用户：" << userId << match.captured(1) << text;
             continue;
         }
 
-        text.replace(match.captured(0), "@" + memberNames->value(userId));
+        text.replace(match.captured(0), "@" + members.value(userId).username());
         replaced = true;
     }
     if (replaced) // 没有替换的话，就不重新设置了（怕引起大小变化等等）

@@ -9,7 +9,7 @@ struct FriendInfo
 {
     qint64 userId = 0;
     QString nickname;
-    QString remark;
+    QString remark; // 好友中就是备注，群组中是群备注
     qint64 lastMsgTime = 0;
 
     FriendInfo()
@@ -33,7 +33,7 @@ struct GroupInfo
     qint64 groupId;
     QString name;
     int memberNumber = 0;
-    QList<FriendInfo> members;
+    QHash<qint64, FriendInfo> members;
     qint64 lastMsgTime = 0;
 
     GroupInfo()

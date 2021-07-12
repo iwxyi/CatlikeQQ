@@ -422,10 +422,12 @@ void NotificationCard::setGroupMsg(const MsgBean &msg)
         if (groupId != this->groupId)
             return ;
 
-        Q_ASSERT(ac->groupMemberNames.contains(groupId));
-        foreach (auto view, msgViews)
+        if (ac->groupList.contains(groupId) && ac->groupList.value(groupId).members.size())
         {
-            view->replaceGroupAt();
+            foreach (auto view, msgViews)
+            {
+                view->replaceGroupAt();
+            }
         }
     });
 
@@ -776,15 +778,6 @@ MessageView *NotificationCard::newMsgView()
     if (groupId)
     {
         connect(view, &MessageView::needMemberNames, this, [=]{
-            if (ac->groupMemberNames.contains(groupId))
-            {
-                auto& list = ac->groupMemberNames[groupId];
-                if (!list.size()) // 这里标记是空列表表示正在获取中
-                    return ;
-
-                list.clear(); // 有列表，但是还是需要，就清空，重新获取
-            }
-
             // 没有获取中，或者是旧的列表（已清空）
             emit sig->loadGroupMembers(groupId);
         });
