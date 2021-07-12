@@ -230,6 +230,16 @@ void MainWindow::showHistoryListMenu()
         }
         menu->addWidget(w);
 
+        // 显示的时候还可以实时更新消息
+        connect(cqhttpService, &CqhttpService::signalMessage, w, [=](const MsgBean& m){
+            if (!msg.isSameObject(m))
+                return ;
+            if (msg.isPrivate())
+                messageLabel->setText(MessageView::simpleMessage(m));
+            else
+                messageLabel->setText(m.nickname + ": " + MessageView::simpleMessage(m));
+        });
+
         // 使用默认的菜单机制（太朴素了）
         /* auto action = menu->addAction(pixmap.isNull() ? QIcon("://icons/hideView") : QIcon(pixmap), name, [=]{
             // 根据聊天信息，重新打开对应的对话框

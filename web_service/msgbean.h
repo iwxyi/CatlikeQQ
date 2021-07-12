@@ -154,6 +154,12 @@ struct MsgBean
     {
         return senderId != 0 || !message.isEmpty();
     }
+
+    bool isSameObject(const MsgBean& m) const
+    {
+        return this->friendId == m.friendId
+                && this->groupId == m.groupId;
+    }
 };
 
 #endif // MSGBEAN_H
