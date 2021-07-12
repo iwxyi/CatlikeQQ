@@ -331,7 +331,8 @@ void MainWindow::showMessage(const MsgBean &msg, bool blockSelf)
     }
     else if (msg.isGroup())
     {
-        ac->groupMsgTime[msg.groupId] = QDateTime::currentMSecsSinceEpoch();
+        if (ac->groupList.contains(msg.groupId))
+            ac->groupList[msg.groupId].lastMsgTime = QDateTime::currentMSecsSinceEpoch();
     }
 
     // ========== 显示通知 ==========

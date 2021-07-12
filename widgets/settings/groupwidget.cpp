@@ -62,14 +62,17 @@ void GroupWidget::on_enabledGroupButton_clicked()
     layout->addLayout(btnLayout);
 
     // 生成model
-    const auto& groups = ac->groupNames;
+    const auto& groupHashs = ac->groupList;
+    auto groupList = groupHashs.values();
+    std::sort(groupList.begin(), groupList.end(), [=](GroupInfo a, GroupInfo b) {
+        return a.lastMsgTime > b.lastMsgTime;
+    });
     auto& enables = us->enabledGroups;
-    for (auto i = groups.begin(); i != groups.end(); i++)
+    for (auto i = groupList.begin(); i != groupList.end(); i++)
     {
-        QListWidgetItem* item = new QListWidgetItem(i.value(), view);
-        item->setData( Qt::UserRole, i.key());
-        item->setData(Qt::UserRole + 1, ac->groupMsgTime.value(i.key(), 0));
-        item->setData(Qt::CheckStateRole, enables.contains(i.key()) ? Qt::Checked : Qt::Unchecked);
+        QListWidgetItem* item = new QListWidgetItem(i->name, view);
+        item->setData(Qt::UserRole, i->groupId);
+        item->setData(Qt::CheckStateRole, enables.contains(i->groupId) ? Qt::Checked : Qt::Unchecked);
     }
 
     // 设置事件

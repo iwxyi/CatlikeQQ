@@ -18,15 +18,13 @@ public:
     qint64 myId = 0; // 自己的QQ号
     QString myNickname; // 自己的昵称
     QHash<qint64, FriendInfo> friendList; // 好友列表
-    QHash<qint64, QString> groupNames; // 群列表
+    QHash<qint64, GroupInfo> groupList; // 群列表
     QHash<qint64, QHash<qint64, QString>> groupMemberNames; // 群成员名字（不包含好友备注），@专用
     QHash<qint64, CardColor> userHeaderColor; // 用户头像，好友+群员+陌生人
     QHash<qint64, CardColor> groupHeaderColor; // 群头像
     QHash<qint64, QList<MsgBean>> userMsgHistory; // 私聊消息记录（不包括自己）
     QHash<qint64, QList<MsgBean>> groupMsgHistory; // 群聊消息记录（不包括自己）
     QHash<qint64, QHash<qint64, QColor>> groupMemberColor; // 群组里每位用户的颜色
-    QHash<qint64, qint64> privateMsgTime; // 私聊消息最后时间(毫秒)
-    QHash<qint64, qint64> groupMsgTime; // 群组消息最后时间
     QHash<qint64, qint64> aiReplyPrivateTime; // 私聊最近一次自动回复
     QHash<qint64, qint64> aiReplyGroupTime; // 群组最近一次自动回复
 

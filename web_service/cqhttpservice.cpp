@@ -186,7 +186,7 @@ void CqhttpService::parseEchoMessage(const MyJson &json)
         json.each("data", [=](MyJson group) {
             JL(group, group_id);
             JS(group, group_name);
-            ac->groupNames.insert(group_id, group_name);
+            ac->groupList.insert(group_id, GroupInfo(group_id, group_name));
         });
     }
     else if (echo == "send_private_msg" || echo == "send_group_msg")
@@ -305,13 +305,13 @@ void CqhttpService::parseGroupMessage(const MyJson &json)
         Q_UNUSED(id)
     }
 
-    qInfo() << "收到群消息：" << group_id << ac->groupNames.value(group_id)
+    qInfo() << "收到群消息：" << group_id << ac->groupList.value(group_id).name
             << user_id << nickname << ac->friendName(user_id)
             << message << message_id;
 
     MsgBean msg = MsgBean(user_id, nickname, message, message_id, sub_type)
             .frind(ac->friendList.contains(user_id) ? ac->friendList.value(user_id).remark : "")
-            .group(group_id, ac->groupNames.value(group_id), card);
+            .group(group_id, ac->groupList.value(group_id).name, card);
     emit signalMessage(msg);
 
     if (!ac->groupMsgHistory.contains(group_id))
@@ -329,10 +329,10 @@ void CqhttpService::parseGroupUpload(const MyJson &json)
     JS(file, name); // 文件名
     JL(file, size); // 文件大小（字节数）
 
-    qInfo() << "收到群文件消息：" << group_id << ac->groupNames.value(group_id) << user_id << ac->friendName(user_id) << name << size << id;
+    qInfo() << "收到群文件消息：" << group_id << ac->groupList.value(group_id).name << user_id << ac->friendName(user_id) << name << size << id;
 
     MsgBean msg = MsgBean(user_id, ac->friendName(user_id))
-                       .group(group_id, ac->groupNames.value(group_id))
+                       .group(group_id, ac->groupList.value(group_id).name)
                        .file(id, name, size);
     emit signalMessage(msg);
 }
