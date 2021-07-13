@@ -7,7 +7,7 @@ class Runtime : public QObject
 {
     Q_OBJECT
 public:
-    explicit Runtime(QObject *parent = nullptr);
+    explicit Runtime(QString path, QObject *parent = nullptr);
 
     QString userHeader(qint64 id) const;
     QString userHeader(QString id) const;

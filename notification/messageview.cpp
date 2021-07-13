@@ -299,6 +299,7 @@ void MessageView::setMessage(const MsgBean& msg)
             lay->setMargin(0);
 
             // 播放视频
+            vw->player->setMuted(true);
             vw->setRadius(us->bannerBgRadius);
             vw->setMedia(path);
             vw->show();

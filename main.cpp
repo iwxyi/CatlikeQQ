@@ -8,10 +8,10 @@
 
 QString APPLICATION_NAME = "QQ悬浮消息";
 QString VERSION_CODE = "0.0.1";
-Runtime* rt = new Runtime;
-USettings* us = new USettings;
-AccountInfo* ac = new AccountInfo;
-SignalTransfer* sig = new SignalTransfer;
+Runtime* rt;
+USettings* us;
+AccountInfo* ac;
+SignalTransfer* sig;
 
 int main(int argc, char *argv[])
 {
@@ -22,6 +22,7 @@ int main(int argc, char *argv[])
     // 设置后，读取到的窗口会随着显示器倍数而缩小
     QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
+
     QApplication a(argc, argv);
     QCoreApplication::setApplicationName(APPLICATION_NAME);
     QCoreApplication::setApplicationVersion(VERSION_CODE);
@@ -32,16 +33,11 @@ int main(int argc, char *argv[])
     a.setFont(font);
 
     // 初始化全局配置
-    rt->APP_PATH = QApplication::applicationDirPath() + "/";
-    rt->DATA_PATH = QApplication::applicationDirPath() + "/data/";
-    rt->IMAGE_PATH = rt->DATA_PATH + "images/";
-    rt->CACHE_PATH = rt->DATA_PATH + "cache/";
-    rt->CACHE_IMAGE_PATH = rt->CACHE_PATH + "images/";
-    rt->CACHE_IMAGE_S_PATH = rt->CACHE_PATH + "thumbnails/";
-    rt->CACHE_FACE_PATH = rt->CACHE_PATH + "faces/";
-    rt->CACHE_USER_HEADER_PATH = rt->CACHE_PATH + "user_headers/";
-    rt->CACHE_GROUP_HEADER_PATH = rt->CACHE_PATH + "group_headers/";
-    rt->CACHE_FILE_PATH = rt->CACHE_PATH + "files/";
+    rt = new Runtime(QApplication::applicationDirPath());
+    us = new USettings(rt->DATA_PATH + "settings.ini");
+    ac = new AccountInfo;
+    sig = new SignalTransfer;
+
     ensureDirExist(rt->CACHE_IMAGE_PATH);
     ensureDirExist(rt->CACHE_IMAGE_S_PATH);
     ensureDirExist(rt->CACHE_FACE_PATH);
