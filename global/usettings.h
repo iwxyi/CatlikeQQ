@@ -83,6 +83,7 @@ public:
     int bannerAIReply = false; // 触发回复时，进行AI提示
     bool bannerPrivateKeepShowing = false; // 私聊保持显示直到交互
     bool bannerGroupKeepShowing = false; // 群聊保持显示直到交互
+    int bannerThumbnailProp = 2; // 缩略图最大是原图的几分之一
 
     // 回复
     bool bannerShowMySend = false; // 回复后，显示自己发送的消息；可能会与接收到的重复

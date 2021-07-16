@@ -20,6 +20,7 @@ void USettings::restoreSettings()
     assign(bannerFloatPixel, "pixel");
     assign(bannerSpacing, "spacing");
     assign(bannerFixedWidth, "width");
+    assign(bannerThumbnailProp, "thumbnailProp");
     assign(bannerBgColor, "bgColor");
     assign(bannerTitleColor, "titleColor");
     assign(bannerContentColor, "contentColor");

@@ -170,14 +170,21 @@ void MessageView::setMessage(const MsgBean& msg)
                     QSize sz = movie->frameRect().size();
                     if (sz.height() && sz.width())
                     {
-                        if (sz.width() > maxWidth)
+                        if (sz.width() / us->bannerThumbnailProp < maxWidth && sz.height() / us->bannerThumbnailProp < maxHeight)
+                            // 缩放，不足最大尺寸
+                            sz /= us->bannerThumbnailProp;
+                        else
+                            // 满max缩放
+                            sz.scale(maxWidth, maxHeight, Qt::KeepAspectRatio);
+                        /* if (sz.width() > maxWidth)
                             sz = QSize(maxWidth, sz.height() * maxWidth / sz.width());
                         if (sz.height() > maxHeight)
-                            sz = QSize(sz.width() * maxHeight / sz.height(), maxHeight);
+                            sz = QSize(sz.width() * maxHeight / sz.height(), maxHeight); */
                         movie->setScaledSize(sz);
                     }
                     else
                     {
+                        qWarning() << "无法获取到 gif 的大小" << id;
                         movie->setScaledSize(QSize(maxWidth, maxHeight));
                     }
 
@@ -204,8 +211,15 @@ void MessageView::setMessage(const MsgBean& msg)
             QPixmap pixmap(path, "1");
             this->filePixmap = pixmap;
             maxWidth -= us->bannerBgRadius * 2; // 有个莫名的偏差
-            if (pixmap.width() > maxWidth || pixmap.height() > maxHeight)
+            if (pixmap.width() / us->bannerThumbnailProp < maxWidth && pixmap.height() / us->bannerThumbnailProp < maxHeight)
+            {
+                pixmap = pixmap.scaled(pixmap.size() / us->bannerThumbnailProp, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            }
+            else if (pixmap.width() > maxWidth || pixmap.height() > maxHeight)
+            {
+                // 这个会缩 得更小
                 pixmap = pixmap.scaled(maxWidth, maxHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            }
             pixmap = NetImageUtil::toRoundedPixmap(pixmap, us->bannerBgRadius);
             path = rt->imageSCache(id);
             pixmap.save(path);

@@ -15,6 +15,7 @@ BannerWidget::BannerWidget(QWidget *parent) :
     ui->floatPixelSpin->setValue(us->bannerFloatPixel);
     ui->fixedWidthSpin->setValue(us->bannerFixedWidth);
     ui->contentMaxHeightSpin->setValue(us->bannerContentMaxHeight);
+    ui->thumbnailPropSpin->setValue(us->bannerThumbnailProp);
     ui->retentionDurationSpin->setValue(us->bannerRetentionDuration / 1000);
     ui->useHeaderColorCheck->setChecked(us->bannerUseHeaderColor);
     ui->useHeaderGradientCheck->setChecked(us->bannerUseHeaderGradient);
@@ -110,4 +111,9 @@ void BannerWidget::on_fixedWidthSpin_editingFinished()
 void BannerWidget::on_contentMaxHeightSpin_editingFinished()
 {
     us->set("banner/contentMaxHeight", us->bannerContentMaxHeight = ui->contentMaxHeightSpin->value());
+}
+
+void BannerWidget::on_thumbnailPropSpin_editingFinished()
+{
+    us->set("banner/thumbnailProp", us->bannerThumbnailProp = ui->thumbnailPropSpin->value());
 }

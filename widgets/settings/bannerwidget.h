@@ -46,6 +46,8 @@ private slots:
 
     void on_contentMaxHeightSpin_editingFinished();
 
+    void on_thumbnailPropSpin_editingFinished();
+
 private:
     Ui::BannerWidget *ui;
 };

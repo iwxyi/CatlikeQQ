@@ -110,6 +110,7 @@ void MainWindow::initView()
     confirmButton->setFocusPolicy(Qt::StrongFocus);
     if (ui->sideButtons->currentRow() == 2)
         confirmButton->hide();
+    confirmButton->setCursor(Qt::PointingHandCursor);
 }
 
 void MainWindow::on_sideButtons_currentRowChanged(int currentRow)
