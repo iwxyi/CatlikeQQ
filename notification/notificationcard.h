@@ -68,7 +68,7 @@ signals:
 
 public slots:
     void showReplyEdit();
-    void showReplyEdit(bool focus);
+    void showReplyEdit(bool focus, bool selectAll = true);
     void hideReplyEdit();
     void toHide();
     void triggerAIReply(int retry = 0);

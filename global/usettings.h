@@ -90,6 +90,7 @@ public:
     bool bannerAutoShowReply = false; // 自动显示回复框
     bool bannerAutoFocusReply = false; // hover的时候自动聚焦回复框
     bool bannerCloseAfterReply = true; // 回复后关闭对话框（Ctrl+Enter切换）
+    bool replyMessageContainsAt = false; // 回复的时候@TA
 
     // 群组同志
     bool enableGroupNotification = true; // 群组通知总开关

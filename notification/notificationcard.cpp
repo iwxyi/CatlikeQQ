@@ -801,6 +801,11 @@ MessageView *NotificationCard::newMsgView()
         shallToHide();
     });
 
+    connect(view, &MessageView::replyText, this, [=](const QString& text){
+        ui->messageEdit->insert(text);
+        showReplyEdit(true, false);
+    });
+
     return view;
 }
 
@@ -979,7 +984,7 @@ void NotificationCard::showReplyEdit()
     }
 }
 
-void NotificationCard::showReplyEdit(bool focus)
+void NotificationCard::showReplyEdit(bool focus, bool selectAll)
 {
     ui->replyButton->setText("发送");
     ui->messageEdit->show();
@@ -987,7 +992,7 @@ void NotificationCard::showReplyEdit(bool focus)
     {
         this->activateWindow(); // 只有活动中的窗口，setFocus 才有效
         ui->messageEdit->setFocus();
-        if (!ui->messageEdit->text().isEmpty())
+        if (selectAll && !ui->messageEdit->text().isEmpty())
             ui->messageEdit->selectAll();
     }
     ui->replyHLayout->removeItem(ui->horizontalSpacer);

@@ -28,6 +28,7 @@ signals:
     void needMemberNames();
     void keepShowing();
     void restoreTimerIfNecessary();
+    void replyText(const QString& text);
 
 public slots:
     void replaceGroupAt();

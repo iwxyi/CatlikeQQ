@@ -562,8 +562,18 @@ void MessageView::showMenu()
         menu->split();
 
     menu->addAction("回复", [=]{
+        QString text = "[CQ:reply,id=" + snum(msg.messageId) + "][CQ:at,qq=" + snum(msg.senderId) + "] ";
+        if (us->replyMessageContainsAt)
+            text += "[CQ:at,qq=" + snum(msg.senderId) + "] ";
+        emit replyText(text);
+    });
 
-    })->disable();
+    if (msg.isGroup())
+    {
+        menu->addAction("@TA", [=]{
+            emit replyText("[CQ:at,qq=" + snum(msg.senderId) + "] ");
+        })->text(msg.senderId == ac->myId, "@自己");
+    }
 
     menu->addAction("CQ码", [=]{
         // 必须要有一个拷贝的副本，因为 msg 可能因为通知超时隐藏而删除
