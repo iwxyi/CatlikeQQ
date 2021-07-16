@@ -365,16 +365,16 @@ void MainWindow::initService()
         tray->setIcon(pixmap);
     });
 
-    connect(sig, &SignalTransfer::openUserCard, this, [=](qint64 userId, QString username) {
+    connect(sig, &SignalTransfer::openUserCard, this, [=](qint64 userId, const QString& username, const QString& text) {
         MsgBean msg(userId, username);
         msg.privt(userId, userId);
-        focusOrShowMessageCard(msg, true);
+        focusOrShowMessageCard(msg, true, text);
     });
 
-    connect(sig, &SignalTransfer::openGroupCard, this, [=](qint64 groupId) {
+    connect(sig, &SignalTransfer::openGroupCard, this, [=](qint64 groupId, const QString& text) {
         MsgBean msg(0, "");
         msg.group(groupId, ac->groupName(groupId));
-        focusOrShowMessageCard(msg, true);
+        focusOrShowMessageCard(msg, true, text);
     });
 
     // 远程控制
@@ -616,7 +616,9 @@ NotificationCard* MainWindow::createNotificationCard(const MsgBean &msg)
     return card;
 }
 
-void MainWindow::focusOrShowMessageCard(const MsgBean &msg, bool focusEdit)
+/// 显示或者聚焦对应的用户/群组卡片
+/// 如果没有，则新建一个
+void MainWindow::focusOrShowMessageCard(const MsgBean &msg, bool focusEdit, const QString &insertText)
 {
     foreach (auto card, notificationCards)
     {
@@ -631,8 +633,10 @@ void MainWindow::focusOrShowMessageCard(const MsgBean &msg, bool focusEdit)
     auto card = createNotificationCard(msg);
     if (card && focusEdit)
     {
-        card->showReplyEdit();
+        card->showReplyEdit(true);
     }
+    if (!insertText.isEmpty())
+        card->addReplyText(insertText);
 }
 
 /**

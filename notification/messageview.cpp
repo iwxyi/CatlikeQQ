@@ -23,6 +23,7 @@
 #include "video/videolabel.h"
 #include "video/videowidget.h"
 #include "facilemenu.h"
+#include "signaltransfer.h"
 
 MessageView::MessageView(QWidget *parent)
 #ifdef MESSAGE_LABEL
@@ -230,7 +231,7 @@ void MessageView::setMessage(const MsgBean& msg)
     }
 
     // 回复
-    text.replace(QRegularExpression("\\[CQ:reply,id=-?\\d+\\]\\[CQ:at,qq=\\d+\\]"), grayText("[回复]"));
+    text.replace(QRegularExpression("\\[CQ:reply,id=-?\\d+\\](\\[CQ:at,qq=\\d+\\])?"), grayText("[回复]"));
 
     // 艾特
     re = QRegularExpression("\\[CQ:at,qq=(\\d+)\\]");
@@ -570,6 +571,11 @@ void MessageView::showMenu()
 
     if (msg.isGroup())
     {
+        menu->addAction("单独回复", [=]{
+            QString text = "[CQ:reply,id=" + snum(msg.messageId) + "]";
+            emit sig->openUserCard(msg.senderId, msg.displayNickname(), text);
+        });
+
         menu->addAction("@TA", [=]{
             emit replyText("[CQ:at,qq=" + snum(msg.senderId) + "] ");
         })->text(msg.senderId == ac->myId, "@自己");

@@ -73,6 +73,7 @@ public slots:
     void toHide();
     void triggerAIReply(int retry = 0);
     void shallToHide();
+    void addReplyText(const QString& text);
 
     void showGrougInfo(qint64 groupId, QPoint pos = QPoint(-1, -1));
     void showUserInfo(qint64 friendId, QPoint pos = QPoint(-1, -1));

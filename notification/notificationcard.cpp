@@ -848,7 +848,7 @@ void NotificationCard::connectUserHeader(QLabel* label, const MsgBean& msg)
         })->disable();
 
         menu->split()->addAction("发送消息", [=]{
-            emit sig->openUserCard(msg.senderId, msg.displayNickname());
+            emit sig->openUserCard(msg.senderId, msg.displayNickname(), "");
         });
 
         menu->addAction("@ TA", [=]{
@@ -1235,6 +1235,11 @@ void NotificationCard::shallToHide()
             && !bg->inArea(bg->mapFromGlobal(QCursor::pos()))
             && !ui->messageEdit->hasFocus())
         displayTimer->start();
+}
+
+void NotificationCard::addReplyText(const QString &text)
+{
+    ui->messageEdit->insert(text);
 }
 
 void NotificationCard::cardClicked()
