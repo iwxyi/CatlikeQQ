@@ -582,12 +582,12 @@ void MessageView::showMenu()
     }
 
     menu->addAction("+1", [=]{
-        emit replyText(msg.message);
-    })->disable(this->text().isEmpty());
+        emit replyText(msg.rawMessage);
+    });
 
     menu->split()->addAction("CQ码", [=]{
         // 必须要有一个拷贝的副本，因为 msg 可能因为通知超时隐藏而删除
-        QString cqCode = msg.message;
+        QString cqCode = msg.rawMessage;
         auto btn = QMessageBox::information(this->parentWidget(), "CQ码", cqCode, "取消", "复制", nullptr, 0);
         if (btn == 1)
         {
