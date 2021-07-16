@@ -365,6 +365,18 @@ void MainWindow::initService()
         tray->setIcon(pixmap);
     });
 
+    connect(sig, &SignalTransfer::openUserCard, this, [=](qint64 userId, QString username) {
+        MsgBean msg(userId, username);
+        msg.privt(userId, userId);
+        focusOrShowMessageCard(msg, true);
+    });
+
+    connect(sig, &SignalTransfer::openGroupCard, this, [=](qint64 groupId) {
+        MsgBean msg(0, "");
+        msg.group(groupId, ac->groupName(groupId));
+        focusOrShowMessageCard(msg, true);
+    });
+
     // 远程控制
     remoteControlService = new RemoteControlServie(this);
 }

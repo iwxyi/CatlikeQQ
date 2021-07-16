@@ -848,16 +848,18 @@ void NotificationCard::connectUserHeader(QLabel* label, const MsgBean& msg)
         })->disable();
 
         menu->split()->addAction("发送消息", [=]{
-
-        })->disable();
+            emit sig->openUserCard(msg.senderId, msg.displayNickname());
+        });
 
         menu->addAction("@ TA", [=]{
-
-        })->disable();
+            QString text = "[CQ:at,qq=" + snum(msg.senderId) + "] ";
+            ui->messageEdit->insert(text);
+            showReplyEdit(true, false);
+        });
 
         menu->split()->addAction("特别关注", [=]{
 
-        })->disable();
+        })->text(msg.isGroup(), "群内特别关注")->disable();
 
         menu->addAction("屏蔽此人", [=]{
             // 本地屏蔽

@@ -21,6 +21,9 @@ signals:
     void setReplyKey(QString key);
     void myReplyUser(qint64 userId, QString message);
     void myReplyGroup(qint64 groupId, QString message);
+
+    void openUserCard(qint64 userId, QString username);
+    void openGroupCard(qint64 groupId);
 };
 
 extern SignalTransfer* sig;

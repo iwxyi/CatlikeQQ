@@ -124,7 +124,7 @@ struct MsgBean
 
     QString displayNickname() const
     {
-        if (!groupCard.trimmed().isEmpty())
+        if (isGroup() && !groupCard.trimmed().isEmpty())
             return groupCard;
         if (!remark.trimmed().isEmpty())
             return remark;
