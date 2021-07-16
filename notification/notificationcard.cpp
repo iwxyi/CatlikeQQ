@@ -1451,8 +1451,12 @@ void NotificationCard::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
 }
 
 /// 加载消息记录
+/// 因为消息加载/文件下载的延时，所以很可能会是多线程调用
 void NotificationCard::loadMsgHistory()
 {
+    if (_loadingHistory)
+        return ;
+    _loadingHistory = true;
     QList<MsgBean> *histories;
     int h = this->height();
 
@@ -1522,6 +1526,7 @@ void NotificationCard::loadMsgHistory()
     int hDelta = this->height() - h;
     if (hDelta)
         emit signalHeightChanged(hDelta);
+    _loadingHistory = false;
 }
 
 void NotificationCard::dragEnterEvent(QDragEnterEvent *event)

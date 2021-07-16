@@ -130,6 +130,7 @@ private:
     bool hidding = false;
     bool fastFocus = false;
     bool fixing = false; // 固定不自动隐藏
+    bool _loadingHistory = false;
     AccountInfo::CardColor cardColor;
     QLabel* frostGlassLabel = nullptr;
     QPixmap frostGlassPixmap;
