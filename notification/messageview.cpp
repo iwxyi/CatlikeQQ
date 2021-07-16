@@ -61,7 +61,7 @@ void MessageView::setMessage(const MsgBean& msg)
 {
     this->msg = msg;
     QString text = msg.message;
-    if (msg.senderId == ac->myId)
+    if (msg.isPrivate() && msg.senderId == ac->myId)
         text.insert(0, "你:");
     QRegularExpression re;
     QRegularExpressionMatch match;
