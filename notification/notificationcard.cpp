@@ -1077,7 +1077,9 @@ void NotificationCard::sendReply()
     }
 
     // 加到消息框中
-    if (us->bannerShowMySend) // 不显示自己发送的消息
+    // 这是本地加的，不会进消息记录
+    // 如果云端上报自己的消息，那么会出现两条
+    if (us->bannerShowMySend) // 不显示自己发送的消息（默认）
     {
         MsgBean msg(ac->myId, ac->myNickname, "你: " + text, 0, "");
         if (isGroup())
@@ -1085,6 +1087,9 @@ void NotificationCard::sendReply()
         else
             appendPrivateMsg(msg);
     }
+
+    // 置底
+    ui->listWidget->scrollToBottom();
 
     // 清空输入框
     ui->messageEdit->clear();
