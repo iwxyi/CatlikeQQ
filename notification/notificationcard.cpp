@@ -25,6 +25,7 @@ NotificationCard::NotificationCard(QWidget *parent) :
     setWindowFlags(Qt::FramelessWindowHint | Qt::Tool | Qt::MSWindowsFixedSizeDialogHint);
     setAttribute(Qt::WA_TranslucentBackground, true);
     setWindowFlag(Qt::WindowStaysOnTopHint, true);
+    setAcceptDrops(true);
 
     displayTimer = new QTimer(this);
     displayTimer->setInterval(us->bannerDisplayDuration);
@@ -1521,4 +1522,14 @@ void NotificationCard::loadMsgHistory()
     int hDelta = this->height() - h;
     if (hDelta)
         emit signalHeightChanged(hDelta);
+}
+
+void NotificationCard::dragEnterEvent(QDragEnterEvent *event)
+{
+    QWidget::dragEnterEvent(event);
+}
+
+void NotificationCard::dropEvent(QDropEvent *event)
+{
+    QWidget::dropEvent(event);
 }
