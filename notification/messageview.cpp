@@ -581,7 +581,11 @@ void MessageView::showMenu()
         })->text(msg.senderId == ac->myId, "@自己");
     }
 
-    menu->addAction("CQ码", [=]{
+    menu->addAction("+1", [=]{
+        emit replyText(msg.message);
+    })->disable(this->text().isEmpty());
+
+    menu->split()->addAction("CQ码", [=]{
         // 必须要有一个拷贝的副本，因为 msg 可能因为通知超时隐藏而删除
         QString cqCode = msg.message;
         auto btn = QMessageBox::information(this->parentWidget(), "CQ码", cqCode, "取消", "复制", nullptr, 0);
@@ -593,7 +597,7 @@ void MessageView::showMenu()
 
 
 #ifdef MESSAGE_LABEL
-    menu->split()->addAction("复制", [=]{
+    menu->addAction("复制", [=]{
         if (this->hasSelectedText())
         {
             QApplication::clipboard()->setText(this->selectedText());

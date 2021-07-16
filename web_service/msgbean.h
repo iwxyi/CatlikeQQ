@@ -50,6 +50,7 @@ struct MsgBean
     qint64 senderId = 0;
     QString nickname; // 优先群昵称/好友备注，才是原昵称
     QString message;
+    QString rawMessage;
     qint64 messageId = 0;
     QString subType;
     QString remark; // 自己对TA的备注
@@ -71,7 +72,7 @@ struct MsgBean
     qint64 timestamp = 0; // 创建时间（毫秒级）
 
     MsgBean(qint64 senderId, QString nickname, QString message, qint64 messageId, QString subType)
-        : senderId(senderId), nickname(nickname), message(message), messageId(messageId), subType(subType)
+        : senderId(senderId), nickname(nickname), message(message), rawMessage(message), messageId(messageId), subType(subType)
     {
         if (nickname.isEmpty())
             nickname = QString::number(senderId);
