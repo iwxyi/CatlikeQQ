@@ -99,8 +99,9 @@ private:
     void createMsgBox(const MsgBean &msg, int index = -1);
     void createBlankMsgBox(const MsgBean &msg, int index = -1);
     MessageView* newMsgView();
-    void connectGroupHeader(QLabel* label);
-    void connectUserHeader(QLabel *label);
+    void connectGroupHeader(QLabel* label, const MsgBean &msg);
+    void connectUserHeader(QLabel *label, const MsgBean &msg);
+    void connectUserName(QLabel* label, const MsgBean &msg);
     int getReadDisplayDuration(QString text) const;
     void createFrostGlass();
     void suspendHide();

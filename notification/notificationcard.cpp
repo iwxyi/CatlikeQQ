@@ -4,6 +4,7 @@
 #include <QMovie>
 #include <QDesktopServices>
 #include <QScrollBar>
+#include <QClipboard>
 #include "notificationcard.h"
 #include "ui_notificationcard.h"
 #include "defines.h"
@@ -181,12 +182,12 @@ void NotificationCard::setMsg(const MsgBean &msg)
     if (msg.isPrivate())
     {
         setPrivateMsg(msg);
-        connectUserHeader(ui->headerLabel);
+        connectUserHeader(ui->headerLabel, msg);
     }
     else
     {
         setGroupMsg(msg);
-        connectGroupHeader(ui->headerLabel);
+        connectGroupHeader(ui->headerLabel, msg);
     }
 
     // 设置大小
@@ -581,7 +582,8 @@ void NotificationCard::createMsgBox(const MsgBean &msg, int index)
     mainHlayout->setAlignment(Qt::AlignLeft);
     mainHlayout->setMargin(0);
 
-    connectUserHeader(headerLabel);
+    connectUserHeader(headerLabel, msg);
+    connectUserName(nameLabel, msg);
     spacer->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     headerLabel->setAttribute(Qt::WA_TransparentForMouseEvents, false);
     nameLabel->setAttribute(Qt::WA_TransparentForMouseEvents, false);
@@ -810,7 +812,7 @@ MessageView *NotificationCard::newMsgView()
 }
 
 /// 连接群组头像事件
-void NotificationCard::connectGroupHeader(QLabel *label)
+void NotificationCard::connectGroupHeader(QLabel *label, const MsgBean& msg)
 {
     label->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(label, &QLabel::customContextMenuRequested, this, [=](const QPoint&){
@@ -834,7 +836,7 @@ void NotificationCard::connectGroupHeader(QLabel *label)
 
 /// 连接用户头像事件
 /// 要区分私聊的主图像、群聊的次头像
-void NotificationCard::connectUserHeader(QLabel* label)
+void NotificationCard::connectUserHeader(QLabel* label, const MsgBean& msg)
 {
     label->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(label, &QLabel::customContextMenuRequested, this, [=](const QPoint&){
@@ -860,6 +862,38 @@ void NotificationCard::connectUserHeader(QLabel* label)
         menu->addAction("屏蔽此人", [=]{
             // 本地屏蔽
         })->disable();
+
+        menu->exec();
+        menu->finished([=]{
+            shallToHide();
+        });
+    });
+}
+
+void NotificationCard::connectUserName(QLabel *label, const MsgBean& msg)
+{
+    label->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(label, &QLabel::customContextMenuRequested, this, [=](const QPoint&){
+        suspendHide();
+        FacileMenu* menu = new FacileMenu(this);
+
+        auto copyMenu = menu->addMenu("复制");
+
+        copyMenu->addAction("昵称", [=]{
+            QApplication::clipboard()->setText(msg.nickname);
+        });
+
+        copyMenu->addAction("备注", [=]{
+            QApplication::clipboard()->setText(msg.remark);
+        })->disable(msg.remark.isEmpty());
+
+        copyMenu->addAction("群昵称", [=]{
+            QApplication::clipboard()->setText(msg.groupCard);
+        })->disable(msg.groupCard.isEmpty())->hide(!msg.isGroup());
+
+        copyMenu->addAction("QQ号", [=]{
+            QApplication::clipboard()->setText(snum(msg.senderId));
+        });
 
         menu->exec();
         menu->finished([=]{
