@@ -36,5 +36,5 @@ function del_file_by_time($dir,$n)
     }
 }
 
-// 清理一分钟前的文件
-del_file_by_time('files', 1);
+// 清理一小时前的文件
+del_file_by_time('files', 60);

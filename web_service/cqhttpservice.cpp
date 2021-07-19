@@ -271,11 +271,6 @@ void CqhttpService::parsePrivateMessage(const MyJson &json)
             .privt(target_id, friendId);
     emit signalMessage(msg);
 
-    qint64 oppo_id = user_id == ac->myId ? target_id : user_id;
-    if (!ac->userMsgHistory.contains(oppo_id))
-        ac->userMsgHistory.insert(oppo_id, QList<MsgBean>());
-    ac->userMsgHistory[oppo_id].append(msg);
-
     // 图片消息：文字1\r\n[CQ:image,file=8f84df65ee005b52f7f798697765a81b.image,url=http://c2cpicdw.qpic.cn/offpic_new/1600631528//1600631528-3839913603-8F84DF65EE005B52F7F798697765A81B/0?term=3]\r\n文字二……
 }
 
@@ -311,10 +306,6 @@ void CqhttpService::parseGroupMessage(const MyJson &json)
             .frind(ac->friendList.contains(user_id) ? ac->friendList.value(user_id).remark : "")
             .group(group_id, ac->groupList.value(group_id).name, card);
     emit signalMessage(msg);
-
-    if (!ac->groupMsgHistory.contains(group_id))
-        ac->groupMsgHistory.insert(group_id, QList<MsgBean>());
-    ac->groupMsgHistory[group_id].append(msg);
 }
 
 void CqhttpService::parseGroupUpload(const MyJson &json)
@@ -352,6 +343,7 @@ void CqhttpService::parseOfflineFile(const MyJson &json)
     }*/
 
     JL(json, user_id);
+    JL(json, self_id);
 
     JO(json, file);
     JS(file, name);
@@ -363,7 +355,8 @@ void CqhttpService::parseOfflineFile(const MyJson &json)
 
     QString fileId = name + "_" + snum(size);
     MsgBean msg = MsgBean(user_id, ac->friendName(user_id))
-                       .file(fileId, name, size, url);
+                       .file(fileId, name, size, url)
+                       .privt(self_id, user_id);
     emit signalMessage(msg);
 }
 

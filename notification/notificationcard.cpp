@@ -112,6 +112,8 @@ NotificationCard::NotificationCard(QWidget *parent) :
 
     connect(ui->messageEdit, &ReplyEdit::signalDropFile, this, &NotificationCard::sendFiles);
 
+    ui->progressBar->hide();
+
     // 样式表
     QString qss = "/* 整个滚动条背景 */\
                     QScrollBar:vertical\
@@ -1069,8 +1071,6 @@ void NotificationCard::showUserInfo(qint64 userId, QPoint pos)
 
 void NotificationCard::sendFiles(QList<QUrl> urls)
 {
-//    bool _tmp_fixing = fixing;
-//    this->fixing = true;
     foreach (auto url, urls)
     {
         if (!url.isLocalFile())
@@ -1083,20 +1083,18 @@ void NotificationCard::sendFiles(QList<QUrl> urls)
         QString path = url.toLocalFile();
         uploadFilePaths.append(path);
     }
-//    this->fixing = _tmp_fixing;
     sendNextFile();
 }
 
 void NotificationCard::sendReply()
 {
-    QString text = ui->messageEdit->text();
-    if (text.isEmpty())
-        return ;
-    sendReply(text);
+    sendReply(ui->messageEdit->text());
 }
 
 void NotificationCard::sendReply(QString text)
 {
+    if (text.isEmpty())
+        return ;
     int h = this->height();
 
     // 回复消息
@@ -1273,7 +1271,8 @@ void NotificationCard::shallToHide()
 {
     if (!displayTimer->isActive() && !fixing
             && !bg->inArea(bg->mapFromGlobal(QCursor::pos()))
-            && !ui->messageEdit->hasFocus())
+            && !ui->messageEdit->hasFocus()
+            && uploadFilePaths.isEmpty())
         displayTimer->start();
 }
 
@@ -1448,12 +1447,19 @@ void NotificationCard::sendNextFile()
 
     QString path = uploadFilePaths.takeFirst();
 
-    HttpUploader* uploader = new HttpUploader(us->fileHost + "/file_upload.php", this);
+    HttpUploader* uploader = new HttpUploader(us->fileHost + "/file_upload.php");
     uploader->addFilePath("upfile", path);
     uploader->post();
+    ui->progressBar->show();
+    connect(uploader, &HttpUploader::progress, this, [=](qint64 sent, qint64 total) {
+        if (!total)
+            return ;
+        ui->progressBar->setValue(int(sent * 100 / total));
+    });
     connect(uploader, &HttpUploader::finished, this, [=](QNetworkReply* reply){
         QByteArray data = reply->readAll();
-        reply->deleteLater();
+        uploader->deleteLater();
+
         bool ok;
         QString error;
         MyJson json = MyJson::from(data, &ok, &error);
@@ -1465,67 +1471,12 @@ void NotificationCard::sendNextFile()
 
         QString hash = json.s("hash");
         qInfo() << "文件上传结束：" << path << hash;
+        ui->progressBar->hide();
 
+        sendReply("[CQ:image,file=" + us->fileHost + "/files/" + hash + "]");
+
+        sendNextFile();
     });
-
-    /* auto file = new QFile(path);
-    file->open(QIODevice::ReadOnly);
-    // QByteArray fileData = file->readAll();
-
-    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
-    manager->setNetworkAccessible(QNetworkAccessManager::Accessible);
-
-    QUrl uploadUrl(us->fileHost + "/file_upload.php");
-
-//        QString boundary = "----WebKitFormBoundaryAp8SjB2NUzhjmklk";
-//        QString startBoundary = "--" + boundary;
-//        QString endBoundary = "\r\n--" + boundary + "--\r\n";
-
-//        QNetworkRequest request(uploadUrl);
-//        request.setHeader(QNetworkRequest::ContentTypeHeader, "multipart/form-data; boundary=" + boundary);
-
-//        QString content = startBoundary;
-//        content += "\r\nContent-Type: multipart/form-data; boundary=" + boundary + "\r\n";
-//        content += "\r\nContent-Disposition: form-data; name=\"upfile\"; filename=\"" + file->fileName() + "\"\r\n";
-//        content.append(fileData);
-//        content.append(endBoundary);
-
-    QHttpPart part;
-    part.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/octet-stream"));
-    part.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"upfile\"; filename=\"" + file->fileName() + "\""));
-    part.setBodyDevice(file);
-
-    QHttpMultiPart* multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
-    multiPart->append(part);
-    file->setParent(multiPart);
-
-    QNetworkRequest request(us->fileHost + "/file_upload.php");
-    QNetworkReply* reply = manager->post(request, multiPart);
-    multiPart->setParent(reply);
-//        request.setRawHeader("Accept-Encoding", "gzip, deflate, br");
-//        request.setRawHeader("Content-Type", "multipart/form-data; boundary=----WebKitFormBoundaryAp8SjB2NUzhjmklk");
-//        request.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("multipart/form-data"));
-
-    qInfo() << "开始上传文件：" << path; // << "    大小：" << fileData.size();
-    connect(manager, &QNetworkAccessManager::finished, this, [=](QNetworkReply* rpl) {
-        QByteArray data = rpl->readAll();
-        rpl->deleteLater();
-        manager->deleteLater();
-        bool ok;
-        QString error;
-        MyJson json = MyJson::from(data, &ok, &error);
-        if (!ok)
-        {
-            qWarning() << "上传文件失败：" <<  QString::fromUtf8(data);
-            return ;
-        }
-
-        QString hash = json.s("hash");
-        qInfo() << "文件上传结束：" << path;
-    });
-    connect(reply, static_cast<void (QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error), this, [=](QNetworkReply::NetworkError) {
-        qWarning() << "文件上传出错：" << reply->errorString();
-    }); */
 }
 
 QString NotificationCard::getValiableMessage(QString text)

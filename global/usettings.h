@@ -43,7 +43,7 @@ public:
 public:
     QString host;
     QString accessToken;
-    QString fileHost;
+    QString fileHost; // 文件上传服务器，不带/
 
     // 横幅通知位置
     Side bannerFloatSide = SideRight; // 边：0上，1左，2右，3下，-1任意

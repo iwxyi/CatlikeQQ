@@ -14,7 +14,7 @@ class HttpUploader : public QObject
 {
     Q_OBJECT
 public:
-    HttpUploader(const QString& url, QObject* parent = nullptr);
+    HttpUploader(const QString& url);
     ~HttpUploader();
 
     void setUrl(const QString& url) { this->url = url; }
@@ -28,7 +28,7 @@ public:
 signals:
     void finished(QNetworkReply* reply);
     void errored(QNetworkReply::NetworkError code);
-    void progress(qint64 sent, qint64 total);
+    void progress(qint64 sent, qint64 total); // 结束后sent和total都会变成0，相除要特判！
 
 private:
     QString url;

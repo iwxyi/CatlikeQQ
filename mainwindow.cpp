@@ -475,11 +475,19 @@ void MainWindow::messageReceived(const MsgBean &msg, bool blockSelf)
     {
         if (ac->friendList.contains(msg.friendId))
             ac->friendList[msg.friendId].lastMsgTime = QDateTime::currentMSecsSinceEpoch();
+
+        if (!ac->userMsgHistory.contains(msg.friendId))
+            ac->userMsgHistory.insert(msg.friendId, QList<MsgBean>());
+        ac->userMsgHistory[msg.friendId].append(msg);
     }
     else if (msg.isGroup())
     {
         if (ac->groupList.contains(msg.groupId))
             ac->groupList[msg.groupId].lastMsgTime = QDateTime::currentMSecsSinceEpoch();
+
+        if (!ac->groupMsgHistory.contains(msg.groupId))
+            ac->groupMsgHistory.insert(msg.groupId, QList<MsgBean>());
+        ac->groupMsgHistory[msg.groupId].append(msg);
     }
 
     // ========== 显示通知 ==========
