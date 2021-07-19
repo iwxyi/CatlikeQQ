@@ -1275,7 +1275,7 @@ void NotificationCard::cardMenu()
                 displayTimer->start();
     })->text(fixing, "取消固定");
 
-    auto importanceMenu = menu->addMenu(QIcon("://icons/importance.png"), "消息重要性");
+    auto importanceMenu = menu->split()->addMenu(QIcon("://icons/importance.png"), "消息重要性");
     importanceMenu->setDisabled(!isPrivate() && !isGroup());
     auto setImportance = [=](int im){
         auto msg = msgs.last();
@@ -1310,12 +1310,20 @@ void NotificationCard::cardMenu()
         setImportance(Unimportant);
     })->check(importance == Unimportant);
 
-    menu->split()->addAction(QIcon("://icons/closeUser.png"), "不显示该群通知", [=]{
+    menu->addAction(QIcon("://icons/closeUser.png"), "不显示该群通知", [=]{
         us->enabledGroups.removeOne(groupId);
         us->set("group/enables", us->enabledGroups);
         this->toHide();
         qInfo() << "不显示群组通知：" << groupId;
     })->hide(!groupId);
+
+    menu->split()->addAction(QIcon("://icons/silent.png"), "临时静默", [=] {
+        // 这里的静默模式不会保存，重启后还是以设置中为准
+        rt->notificationSlient = !rt->notificationSlient;
+        if (rt->notificationSlient)
+            emit signalCloseAllCards();
+    })->check(rt->notificationSlient)->tooltip("临时屏蔽所有消息\n重启后将恢复原来状态");
+
     menu->addAction(QIcon("://icons/hideView.png"), "立刻关闭所有通知", [=]{
         emit signalCloseAllCards();
     });

@@ -171,12 +171,22 @@ void MessageView::setMessage(const MsgBean& msg)
                     QSize sz = movie->frameRect().size();
                     if (sz.height() && sz.width())
                     {
-                        if (sz.width() / us->bannerThumbnailProp < maxWidth && sz.height() / us->bannerThumbnailProp < maxHeight)
+                        if (sz.width() < maxWidth / us->bannerThumbnailProp
+                                && sz.height() < maxHeight / us->bannerThumbnailProp)
+                        {
+                            // 图片过小，不压缩了
+                        }
+                        else if (sz.width() / us->bannerThumbnailProp < maxWidth
+                                && sz.height() / us->bannerThumbnailProp < maxHeight)
+                        {
                             // 缩放，不足最大尺寸
                             sz /= us->bannerThumbnailProp;
+                        }
                         else
+                        {
                             // 满max缩放
                             sz.scale(maxWidth, maxHeight, Qt::KeepAspectRatio);
+                        }
                         /* if (sz.width() > maxWidth)
                             sz = QSize(maxWidth, sz.height() * maxWidth / sz.width());
                         if (sz.height() > maxHeight)
@@ -212,8 +222,15 @@ void MessageView::setMessage(const MsgBean& msg)
             QPixmap pixmap(path, "1");
             this->filePixmap = pixmap;
             maxWidth -= us->bannerBgRadius * 2; // 有个莫名的偏差
-            if (pixmap.width() / us->bannerThumbnailProp < maxWidth && pixmap.height() / us->bannerThumbnailProp < maxHeight)
+            if (pixmap.width() < maxWidth / us->bannerThumbnailProp
+                    && pixmap.height() < maxHeight / us->bannerThumbnailProp)
             {
+                // 图片过小，不压缩
+            }
+            else if (pixmap.width() / us->bannerThumbnailProp < maxWidth
+                    && pixmap.height() / us->bannerThumbnailProp < maxHeight)
+            {
+                // 按固定比例压缩
                 pixmap = pixmap.scaled(pixmap.size() / us->bannerThumbnailProp, Qt::KeepAspectRatio, Qt::SmoothTransformation);
             }
             else if (pixmap.width() > maxWidth || pixmap.height() > maxHeight)
