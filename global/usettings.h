@@ -24,8 +24,8 @@ enum Direction
 #define UnimportantText "不重要"
 #define NormalImportant 0
 #define NormalImportantText "一般"
-#define Important 1
-#define ImportantText "重要"
+#define LittleImportant 1
+#define LittleImportantText "重要"
 #define VeryImportant 2
 #define VeryImportantText "很重要"
 
@@ -43,6 +43,8 @@ public:
 public:
     QString host;
     QString accessToken;
+    QString fileHost;
+    QString fileFormat;
 
     // 横幅通知位置
     Side bannerFloatSide = SideRight; // 边：0上，1左，2右，3下，-1任意
@@ -100,7 +102,7 @@ public:
     QHash<qint64, int> userImportance; // 用户重要性
     QHash<qint64, int> groupImportance; // 群组重要性
     int lowestImportance = NormalImportant; // 当前弹窗的最低重要程度
-    int userDefaultImportance = Important; // 未设置用户的默认重要性
+    int userDefaultImportance = LittleImportant; // 未设置用户的默认重要性
     int groupDefaultImportance = NormalImportant; // 未设置群组的默认重要性
 
     // 文件管理

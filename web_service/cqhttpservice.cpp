@@ -262,10 +262,10 @@ void CqhttpService::parsePrivateMessage(const MyJson &json)
     JL(sender, user_id); // 发送者用户QQ号
     JS(sender, nickname);
 
-    ensureFriendExist(FriendInfo(user_id, nickname, ""));
+    qint64 friendId = target_id == ac->myId ? user_id : target_id;
+    ensureFriendExist(FriendInfo(friendId, nickname, ""));
     qInfo() << "收到私聊消息：" << user_id << "->" << target_id << nickname << message << message_id;
 
-    qint64 friendId = target_id == ac->myId ? user_id : target_id;
     MsgBean msg = MsgBean(user_id, nickname, message, message_id, sub_type)
             .frind(ac->friendList.contains(friendId) ? ac->friendList[friendId].remark : "")
             .privt(target_id, friendId);

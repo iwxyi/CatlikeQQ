@@ -41,11 +41,10 @@ AccountWidget::~AccountWidget()
 
 void AccountWidget::resotreSettings()
 {
-    QString host = us->host;
-    ui->hostEdit->setText(host);
-
-    QString token = us->accessToken;
-    ui->tokenEdit->setText(token);
+    ui->hostEdit->setText(us->host);
+    ui->tokenEdit->setText(us->accessToken);
+    ui->fileHostEdit->setText(us->fileHost);
+    ui->fileFormatEdit->setText(us->fileFormat);
 }
 
 void AccountWidget::on_hostEdit_editingFinished()
@@ -55,7 +54,7 @@ void AccountWidget::on_hostEdit_editingFinished()
         return ;
 
     // 自动填充前缀
-    if (!host.startsWith("ws"))
+    if (!host.isEmpty() && !host.startsWith("ws") && !host.contains("://"))
         host = "ws://" + host;
 
     us->set("net/host", us->host = host);
@@ -82,4 +81,26 @@ void AccountWidget::updateHeader(qint64 id)
     pixmap = NetImageUtil::toRoundedPixmap(pixmap);
     ui->headerLabel->setPixmap(pixmap);
     emit sig->myHeader(pixmap);
+}
+
+void AccountWidget::on_fileHostEdit_editingFinished()
+{
+    QString host = ui->fileHostEdit->text().trimmed();
+    if (host == us->fileHost || host.contains("*"))
+        return ;
+
+    // 自动填充前缀
+    if (!host.isEmpty() && !host.startsWith("http") && !host.contains("://"))
+        host = "http://" + host;
+
+    us->set("net/fileHost", us->fileHost = host);
+}
+
+void AccountWidget::on_fileFormatEdit_editingFinished()
+{
+    QString format = ui->fileFormatEdit->text();
+    if (format == us->fileFormat)
+        return ;
+
+    us->set("net/fileFormat", us->fileFormat = format);
 }

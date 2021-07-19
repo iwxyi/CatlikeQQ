@@ -322,8 +322,8 @@ void MainWindow::trayAction(QSystemTrayIcon::ActivationReason reason)
         })->check(us->lowestImportance == VeryImportant);
 
         importanceMenu->addAction(QIcon("://icons/important.png"), "重要", [=]{
-            setImportance(Important);
-        })->check(us->lowestImportance == Important);
+            setImportance(LittleImportant);
+        })->check(us->lowestImportance == LittleImportant);
 
         importanceMenu->addAction(QIcon("://icons/normalImportant.png"), "一般", [=]{
             setImportance(NormalImportant);

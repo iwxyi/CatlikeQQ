@@ -225,7 +225,7 @@ bool NotificationCard::append(const MsgBean &msg)
         return false;
     if (this->groupId != msg.groupId)
         return false;
-    if (this->isPrivate() && this->friendId != msg.senderId && this->friendId != msg.targetId)
+    if (this->isPrivate() && this->friendId != msg.friendId)
         return false;
 
     int h = height();
@@ -1301,8 +1301,8 @@ void NotificationCard::cardMenu()
         setImportance(VeryImportant);
     })->check(importance == VeryImportant);
     importanceMenu->addAction(QIcon("://icons/important.png"), "重要", [=]{
-        setImportance(Important);
-    })->check(importance == Important);
+        setImportance(LittleImportant);
+    })->check(importance == LittleImportant);
     importanceMenu->addAction(QIcon("://icons/normalImportant.png"), "一般", [=]{
         setImportance(NormalImportant);
     })->check(importance == NormalImportant);
