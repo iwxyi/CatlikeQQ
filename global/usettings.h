@@ -44,7 +44,6 @@ public:
     QString host;
     QString accessToken;
     QString fileHost;
-    QString fileFormat;
 
     // 横幅通知位置
     Side bannerFloatSide = SideRight; // 边：0上，1左，2右，3下，-1任意

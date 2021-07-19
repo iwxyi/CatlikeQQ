@@ -28,8 +28,6 @@ private slots:
 
     void on_fileHostEdit_editingFinished();
 
-    void on_fileFormatEdit_editingFinished();
-
 private:
     Ui::AccountWidget *ui;
     CqhttpService* service;

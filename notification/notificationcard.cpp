@@ -5,6 +5,8 @@
 #include <QDesktopServices>
 #include <QScrollBar>
 #include <QClipboard>
+#include <QMimeData>
+#include <QHttpMultiPart>
 #include "notificationcard.h"
 #include "ui_notificationcard.h"
 #include "defines.h"
@@ -106,6 +108,8 @@ NotificationCard::NotificationCard(QWidget *parent) :
             emit signalCancelReply();
         }
     });
+
+    connect(ui->messageEdit, &ReplyEdit::signalDropFile, this, &NotificationCard::sendFiles);
 
     // 样式表
     QString qss = "/* 整个滚动条背景 */\
@@ -1058,6 +1062,26 @@ void NotificationCard::showUserInfo(qint64 userId, QPoint pos)
     Q_UNUSED(pos)
 }
 
+void NotificationCard::sendFiles(QList<QUrl> urls)
+{
+//    bool _tmp_fixing = fixing;
+//    this->fixing = true;
+    foreach (auto url, urls)
+    {
+        if (!url.isLocalFile())
+        {
+            qWarning() << "无法上传非本地文件：" << url.toString();
+            continue;
+        }
+
+        // 上传本地文件
+        QString path = url.toLocalFile();
+        uploadFilePaths.append(path);
+    }
+//    this->fixing = _tmp_fixing;
+    sendNextFile();
+}
+
 void NotificationCard::sendReply()
 {
     QString text = ui->messageEdit->text();
@@ -1407,6 +1431,72 @@ void NotificationCard::suspendHide()
     displayTimer->stop();
 }
 
+void NotificationCard::sendNextFile()
+{
+    if (uploadFilePaths.isEmpty())
+        return ;
+
+    QString path = uploadFilePaths.takeFirst();
+    auto file = new QFile(path);
+    file->open(QIODevice::ReadOnly);
+    // QByteArray fileData = file->readAll();
+
+    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+    manager->setNetworkAccessible(QNetworkAccessManager::Accessible);
+
+    QUrl uploadUrl(us->fileHost + "/file_upload.php");
+
+//        QString boundary = "----WebKitFormBoundaryAp8SjB2NUzhjmklk";
+//        QString startBoundary = "--" + boundary;
+//        QString endBoundary = "\r\n--" + boundary + "--\r\n";
+
+//        QNetworkRequest request(uploadUrl);
+//        request.setHeader(QNetworkRequest::ContentTypeHeader, "multipart/form-data; boundary=" + boundary);
+
+//        QString content = startBoundary;
+//        content += "\r\nContent-Type: multipart/form-data; boundary=" + boundary + "\r\n";
+//        content += "\r\nContent-Disposition: form-data; name=\"upfile\"; filename=\"" + file->fileName() + "\"\r\n";
+//        content.append(fileData);
+//        content.append(endBoundary);
+
+    QHttpPart part;
+    part.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/octet-stream"));
+    part.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"upfile\"; filename=\"" + file->fileName() + "\""));
+    part.setBodyDevice(file);
+
+    QHttpMultiPart* multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
+    multiPart->append(part);
+    file->setParent(multiPart);
+
+    QNetworkRequest request(us->fileHost + "/file_upload.php");
+    QNetworkReply* reply = manager->post(request, multiPart);
+    multiPart->setParent(reply);
+//        request.setRawHeader("Accept-Encoding", "gzip, deflate, br");
+//        request.setRawHeader("Content-Type", "multipart/form-data; boundary=----WebKitFormBoundaryAp8SjB2NUzhjmklk");
+//        request.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("multipart/form-data"));
+
+    qInfo() << "开始上传文件：" << path; // << "    大小：" << fileData.size();
+    connect(manager, &QNetworkAccessManager::finished, this, [=](QNetworkReply* rpl) {
+        QByteArray data = rpl->readAll();
+        rpl->deleteLater();
+        manager->deleteLater();
+        bool ok;
+        QString error;
+        MyJson json = MyJson::from(data, &ok, &error);
+        if (!ok)
+        {
+            qWarning() << "上传文件失败：" <<  QString::fromUtf8(data);
+            return ;
+        }
+
+        QString hash = json.s("hash");
+        qInfo() << "文件上传结束：" << path;
+    });
+    connect(reply, static_cast<void (QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error), this, [=](QNetworkReply::NetworkError) {
+        qWarning() << "文件上传出错：" << reply->errorString();
+    });
+}
+
 QString NotificationCard::getValiableMessage(QString text)
 {
     return text.replace(QRegularExpression("<.+?>"), "").replace(QRegularExpression("\\[CQ:.+?\\]"), "").trimmed();
@@ -1544,10 +1634,23 @@ void NotificationCard::loadMsgHistory()
 
 void NotificationCard::dragEnterEvent(QDragEnterEvent *event)
 {
+    event->acceptProposedAction();
     QWidget::dragEnterEvent(event);
 }
 
 void NotificationCard::dropEvent(QDropEvent *event)
 {
+    auto mime = event->mimeData();
+    if (mime->hasUrls())
+    {
+        auto urls = mime->urls();
+        sendFiles(mime->urls());
+        return ;
+    }
+    else if (mime->hasText())
+    {
+
+    }
+
     QWidget::dropEvent(event);
 }

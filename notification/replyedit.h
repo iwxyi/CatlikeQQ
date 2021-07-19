@@ -3,6 +3,7 @@
 
 #include <QLineEdit>
 #include <QKeyEvent>
+#include <QMimeData>
 
 class ReplyEdit : public QLineEdit
 {
@@ -10,6 +11,7 @@ class ReplyEdit : public QLineEdit
 public:
     ReplyEdit(QWidget* parent = nullptr) : QLineEdit(parent)
     {
+        setAcceptDrops(true);
     }
 
 signals:
@@ -19,6 +21,7 @@ signals:
     void signalDown();
     void signalMove(int index);
     void signalCtrlEnter();
+    void signalDropFile(QList<QUrl> urls);
 
 protected:
     void keyPressEvent(QKeyEvent *e) override
@@ -63,6 +66,28 @@ protected:
     {
         QLineEdit::focusOutEvent(e);
         emit signalFocusOut();
+    }
+
+    void dragEnterEvent(QDragEnterEvent *e) override
+    {
+        e->acceptProposedAction();
+        QLineEdit::dragEnterEvent(e);
+    }
+
+    void dropEvent(QDropEvent *e) override
+    {
+        auto mime = e->mimeData();
+        if (mime->hasUrls())
+        {
+            auto urls = mime->urls();
+            emit signalDropFile(urls);
+            return ;
+        }
+        else if (mime->hasText())
+        {
+
+        }
+        QLineEdit::dropEvent(e);
     }
 };
 

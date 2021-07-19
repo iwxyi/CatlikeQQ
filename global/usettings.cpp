@@ -10,7 +10,6 @@ void USettings::restoreSettings()
     host = s("net/host");
     accessToken = s("net/accessToken");
     fileHost = s("net/fileHost");
-    fileFormat = s("net/fileFormat");
 
     beginGroup("banner");
     assign(bannerFloatPixel, "floatPixel");

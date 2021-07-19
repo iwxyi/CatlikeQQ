@@ -253,7 +253,7 @@ void MessageView::setMessage(const MsgBean& msg)
     // 艾特
     re = QRegularExpression("\\[CQ:at,qq=(\\d+)\\]");
     int pos = 0;
-    if (msg.groupId && text.indexOf(re) > -1)
+    if (msg.isGroup() && text.indexOf(re) > -1)
     {
         const auto members = ac->groupList.value(msg.groupId).members;
         while ((pos = text.indexOf(re, pos, &match)) > -1)
@@ -289,8 +289,8 @@ void MessageView::setMessage(const MsgBean& msg)
                 pos++;
             }
         }
-        text.replace(QRegularExpression("\\[CQ:at,qq=(\\d+)\\]"), "@\\1"); // 万一有没有替换完的呢
     }
+    text.replace(QRegularExpression("\\[CQ:at,qq=(\\d+)\\]"), "@\\1"); // 万一有没有替换完的呢
 
     // json
     if (text.indexOf(QRegularExpression("\\[CQ:json,data=(.+?)\\]"), 0, &match) > -1)

@@ -44,7 +44,6 @@ void AccountWidget::resotreSettings()
     ui->hostEdit->setText(us->host);
     ui->tokenEdit->setText(us->accessToken);
     ui->fileHostEdit->setText(us->fileHost);
-    ui->fileFormatEdit->setText(us->fileFormat);
 }
 
 void AccountWidget::on_hostEdit_editingFinished()
@@ -92,15 +91,8 @@ void AccountWidget::on_fileHostEdit_editingFinished()
     // 自动填充前缀
     if (!host.isEmpty() && !host.startsWith("http") && !host.contains("://"))
         host = "http://" + host;
+    if (host.endsWith("/"))
+        host = host.left(host.length() - 1);
 
     us->set("net/fileHost", us->fileHost = host);
-}
-
-void AccountWidget::on_fileFormatEdit_editingFinished()
-{
-    QString format = ui->fileFormatEdit->text();
-    if (format == us->fileFormat)
-        return ;
-
-    us->set("net/fileFormat", us->fileFormat = format);
 }

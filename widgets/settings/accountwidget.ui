@@ -31,14 +31,29 @@
      <property name="spacing">
       <number>12</number>
      </property>
-     <item row="5" column="1">
+     <item row="4" column="1">
       <widget class="QLabel" name="accountLabel">
        <property name="text">
         <string/>
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
+     <item row="2" column="1">
+      <widget class="QLineEdit" name="fileHostEdit">
+       <property name="toolTip">
+        <string>一些需要后台服务的地址
+- /file_upload.php: 文件上传，如果为空，则发送本地文件（可能失败）
+- /file_init.php: 启动时初始化</string>
+       </property>
+       <property name="placeholderText">
+        <string>http://domain.com/catlike_server</string>
+       </property>
+       <property name="clearButtonEnabled">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
       <widget class="QLabel" name="connectStateLabel">
        <property name="text">
         <string>待连接</string>
@@ -55,14 +70,7 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_6">
-       <property name="text">
-        <string>文件格式</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="0">
+     <item row="5" column="0">
       <widget class="QLabel" name="label_5">
        <property name="text">
         <string>列表信息</string>
@@ -79,14 +87,14 @@
        </property>
       </widget>
      </item>
-     <item row="5" column="0">
+     <item row="4" column="0">
       <widget class="QLabel" name="label_3">
        <property name="text">
         <string>账号信息</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="0">
+     <item row="3" column="0">
       <widget class="QLabel" name="label_2">
        <property name="text">
         <string>连接状态</string>
@@ -100,7 +108,14 @@
        </property>
       </widget>
      </item>
-     <item row="6" column="1">
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_7">
+       <property name="text">
+        <string>服务主机</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout">
        <property name="spacing">
         <number>9</number>
@@ -138,42 +153,6 @@
       <widget class="QLabel" name="label">
        <property name="text">
         <string>主机地址</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_7">
-       <property name="text">
-        <string>服务主机</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QLineEdit" name="fileHostEdit">
-       <property name="toolTip">
-        <string>一些需要后台服务的地址
-- /file_upload.php: 文件上传，如果为空，则发送本地文件（可能失败）
-- /file_init.php: 启动时初始化</string>
-       </property>
-       <property name="placeholderText">
-        <string>http://domain.com/catlike_server</string>
-       </property>
-       <property name="clearButtonEnabled">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <widget class="QLineEdit" name="fileFormatEdit">
-       <property name="toolTip">
-        <string>在文件上传到服务主机之后，使用对应的ID
-如果是本地Cqhttp服务，则可以不需要服务主机，从而发送图片/文件</string>
-       </property>
-       <property name="echoMode">
-        <enum>QLineEdit::Normal</enum>
-       </property>
-       <property name="placeholderText">
-        <string>http://domain.com/catlike_server/file/files/%1</string>
        </property>
       </widget>
      </item>

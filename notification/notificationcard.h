@@ -78,6 +78,8 @@ public slots:
     void showGrougInfo(qint64 groupId, QPoint pos = QPoint(-1, -1));
     void showUserInfo(qint64 friendId, QPoint pos = QPoint(-1, -1));
 
+    void sendFiles(QList<QUrl> urls);
+
 private slots:
     void mouseEnter();
     void mouseLeave();
@@ -106,6 +108,7 @@ private:
     int getReadDisplayDuration(QString text) const;
     void createFrostGlass();
     void suspendHide();
+    void sendNextFile();
 
 protected:
     void showEvent(QShowEvent *event) override;
@@ -134,6 +137,8 @@ private:
     AccountInfo::CardColor cardColor;
     QLabel* frostGlassLabel = nullptr;
     QPixmap frostGlassPixmap;
+
+    QList<QString> uploadFilePaths;
 };
 
 #endif // NOTIFICATIONCARD_H
