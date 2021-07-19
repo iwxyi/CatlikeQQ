@@ -1616,7 +1616,27 @@ void NotificationCard::loadMsgHistory()
 
 void NotificationCard::dragEnterEvent(QDragEnterEvent *event)
 {
-    event->acceptProposedAction();
+    auto mime = event->mimeData();
+    if (mime->hasImage())
+    {
+        event->acceptProposedAction();
+    }
+    else if (mime->hasUrls())
+    {
+        auto urls = mime->urls();
+        foreach (auto url, urls)
+        {
+            if (!url.isLocalFile())
+                return ;
+            auto path = url.toLocalFile();
+            QPixmap pixmap;
+            if (!pixmap.load(path))
+                return ;
+            if (pixmap.isNull())
+                return ;
+        }
+        event->acceptProposedAction();
+    }
     QWidget::dragEnterEvent(event);
 }
 

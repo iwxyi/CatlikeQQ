@@ -77,16 +77,28 @@ protected:
     void dropEvent(QDropEvent *e) override
     {
         auto mime = e->mimeData();
-        if (mime->hasUrls())
+        if (mime->hasImage())
+        {
+            e->acceptProposedAction();
+        }
+        else if (mime->hasUrls())
         {
             auto urls = mime->urls();
-            emit signalDropFile(urls);
+            foreach (auto url, urls)
+            {
+                if (!url.isLocalFile())
+                    return ;
+                auto path = url.toLocalFile();
+                QPixmap pixmap;
+                if (!pixmap.load(path))
+                    return ;
+                if (pixmap.isNull())
+                    return ;
+            }
+            e->acceptProposedAction();
+        }
+        else
             return ;
-        }
-        else if (mime->hasText())
-        {
-
-        }
         QLineEdit::dropEvent(e);
     }
 };
