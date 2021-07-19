@@ -17,6 +17,7 @@
 #include "clicklabel.h"
 #include "netutil.h"
 #include "myjson.h"
+#include "httpuploader.h"
 
 NotificationCard::NotificationCard(QWidget *parent) :
     QWidget(parent),
@@ -813,6 +814,10 @@ MessageView *NotificationCard::newMsgView()
         showReplyEdit(true, false);
     });
 
+    connect(view, &MessageView::sendText, this, [=](const QString& text){
+        sendReply(text);
+    });
+
     return view;
 }
 
@@ -1087,6 +1092,11 @@ void NotificationCard::sendReply()
     QString text = ui->messageEdit->text();
     if (text.isEmpty())
         return ;
+    sendReply(text);
+}
+
+void NotificationCard::sendReply(QString text)
+{
     int h = this->height();
 
     // 回复消息
@@ -1437,7 +1447,28 @@ void NotificationCard::sendNextFile()
         return ;
 
     QString path = uploadFilePaths.takeFirst();
-    auto file = new QFile(path);
+
+    HttpUploader* uploader = new HttpUploader(us->fileHost + "/file_upload.php", this);
+    uploader->addFilePath("upfile", path);
+    uploader->post();
+    connect(uploader, &HttpUploader::finished, this, [=](QNetworkReply* reply){
+        QByteArray data = reply->readAll();
+        reply->deleteLater();
+        bool ok;
+        QString error;
+        MyJson json = MyJson::from(data, &ok, &error);
+        if (!ok)
+        {
+            qWarning() << "上传文件失败：" <<  QString::fromUtf8(data);
+            return ;
+        }
+
+        QString hash = json.s("hash");
+        qInfo() << "文件上传结束：" << path << hash;
+
+    });
+
+    /* auto file = new QFile(path);
     file->open(QIODevice::ReadOnly);
     // QByteArray fileData = file->readAll();
 
@@ -1494,7 +1525,7 @@ void NotificationCard::sendNextFile()
     });
     connect(reply, static_cast<void (QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error), this, [=](QNetworkReply::NetworkError) {
         qWarning() << "文件上传出错：" << reply->errorString();
-    });
+    }); */
 }
 
 QString NotificationCard::getValiableMessage(QString text)

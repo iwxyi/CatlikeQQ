@@ -29,6 +29,7 @@ signals:
     void keepShowing();
     void restoreTimerIfNecessary();
     void replyText(const QString& text);
+    void sendText(const QString& text);
 
 public slots:
     void replaceGroupAt();

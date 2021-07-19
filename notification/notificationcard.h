@@ -87,6 +87,7 @@ private slots:
     void focusIn();
     void focusOut();
     void sendReply();
+    void sendReply(QString text);
     void cardClicked();
     void cardMenu();
     void on_listWidget_itemDoubleClicked(QListWidgetItem *item);

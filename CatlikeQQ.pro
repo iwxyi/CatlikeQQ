@@ -40,6 +40,7 @@ SOURCES += \
     global/usettings.cpp \
     notification/messageview.cpp \
     notification/smoothlistwidget.cpp \
+    third_party/utils/httpuploader.cpp \
     web_service/cqhttpservice.cpp \
     third_party/color_octree/coloroctree.cpp \
     third_party/color_octree/imageutil.cpp \
@@ -79,6 +80,7 @@ HEADERS += \
     notification/smoothlistwidget.h \
     notification/smoothscrollbean.h \
     resources/resource.rc \
+    third_party/utils/httpuploader.h \
     third_party/utils/mysettings.h \
     third_party/utils/netimageutil.h \
     web_service/cqhttpservice.h \
