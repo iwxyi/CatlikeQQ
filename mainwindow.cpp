@@ -198,10 +198,13 @@ void MainWindow::showHistoryListMenu()
 
         headerLabel->setPixmap(pixmap.isNull() ? QPixmap("://icons/ignore") : pixmap);
         titleLabel->setText(name);
+        QString mess = MessageView::simpleMessage(msg);
+        if (mess.contains("\n"))
+            mess = mess.left(mess.indexOf("\n"));
         if (msg.isPrivate())
-            messageLabel->setText(MessageView::simpleMessage(msg));
+            messageLabel->setText(mess);
         else
-            messageLabel->setText(msg.nickname + ": " + MessageView::simpleMessage(msg));
+            messageLabel->setText(msg.nickname + ": " + mess);
         titleLabel->setMaximumWidth(us->bannerFixedWidth);
         messageLabel->setMaximumWidth(us->bannerFixedWidth);
         headerLabel->setScaledContents(true);

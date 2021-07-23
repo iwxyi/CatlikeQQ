@@ -25,7 +25,7 @@ void ApplicationWidget::on_startOnPowerOnCheck_clicked()
     QSettings *reg=new QSettings("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", QSettings::NativeFormat);
     QString val = reg->value(appName).toString();// 如果此键不存在，则返回的是空字符串
     if (us->startOnPowerOn)
-        reg->setValue(appName, appPath);// 如果移除的话
+        reg->setValue(appName, appPath);
     else
         reg->remove(appName);
     reg->deleteLater();
