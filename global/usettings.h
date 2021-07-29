@@ -93,7 +93,7 @@ public:
     bool bannerCloseAfterReply = true; // 回复后关闭对话框（Ctrl+Enter切换）
     bool replyMessageContainsAt = false; // 回复的时候@TA
 
-    // 群组同志
+    // 群组通知
     bool enableGroupNotification = true; // 群组通知总开关
     QList<qint64> enabledGroups; // 群组通知白名单
 
@@ -103,6 +103,10 @@ public:
     int lowestImportance = NormalImportant; // 当前弹窗的最低重要程度
     int userDefaultImportance = LittleImportant; // 未设置用户的默认重要性
     int groupDefaultImportance = NormalImportant; // 未设置群组的默认重要性
+
+    // 特别关心
+    QList<qint64> userSpecial;
+    QHash<qint64, QList<qint64>> groupMemberSpecial;
 
     // 文件管理
     bool autoCacheImage = true; // 显示图片，还是只显示[图片]
