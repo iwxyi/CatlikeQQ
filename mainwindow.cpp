@@ -21,6 +21,7 @@
 #include "widgets/settings/remotecontrolwidget.h"
 #include "widgets/settings/filewidget.h"
 #include "widgets/settings/applicationwidget.h"
+#include "widgets/settings/specialwidget.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -68,7 +69,7 @@ void MainWindow::initView()
     ui->settingsTabWidget->addTab(new BannerWidget(this), QIcon("://icons/banner.png"), "横幅弹窗");
     ui->settingsTabWidget->addTab(new ReplyWidget(this), QIcon("://icons/reply.png"), "消息回复");
     ui->settingsTabWidget->addTab(new FileWidget(this), QIcon("://icons/file.png"), "文件管理");
-    ui->settingsTabWidget->addTab(new QWidget(this), QIcon("://icons/care.png"), "特别关心");
+    ui->settingsTabWidget->addTab(new SpecialWidget(this), QIcon("://icons/care.png"), "特别关心");
     ui->settingsTabWidget->addTab(new QWidget(this), QIcon("://icons/bubble.png"), "气泡样式");
     ui->settingsTabWidget->addTab(new QWidget(this), QIcon("://icons/animation.png"), "动画调整");
     ui->settingsTabWidget->addTab(new ApplicationWidget(this), QIcon("://icons/startup.png"), "程序启动");
@@ -495,34 +496,52 @@ void MainWindow::messageReceived(const MsgBean &msg, bool blockSelf)
     }
 
     // ========== 显示通知 ==========
-    // 静默模式
-    if (rt->notificationSlient)
-        return ;
-
-    // 判断群组显示开关（覆盖特别关心）
-    if (msg.isGroup() && !us->isGroupShow(msg.groupId)) // 群组消息开关
+    // 如果已经显示了卡片，那么忽略所有开关
+    NotificationCard* currentCard = nullptr;
+    foreach (auto card, notificationCards)
     {
+        if (card->is(msg))
+        {
+            currentCard = card;
+            break;
+        }
+    }
+
+    if (!currentCard) // 需要显示新卡片
+    {
+        // 静默模式
+        if (rt->notificationSlient)
+            return ;
+
+        // 判断群组显示开关（覆盖特别关心）
+        if (msg.isGroup() && !us->isGroupShow(msg.groupId)) // 群组消息开关
+        {
+            return ;
+        }
+
+        // 特别关心
+        bool special = us->userSpecial.contains(msg.senderId)
+                || us->groupMemberSpecial.value(msg.groupId, QList<qint64>{}).contains(msg.senderId);
+        Q_UNUSED(special)
+
+        // 判断消息级别开关
+        int im = NormalImportant;
+        if (msg.isPrivate())
+            im = us->userImportance.value(msg.senderId, us->userDefaultImportance);
+        else if (msg.isGroup())
+        {
+            im = us->groupImportance.value(msg.groupId, us->groupDefaultImportance);
+
+            if (us->groupUseFriendImportance)
+            {
+                // 判断发送者的重要性，用户&群组 取max
+                int im2 = us->userImportance.value(msg.senderId, us->groupDefaultImportance);
+                im = qMax(im, im2);
+            }
+        }
+        if (im < us->lowestImportance)
             return ;
     }
-
-    // 特别关心
-    bool special = us->userSpecial.contains(msg.senderId)
-            || us->groupMemberSpecial.value(msg.groupId, QList<qint64>{}).contains(msg.senderId);
-    Q_UNUSED(special)
-
-    // 判断消息级别开关
-    int im = NormalImportant;
-    if (msg.isPrivate())
-        im = us->userImportance.value(msg.senderId, us->userDefaultImportance);
-    else if (msg.isGroup())
-    {
-        im = us->groupImportance.value(msg.groupId, us->groupDefaultImportance);
-        // 判断发送者的重要性，用户&群组 取max
-        int im2 = us->userImportance.value(msg.senderId, us->groupDefaultImportance);
-        im = qMax(im, im2);
-    }
-    if (im < us->lowestImportance)
-        return ;
 
     showMessageCard(msg, blockSelf);
 }

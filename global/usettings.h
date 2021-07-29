@@ -103,6 +103,7 @@ public:
     int lowestImportance = NormalImportant; // 当前弹窗的最低重要程度
     int userDefaultImportance = LittleImportant; // 未设置用户的默认重要性
     int groupDefaultImportance = NormalImportant; // 未设置群组的默认重要性
+    bool groupUseFriendImportance = true; // 群组消息使用好友的重要性，如果有设置的话
 
     // 特别关心
     QList<qint64> userSpecial;
