@@ -513,13 +513,13 @@ void MainWindow::messageReceived(const MsgBean &msg, bool blockSelf)
         if (rt->notificationSlient)
             return ;
 
-        // 判断群组显示开关（覆盖特别关心）
+        // 判断群组显示开关
         if (msg.isGroup() && !us->isGroupShow(msg.groupId)) // 群组消息开关
         {
             return ;
         }
 
-        // 特别关心
+        // 特别关心（暂时没啥用）
         bool special = us->userSpecial.contains(msg.senderId)
                 || us->groupMemberSpecial.value(msg.groupId, QList<qint64>{}).contains(msg.senderId);
         Q_UNUSED(special)
@@ -527,18 +527,31 @@ void MainWindow::messageReceived(const MsgBean &msg, bool blockSelf)
         // 判断消息级别开关
         int im = NormalImportant;
         if (msg.isPrivate())
+        {
             im = us->userImportance.value(msg.senderId, us->userDefaultImportance);
+        }
         else if (msg.isGroup())
         {
             im = us->groupImportance.value(msg.groupId, us->groupDefaultImportance);
 
+            // 判断发送者的重要性，max(用户,群组)
             if (us->groupUseFriendImportance)
             {
-                // 判断发送者的重要性，用户&群组 取max
                 int im2 = us->userImportance.value(msg.senderId, us->groupDefaultImportance);
                 im = qMax(im, im2);
             }
         }
+
+        // 特别关心（好友/群内）
+        if (special)
+            im++;
+
+        // @全体成员/@我
+        if (us->improveAtAllImportance && msg.hasAt(0))
+            im++;
+        if (us->improveAtMeImportance && msg.hasAt(ac->myId))
+            im++;
+
         if (im < us->lowestImportance)
             return ;
     }

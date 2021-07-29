@@ -41,9 +41,7 @@
      <item row="2" column="1">
       <widget class="QLineEdit" name="fileHostEdit">
        <property name="toolTip">
-        <string>一些需要后台服务的地址
-- /file_upload.php: 文件上传，如果为空，则发送本地文件（可能失败）
-- /file_init.php: 启动时初始化</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;一些需要后台服务的地址&lt;/p&gt;&lt;p&gt;将程序目录中的 catlke_server/ 文件夹放入PHP网站目录下，此处为其对应访问路径&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="placeholderText">
         <string>http://domain.com/catlike_server</string>

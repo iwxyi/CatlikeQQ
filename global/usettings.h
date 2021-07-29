@@ -104,6 +104,9 @@ public:
     int userDefaultImportance = LittleImportant; // 未设置用户的默认重要性
     int groupDefaultImportance = NormalImportant; // 未设置群组的默认重要性
     bool groupUseFriendImportance = true; // 群组消息使用好友的重要性，如果有设置的话
+    bool improveAtMeImportance = true; // 提升艾特消息一个级别的重要性
+    bool improveAtAllImportance = false; // 提升艾特全体消息一个级别重要性
+    bool dynamicImportance = false; // 动态重要性
 
     // 特别关心
     QList<qint64> userSpecial;

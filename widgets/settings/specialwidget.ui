@@ -30,12 +30,68 @@
     <number>9</number>
    </property>
    <item>
-    <widget class="QCheckBox" name="groupUseFriendImportanceCheck">
+    <widget class="QCheckBox" name="improveAtMeImportanceCheck_2">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;重要好友发来的消息，覆盖群组重要性，强制显示通知。&lt;/p&gt;&lt;p&gt;如果未设置好友重要性，则不影响通知。&lt;/p&gt;&lt;p&gt;目前仅支持“很重要”好友，显示其所有群组消息（除非静默）&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>提升群聊中的“群内特别关心”消息一个级别重要性
+例如，一般 -&gt; 重要，重要 -&gt; 很重要
+可与“@全体成员”、“@我”叠加</string>
      </property>
      <property name="text">
-      <string>群组消息使用好友重要性（群内特别关心）</string>
+      <string>提升“群内特别关心”重要性</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="groupUseFriendImportanceCheck">
+     <property name="toolTip">
+      <string>重要好友发来的消息，覆盖群组重要性，强制显示通知。
+如果未设置好友重要性，则完全不影响。</string>
+     </property>
+     <property name="text">
+      <string>显示群聊中“很重要”好友消息（群内特别关心2）</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="improveAtMeImportanceCheck">
+     <property name="toolTip">
+      <string>提升群聊中的“@我”消息一个级别重要性
+例如，一般 -&gt; 重要，重要 -&gt; 很重要
+可与“@全体成员”、“群内特别关心”叠加</string>
+     </property>
+     <property name="text">
+      <string>提升“@我”重要性</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="improveAtAllImportanceCheck">
+     <property name="toolTip">
+      <string>提升群聊中的“@全体成员”消息一个级别重要性
+例如，一般 -&gt; 重要，重要 -&gt; 很重要
+可与“@我”、“群内特别关心”叠加</string>
+     </property>
+     <property name="text">
+      <string>提升“@全体成员”重要性</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="dynamicImportanceCheck">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;根据聊天内容智能上调消息重要性&lt;/p&gt;&lt;p&gt;例如，在群组中发送疑问句后，临时提升群组消息一个级别&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="text">
+      <string>消息动态重要性</string>
      </property>
     </widget>
    </item>
@@ -47,10 +103,21 @@
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>251</height>
+       <height>101</height>
       </size>
      </property>
     </spacer>
+   </item>
+   <item>
+    <widget class="QLabel" name="label">
+     <property name="styleSheet">
+      <string notr="true">color: gray;</string>
+     </property>
+     <property name="text">
+      <string>群消息通知显示判断优先级：
+临时静默 &gt; 群组开关 &gt; 群内特别关心 &gt; 群组重要性</string>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

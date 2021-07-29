@@ -52,6 +52,8 @@ void USettings::restoreSettings()
     assign(groupImportance, "groupImportance");
     assign(lowestImportance, "lowestImportance");
     assign(groupUseFriendImportance, "groupUseFriendImportance");
+    assign(improveAtMeImportance, "improveAtMeImportance");
+    assign(improveAtAllImportance, "improveAtAllImportance");
     endGroup();
 
     beginGroup("autoCache");

@@ -9,6 +9,8 @@ SpecialWidget::SpecialWidget(QWidget *parent) :
     ui->setupUi(this);
 
     ui->groupUseFriendImportanceCheck->setChecked(us->groupUseFriendImportance);
+    ui->improveAtMeImportanceCheck->setChecked(us->improveAtMeImportance);
+    ui->improveAtAllImportanceCheck->setChecked(us->improveAtAllImportance);
 }
 
 SpecialWidget::~SpecialWidget()
@@ -19,4 +21,14 @@ SpecialWidget::~SpecialWidget()
 void SpecialWidget::on_groupUseFriendImportanceCheck_clicked()
 {
     us->set("importance/groupUseFriendImportance", us->groupUseFriendImportance = ui->groupUseFriendImportanceCheck->isChecked());
+}
+
+void SpecialWidget::on_improveAtMeImportanceCheck_clicked()
+{
+    us->set("importance/improveAtMeImportance", us->improveAtMeImportance = ui->improveAtMeImportanceCheck->isChecked());
+}
+
+void SpecialWidget::on_improveAtAllImportanceCheck_clicked()
+{
+    us->set("importance/improveAtAllImportance", us->improveAtAllImportance = ui->improveAtAllImportanceCheck->isChecked());
 }

@@ -18,6 +18,10 @@ public:
 private slots:
     void on_groupUseFriendImportanceCheck_clicked();
 
+    void on_improveAtMeImportanceCheck_clicked();
+
+    void on_improveAtAllImportanceCheck_clicked();
+
 private:
     Ui::SpecialWidget *ui;
 };

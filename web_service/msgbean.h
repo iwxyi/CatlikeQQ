@@ -161,6 +161,13 @@ struct MsgBean
         return this->friendId == m.friendId
                 && this->groupId == m.groupId;
     }
+
+    bool hasAt(qint64 id) const
+    {
+        if (!id)
+            return rawMessage.contains("[CQ:at,qq=all]");
+        return rawMessage.contains("[CQ:at,qq=" + QString::number(id) + "]");
+    }
 };
 
 #endif // MSGBEAN_H
