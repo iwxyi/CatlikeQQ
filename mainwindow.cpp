@@ -307,7 +307,7 @@ void MainWindow::trayAction(QSystemTrayIcon::ActivationReason reason)
         menu->addAction(QIcon("://icons/leaveMode.png"), "临时离开", [=] {
             // 这里的离开模式不会保存，重启后还是以设置中为准
             us->leaveMode = !us->leaveMode;
-        })->check(us->leaveMode)->tooltip("开启离开模式，可能开启了私聊AI回复\n重启后将恢复原来状态");
+        })->check(us->leaveMode)->tooltip("开启离开模式，可能开启了私聊AI回复\n重启后将恢复原来状态")->hide();
 
         menu->addAction(QIcon("://icons/silent.png"), "临时静默", [=] {
             // 这里的静默模式不会保存，重启后还是以设置中为准
