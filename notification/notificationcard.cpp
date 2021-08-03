@@ -173,6 +173,18 @@ NotificationCard::NotificationCard(QWidget *parent) :
                     }\
         ";
     ui->listWidget->verticalScrollBar()->setStyleSheet(qss);
+
+    auto createAction = [=](QWidget* w, QString key, FuncType fun){
+        QAction* action = new QAction(w);
+        action->setShortcut(QKeySequence(key));
+        connect(action, &QAction::triggered, this, fun);
+        w->addAction(action);
+    };
+
+    createAction(ui->messageEdit, "shift+alt+s", [=]{
+        emit signalCloseAllCards();
+        rt->notificationSlient = true;
+    });
 }
 
 NotificationCard::~NotificationCard()
