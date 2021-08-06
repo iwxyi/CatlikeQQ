@@ -408,8 +408,6 @@ void MessageView::setMessage(const MsgBean& msg)
 QString MessageView::simpleMessage(const MsgBean &msg)
 {
     QString text = msg.message;
-    if (msg.senderId == ac->myId)
-        text.insert(0, "你:");
     QRegularExpression re;
     QRegularExpressionMatch match;
 

@@ -204,6 +204,8 @@ void MainWindow::showHistoryListMenu()
             mess = mess.left(mess.indexOf("\n"));
         if (msg.isPrivate())
             messageLabel->setText(mess);
+        else if (msg.senderId == ac->myId)
+            messageLabel->setText("你: " + mess);
         else
             messageLabel->setText(msg.nickname + ": " + mess);
         titleLabel->setMaximumWidth(us->bannerFixedWidth);
@@ -241,6 +243,8 @@ void MainWindow::showHistoryListMenu()
                 return ;
             if (msg.isPrivate())
                 messageLabel->setText(MessageView::simpleMessage(m));
+            else if (msg.senderId == ac->myId)
+                messageLabel->setText("你: " + mess);
             else
                 messageLabel->setText(m.nickname + ": " + MessageView::simpleMessage(m));
         });
