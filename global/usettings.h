@@ -112,6 +112,10 @@ public:
     QList<qint64> userSpecial;
     QHash<qint64, QList<qint64>> groupMemberSpecial;
 
+    // 本地昵称
+    QHash<qint64, QString> userLocalNames; // 用户本地昵称
+    QHash<qint64, QString> groupLocalNames; // 群组本地昵称
+
     // 文件管理
     bool autoCacheImage = true; // 显示图片，还是只显示[图片]
     bool autoCachePrivateVideo = true; // 自动缓存用户私聊的视频

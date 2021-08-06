@@ -27,6 +27,8 @@ namespace Ui {
 class NotificationCard;
 }
 
+class FacileMenu;
+
 class NotificationCard : public QWidget
 {
     Q_OBJECT
@@ -79,6 +81,10 @@ public slots:
     void showUserInfo(qint64 friendId, QPoint pos = QPoint(-1, -1));
 
     void sendFiles(QList<QUrl> urls);
+
+    void blockHideByMenu(FacileMenu* menu, bool canHideAfterClose);
+    void blockHideTimer();
+    void restoreHideTimer();
 
 private slots:
     void mouseEnter();
@@ -135,6 +141,7 @@ private:
     bool fastFocus = false;
     bool fixing = false; // 固定不自动隐藏
     bool _loadingHistory = false;
+    FacileMenu* currentMenu = nullptr;
     AccountInfo::CardColor cardColor;
     QLabel* frostGlassLabel = nullptr;
     QPixmap frostGlassPixmap;

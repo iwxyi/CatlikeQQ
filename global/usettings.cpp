@@ -56,6 +56,11 @@ void USettings::restoreSettings()
     assign(improveAtAllImportance, "improveAtAllImportance");
     endGroup();
 
+    beginGroup("local");
+    assign(userLocalNames, "userLocalName");
+    assign(groupLocalNames, "groupLocalName");
+    endGroup();
+
     beginGroup("autoCache");
     assign(autoCacheImage, "image");
     assign(autoCachePrivateVideo, "privateVideo");

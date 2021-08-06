@@ -7,6 +7,7 @@
 #include <QClipboard>
 #include <QMimeData>
 #include <QHttpMultiPart>
+#include <QInputDialog>
 #include "notificationcard.h"
 #include "ui_notificationcard.h"
 #include "defines.h"
@@ -112,9 +113,9 @@ NotificationCard::NotificationCard(QWidget *parent) :
 
     connect(ui->messageEdit, &ReplyEdit::signalDropFile, this, &NotificationCard::sendFiles);
 
-    ui->progressBar->hide();
 
     // 样式表
+    ui->progressBar->hide();
     QString qss = "/* 整个滚动条背景 */\
                     QScrollBar:vertical\
                     {\
@@ -996,6 +997,8 @@ void NotificationCard::mouseEnter()
 
 void NotificationCard::mouseLeave()
 {
+    if (currentMenu)
+        return ;
     if (fastFocus && us->bannerAutoFocusReply)
     {
         fastFocus = false;
@@ -1096,6 +1099,35 @@ void NotificationCard::sendFiles(QList<QUrl> urls)
         uploadFilePaths.append(path);
     }
     sendNextFile();
+}
+
+/**
+ * 显示菜单的时候必须要使用
+ * 否则会在显示菜单的这一段时间内关闭卡片
+ */
+void NotificationCard::blockHideByMenu(FacileMenu *menu, bool canHideAfterClose)
+{
+    this->currentMenu = menu;
+    blockHideTimer();
+    menu->finished([=]{
+        this->currentMenu = nullptr;
+        if (canHideAfterClose)
+            restoreHideTimer();
+    });
+}
+
+/**
+ * 调用对话框前需要打开一次
+ * 避免显示对话框的时候卡片关闭了
+ */
+void NotificationCard::blockHideTimer()
+{
+    displayTimer->stop();
+}
+
+void NotificationCard::restoreHideTimer()
+{
+    shallToHide();
 }
 
 void NotificationCard::sendReply()
@@ -1362,6 +1394,45 @@ void NotificationCard::cardMenu()
         qInfo() << "不显示群组通知：" << groupId;
     })->hide(!groupId);
 
+    menu->addAction(QIcon("://icons/localName.png"), "本地昵称", [=]{
+        QString name;
+        QHash<qint64, QString>* hash = nullptr;
+        qint64 hashId = 0;
+        QString hashKey;
+        if (this->isPrivate())
+        {
+            hashId = this->friendId;
+            hash = &us->userLocalNames;
+            hashKey = "local/userLocalName";
+        }
+        else if (this->isGroup())
+        {
+            hashId = this->groupId;
+            hash = &us->groupLocalNames;
+            hashKey = "local/groupLocalName";
+        }
+        else
+            return ;
+        name = hash->value(this->friendId, "");
+
+        bool ok;
+        QString newName = QInputDialog::getText(this, "设置本地昵称", "只会修改通知卡片中的名字，不影响云端数据", QLineEdit::Normal, name, &ok);
+        if (!ok || newName == name)
+            return ;
+
+        if (newName.isEmpty())
+        {
+            if (hash->contains(hashId))
+                hash->remove(hashId);
+        }
+        else
+        {
+            (*hash)[hashId] = newName;
+        }
+
+        us->set(hashKey, *hash);
+    });
+
     menu->split()->addAction(QIcon("://icons/silent.png"), "临时静默", [=] {
         // 这里的静默模式不会保存，重启后还是以设置中为准
         rt->notificationSlient = !rt->notificationSlient;
@@ -1373,13 +1444,8 @@ void NotificationCard::cardMenu()
         emit signalCloseAllCards();
     });
 
-    bool ti = displayTimer->isActive();
-    displayTimer->stop();
+    blockHideByMenu(menu, true);
     menu->exec();
-    connect(menu, &FacileMenu::signalHidden, this, [=]{
-        if (ti)
-            shallToHide();
-    });
 }
 
 int NotificationCard::getReadDisplayDuration(QString text) const
