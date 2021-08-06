@@ -20,6 +20,7 @@ enum Direction
     BottomToTop
 };
 
+
 #define Unimportant -1
 #define UnimportantText "不重要"
 #define NormalImportant 0
@@ -28,6 +29,7 @@ enum Direction
 #define LittleImportantText "重要"
 #define VeryImportant 2
 #define VeryImportantText "很重要"
+
 
 class USettings : public MySettings
 {
@@ -107,10 +109,12 @@ public:
     bool improveAtMeImportance = true; // 提升艾特消息一个级别的重要性
     bool improveAtAllImportance = false; // 提升艾特全体消息一个级别重要性
     bool dynamicImportance = false; // 动态重要性
+    int keepImportantMessage = VeryImportant;
 
     // 特别关心
     QList<qint64> userSpecial;
     QHash<qint64, QList<qint64>> groupMemberSpecial;
+    bool specialKeep = true;
 
     // 本地昵称
     QHash<qint64, QString> userLocalNames; // 用户本地昵称

@@ -11,6 +11,7 @@ SpecialWidget::SpecialWidget(QWidget *parent) :
     ui->groupUseFriendImportanceCheck->setChecked(us->groupUseFriendImportance);
     ui->improveAtMeImportanceCheck->setChecked(us->improveAtMeImportance);
     ui->improveAtAllImportanceCheck->setChecked(us->improveAtAllImportance);
+    ui->keepImportantMessageCheck->setChecked(us->keepImportantMessage == VeryImportant);
 }
 
 SpecialWidget::~SpecialWidget()
@@ -31,4 +32,11 @@ void SpecialWidget::on_improveAtMeImportanceCheck_clicked()
 void SpecialWidget::on_improveAtAllImportanceCheck_clicked()
 {
     us->set("importance/improveAtAllImportance", us->improveAtAllImportance = ui->improveAtAllImportanceCheck->isChecked());
+}
+
+void SpecialWidget::on_keepImportantMessageCheck_clicked()
+{
+    us->set("importance/keepImportantMessage", us->keepImportantMessage =
+            (ui->keepImportantMessageCheck->isChecked()
+             ? VeryImportant : VeryImportant + 1));
 }

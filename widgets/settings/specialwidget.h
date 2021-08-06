@@ -22,6 +22,8 @@ private slots:
 
     void on_improveAtAllImportanceCheck_clicked();
 
+    void on_keepImportantMessageCheck_clicked();
+
 private:
     Ui::SpecialWidget *ui;
 };

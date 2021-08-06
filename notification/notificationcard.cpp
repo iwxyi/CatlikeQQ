@@ -266,8 +266,8 @@ bool NotificationCard::append(const MsgBean &msg)
     if (displayTimer->isActive())
     {
         if (msg.senderId != ac->myId
-                && ((msg.isPrivate() && (us->bannerPrivateKeepShowing || (us->userImportance.contains(msg.senderId) && us->userImportance.value(msg.senderId) >= VeryImportant)))
-                    || (msg.isGroup() && (us->bannerGroupKeepShowing || (us->groupImportance.contains(msg.groupId) && us->groupImportance.value(msg.groupId) >= VeryImportant))))) // 收到消息一直显示，除非自己回复
+                && ((msg.isPrivate() && (us->bannerPrivateKeepShowing || (us->userImportance.contains(msg.senderId) && us->userImportance.value(msg.senderId) >= us->keepImportantMessage)))
+                    || (msg.isGroup() && (us->bannerGroupKeepShowing || (us->groupImportance.contains(msg.groupId) && us->groupImportance.value(msg.groupId) >= us->keepImportantMessage))))) // 收到消息一直显示，除非自己回复
         {
             displayTimer->stop();
         }
@@ -478,7 +478,7 @@ void NotificationCard::setGroupMsg(const MsgBean &msg)
 void NotificationCard::appendPrivateMsg(const MsgBean &msg)
 {
     if (displayTimer->isActive() && ((us->bannerPrivateKeepShowing && msg.senderId != ac->myId)
-                                     || (us->groupImportance.contains(msg.groupId) && us->groupImportance.value(msg.groupId) >= VeryImportant)
+                                     || (us->groupImportance.contains(msg.groupId) && us->groupImportance.value(msg.groupId) >= us->keepImportantMessage)
                                      ))
         displayTimer->stop();
     if (msg.targetId == this->friendId) // 自己发给对面的
@@ -1585,8 +1585,8 @@ void NotificationCard::showEvent(QShowEvent *event)
     QWidget::showEvent(event);
 
     auto msg = msgs.last();
-    if ((msg.isPrivate() && (us->bannerPrivateKeepShowing || (us->userImportance.contains(msg.senderId) && us->userImportance.value(msg.senderId) >= VeryImportant)))
-            || (msg.isGroup() && (us->bannerGroupKeepShowing || (us->groupImportance.contains(msg.groupId) && us->groupImportance.value(msg.groupId) >= VeryImportant))))
+    if ((msg.isPrivate() && (us->bannerPrivateKeepShowing || (us->userImportance.contains(msg.senderId) && us->userImportance.value(msg.senderId) >= us->keepImportantMessage)))
+            || (msg.isGroup() && (us->bannerGroupKeepShowing || (us->groupImportance.contains(msg.groupId) && us->groupImportance.value(msg.groupId) >= us->keepImportantMessage))))
     {
         displayTimer->stop();
     }

@@ -59,6 +59,16 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="keepImportantMessageCheck">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;设置为“很重要”的好友或者群组的消息&lt;/p&gt;&lt;p&gt;在进行人机交互之前（鼠标滑过或者回复）不会自动隐藏&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="text">
+      <string>不超时隐藏“很重要”消息</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QCheckBox" name="improveAtMeImportanceCheck">
      <property name="toolTip">
       <string>提升群聊中的“@我”消息一个级别重要性

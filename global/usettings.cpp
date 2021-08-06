@@ -54,6 +54,7 @@ void USettings::restoreSettings()
     assign(groupUseFriendImportance, "groupUseFriendImportance");
     assign(improveAtMeImportance, "improveAtMeImportance");
     assign(improveAtAllImportance, "improveAtAllImportance");
+    assign(keepImportantMessage, "keepImportantMessage");
     endGroup();
 
     beginGroup("local");
