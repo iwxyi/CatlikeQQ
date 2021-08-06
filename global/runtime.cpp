@@ -2,7 +2,7 @@
 
 Runtime::Runtime(QString path, QObject *parent) : QObject(parent)
 {
-    APP_PATH = path + "/";
+    APP_PATH = path;
     DATA_PATH = APP_PATH + "/data/";
     IMAGE_PATH = DATA_PATH + "images/";
     CACHE_PATH = DATA_PATH + "cache/";

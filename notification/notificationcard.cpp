@@ -324,9 +324,12 @@ void NotificationCard::setPrivateMsg(const MsgBean &msg)
 {
     // 设置标题
     if (msg.senderId == ac->myId) // 自己的消息，需要手动更新昵称
-        ui->nicknameLabel->setText(ac->friendList.contains(msg.friendId) ? ac->friendList.value(msg.targetId).username() : "[未备注]");
+        ui->nicknameLabel->setText(us->userLocalNames.value(msg.friendId,
+                                                            (ac->friendList.contains(msg.friendId)
+                                                                           ? ac->friendList.value(msg.targetId).username()
+                                                                           : "[未备注]")));
     else // 直接设置名字
-        ui->nicknameLabel->setText(msg.displayNickname());
+        ui->nicknameLabel->setText(us->userLocalNames.value(msg.friendId, msg.displayNickname()));
 
     // 设置头像
     // 用户头像API：http://q1.qlogo.cn/g?b=qq&nk=QQ号&s=100&t=
@@ -392,7 +395,7 @@ void NotificationCard::setPrivateMsg(const MsgBean &msg)
 void NotificationCard::setGroupMsg(const MsgBean &msg)
 {
     // 设置标题
-    ui->nicknameLabel->setText(msg.groupName);
+    ui->nicknameLabel->setText(us->groupLocalNames.value(msg.groupId, msg.groupName));
 
     // 设置头像
     // 群头像API：http://p.qlogo.cn/gh/群号/群号/100
@@ -1123,10 +1126,18 @@ void NotificationCard::blockHideByMenu(FacileMenu *menu, bool canHideAfterClose)
 void NotificationCard::blockHideTimer()
 {
     displayTimer->stop();
+    _blockingHide++;
 }
 
+/**
+ * 恢复关闭卡片的定时
+ * 必须要和 blockHideTimer 一一对应
+ */
 void NotificationCard::restoreHideTimer()
 {
+    _blockingHide--;
+    if (_blockingHide > 0)
+        return ;
     shallToHide();
 }
 
@@ -1394,30 +1405,36 @@ void NotificationCard::cardMenu()
         qInfo() << "不显示群组通知：" << groupId;
     })->hide(!groupId);
 
+    QString oldLocalName;
+    QHash<qint64, QString>* hash = nullptr;
+    qint64 hashId = 0;
+    QString hashKey;
+    if (this->isPrivate())
+    {
+        hashId = this->friendId;
+        hash = &us->userLocalNames;
+        hashKey = "local/userLocalName";
+    }
+    else if (this->isGroup())
+    {
+        hashId = this->groupId;
+        hash = &us->groupLocalNames;
+        hashKey = "local/groupLocalName";
+    }
+    if (hashId)
+        oldLocalName = hash->value(hashId, "");
     menu->addAction(QIcon("://icons/localName.png"), "本地昵称", [=]{
-        QString name;
-        QHash<qint64, QString>* hash = nullptr;
-        qint64 hashId = 0;
-        QString hashKey;
-        if (this->isPrivate())
+        if (!hashId)
         {
-            hashId = this->friendId;
-            hash = &us->userLocalNames;
-            hashKey = "local/userLocalName";
-        }
-        else if (this->isGroup())
-        {
-            hashId = this->groupId;
-            hash = &us->groupLocalNames;
-            hashKey = "local/groupLocalName";
-        }
-        else
+            qWarning() << "错误的昵称ID：" << this->friendId << this->groupId;
             return ;
-        name = hash->value(this->friendId, "");
+        }
 
         bool ok;
-        QString newName = QInputDialog::getText(this, "设置本地昵称", "只会修改通知卡片中的名字，不影响云端数据", QLineEdit::Normal, name, &ok);
-        if (!ok || newName == name)
+        blockHideTimer();
+        QString newName = QInputDialog::getText(this, "设置本地昵称", "只会修改通知卡片中最上方显示的名字，不影响云端数据", QLineEdit::Normal, oldLocalName, &ok);
+        restoreHideTimer();
+        if (!ok || newName == oldLocalName)
             return ;
 
         if (newName.isEmpty())
@@ -1431,7 +1448,8 @@ void NotificationCard::cardMenu()
         }
 
         us->set(hashKey, *hash);
-    });
+        ui->nicknameLabel->setText(newName);
+    })->check(!oldLocalName.isEmpty());
 
     menu->split()->addAction(QIcon("://icons/silent.png"), "临时静默", [=] {
         // 这里的静默模式不会保存，重启后还是以设置中为准

@@ -142,6 +142,7 @@ private:
     bool fixing = false; // 固定不自动隐藏
     bool _loadingHistory = false;
     FacileMenu* currentMenu = nullptr;
+    int _blockingHide = 0;
     AccountInfo::CardColor cardColor;
     QLabel* frostGlassLabel = nullptr;
     QPixmap frostGlassPixmap;

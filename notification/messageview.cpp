@@ -563,6 +563,7 @@ void MessageView::showMenu()
             QStringList param;
             param << QLatin1String("/select,");
             param << path;
+            qInfo() << "文件所在路径：" << path;
             QProcess::startDetached(explorer, param);
         });
 

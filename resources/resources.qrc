@@ -37,6 +37,7 @@
         <file>icons/control.png</file>
         <file>icons/file.png</file>
         <file>icons/ignore.png</file>
+        <file>icons/localName.png</file>
     </qresource>
     <qresource prefix="/qq">
         <file>qq-face/0.gif</file>
