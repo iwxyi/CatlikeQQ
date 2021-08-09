@@ -375,6 +375,16 @@
          <string>右下</string>
         </property>
        </item>
+       <item>
+        <property name="text">
+         <string>左上</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>左下</string>
+        </property>
+       </item>
       </widget>
      </item>
     </layout>

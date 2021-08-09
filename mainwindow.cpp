@@ -636,7 +636,6 @@ NotificationCard* MainWindow::createNotificationCard(const MsgBean &msg)
 {
     // 创建卡片
     NotificationCard* card = new NotificationCard(nullptr);
-    notificationCards.append(card);
 
     // 判断卡片的位置
     QPoint startPos; // 开始出现的位置
@@ -645,10 +644,15 @@ NotificationCard* MainWindow::createNotificationCard(const MsgBean &msg)
     {
     case SideRight: // 右
     {
-        const int margin = 5;
         int rightest = screenGeometry().width();
-        startPos.setX(rightest - margin);
+        startPos.setX(rightest - us->bannerMargin);
         showPos.setX(rightest - us->bannerFixedWidth - us->bannerSpacing);
+        break;
+    }
+    case SideLeft:
+    {
+        startPos.setX(-us->bannerFixedWidth);
+        showPos.setX(us->bannerMargin);
         break;
     }
     default:
@@ -720,6 +724,7 @@ NotificationCard* MainWindow::createNotificationCard(const MsgBean &msg)
     });
 
     // 先确定位置，因为在下载文件的时候后面可能会进入相同的数据
+    notificationCards.append(card);
     card->setShowPos(startPos, showPos);
     card->move(startPos);
     card->setMsg(msg); // 这个可能是一个非常耗时的操作，引起坐标的改变
@@ -980,9 +985,9 @@ void MainWindow::triggerAiReply(const MsgBean &msg, int retry)
         }
         else
         {
-            qDebug() << json;
             answer = json.value("data").toObject().value("answer").toString();
             qInfo() << "[离开模式.AI回复]" << answer;
+            qWarning() << "AI.API返回：" << json;
             answer = us->aiReplyPrefix + answer + us->aiReplySuffix;
         }
 

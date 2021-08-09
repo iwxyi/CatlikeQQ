@@ -1464,7 +1464,7 @@ void NotificationCard::cardMenu()
         }
 
         us->set("special/groupRemindWords", us->groupRemindWords, " ");
-    })->check(hasGroupRemind);
+    })->check(hasGroupRemind)->hide(!isGroup());
 
     menu->split()->addAction(QIcon("://icons/closeUser.png"), "不显示该群通知", [=]{
         us->enabledGroups.removeOne(groupId);

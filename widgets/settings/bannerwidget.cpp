@@ -35,6 +35,13 @@ BannerWidget::BannerWidget(QWidget *parent) :
         else
             ui->positionCombo->setCurrentIndex(1);
     }
+    else if (us->bannerFloatSide == SideLeft)
+    {
+        if (us->bannerFloatDirection == TopToBottom)
+            ui->positionCombo->setCurrentIndex(2);
+        else
+            ui->positionCombo->setCurrentIndex(3);
+    }
 }
 
 BannerWidget::~BannerWidget()
@@ -136,6 +143,16 @@ void BannerWidget::on_positionCombo_activated(int index)
     else if (index == 1) // 右下
     {
         us->bannerFloatSide = SideRight;
+        us->bannerFloatDirection = BottomToTop;
+    }
+    else if (index == 2) // 左上
+    {
+        us->bannerFloatSide = SideLeft;
+        us->bannerFloatDirection = TopToBottom;
+    }
+    else if (index == 3) // 左下
+    {
+        us->bannerFloatSide = SideLeft;
         us->bannerFloatDirection = BottomToTop;
     }
 

@@ -57,6 +57,7 @@ public:
     int bannerContentMaxHeight = 130; // 内容最大像素高度
     int bannerHeaderSize = 32; // 头像大小
     int bannerSpacing = 10; // 横幅之间的间距
+    int bannerMargin = 5; // 横幅距离边缘的margin
     int bannerAnimationDuration = 300; // 横幅的动画时长
     int bannerShowEasingCurve = 6;     // 动画的曲线设定
     int bannerDisplayDuration = 7000;  // 横幅显示的时长
