@@ -109,12 +109,15 @@ public:
     bool improveAtMeImportance = true; // 提升艾特消息一个级别的重要性
     bool improveAtAllImportance = false; // 提升艾特全体消息一个级别重要性
     bool dynamicImportance = false; // 动态重要性
-    int keepImportantMessage = VeryImportant;
+    int keepImportantMessage = VeryImportant; // 大于等于该重要性的一直保持显示
 
     // 特别关心
     QList<qint64> userSpecial;
     QHash<qint64, QList<qint64>> groupMemberSpecial;
-    bool specialKeep = true;
+    bool specialKeep = true; // 特别关心保持显示
+    bool remindOverlay = true; // 提醒词（相同或者不同）效果叠加
+    QStringList globalRemindWords; // 全局关键词提醒
+    QHash<qint64, QStringList> groupRemindWords; // 群组关键词提醒
 
     // 本地昵称
     QHash<qint64, QString> userLocalNames; // 用户本地昵称

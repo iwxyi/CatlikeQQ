@@ -24,6 +24,10 @@ private slots:
 
     void on_keepImportantMessageCheck_clicked();
 
+    void on_globalRemindWordsEdit_textChanged();
+
+    void on_remindOverlayCheck_clicked();
+
 private:
     Ui::SpecialWidget *ui;
 };

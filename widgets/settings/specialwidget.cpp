@@ -1,3 +1,4 @@
+#include <QRegularExpression>
 #include "specialwidget.h"
 #include "ui_specialwidget.h"
 #include "usettings.h"
@@ -12,6 +13,8 @@ SpecialWidget::SpecialWidget(QWidget *parent) :
     ui->improveAtMeImportanceCheck->setChecked(us->improveAtMeImportance);
     ui->improveAtAllImportanceCheck->setChecked(us->improveAtAllImportance);
     ui->keepImportantMessageCheck->setChecked(us->keepImportantMessage == VeryImportant);
+    ui->globalRemindWordsEdit->setPlainText(us->globalRemindWords.join(" "));
+    ui->remindOverlayCheck->setChecked(us->remindOverlay);
 }
 
 SpecialWidget::~SpecialWidget()
@@ -39,4 +42,15 @@ void SpecialWidget::on_keepImportantMessageCheck_clicked()
     us->set("importance/keepImportantMessage", us->keepImportantMessage =
             (ui->keepImportantMessageCheck->isChecked()
              ? VeryImportant : VeryImportant + 1));
+}
+
+void SpecialWidget::on_globalRemindWordsEdit_textChanged()
+{
+    us->globalRemindWords = ui->globalRemindWordsEdit->toPlainText().split(QRegularExpression("\\s+"), QString::SkipEmptyParts);
+    us->set("special/globalRemindWords", us->globalRemindWords);
+}
+
+void SpecialWidget::on_remindOverlayCheck_clicked()
+{
+    us->set("special/remindOverlay", us->remindOverlay = ui->remindOverlayCheck->isChecked());
 }

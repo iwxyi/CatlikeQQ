@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>417</width>
+    <height>399</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,79 +30,130 @@
     <number>9</number>
    </property>
    <item>
-    <widget class="QCheckBox" name="improveAtMeImportanceCheck_2">
-     <property name="enabled">
-      <bool>false</bool>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>特别关心</string>
      </property>
-     <property name="toolTip">
-      <string>提升群聊中的“群内特别关心”消息一个级别重要性
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QCheckBox" name="improveAtMeImportanceCheck_2">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>提升群聊中的“群内特别关心”消息一个级别重要性
 例如，一般 -&gt; 重要，重要 -&gt; 很重要
 可与“@全体成员”、“@我”叠加</string>
-     </property>
-     <property name="text">
-      <string>提升“群内特别关心”重要性</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QCheckBox" name="groupUseFriendImportanceCheck">
-     <property name="toolTip">
-      <string>重要好友发来的消息，覆盖群组重要性，强制显示通知。
+        </property>
+        <property name="text">
+         <string>提升“群内特别关心”重要性</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="groupUseFriendImportanceCheck">
+        <property name="toolTip">
+         <string>重要好友发来的消息，覆盖群组重要性，强制显示通知。
 如果未设置好友重要性，则完全不影响。</string>
-     </property>
-     <property name="text">
-      <string>显示群聊中“很重要”好友消息（群内特别关心2）</string>
-     </property>
+        </property>
+        <property name="text">
+         <string>显示群聊中“很重要”好友消息（群内特别关心2）</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="keepImportantMessageCheck">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;设置为“很重要”的好友或者群组的消息&lt;/p&gt;&lt;p&gt;在进行人机交互之前（鼠标滑过或者回复）不会自动隐藏&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>不超时隐藏“很重要”消息</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="keepImportantMessageCheck">
-     <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;设置为“很重要”的好友或者群组的消息&lt;/p&gt;&lt;p&gt;在进行人机交互之前（鼠标滑过或者回复）不会自动隐藏&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="title">
+      <string>提醒消息</string>
      </property>
-     <property name="text">
-      <string>不超时隐藏“很重要”消息</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QCheckBox" name="improveAtMeImportanceCheck">
-     <property name="toolTip">
-      <string>提升群聊中的“@我”消息一个级别重要性
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item>
+       <widget class="QCheckBox" name="improveAtMeImportanceCheck">
+        <property name="toolTip">
+         <string>提升群聊中的“@我”消息一个级别重要性
 例如，一般 -&gt; 重要，重要 -&gt; 很重要
 可与“@全体成员”、“群内特别关心”叠加</string>
-     </property>
-     <property name="text">
-      <string>提升“@我”重要性</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QCheckBox" name="improveAtAllImportanceCheck">
-     <property name="toolTip">
-      <string>提升群聊中的“@全体成员”消息一个级别重要性
+        </property>
+        <property name="text">
+         <string>提升“@我”重要性</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="improveAtAllImportanceCheck">
+        <property name="toolTip">
+         <string>提升群聊中的“@全体成员”消息一个级别重要性
 例如，一般 -&gt; 重要，重要 -&gt; 很重要
 可与“@我”、“群内特别关心”叠加</string>
-     </property>
-     <property name="text">
-      <string>提升“@全体成员”重要性</string>
-     </property>
+        </property>
+        <property name="text">
+         <string>提升“@全体成员”重要性</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="dynamicImportanceCheck">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;根据聊天内容智能上调消息重要性&lt;/p&gt;&lt;p&gt;例如，在群组中发送疑问句后，临时提升群组消息一个级别&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>消息动态重要性</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="remindOverlayCheck">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;全局提醒词/群组提醒词 均可提升一个级别重要性&lt;/p&gt;&lt;p&gt;开启效果叠加时，若一条消息中包含多个关键词则提升多级重要性&lt;/p&gt;&lt;p&gt;可通过重复设置关键词，将重要性提升至MAX&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>提醒词效果叠加</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="dynamicImportanceCheck">
-     <property name="enabled">
-      <bool>false</bool>
+    <widget class="QGroupBox" name="groupBox_3">
+     <property name="title">
+      <string>全局提醒词</string>
      </property>
-     <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;根据聊天内容智能上调消息重要性&lt;/p&gt;&lt;p&gt;例如，在群组中发送疑问句后，临时提升群组消息一个级别&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
-     <property name="text">
-      <string>消息动态重要性</string>
-     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_4">
+      <item>
+       <widget class="QPlainTextEdit" name="globalRemindWordsEdit">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;全局的关键词提醒，以空格分开&lt;/p&gt;&lt;p&gt;当发来的消息中包含任一关键词时，提升消息重要性&lt;/p&gt;&lt;p&gt;不同关键词（或相同一词）可反复叠加&lt;/p&gt;&lt;p&gt;也会与群组的提醒词效果叠加&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPlainTextEdit
+{
+	background: transparent;
+	border: none;
+}</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>
@@ -126,6 +177,9 @@
      <property name="text">
       <string>群消息通知显示判断优先级：
 临时静默 &gt; 群组开关 &gt; 群内特别关心 &gt; 群组重要性</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
      </property>
     </widget>
    </item>

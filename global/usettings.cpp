@@ -57,6 +57,13 @@ void USettings::restoreSettings()
     assign(keepImportantMessage, "keepImportantMessage");
     endGroup();
 
+    beginGroup("special");
+    assign(specialKeep, "keep");
+    assign(remindOverlay, "remindOverlay");
+    assign(globalRemindWords, "globalRemindWords");
+    assign(groupRemindWords, " ", "groupRemindWords");
+    endGroup();
+
     beginGroup("local");
     assign(userLocalNames, "userLocalName");
     assign(groupLocalNames, "groupLocalName");

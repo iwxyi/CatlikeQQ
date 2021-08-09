@@ -37,6 +37,7 @@ private:
 
     void startMessageLoop();
     void showHistoryListMenu();
+    bool canNewCardShow(const MsgBean& msg) const;
 
     QRect screenGeometry() const;
 

@@ -513,57 +513,94 @@ void MainWindow::messageReceived(const MsgBean &msg, bool blockSelf)
 
     if (!currentCard) // 需要显示新卡片
     {
-        // 静默模式
-        if (rt->notificationSlient)
-            return ;
-
-        // 判断群组显示开关
-        if (msg.isGroup() && !us->isGroupShow(msg.groupId)) // 群组消息开关
-        {
-            return ;
-        }
-
-        // 特别关心（暂时没啥用）
-        bool special = us->userSpecial.contains(msg.senderId)
-                || us->groupMemberSpecial.value(msg.groupId, QList<qint64>{}).contains(msg.senderId);
-        Q_UNUSED(special)
-
-        // 判断消息级别开关
-        int im = NormalImportant;
-        if (msg.isPrivate())
-        {
-            im = us->userImportance.value(msg.senderId, us->userDefaultImportance);
-        }
-        else if (msg.isGroup())
-        {
-            im = us->groupImportance.value(msg.groupId, us->groupDefaultImportance);
-
-            // 判断发送者的重要性，max(用户,群组)
-            if (us->groupUseFriendImportance)
-            {
-                int im2 = us->userImportance.value(msg.senderId, us->groupDefaultImportance);
-                im = qMax(im, im2);
-            }
-        }
-
-        // 特别关心（好友/群内）
-        if (special)
-            im++;
-
-        // @全体成员/@我
-        if (us->improveAtAllImportance && msg.hasAt(0))
-            im++;
-        if (us->improveAtMeImportance && msg.hasAt(ac->myId))
-            im++;
-
-        if (im < us->lowestImportance)
+        if (!canNewCardShow(msg))
             return ;
     }
 
     showMessageCard(msg, blockSelf);
 }
 
-/// 显示通知卡片，可能是
+bool MainWindow::canNewCardShow(const MsgBean &msg) const
+{
+    // 静默模式
+    if (rt->notificationSlient)
+        return false;
+
+    // 判断群组显示开关
+    if (msg.isGroup() && !us->isGroupShow(msg.groupId)) // 群组消息开关
+    {
+        return false;
+    }
+
+    // 特别关心（暂时没啥用）
+    bool special = us->userSpecial.contains(msg.senderId)
+            || us->groupMemberSpecial.value(msg.groupId, QList<qint64>{}).contains(msg.senderId);
+    Q_UNUSED(special)
+
+    // 判断消息级别开关
+    int im = NormalImportant;
+    if (msg.isPrivate())
+    {
+        im = us->userImportance.value(msg.senderId, us->userDefaultImportance);
+    }
+    else if (msg.isGroup())
+    {
+        im = us->groupImportance.value(msg.groupId, us->groupDefaultImportance);
+
+        // 判断发送者的重要性，max(用户,群组)
+        if (us->groupUseFriendImportance)
+        {
+            int im2 = us->userImportance.value(msg.senderId, us->groupDefaultImportance);
+            im = qMax(im, im2);
+        }
+    }
+
+    // 特别关心（好友/群内）
+    if (special)
+        im++;
+
+    // 全局提醒词
+    bool globalRemind = false;
+    for (auto w: us->globalRemindWords)
+    {
+        if (msg.message.contains(w))
+        {
+            globalRemind = true;
+            im++;
+            if (!us->remindOverlay)
+                break;
+        }
+    }
+
+    // 群组提醒词
+    bool groupRemind = false;
+    if ((us->remindOverlay || !globalRemind) && msg.isGroup() && us->groupRemindWords.contains(msg.groupId))
+    {
+        for (auto w: us->groupRemindWords.value(msg.groupId))
+        {
+            if (msg.message.contains(w))
+            {
+                groupRemind = true;
+                im++;
+                if (!us->remindOverlay)
+                    break;
+            }
+        }
+    }
+
+    // @全体成员/@我
+    if (us->improveAtAllImportance && msg.hasAt(0))
+        im++;
+    if (us->improveAtMeImportance && msg.hasAt(ac->myId))
+        im++;
+
+    if (im < us->lowestImportance)
+        return false;
+
+    return true;
+}
+
+/// 显示通知卡片，可能是新卡片，也可能需要附加上去
 NotificationCard* MainWindow::showMessageCard(const MsgBean &msg, bool blockSelf)
 {
     // 保存最后显示的（不是接收的）
