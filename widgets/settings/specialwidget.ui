@@ -141,6 +141,12 @@
      <layout class="QVBoxLayout" name="verticalLayout_4">
       <item>
        <widget class="QPlainTextEdit" name="globalRemindWordsEdit">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>16</height>
+         </size>
+        </property>
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;全局的关键词提醒，以空格分开&lt;/p&gt;&lt;p&gt;当发来的消息中包含任一关键词时，提升消息重要性&lt;/p&gt;&lt;p&gt;不同关键词（或相同一词）可反复叠加&lt;/p&gt;&lt;p&gt;也会与群组的提醒词效果叠加&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>

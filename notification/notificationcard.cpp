@@ -1398,13 +1398,6 @@ void NotificationCard::cardMenu()
         setImportance(Unimportant);
     })->check(importance == Unimportant);
 
-    menu->addAction(QIcon("://icons/closeUser.png"), "不显示该群通知", [=]{
-        us->enabledGroups.removeOne(groupId);
-        us->set("group/enables", us->enabledGroups);
-        this->toHide();
-        qInfo() << "不显示群组通知：" << groupId;
-    })->hide(!groupId);
-
     QString oldLocalName;
     QHash<qint64, QString>* hash = nullptr;
     qint64 hashId = 0;
@@ -1451,16 +1444,45 @@ void NotificationCard::cardMenu()
         ui->nicknameLabel->setText(newName);
     })->check(!oldLocalName.isEmpty());
 
-    menu->split()->addAction(QIcon("://icons/silent.png"), "临时静默", [=] {
-        // 这里的静默模式不会保存，重启后还是以设置中为准
-        rt->notificationSlient = !rt->notificationSlient;
-        if (rt->notificationSlient)
-            emit signalCloseAllCards();
-    })->check(rt->notificationSlient)->tooltip("临时屏蔽所有消息\n重启后将恢复原来状态");
+    bool hasGroupRemind = isGroup() && us->groupRemindWords.contains(groupId);
+    menu->addAction(QIcon("://icons/groupRemind.png"), "设置群提醒词", [=]{
+        bool ok;
+        blockHideTimer();
+        QString newWords = QInputDialog::getText(this, "设置群提醒词", "设置群组消息关键词提醒，可临时提升重要性", QLineEdit::Normal, us->groupRemindWords.value(groupId).join(" "), &ok);
+        restoreHideTimer();
+        if (!ok)
+            return ;
+
+        newWords = newWords.trimmed();
+        if (newWords.isEmpty())
+        {
+            us->groupRemindWords.remove(groupId);
+        }
+        else
+        {
+            us->groupRemindWords[groupId] = newWords.split(" ", QString::KeepEmptyParts);
+        }
+
+        us->set("special/groupRemindWords", us->groupRemindWords, " ");
+    })->check(hasGroupRemind);
+
+    menu->split()->addAction(QIcon("://icons/closeUser.png"), "不显示该群通知", [=]{
+        us->enabledGroups.removeOne(groupId);
+        us->set("group/enables", us->enabledGroups);
+        this->toHide();
+        qInfo() << "不显示群组通知：" << groupId;
+    })->hide(!groupId);
 
     menu->addAction(QIcon("://icons/hideView.png"), "立刻关闭所有通知", [=]{
         emit signalCloseAllCards();
     });
+
+    menu->addAction(QIcon("://icons/silent.png"), "临时静默", [=] {
+        // 这里的静默模式不会保存，重启后还是以设置中为准
+        rt->notificationSlient = !rt->notificationSlient;
+        if (rt->notificationSlient)
+            emit signalCloseAllCards();
+    })->check(rt->notificationSlient)->tooltip("临时屏蔽所有消息\n重启后将恢复原来状态")->hide();
 
     blockHideByMenu(menu, true);
     menu->exec();
