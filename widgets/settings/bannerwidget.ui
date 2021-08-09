@@ -279,13 +279,13 @@
      <item row="3" column="1">
       <widget class="QSpinBox" name="floatPixelSpin">
        <property name="toolTip">
-        <string/>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;距离四边的距离&lt;/p&gt;&lt;p&gt;右上/左上：距离顶边&lt;/p&gt;&lt;p&gt;右下/左下：距离底边&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="suffix">
         <string>像素</string>
        </property>
        <property name="prefix">
-        <string>距顶部</string>
+        <string>距边缘</string>
        </property>
        <property name="minimum">
         <number>0</number>

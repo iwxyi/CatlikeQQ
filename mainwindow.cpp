@@ -671,6 +671,8 @@ NotificationCard* MainWindow::createNotificationCard(const MsgBean &msg)
         int bottom = screenGeometry().bottom() - us->bannerFloatPixel;
         startPos.setY(bottom - card->height());
         showPos.setY(bottom - card->height());
+        // 要调整原先卡片的高度
+        slotCardHeightChanged(notificationCards.count() - 1, card->height() + us->bannerSpacing);
         break;
     }
 
@@ -750,10 +752,13 @@ void MainWindow::focusOrShowMessageCard(const MsgBean &msg, bool focusEdit, cons
 
 void MainWindow::slotCardHeightChanged(NotificationCard *card, int deltaHeight)
 {
-    int index = notificationCards.indexOf(card);
+    slotCardHeightChanged(notificationCards.indexOf(card), deltaHeight);
+}
+
+void MainWindow::slotCardHeightChanged(int index, int deltaHeight)
+{
     if (index == -1)
         return ;
-
     switch (int(us->bannerFloatDirection))
     {
     case TopToBottom:
