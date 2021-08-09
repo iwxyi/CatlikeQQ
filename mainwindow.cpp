@@ -634,39 +634,51 @@ NotificationCard* MainWindow::showMessageCard(const MsgBean &msg, bool blockSelf
 
 NotificationCard* MainWindow::createNotificationCard(const MsgBean &msg)
 {
+    // 创建卡片
+    NotificationCard* card = new NotificationCard(nullptr);
+    notificationCards.append(card);
+
     // 判断卡片的位置
     QPoint startPos; // 开始出现的位置
     QPoint showPos;  // 显示的最终位置
-    switch (int(us->bannerFloatSide))
+    switch (int(us->bannerFloatSide)) // 这个int是去掉警告，因为很多位置尚不支持
     {
     case SideRight: // 右
     {
-        /* // 统计所有横幅的位置
-        int top = us->bannerFloatPixel;
-        foreach (auto card, notificationCards)
-            top += card->height() + us->bannerSpacing; */
-        int top = us->bannerFloatPixel;
-        if (notificationCards.size())
-            top = notificationCards.last()->geometry().bottom() + us->bannerSpacing;
-        startPos = QPoint(screenGeometry().width()-5, top);
-        showPos = QPoint(screenGeometry().width() - us->bannerFixedWidth - us->bannerSpacing, top);
-    }
+        const int margin = 5;
+        int rightest = screenGeometry().width();
+        startPos.setX(rightest - margin);
+        showPos.setX(rightest - us->bannerFixedWidth - us->bannerSpacing);
         break;
+    }
     default:
         qCritical() << "暂不支持该位置";
         return nullptr;
     }
 
-    // 创建卡片
-    NotificationCard* card = new NotificationCard(nullptr);
-    notificationCards.append(card);
+    switch (int(us->bannerFloatDirection))
+    {
+    case TopToBottom:
+    {
+        int top = us->bannerFloatPixel;
+        if (notificationCards.size())
+            top = notificationCards.last()->geometry().bottom() + us->bannerSpacing;
+        startPos.setY(top);
+        showPos.setY(top);
+        break;
+    }
+    case BottomToTop:
+        int bottom = screenGeometry().bottom() - us->bannerFloatPixel;
+        startPos.setY(bottom - card->height());
+        showPos.setY(bottom - card->height());
+        break;
+    }
 
     connect(card, &NotificationCard::signalHeightChanged, this, [=](int delta) {
-        adjustUnderCardsTop(notificationCards.indexOf(card), delta);
+        slotCardHeightChanged(card, delta);
     });
     connect(card, &NotificationCard::signalHided, this, [=]{
-        int index = notificationCards.indexOf(card);
-        adjustUnderCardsTop(index, -(card->height() + us->bannerSpacing));
+        slotCardHeightChanged(card, -(card->height() + us->bannerSpacing));
         notificationCards.removeOne(card);
     });
     connect(card, &NotificationCard::signalReplyPrivate, cqhttpService,  &CqhttpService::sendUserMsg);
@@ -736,8 +748,25 @@ void MainWindow::focusOrShowMessageCard(const MsgBean &msg, bool focusEdit, cons
         card->addReplyText(insertText);
 }
 
+void MainWindow::slotCardHeightChanged(NotificationCard *card, int deltaHeight)
+{
+    int index = notificationCards.indexOf(card);
+    if (index == -1)
+        return ;
+
+    switch (int(us->bannerFloatDirection))
+    {
+    case TopToBottom:
+        adjustUnderCardsTop(index, deltaHeight);
+        break;
+    case BottomToTop:
+        adjustAboveCardsTop(index, -deltaHeight);
+        break;
+    }
+}
+
 /**
- * 调整下面所有卡片的位置
+ * 调整下面所有卡片的位置（高度改变/卡片隐藏）
  * @param firstIndex  第一个开始调整的位置的上一个（即最后一个不需要调整的索引）
  * @param deltaHeight 位置差，可能正可能负
  */
@@ -750,6 +779,24 @@ void MainWindow::adjustUnderCardsTop(int aboveIndex, int deltaHeight)
     {
         // 移动动画的话，需要考虑到一些冲突什么的，大概还是比较麻烦的
         // 比如正在动画中，又需要临时调整，就很难搞
+        auto card = notificationCards.at(i);
+        if (card->isHidding())
+            continue;
+        card->adjustTop(deltaHeight);
+    }
+}
+
+/**
+ * 调整上面所有卡片的位置（高度改变/卡片插入/卡片隐藏）
+ * @param lastIndex 最后一个需要调整位置的索引（包括自己）
+ */
+void MainWindow::adjustAboveCardsTop(int underIndex, int deltaHeight)
+{
+    if (underIndex < 0 || underIndex >= notificationCards.count())
+        return ;
+
+    for (int i = 0; i <= underIndex; i++)
+    {
         auto card = notificationCards.at(i);
         if (card->isHidding())
             continue;

@@ -48,6 +48,8 @@ private slots:
 
     void on_thumbnailPropSpin_editingFinished();
 
+    void on_positionCombo_activated(int index);
+
 private:
     Ui::BannerWidget *ui;
 };

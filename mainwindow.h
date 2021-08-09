@@ -40,13 +40,15 @@ private:
     bool canNewCardShow(const MsgBean& msg) const;
 
     QRect screenGeometry() const;
+    void adjustUnderCardsTop(int aboveIndex, int deltaHeight);
+    void adjustAboveCardsTop(int underIndex, int deltaHeight);
 
 public slots:
     void messageReceived(const MsgBean& msg, bool blockSelf = true);
     NotificationCard *showMessageCard(const MsgBean& msg, bool blockSelf = false);
     NotificationCard *createNotificationCard(const MsgBean& msg);
     void focusOrShowMessageCard(const MsgBean& msg, bool focusEdit, const QString& insertText = "");
-    void adjustUnderCardsTop(int aboveIndex, int deltaHeight);
+    void slotCardHeightChanged(NotificationCard* card, int deltaHeight);
     void focusCardReply();
     void closeAllCard();
 

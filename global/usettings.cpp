@@ -12,6 +12,8 @@ void USettings::restoreSettings()
     fileHost = s("net/fileHost");
 
     beginGroup("banner");
+    bannerFloatSide = Side(i("floatSide", bannerFloatSide));
+    bannerFloatDirection = Direction(i("floatDirection", bannerFloatDirection));
     assign(bannerFloatPixel, "floatPixel");
     assign(bannerFixedWidth, "fixedWidth");
     assign(bannerContentMaxHeight, "contentMaxHeight");

@@ -27,6 +27,14 @@ BannerWidget::BannerWidget(QWidget *parent) :
 
     ui->bgColorButton->setBorderColor(Qt::gray);
     ui->titleColorButton->setBorderColor(Qt::gray);
+
+    if (us->bannerFloatSide == SideRight)
+    {
+        if (us->bannerFloatDirection == TopToBottom)
+            ui->positionCombo->setCurrentIndex(0);
+        else
+            ui->positionCombo->setCurrentIndex(1);
+    }
 }
 
 BannerWidget::~BannerWidget()
@@ -116,4 +124,21 @@ void BannerWidget::on_contentMaxHeightSpin_editingFinished()
 void BannerWidget::on_thumbnailPropSpin_editingFinished()
 {
     us->set("banner/thumbnailProp", us->bannerThumbnailProp = ui->thumbnailPropSpin->value());
+}
+
+void BannerWidget::on_positionCombo_activated(int index)
+{
+    if (index == 0) // 右上
+    {
+        us->bannerFloatSide = SideRight;
+        us->bannerFloatDirection = TopToBottom;
+    }
+    else if (index == 1) // 右下
+    {
+        us->bannerFloatSide = SideRight;
+        us->bannerFloatDirection = BottomToTop;
+    }
+
+    us->set("banner/floatSide", us->bannerFloatSide);
+    us->set("banner/floatDirection", us->bannerFloatDirection);
 }
