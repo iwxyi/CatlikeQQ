@@ -135,6 +135,22 @@ void CqhttpService::messageReceived(const QString &message)
         {
             parseOfflineFile(json);
         }
+        else if (notice_type == "group_increase") // 群成员加入
+        {
+            parseGroupIncrease(json);
+        }
+        else if (notice_type == "group_recall") // 撤销群消息
+        {
+            parseGroupRecall(json);
+        }
+        else if (notice_type == "group_card") // 修改群名片
+        {
+            parseGroupCard(json);
+        }
+        else if (notice_type == "group_ban") // 禁言群成员
+        {
+            parseGroupBan(json);
+        }
         else
         {
             qWarning() << "未处理类型的通知：" << json;
@@ -417,6 +433,116 @@ void CqhttpService::parseMessageSent(const MyJson &json)
         }*/
         parsePrivateMessage(json);
     }
+    else
+    {
+        qWarning() << "未处理类型的sent数据" << json;
+    }
+}
+
+void CqhttpService::parseFriendRecall(const MyJson &json)
+{
+    /* {
+        "message_id": -1001132594,
+        "notice_type": "friend_recall",
+        "post_type": "notice",
+        "self_id": 1600631528,
+        "time": 1628479912,
+        "user_id": 3308218798
+    } */
+
+    JL(json, user_id); // 这是好友消息撤回，自己撤回的接收不到
+    JL(json, message_id);
+
+    qInfo() << "用户撤回：" << user_id << ac->friendName(user_id) << message_id;
+}
+
+void CqhttpService::parseGroupRecall(const MyJson &json)
+{
+    /* {
+        "group_id": 647637553,
+        "message_id": -2062705571,
+        "notice_type": "group_recall",
+        "operator_id": 1749535518,
+        "post_type": "notice",
+        "self_id": 1600631528,
+        "time": 1628479447,
+        "user_id": 1749535518
+    } */
+
+    JL(json, group_id);
+    JL(json, message_id);
+
+    qInfo() << "群消息撤回：" << group_id << ac->groupList.value(group_id).name << message_id;
+}
+
+void CqhttpService::parseGroupIncrease(const MyJson &json)
+{
+    /* {
+        "group_id": 647637553,
+        "notice_type": "group_increase",
+        "operator_id": 0,
+        "post_type": "notice",
+        "self_id": 1600631528,
+        "sub_type": "approve",
+        "time": 1628479399,
+        "user_id": 2645311486
+    } */
+
+    JS(json, sub_type);
+    if (sub_type == "approve")
+    {
+        JL(json, group_id);
+        JL(json, user_id);
+
+        qInfo() << "用户加入群组" << group_id << ac->groupList.value(group_id).name << " --> " << user_id;
+    }
+    else
+    {
+        qWarning() << "未处理类型的数据" << json;
+    }
+}
+
+void CqhttpService::parseGroupCard(const MyJson &json)
+{
+    /* {
+        "card_new": "深圳--龙岗区-Assembly line worker",
+        "card_old": "深圳--龙岗区--嵌入式软件工程师",
+        "group_id": 647637553,
+        "notice_type": "group_card",
+        "post_type": "notice",
+        "self_id": 1600631528,
+        "time": 1628482914,
+        "user_id": 1749535518
+    } */
+
+    JS(json, card_new);
+    JS(json, card_old);
+    JL(json, group_id);
+    JL(json, user_id);
+
+    qInfo() << "禁言群成员："<< group_id << user_id << card_old << card_new;
+}
+
+void CqhttpService::parseGroupBan(const MyJson &json)
+{
+    /* {
+        "duration": 600,
+        "group_id": 647637553,
+        "notice_type": "group_ban",
+        "operator_id": 1466877104,
+        "post_type": "notice",
+        "self_id": 1600631528,
+        "sub_type": "ban",
+        "time": 1628482931,
+        "user_id": 1749535518
+    } */
+
+    JL(json, group_id);
+    JL(json, user_id);
+    JL(json, operator_id);
+    JL(json, duration); // 秒
+
+    qInfo() << "群成员禁言：" << group_id << user_id << duration << operator_id;
 }
 
 void CqhttpService::ensureFriendExist(FriendInfo user)

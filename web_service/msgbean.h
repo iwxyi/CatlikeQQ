@@ -70,6 +70,8 @@ struct MsgBean
     QString imageId; // 显示唯一图片（不一定有）
     QColor bgColor; // 显示的背景（不一定有，除非开启动态背景）
     qint64 timestamp = 0; // 创建时间（毫秒级）
+    bool recall = false; // 消息撤回
+    bool approve = false; // 用户加入
 
     MsgBean(qint64 senderId, QString nickname, QString message, qint64 messageId, QString subType)
         : senderId(senderId), nickname(nickname), message(message), rawMessage(message), messageId(messageId), subType(subType)
