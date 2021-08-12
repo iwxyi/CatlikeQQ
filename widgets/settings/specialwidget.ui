@@ -157,6 +157,9 @@
 	border: none;
 }</string>
         </property>
+        <property name="placeholderText">
+         <string>多个关键词使用空格隔开</string>
+        </property>
        </widget>
       </item>
      </layout>

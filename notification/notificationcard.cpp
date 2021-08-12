@@ -1448,7 +1448,7 @@ void NotificationCard::cardMenu()
     menu->addAction(QIcon("://icons/groupRemind.png"), "设置群提醒词", [=]{
         bool ok;
         blockHideTimer();
-        QString newWords = QInputDialog::getText(this, "设置群提醒词", "设置群组消息关键词提醒，可临时提升重要性", QLineEdit::Normal, us->groupRemindWords.value(groupId).join(" "), &ok);
+        QString newWords = QInputDialog::getText(this, "设置群提醒词", "设置群组消息关键词提醒，可临时提升重要性\n多个关键词使用空格隔开", QLineEdit::Normal, us->groupRemindWords.value(groupId).join(" "), &ok);
         restoreHideTimer();
         if (!ok)
             return ;
@@ -1565,6 +1565,23 @@ void NotificationCard::sendNextFile()
 
     QString path = uploadFilePaths.takeFirst();
 
+    // 没有设置文件主机
+    if (us->fileHost.isEmpty())
+    {
+        // 本地链接
+        if (us->host.contains("127.0.0.1") || us->host.contains("localhost"))
+        {
+            sendReply("[CQ:image,file=" + path + "]");
+            sendNextFile();
+        }
+        else
+        {
+            qWarning() << "发送文件失败，请先设置文件主机";
+        }
+        return ;
+    }
+
+    // 上传网络文件
     HttpUploader* uploader = new HttpUploader(us->fileHost + "/file_upload.php");
     uploader->addFilePath("upfile", path);
     uploader->post();
