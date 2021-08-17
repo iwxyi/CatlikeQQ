@@ -550,7 +550,7 @@ bool MainWindow::canNewCardShow(const MsgBean &msg) const
         // 判断发送者的重要性，max(用户,群组)
         if (us->groupUseFriendImportance)
         {
-            int im2 = us->userImportance.value(msg.senderId, us->groupDefaultImportance);
+            int im2 = us->userImportance.value(msg.senderId, im);
             im = qMax(im, im2);
         }
     }
@@ -563,6 +563,8 @@ bool MainWindow::canNewCardShow(const MsgBean &msg) const
     bool globalRemind = false;
     for (auto w: us->globalRemindWords)
     {
+        if (w.trimmed().isEmpty())
+            continue;
         if (msg.message.contains(w))
         {
             globalRemind = true;
@@ -578,6 +580,8 @@ bool MainWindow::canNewCardShow(const MsgBean &msg) const
     {
         for (auto w: us->groupRemindWords.value(msg.groupId))
         {
+            if (w.trimmed().isEmpty())
+                continue;
             if (msg.message.contains(w))
             {
                 groupRemind = true;
@@ -590,9 +594,13 @@ bool MainWindow::canNewCardShow(const MsgBean &msg) const
 
     // @全体成员/@我
     if (us->improveAtAllImportance && msg.hasAt(0))
+    {
         im++;
+    }
     if (us->improveAtMeImportance && msg.hasAt(ac->myId))
+    {
         im++;
+    }
 
     if (im < us->lowestImportance)
         return false;
@@ -603,7 +611,7 @@ bool MainWindow::canNewCardShow(const MsgBean &msg) const
 /// 显示通知卡片，可能是新卡片，也可能需要附加上去
 NotificationCard* MainWindow::showMessageCard(const MsgBean &msg, bool blockSelf)
 {
-    // 保存最后显示的（不是接收的）
+    // 保存最后显示的（接收的消息不一定会显示）
     if (msg.isPrivate())
     {
         ac->lastReceiveShowIsUser = true;
