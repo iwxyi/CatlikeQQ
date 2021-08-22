@@ -1,6 +1,6 @@
 #include "usettings.h"
 
-USettings::USettings(QObject *parent) : MySettings("settings.ini", QSettings::Format::IniFormat, parent)
+USettings::USettings(QString filePath, QObject *parent) : MySettings(filePath, QSettings::Format::IniFormat, parent)
 {
     restoreSettings();
 }
@@ -9,8 +9,11 @@ void USettings::restoreSettings()
 {
     host = s("net/host");
     accessToken = s("net/accessToken");
+    fileHost = s("net/fileHost");
 
     beginGroup("banner");
+    bannerFloatSide = Side(i("floatSide", bannerFloatSide));
+    bannerFloatDirection = Direction(i("floatDirection", bannerFloatDirection));
     assign(bannerFloatPixel, "floatPixel");
     assign(bannerFixedWidth, "fixedWidth");
     assign(bannerContentMaxHeight, "contentMaxHeight");
@@ -20,6 +23,7 @@ void USettings::restoreSettings()
     assign(bannerFloatPixel, "pixel");
     assign(bannerSpacing, "spacing");
     assign(bannerFixedWidth, "width");
+    assign(bannerThumbnailProp, "thumbnailProp");
     assign(bannerBgColor, "bgColor");
     assign(bannerTitleColor, "titleColor");
     assign(bannerContentColor, "contentColor");
@@ -49,6 +53,22 @@ void USettings::restoreSettings()
     assign(userImportance, "userImportance");
     assign(groupImportance, "groupImportance");
     assign(lowestImportance, "lowestImportance");
+    assign(groupUseFriendImportance, "groupUseFriendImportance");
+    assign(improveAtMeImportance, "improveAtMeImportance");
+    assign(improveAtAllImportance, "improveAtAllImportance");
+    assign(keepImportantMessage, "keepImportantMessage");
+    endGroup();
+
+    beginGroup("special");
+    assign(specialKeep, "keep");
+    assign(remindOverlay, "remindOverlay");
+    assign(globalRemindWords, "globalRemindWords");
+    assign(groupRemindWords, " ", "groupRemindWords");
+    endGroup();
+
+    beginGroup("local");
+    assign(userLocalNames, "userLocalName");
+    assign(groupLocalNames, "groupLocalName");
     endGroup();
 
     beginGroup("autoCache");

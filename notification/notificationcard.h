@@ -27,6 +27,8 @@ namespace Ui {
 class NotificationCard;
 }
 
+class FacileMenu;
+
 class NotificationCard : public QWidget
 {
     Q_OBJECT
@@ -48,6 +50,7 @@ public:
     bool canMerge() const;
     bool isFixing() const;
     void setFastFocus();
+    bool is(const MsgBean& msg) const;
 
     const QList<MsgBean> &getMsgs() const;
     int getImportance() const;
@@ -57,7 +60,7 @@ signals:
     void signalHeightChanged(int delta);
     void signalToHide();
     void signalHided();
-    void signalReplyPrivate(qint64 userId, const QString& message);
+    void signalReplyPrivate(qint64 friendId, const QString& message);
     void signalReplyGroup(qint64 groupId, const QString& message);
     void signalCancelReply();
     void signalFocusPrevCard();
@@ -67,14 +70,21 @@ signals:
 
 public slots:
     void showReplyEdit();
-    void showReplyEdit(bool focus);
+    void showReplyEdit(bool focus, bool selectAll = true);
     void hideReplyEdit();
     void toHide();
     void triggerAIReply(int retry = 0);
     void shallToHide();
+    void addReplyText(const QString& text);
 
     void showGrougInfo(qint64 groupId, QPoint pos = QPoint(-1, -1));
-    void showUserInfo(qint64 userId, QPoint pos = QPoint(-1, -1));
+    void showUserInfo(qint64 friendId, QPoint pos = QPoint(-1, -1));
+
+    void sendFiles(QList<QUrl> urls);
+
+    void blockHideByMenu(FacileMenu* menu, bool canHideAfterClose);
+    void blockHideTimer();
+    void restoreHideTimer();
 
 private slots:
     void mouseEnter();
@@ -83,6 +93,7 @@ private slots:
     void focusIn();
     void focusOut();
     void sendReply();
+    void sendReply(QString text);
     void cardClicked();
     void cardMenu();
     void on_listWidget_itemDoubleClicked(QListWidgetItem *item);
@@ -98,21 +109,25 @@ private:
     void createMsgBox(const MsgBean &msg, int index = -1);
     void createBlankMsgBox(const MsgBean &msg, int index = -1);
     MessageView* newMsgView();
-    void connectGroupHeader(QLabel* label);
-    void connectUserHeader(QLabel *label);
+    void connectGroupHeader(QLabel* label, const MsgBean &msg);
+    void connectUserHeader(QLabel *label, const MsgBean &msg);
+    void connectUserName(QLabel* label, const MsgBean &msg);
     int getReadDisplayDuration(QString text) const;
     void createFrostGlass();
     void suspendHide();
+    void sendNextFile();
 
 protected:
     void showEvent(QShowEvent *event) override;
     void paintEvent(QPaintEvent *) override;
     void resizeEvent(QResizeEvent *event) override;
+    void dragEnterEvent(QDragEnterEvent *event) override;
+    void dropEvent(QDropEvent *event) override;
 
 private:
     Ui::NotificationCard *ui;
 
-    qint64 userId = 0;
+    qint64 friendId = 0;
     qint64 groupId = 0;
     QList<MsgBean> msgs; // 可能会合并多条消息
     QList<MessageView*> msgViews;
@@ -125,9 +140,14 @@ private:
     bool hidding = false;
     bool fastFocus = false;
     bool fixing = false; // 固定不自动隐藏
+    bool _loadingHistory = false;
+    FacileMenu* currentMenu = nullptr;
+    int _blockingHide = 0;
     AccountInfo::CardColor cardColor;
     QLabel* frostGlassLabel = nullptr;
     QPixmap frostGlassPixmap;
+
+    QList<QString> uploadFilePaths;
 };
 
 #endif // NOTIFICATIONCARD_H

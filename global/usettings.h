@@ -20,19 +20,21 @@ enum Direction
     BottomToTop
 };
 
+
 #define Unimportant -1
 #define UnimportantText "不重要"
 #define NormalImportant 0
 #define NormalImportantText "一般"
-#define Important 1
-#define ImportantText "重要"
+#define LittleImportant 1
+#define LittleImportantText "重要"
 #define VeryImportant 2
 #define VeryImportantText "很重要"
+
 
 class USettings : public MySettings
 {
 public:
-    USettings(QObject* parent = nullptr);
+    USettings(QString filePath, QObject* parent = nullptr);
 
 private:
     void restoreSettings();
@@ -43,6 +45,7 @@ public:
 public:
     QString host;
     QString accessToken;
+    QString fileHost; // 文件上传服务器，不带/
 
     // 横幅通知位置
     Side bannerFloatSide = SideRight; // 边：0上，1左，2右，3下，-1任意
@@ -54,6 +57,7 @@ public:
     int bannerContentMaxHeight = 130; // 内容最大像素高度
     int bannerHeaderSize = 32; // 头像大小
     int bannerSpacing = 10; // 横幅之间的间距
+    int bannerMargin = 5; // 横幅距离边缘的margin
     int bannerAnimationDuration = 300; // 横幅的动画时长
     int bannerShowEasingCurve = 6;     // 动画的曲线设定
     int bannerDisplayDuration = 7000;  // 横幅显示的时长
@@ -83,14 +87,16 @@ public:
     int bannerAIReply = false; // 触发回复时，进行AI提示
     bool bannerPrivateKeepShowing = false; // 私聊保持显示直到交互
     bool bannerGroupKeepShowing = false; // 群聊保持显示直到交互
+    int bannerThumbnailProp = 2; // 缩略图最大是原图的几分之一
 
     // 回复
     bool bannerShowMySend = false; // 回复后，显示自己发送的消息；可能会与接收到的重复
     bool bannerAutoShowReply = false; // 自动显示回复框
     bool bannerAutoFocusReply = false; // hover的时候自动聚焦回复框
     bool bannerCloseAfterReply = true; // 回复后关闭对话框（Ctrl+Enter切换）
+    bool replyMessageContainsAt = false; // 回复的时候@TA
 
-    // 群组同志
+    // 群组通知
     bool enableGroupNotification = true; // 群组通知总开关
     QList<qint64> enabledGroups; // 群组通知白名单
 
@@ -98,8 +104,25 @@ public:
     QHash<qint64, int> userImportance; // 用户重要性
     QHash<qint64, int> groupImportance; // 群组重要性
     int lowestImportance = NormalImportant; // 当前弹窗的最低重要程度
-    int userDefaultImportance = Important; // 未设置用户的默认重要性
+    int userDefaultImportance = LittleImportant; // 未设置用户的默认重要性
     int groupDefaultImportance = NormalImportant; // 未设置群组的默认重要性
+    bool groupUseFriendImportance = true; // 群组消息使用好友的重要性，如果有设置的话
+    bool improveAtMeImportance = true; // 提升艾特消息一个级别的重要性
+    bool improveAtAllImportance = false; // 提升艾特全体消息一个级别重要性
+    bool dynamicImportance = false; // 动态重要性
+    int keepImportantMessage = VeryImportant; // 大于等于该重要性的一直保持显示
+
+    // 特别关心
+    QList<qint64> userSpecial;
+    QHash<qint64, QList<qint64>> groupMemberSpecial;
+    bool specialKeep = true; // 特别关心保持显示
+    bool remindOverlay = true; // 提醒词（相同或者不同）效果叠加
+    QStringList globalRemindWords; // 全局关键词提醒
+    QHash<qint64, QStringList> groupRemindWords; // 群组关键词提醒
+
+    // 本地昵称
+    QHash<qint64, QString> userLocalNames; // 用户本地昵称
+    QHash<qint64, QString> groupLocalNames; // 群组本地昵称
 
     // 文件管理
     bool autoCacheImage = true; // 显示图片，还是只显示[图片]

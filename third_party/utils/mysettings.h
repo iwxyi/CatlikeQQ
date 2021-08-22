@@ -53,6 +53,22 @@ public:
         set(key, sl);
     }
 
+    void set(QString key, QHash<qint64, QStringList> hash, QString split)
+    {
+        QStringList sl;
+        for (auto it = hash.begin(); it != hash.end(); it++)
+            sl.append(QString::number(it.key())+ ":" + it.value().join(split));
+        set(key, sl);
+    }
+
+    void set(QString key, QHash<qint64, QString> hash)
+    {
+        QStringList sl;
+        for (auto it = hash.begin(); it != hash.end(); it++)
+            sl.append(QString::number(it.key())+ ":" + it.value());
+        set(key, sl);
+    }
+
     bool b(QString key, QVariant def = QVariant())
     {
         return QSettings::value(key, def).toBool();
@@ -134,6 +150,32 @@ public:
             if (l.size() != 2)
                 continue;
             val.insert(l.at(0).toLongLong(), l.at(1).toInt());
+        }
+    }
+
+    void assign(QHash<qint64, QString>& val, QString key)
+    {
+        QStringList sl = value(key).toStringList();
+        foreach (auto s, sl)
+        {
+            QStringList l = s.split(":");
+            if (l.size() != 2)
+                continue;
+            val.insert(l.at(0).toLongLong(), l.at(1));
+        }
+    }
+
+    void assign(QHash<qint64, QStringList>& val, QString split, QString key)
+    {
+        QStringList sl = value(key).toStringList();
+        foreach (auto s, sl)
+        {
+            int pos = s.indexOf(":");
+            if (pos < 0)
+                continue;
+            QString left = s.left(pos);
+            QString right = s.right(s.length() - pos - 1);
+            val.insert(left.toLongLong(), right.split(split, QString::SkipEmptyParts));
         }
     }
 };

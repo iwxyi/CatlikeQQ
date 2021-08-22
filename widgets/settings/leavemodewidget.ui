@@ -27,7 +27,7 @@
    <item>
     <widget class="QCheckBox" name="aiReplyPrivateCheck">
      <property name="text">
-      <string>私聊AI回复</string>
+      <string>私聊AI回复（已失效）</string>
      </property>
     </widget>
    </item>

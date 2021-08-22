@@ -18,6 +18,7 @@ public:
     explicit MessageView(QWidget *parent = nullptr);
 
     void setMessage(const MsgBean &msg);
+    static QString simpleMessage(const MsgBean &msg);
 
     QSize adjustSizeByTextWidth(int w);
 
@@ -27,6 +28,8 @@ signals:
     void needMemberNames();
     void keepShowing();
     void restoreTimerIfNecessary();
+    void replyText(const QString& text);
+    void sendText(const QString& text);
 
 public slots:
     void replaceGroupAt();

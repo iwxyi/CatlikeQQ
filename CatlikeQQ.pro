@@ -40,6 +40,7 @@ SOURCES += \
     global/usettings.cpp \
     notification/messageview.cpp \
     notification/smoothlistwidget.cpp \
+    third_party/utils/httpuploader.cpp \
     web_service/cqhttpservice.cpp \
     third_party/color_octree/coloroctree.cpp \
     third_party/color_octree/imageutil.cpp \
@@ -64,6 +65,7 @@ SOURCES += \
     widgets/settings/leavemodewidget.cpp \
     widgets/settings/remotecontrolwidget.cpp \
     widgets/settings/replywidget.cpp \
+    widgets/settings/specialwidget.cpp \
     widgets/video/videolabel.cpp \
     widgets/video/videosurface.cpp \
     widgets/video/videowidget.cpp
@@ -79,6 +81,7 @@ HEADERS += \
     notification/smoothlistwidget.h \
     notification/smoothscrollbean.h \
     resources/resource.rc \
+    third_party/utils/httpuploader.h \
     third_party/utils/mysettings.h \
     third_party/utils/netimageutil.h \
     web_service/cqhttpservice.h \
@@ -112,6 +115,7 @@ HEADERS += \
     widgets/settings/leavemodewidget.h \
     widgets/settings/remotecontrolwidget.h \
     widgets/settings/replywidget.h \
+    widgets/settings/specialwidget.h \
     widgets/video/videolabel.h \
     widgets/video/videosurface.h \
     widgets/video/videowidget.h
@@ -130,7 +134,8 @@ FORMS += \
     widgets/settings/groupwidget.ui \
     widgets/settings/leavemodewidget.ui \
     widgets/settings/remotecontrolwidget.ui \
-    widgets/settings/replywidget.ui
+    widgets/settings/replywidget.ui \
+    widgets/settings/specialwidget.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

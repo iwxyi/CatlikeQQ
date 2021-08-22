@@ -18,10 +18,10 @@
     <number>12</number>
    </property>
    <property name="leftMargin">
-    <number>9</number>
+    <number>18</number>
    </property>
    <property name="rightMargin">
-    <number>9</number>
+    <number>18</number>
    </property>
    <item>
     <widget class="QGroupBox" name="groupBox_2">

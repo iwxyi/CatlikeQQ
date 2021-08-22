@@ -46,7 +46,8 @@
       <widget class="QLineEdit" name="prefixEdit">
        <property name="toolTip">
         <string>当有多个设备时，可通过前缀来识别不同的设备
-或者进行组合，一口气控制多台设备</string>
+或者进行组合，一口气控制多台设备
+多个前缀用空格分隔，满足其中之一即可控制</string>
        </property>
        <property name="placeholderText">
         <string>多个前缀用空格分隔</string>

@@ -7,6 +7,7 @@
 #include "fileutil.h"
 #include "imageutil.h"
 #include "netutil.h"
+#include "netimageutil.h"
 #include "signaltransfer.h"
 #include "windows.h"
 #include "widgets/customtabstyle.h"
@@ -20,6 +21,7 @@
 #include "widgets/settings/remotecontrolwidget.h"
 #include "widgets/settings/filewidget.h"
 #include "widgets/settings/applicationwidget.h"
+#include "widgets/settings/specialwidget.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -67,7 +69,7 @@ void MainWindow::initView()
     ui->settingsTabWidget->addTab(new BannerWidget(this), QIcon("://icons/banner.png"), "横幅弹窗");
     ui->settingsTabWidget->addTab(new ReplyWidget(this), QIcon("://icons/reply.png"), "消息回复");
     ui->settingsTabWidget->addTab(new FileWidget(this), QIcon("://icons/file.png"), "文件管理");
-    ui->settingsTabWidget->addTab(new QWidget(this), QIcon("://icons/care.png"), "特别关心");
+    ui->settingsTabWidget->addTab(new SpecialWidget(this), QIcon("://icons/care.png"), "特别关心");
     ui->settingsTabWidget->addTab(new QWidget(this), QIcon("://icons/bubble.png"), "气泡样式");
     ui->settingsTabWidget->addTab(new QWidget(this), QIcon("://icons/animation.png"), "动画调整");
     ui->settingsTabWidget->addTab(new ApplicationWidget(this), QIcon("://icons/startup.png"), "程序启动");
@@ -109,6 +111,7 @@ void MainWindow::initView()
     confirmButton->setFocusPolicy(Qt::StrongFocus);
     if (ui->sideButtons->currentRow() == 2)
         confirmButton->hide();
+    confirmButton->setCursor(Qt::PointingHandCursor);
 }
 
 void MainWindow::on_sideButtons_currentRowChanged(int currentRow)
@@ -134,6 +137,134 @@ void MainWindow::startMessageLoop()
     }
 }
 
+void MainWindow::showHistoryListMenu()
+{
+    // 显示最多十个好友/群组
+    qint64 time = QDateTime::currentMSecsSinceEpoch() - 60 * 60 * 1000; // 只显示最近一小时的
+    QList<QList<MsgBean>> msgss = ac->userMsgHistory.values() + ac->groupMsgHistory.values();
+    QList<MsgBean> msgs;
+    for (int i = 0; i < msgss.size(); i++)
+    {
+        if (msgss.at(i).count() == 0 || msgss.at(i).last().timestamp < time)
+            msgss.removeAt(i--);
+        else
+            msgs.append(msgss.at(i).last());
+    }
+
+    std::sort(msgs.begin(), msgs.end(), [=](MsgBean a, MsgBean b) {
+        return a.timestamp > b.timestamp;
+    });
+
+    // 如果没有消息，就不做操作了吧
+    if (!msgs.size())
+        return ;
+
+    newFacileMenu;
+    int maxIndex = msgs.size() - 1;
+    if (maxIndex > 10)
+        maxIndex = 10;
+    for (int i = 0; i <= maxIndex; i++) // 正序（最新消息在上面，符合习惯）
+    // for (int i = maxIndex; i >= 0; i--) // 倒序（最新消息在下面，交互方便）
+    {
+        MsgBean msg = msgs.at(i);
+        QString name;
+        QPixmap pixmap;
+        AccountInfo::CardColor cc;
+        if (msg.isPrivate())
+        {
+            name = ac->friendName(msg.friendId);
+            if (isFileExist(rt->userHeader(msg.friendId)))
+                pixmap = NetImageUtil::toRoundedPixmap(QPixmap(rt->userHeader(msg.friendId)));
+            cc = ac->userHeaderColor.value(msg.friendId);
+        }
+        else if (msg.isGroup())
+        {
+            name = ac->groupName(msg.groupId);
+            if (isFileExist(rt->groupHeader(msg.groupId)))
+                pixmap = NetImageUtil::toRoundedPixmap(QPixmap(rt->groupHeader(msg.groupId)));
+            cc = ac->groupHeaderColor.value(msg.groupId);
+        }
+
+        // 添加自定义控件
+        InteractiveButtonBase *w = new InteractiveButtonBase(menu);
+        QLabel* headerLabel = new QLabel(w);
+        QLabel* titleLabel = new QLabel(w);
+        QLabel* messageLabel = new QLabel(w);
+        QVBoxLayout* vlayout = new QVBoxLayout;
+        vlayout->addWidget(titleLabel);
+        vlayout->addWidget(messageLabel);
+        QHBoxLayout* hlayout = new QHBoxLayout(w);
+        hlayout->addWidget(headerLabel);
+        hlayout->addLayout(vlayout);
+
+        headerLabel->setPixmap(pixmap.isNull() ? QPixmap("://icons/ignore") : pixmap);
+        titleLabel->setText(name);
+        QString mess = MessageView::simpleMessage(msg);
+        if (mess.contains("\n"))
+            mess = mess.left(mess.indexOf("\n"));
+        if (msg.isPrivate())
+            messageLabel->setText(mess);
+        else if (msg.senderId == ac->myId)
+            messageLabel->setText("你: " + mess);
+        else
+            messageLabel->setText(msg.nickname + ": " + mess);
+        titleLabel->setMaximumWidth(us->bannerFixedWidth);
+        messageLabel->setMaximumWidth(us->bannerFixedWidth);
+        headerLabel->setScaledContents(true);
+        titleLabel->adjustSize();
+        messageLabel->adjustSize();
+        int sz = titleLabel->height() + messageLabel->height();
+        headerLabel->setMaximumSize(sz, sz);
+
+        sz += vlayout->spacing() + hlayout->margin() * 2;
+        w->setFixedSize(us->bannerFixedWidth, sz);
+        w->setDoubleClicked(true);
+        connect(w, &InteractiveButtonBase::clicked, this, [=]{
+            // 根据聊天信息，重新打开对应的对话框
+            focusOrShowMessageCard(msg, false);
+        });
+        connect(w, &InteractiveButtonBase::doubleClicked, this, [=]{
+            // 因为要聚焦，所有这个popup的菜单必须要关闭
+            menu->close();
+            // 根据聊天信息，重新打开对应的对话框
+            focusOrShowMessageCard(msg, true);
+        });
+        if (cc.isValid() && us->bannerUseHeaderColor)
+        {
+            w->setBgColor(cc.bg);
+            titleLabel->setStyleSheet("color:" + QVariant(cc.fg).toString());
+            messageLabel->setStyleSheet("color:" + QVariant(cc.fg).toString());
+        }
+        menu->addWidget(w);
+
+        // 显示的时候还可以实时更新消息
+        connect(cqhttpService, &CqhttpService::signalMessage, w, [=](const MsgBean& m){
+            if (!msg.isSameObject(m))
+                return ;
+            if (msg.isPrivate())
+                messageLabel->setText(MessageView::simpleMessage(m));
+            else if (msg.senderId == ac->myId)
+                messageLabel->setText("你: " + mess);
+            else
+                messageLabel->setText(m.nickname + ": " + MessageView::simpleMessage(m));
+        });
+
+        // 使用默认的菜单机制（太朴素了）
+        /* auto action = menu->addAction(pixmap.isNull() ? QIcon("://icons/hideView") : QIcon(pixmap), name, [=]{
+            // 根据聊天信息，重新打开对应的对话框
+            focusOrShowMessageCard(msg, true);
+        });
+        if (cc.isValid())
+        {
+            action->fgColor(cc.fg)->bgColor(cc.bg);
+        } */
+    }
+
+    menu->adjustSize();
+    menu->setAppearAnimation(false);
+    menu->exec();
+}
+
 QRect MainWindow::screenGeometry() const
 {
     auto screens = QGuiApplication::screens();
@@ -147,7 +278,7 @@ QRect MainWindow::screenGeometry() const
 
 void MainWindow::initTray()
 {
-    QSystemTrayIcon* tray = new QSystemTrayIcon(this);
+    tray = new QSystemTrayIcon(this);
     tray->setIcon(QIcon("://appicon"));
     tray->setToolTip(APPLICATION_NAME);
     tray->show();
@@ -160,15 +291,18 @@ void MainWindow::trayAction(QSystemTrayIcon::ActivationReason reason)
     switch(reason)
     {
     case QSystemTrayIcon::Trigger:
+        showHistoryListMenu();
+        break;
+    case QSystemTrayIcon::MiddleClick:
         if (!this->isHidden())
+        {
             this->hide();
+        }
         else
         {
             this->showNormal();
             this->activateWindow();
         }
-        break;
-    case QSystemTrayIcon::MiddleClick:
         break;
     case QSystemTrayIcon::Context:
     {
@@ -177,14 +311,14 @@ void MainWindow::trayAction(QSystemTrayIcon::ActivationReason reason)
         menu->addAction(QIcon("://icons/leaveMode.png"), "临时离开", [=] {
             // 这里的离开模式不会保存，重启后还是以设置中为准
             us->leaveMode = !us->leaveMode;
-        })->check(us->leaveMode);
+        })->check(us->leaveMode)->tooltip("开启离开模式，可能开启了私聊AI回复\n重启后将恢复原来状态")->hide();
 
         menu->addAction(QIcon("://icons/silent.png"), "临时静默", [=] {
             // 这里的静默模式不会保存，重启后还是以设置中为准
             rt->notificationSlient = !rt->notificationSlient;
             if (rt->notificationSlient)
                 closeAllCard();
-        })->check(rt->notificationSlient);
+        })->check(rt->notificationSlient)->tooltip("临时屏蔽所有消息\n重启后将恢复原来状态");
 
         auto importanceMenu = menu->split()->addMenu(QIcon("://icons/importance.png"), "过滤重要性");
         auto setImportance = [=](int im) {
@@ -196,8 +330,8 @@ void MainWindow::trayAction(QSystemTrayIcon::ActivationReason reason)
         })->check(us->lowestImportance == VeryImportant);
 
         importanceMenu->addAction(QIcon("://icons/important.png"), "重要", [=]{
-            setImportance(Important);
-        })->check(us->lowestImportance == Important);
+            setImportance(LittleImportant);
+        })->check(us->lowestImportance == LittleImportant);
 
         importanceMenu->addAction(QIcon("://icons/normalImportant.png"), "一般", [=]{
             setImportance(NormalImportant);
@@ -207,7 +341,12 @@ void MainWindow::trayAction(QSystemTrayIcon::ActivationReason reason)
             setImportance(Unimportant);
         })->check(us->lowestImportance == Unimportant);
 
-        menu->split()->addAction(QIcon("://icons/quit.png"), "退出", [=] {
+        menu->split()->addAction(QIcon("://icons/settings.png"), "设置", [=]{
+            this->show();
+            this->activateWindow();
+        });
+
+        menu->addAction(QIcon("://icons/quit.png"), "退出", [=]{
             qApp->quit();
         });
 
@@ -224,11 +363,27 @@ void MainWindow::initService()
     // 网络服务
     cqhttpService = new CqhttpService(this);
 
-    connect(cqhttpService, SIGNAL(signalMessage(const MsgBean&)), this, SLOT(showMessage(const MsgBean&)));
+    connect(cqhttpService, SIGNAL(signalMessage(const MsgBean&)), this, SLOT(messageReceived(const MsgBean&)));
 
     connect(cqhttpService, SIGNAL(signalMessage(const MsgBean&)), this, SLOT(autoReplyMessage(const MsgBean&)));
 
     connect(sig, &SignalTransfer::loadGroupMembers, cqhttpService, &CqhttpService::refreshGroupMembers);
+
+    connect(sig, &SignalTransfer::myHeader, this, [=](const QPixmap& pixmap) {
+        tray->setIcon(pixmap);
+    });
+
+    connect(sig, &SignalTransfer::openUserCard, this, [=](qint64 userId, const QString& username, const QString& text) {
+        MsgBean msg(userId, username);
+        msg.privt(userId, userId);
+        focusOrShowMessageCard(msg, true, text);
+    });
+
+    connect(sig, &SignalTransfer::openGroupCard, this, [=](qint64 groupId, const QString& text) {
+        MsgBean msg(0, "");
+        msg.group(groupId, ac->groupName(groupId));
+        focusOrShowMessageCard(msg, true, text);
+    });
 
     // 远程控制
     remoteControlService = new RemoteControlServie(this);
@@ -283,6 +438,7 @@ void MainWindow::closeEvent(QCloseEvent *e)
 {
     us->setValue("mainwindow/geometry", this->saveGeometry());
     us->setValue("mainwindow/state", this->saveState());
+	us->sync();
 
 #if defined(ENABLE_TRAY)
     e->ignore();
@@ -319,30 +475,147 @@ void MainWindow::returnToPrevWindow()
 #endif
 }
 
-void MainWindow::showMessage(const MsgBean &msg, bool blockSelf)
+/// 接收到的所有消息都会在这里（只要有解析过的）
+/// 在这里判断要不要显示
+void MainWindow::messageReceived(const MsgBean &msg, bool blockSelf)
+{
+    // ========== 记录消息 ==========
+    if (msg.isPrivate())
+    {
+        if (ac->friendList.contains(msg.friendId))
+            ac->friendList[msg.friendId].lastMsgTime = QDateTime::currentMSecsSinceEpoch();
+
+        if (!ac->userMsgHistory.contains(msg.friendId))
+            ac->userMsgHistory.insert(msg.friendId, QList<MsgBean>());
+        ac->userMsgHistory[msg.friendId].append(msg);
+    }
+    else if (msg.isGroup())
+    {
+        if (ac->groupList.contains(msg.groupId))
+            ac->groupList[msg.groupId].lastMsgTime = QDateTime::currentMSecsSinceEpoch();
+
+        if (!ac->groupMsgHistory.contains(msg.groupId))
+            ac->groupMsgHistory.insert(msg.groupId, QList<MsgBean>());
+        ac->groupMsgHistory[msg.groupId].append(msg);
+    }
+
+    // ========== 显示通知 ==========
+    // 如果已经显示了卡片，那么忽略所有开关
+    NotificationCard* currentCard = nullptr;
+    foreach (auto card, notificationCards)
+    {
+        if (card->is(msg))
+        {
+            currentCard = card;
+            break;
+        }
+    }
+
+    if (!currentCard) // 需要显示新卡片
+    {
+        if (!canNewCardShow(msg))
+            return ;
+    }
+
+    showMessageCard(msg, blockSelf);
+}
+
+bool MainWindow::canNewCardShow(const MsgBean &msg) const
 {
     // 静默模式
     if (rt->notificationSlient)
-        return ;
+        return false;
 
     // 判断群组显示开关
     if (msg.isGroup() && !us->isGroupShow(msg.groupId)) // 群组消息开关
-        return ;
+    {
+        return false;
+    }
+
+    // 特别关心（暂时没啥用）
+    bool special = us->userSpecial.contains(msg.senderId)
+            || us->groupMemberSpecial.value(msg.groupId, QList<qint64>{}).contains(msg.senderId);
+    Q_UNUSED(special)
 
     // 判断消息级别开关
     int im = NormalImportant;
     if (msg.isPrivate())
+    {
         im = us->userImportance.value(msg.senderId, us->userDefaultImportance);
+    }
     else if (msg.isGroup())
+    {
         im = us->groupImportance.value(msg.groupId, us->groupDefaultImportance);
-    if (im < us->lowestImportance)
-        return ;
 
-    // 保存最后显示的
+        // 判断发送者的重要性，max(用户,群组)
+        if (us->groupUseFriendImportance)
+        {
+            int im2 = us->userImportance.value(msg.senderId, im);
+            im = qMax(im, im2);
+        }
+    }
+
+    // 特别关心（好友/群内）
+    if (special)
+        im++;
+
+    // 全局提醒词
+    bool globalRemind = false;
+    for (auto w: us->globalRemindWords)
+    {
+        if (w.trimmed().isEmpty())
+            continue;
+        if (msg.message.contains(w))
+        {
+            globalRemind = true;
+            im++;
+            if (!us->remindOverlay)
+                break;
+        }
+    }
+
+    // 群组提醒词
+    bool groupRemind = false;
+    if ((us->remindOverlay || !globalRemind) && msg.isGroup() && us->groupRemindWords.contains(msg.groupId))
+    {
+        for (auto w: us->groupRemindWords.value(msg.groupId))
+        {
+            if (w.trimmed().isEmpty())
+                continue;
+            if (msg.message.contains(w))
+            {
+                groupRemind = true;
+                im++;
+                if (!us->remindOverlay)
+                    break;
+            }
+        }
+    }
+
+    // @全体成员/@我
+    if (us->improveAtAllImportance && msg.hasAt(0))
+    {
+        im++;
+    }
+    if (us->improveAtMeImportance && msg.hasAt(ac->myId))
+    {
+        im++;
+    }
+
+    if (im < us->lowestImportance)
+        return false;
+
+    return true;
+}
+
+/// 显示通知卡片，可能是新卡片，也可能需要附加上去
+NotificationCard* MainWindow::showMessageCard(const MsgBean &msg, bool blockSelf)
+{
+    // 保存最后显示的（接收的消息不一定会显示）
     if (msg.isPrivate())
     {
         ac->lastReceiveShowIsUser = true;
-        ac->lastReceiveShowId = msg.senderId == ac->myId ? msg.targetId : msg.senderId;
+        ac->lastReceiveShowId = msg.friendId;
     }
     else if (msg.isGroup())
     {
@@ -355,53 +628,71 @@ void MainWindow::showMessage(const MsgBean &msg, bool blockSelf)
     {
         if (card->append(msg))
         {
-            return ;
+            return card;
         }
     }
 
     // 自己发的消息，不新建卡片
     if (blockSelf && msg.senderId == ac->myId)
-        return ;
+        return nullptr;
 
     // 没有现有的，新建一个卡片
-    createNotificationBanner(msg);
+    return createNotificationCard(msg);
 }
 
-void MainWindow::createNotificationBanner(const MsgBean &msg)
+NotificationCard* MainWindow::createNotificationCard(const MsgBean &msg)
 {
+    // 创建卡片
+    NotificationCard* card = new NotificationCard(nullptr);
+
     // 判断卡片的位置
     QPoint startPos; // 开始出现的位置
     QPoint showPos;  // 显示的最终位置
-    switch (int(us->bannerFloatSide))
+    switch (int(us->bannerFloatSide)) // 这个int是去掉警告，因为很多位置尚不支持
     {
     case SideRight: // 右
     {
-        /* // 统计所有横幅的位置
-        int top = us->bannerFloatPixel;
-        foreach (auto card, notificationCards)
-            top += card->height() + us->bannerSpacing; */
+        int rightest = screenGeometry().width();
+        startPos.setX(rightest - us->bannerMargin);
+        showPos.setX(rightest - us->bannerFixedWidth - us->bannerSpacing);
+        break;
+    }
+    case SideLeft:
+    {
+        startPos.setX(-us->bannerFixedWidth);
+        showPos.setX(us->bannerMargin);
+        break;
+    }
+    default:
+        qCritical() << "暂不支持该位置";
+        return nullptr;
+    }
+
+    switch (int(us->bannerFloatDirection))
+    {
+    case TopToBottom:
+    {
         int top = us->bannerFloatPixel;
         if (notificationCards.size())
             top = notificationCards.last()->geometry().bottom() + us->bannerSpacing;
-        startPos = QPoint(screenGeometry().width()-5, top);
-        showPos = QPoint(screenGeometry().width() - us->bannerFixedWidth - us->bannerSpacing, top);
-    }
+        startPos.setY(top);
+        showPos.setY(top);
         break;
-    default:
-        qCritical() << "暂不支持该位置";
-        return ;
     }
-
-    // 创建卡片
-    NotificationCard* card = new NotificationCard(nullptr);
-    notificationCards.append(card);
+    case BottomToTop:
+        int bottom = screenGeometry().bottom() - us->bannerFloatPixel;
+        startPos.setY(bottom - card->height());
+        showPos.setY(bottom - card->height());
+        // 要调整原先卡片的高度
+        slotCardHeightChanged(notificationCards.count() - 1, card->height() + us->bannerSpacing);
+        break;
+    }
 
     connect(card, &NotificationCard::signalHeightChanged, this, [=](int delta) {
-        adjustUnderCardsTop(notificationCards.indexOf(card), delta);
+        slotCardHeightChanged(card, delta);
     });
     connect(card, &NotificationCard::signalHided, this, [=]{
-        int index = notificationCards.indexOf(card);
-        adjustUnderCardsTop(index, -(card->height() + us->bannerSpacing));
+        slotCardHeightChanged(card, -(card->height() + us->bannerSpacing));
         notificationCards.removeOne(card);
     });
     connect(card, &NotificationCard::signalReplyPrivate, cqhttpService,  &CqhttpService::sendUserMsg);
@@ -441,14 +732,59 @@ void MainWindow::createNotificationBanner(const MsgBean &msg)
     });
 
     // 先确定位置，因为在下载文件的时候后面可能会进入相同的数据
+    notificationCards.append(card);
     card->setShowPos(startPos, showPos);
     card->move(startPos);
     card->setMsg(msg); // 这个可能是一个非常耗时的操作，引起坐标的改变
     card->showFrom();
+    return card;
+}
+
+/// 显示或者聚焦对应的用户/群组卡片
+/// 如果没有，则新建一个
+void MainWindow::focusOrShowMessageCard(const MsgBean &msg, bool focusEdit, const QString &insertText)
+{
+    foreach (auto card, notificationCards)
+    {
+        if (card->is(msg))
+        {
+            if (focusEdit)
+                card->showReplyEdit(true);
+            return ;
+        }
+    }
+
+    auto card = createNotificationCard(msg);
+    if (card && focusEdit)
+    {
+        card->showReplyEdit(true);
+    }
+    if (!insertText.isEmpty())
+        card->addReplyText(insertText);
+}
+
+void MainWindow::slotCardHeightChanged(NotificationCard *card, int deltaHeight)
+{
+    slotCardHeightChanged(notificationCards.indexOf(card), deltaHeight);
+}
+
+void MainWindow::slotCardHeightChanged(int index, int deltaHeight)
+{
+    if (index == -1)
+        return ;
+    switch (int(us->bannerFloatDirection))
+    {
+    case TopToBottom:
+        adjustUnderCardsTop(index, deltaHeight);
+        break;
+    case BottomToTop:
+        adjustAboveCardsTop(index, -deltaHeight);
+        break;
+    }
 }
 
 /**
- * 调整下面所有卡片的位置
+ * 调整下面所有卡片的位置（高度改变/卡片隐藏）
  * @param firstIndex  第一个开始调整的位置的上一个（即最后一个不需要调整的索引）
  * @param deltaHeight 位置差，可能正可能负
  */
@@ -461,6 +797,24 @@ void MainWindow::adjustUnderCardsTop(int aboveIndex, int deltaHeight)
     {
         // 移动动画的话，需要考虑到一些冲突什么的，大概还是比较麻烦的
         // 比如正在动画中，又需要临时调整，就很难搞
+        auto card = notificationCards.at(i);
+        if (card->isHidding())
+            continue;
+        card->adjustTop(deltaHeight);
+    }
+}
+
+/**
+ * 调整上面所有卡片的位置（高度改变/卡片插入/卡片隐藏）
+ * @param lastIndex 最后一个需要调整位置的索引（包括自己）
+ */
+void MainWindow::adjustAboveCardsTop(int underIndex, int deltaHeight)
+{
+    if (underIndex < 0 || underIndex >= notificationCards.count())
+        return ;
+
+    for (int i = 0; i <= underIndex; i++)
+    {
         auto card = notificationCards.at(i);
         if (card->isHidding())
             continue;
@@ -518,7 +872,7 @@ void MainWindow::focusCardReply()
                 return ;
             }
 
-            showMessage(history.last(), false);
+            showMessageCard(history.last(), false);
         }
         else
         {
@@ -529,7 +883,7 @@ void MainWindow::focusCardReply()
                 return ;
             }
 
-            showMessage(history.last(), false);
+            showMessageCard(history.last(), false);
         }
         targetCard = notificationCards.last();
 
@@ -571,9 +925,9 @@ void MainWindow::autoReplyMessage(const MsgBean &msg)
 
         // 判断回复间隔
         qint64 time = QDateTime::currentMSecsSinceEpoch();
-        if (ac->aiReplyUserTime.value(userId, 0) + us->aiReplyInterval >= time)
+        if (ac->aiReplyPrivateTime.value(userId, 0) + us->aiReplyInterval >= time)
             return ;
-        ac->aiReplyUserTime[userId] = time;
+        ac->aiReplyPrivateTime[userId] = time;
 
         triggerAiReply(msg);
         return ;
@@ -613,11 +967,11 @@ void MainWindow::triggerAiReply(const MsgBean &msg, int retry)
     connect(new NetUtil(url, params), &NetUtil::finished, this, [=](QString result){
         MyJson json(result.toUtf8());
         QString answer;
-        int ret = json.value("ret").toInt();
+        int ret = json.contains("ret") ? json.value("ret").toInt() : -1;
         if (ret != 0)
         {
             QString rep = json.value("msg").toString();
-            qWarning() << "AI回复：" << rep << text;
+            qWarning() << "AI回复：" << ret << rep << text;
             if (rep == "chat answer not found" && retry < 3)
             {
                 triggerAiReply(msg, retry + 1);
@@ -641,6 +995,7 @@ void MainWindow::triggerAiReply(const MsgBean &msg, int retry)
         {
             answer = json.value("data").toObject().value("answer").toString();
             qInfo() << "[离开模式.AI回复]" << answer;
+            qWarning() << "AI.API返回：" << json;
             answer = us->aiReplyPrefix + answer + us->aiReplySuffix;
         }
 

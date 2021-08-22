@@ -10,12 +10,13 @@
 #include <QDesktopWidget>
 #include <QApplication>
 #include <QScreen>
-#include <QGraphicsDropShadowEffect>
 #include <QMenu>
 #include <QAction>
 #include "facilemenuitem.h"
 
 #define DEFAULT_MENU_BLUR_ALPHA 33
+
+#define newFacileMenu FacileMenu *menu = new FacileMenu(this)
 
 typedef std::function<void(int index, bool state)> const FuncCheckType;
 
@@ -30,10 +31,9 @@ public:
     FacileMenuItem* addAction(QIcon icon, FuncType clicked = nullptr);
     FacileMenuItem* addAction(QString text, FuncType clicked = nullptr);
     FacileMenuItem* addAction(QAction* action, bool deleteWithMenu = false);
-    FacileMenuItem* addAction(QIcon icon, QString text, void (*func)());
     template <class T>
     FacileMenuItem* addAction(QIcon icon, QString text, T *obj, void (T::*func)());
-    FacileMenu* addNumberedActions(QString pattern, int numberStart, int numberEnd, FuncItemType config = nullptr, FuncIntType clicked = nullptr);
+    FacileMenu* addNumberedActions(QString pattern, int numberStart, int numberEnd, FuncItemType config = nullptr, FuncIntType clicked = nullptr, int step = 0);
     FacileMenu* addNumberedActions(QString pattern, int numberStart, int numberEnd, FuncItemIntType config, FuncIntType clicked = nullptr, int step = 0);
     FacileMenu* addActions(QList<QAction*> actions);
 
@@ -64,6 +64,7 @@ public:
     FacileMenuItem* addSeparator();
     FacileMenu* split();
     FacileMenuItem* lastAddedItem();
+    bool hasFocus() const;
 
     int indexOf(FacileMenuItem* item);
     FacileMenuItem* at(int index);
@@ -72,6 +73,7 @@ public:
     void exec(QRect expt, bool vertical = false, QPoint pos = QPoint(-1, -1));
     void execute();
     void toHide(int focusIndex = -1);
+    void toClose();
     FacileMenu* finished(FuncType func);
 
     FacileMenu* addOptions(QList<QString>texts, QList<bool>states, FuncIntType clicked);
@@ -88,6 +90,9 @@ public:
     FacileMenu* setTipArea(int x = 48);
     FacileMenu* setTipArea(QString longestTip);
     FacileMenu* setSplitInRow(bool split = true);
+
+    void setAppearAnimation(bool en);
+    void setDisappearAnimation(bool en);
 
 signals:
     void signalActionTriggered(FacileMenuItem* action);
@@ -109,6 +114,7 @@ protected:
     void startAnimationOnShowed();
     void startAnimationOnHidden(int focusIndex);
 
+    void showEvent(QShowEvent *event) override;
     void hideEvent(QHideEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
@@ -148,6 +154,10 @@ private:
     bool split_in_row = false; // 同一行是否默认添加分割线
     QRect window_rect;
     int window_height = 0; // 窗口高度，每次打开都更新一次
+    QPoint _enter_later_pos = QPoint(-1, -1); // 避免连续两次触发 enterLater 事件
+
+    bool enable_appear_animation = true;
+    bool enable_disappear_animation = true;
 };
 
 #endif // FACILEMENU_H

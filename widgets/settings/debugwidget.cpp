@@ -19,16 +19,25 @@ DebugWidget::~DebugWidget()
 
 void DebugWidget::on_sendButton_clicked()
 {
-    MsgBean msg(123456, "测试用户", ui->messageEdit->toPlainText(), -654321, "friend");
+    qint64 uid = 123456;
+    int r = qrand() % 4;
+    if (r == 1)
+        uid = 234567;
+    else if (r == 2)
+        uid = 345678;
+    else if (r == 3)
+        uid = 456789;
+
+    MsgBean msg(uid, "测试用户", ui->messageEdit->toPlainText(), -654321, "friend");
     if (ui->groupRadio->isChecked())
     {
-        msg.group(123456, "测试群名", "测试昵称");
+        msg.group(uid, "测试群名", "测试昵称");
     }
 
     if (ui->msgRadio->isChecked())
     {
         if (msg.message.isEmpty())
-            msg.message = "测试消息123456";
+            msg.message = "测试消息" + QString::number(uid);
     }
     else if (ui->imgRadio->isChecked())
     {

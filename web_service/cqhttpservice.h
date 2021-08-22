@@ -42,6 +42,14 @@ private:
     void parseGroupUpload(const MyJson& json);
     void parseOfflineFile(const MyJson& json);
     void parseMessageSent(const MyJson& json);
+    void parseFriendRecall(const MyJson& json);
+    void parseGroupRecall(const MyJson& json);
+    void parseGroupIncrease(const MyJson& json);
+    void parseGroupCard(const MyJson& json);
+    void parseGroupBan(const MyJson& json);
+
+    void ensureFriendExist(FriendInfo user);
+    void ensureGroupExist(GroupInfo group);
 
 private:
     QWebSocket* socket = nullptr;

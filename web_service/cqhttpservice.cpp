@@ -127,13 +127,29 @@ void CqhttpService::messageReceived(const QString &message)
     else if (post_type == "notice")
     {
         JS(json, notice_type);
-        if (notice_type == "group_upload")
+        if (notice_type == "group_upload") // 群文件
         {
             parseGroupUpload(json);
         }
-        else if (notice_type == "offline_file")
+        else if (notice_type == "offline_file") // 私聊文件
         {
             parseOfflineFile(json);
+        }
+        else if (notice_type == "group_increase") // 群成员加入
+        {
+            parseGroupIncrease(json);
+        }
+        else if (notice_type == "group_recall") // 撤销群消息
+        {
+            parseGroupRecall(json);
+        }
+        else if (notice_type == "group_card") // 修改群名片
+        {
+            parseGroupCard(json);
+        }
+        else if (notice_type == "group_ban") // 禁言群成员
+        {
+            parseGroupBan(json);
         }
         else
         {
@@ -171,30 +187,34 @@ void CqhttpService::parseEchoMessage(const MyJson &json)
     }
     else if (echo == "get_friend_list")
     {
+        ac->friendList.clear();
         qInfo() << "读取好友列表：" << json.a("data").size();
         ac->friendNames.clear();
         json.each("data", [=](MyJson fri) {
             JS(fri, nickname);
             JS(fri, remark); // 备注，如果为空则默认为nickname
             JL(fri, user_id);
-            ac->friendNames.insert(user_id, remark.isEmpty() ? nickname : remark);
+            ac->friendList.insert(user_id, FriendInfo(user_id, nickname, remark));
         });
+        emit sig->myFriendsLoaded();
     }
     else if (echo == "get_group_list")
     {
+        ac->groupList.clear();
         qInfo() << "读取群列表：" << json.a("data").size();
         ac->groupNames.clear();
         json.each("data", [=](MyJson group) {
             JL(group, group_id);
             JS(group, group_name);
-            ac->groupNames.insert(group_id, group_name);
+            ac->groupList.insert(group_id, GroupInfo(group_id, group_name));
         });
+        emit sig->myGroupsLoaded();
     }
     else if (echo == "send_private_msg" || echo == "send_group_msg")
     {
         // 发送消息的回复，不做处理
     }
-    else if (echo.startsWith("get_group_member_list"))
+    else if (echo.startsWith("get_group_member_list")) // 加载群成员
     {
         QRegularExpression re("^get_group_member_list:(\\d+)$");
         QRegularExpressionMatch match;
@@ -204,28 +224,21 @@ void CqhttpService::parseEchoMessage(const MyJson &json)
             return ;
         }
 
+        // 可能是新加入的群组，但是没有刷新
         qint64 groupId = match.captured(1).toLongLong();
-        if (!ac->groupMemberNames.contains(groupId))
-            ac->groupMemberNames.insert(groupId, QHash<qint64, QString>());
+        if (!ac->groupList.contains(groupId))
+            ac->groupList.insert(groupId, GroupInfo());
 
-        QHash<qint64, QString>* names = &ac->groupMemberNames[groupId];
-        names->clear();
-        json.each("data", [=](MyJson member) {
+        auto& members = ac->groupList[groupId].members;
+        members.clear();
+        json.each("data", [&](MyJson member) {
             JL(member, user_id);
             JS(member, card);
             JS(member, nickname);
             QString name = card;
-            if (card.isEmpty()) // 没有群备注
-            {
-                // 优先使用好友备注
-                if (ac->friendNames.contains(user_id))
-                    name = ac->friendNames.value(user_id);
-                if (name.isEmpty()) // 好友备注还是空的（应该不会，空的就已经用 nickname 了）
-                    name = nickname;
-            }
-            names->insert(user_id, name);
+            members[user_id] = FriendInfo(user_id, nickname, card);
         });
-        qInfo() << "加载群成员：" << groupId << names->size();
+        qInfo() << "加载群成员：" << groupId << members.size();
         emit sig->groupMembersLoaded(groupId);
     }
     else
@@ -267,17 +280,14 @@ void CqhttpService::parsePrivateMessage(const MyJson &json)
     JL(sender, user_id); // 发送者用户QQ号
     JS(sender, nickname);
 
+    qint64 friendId = target_id == ac->myId ? user_id : target_id;
+    ensureFriendExist(FriendInfo(friendId, nickname, ""));
     qInfo() << "收到私聊消息：" << user_id << "->" << target_id << nickname << message << message_id;
 
     MsgBean msg = MsgBean(user_id, nickname, message, message_id, sub_type)
-            .frind(ac->friendNames.value(user_id, ""))
-            .privt(target_id);
+            .frind(ac->friendList.contains(friendId) ? ac->friendList[friendId].remark : "")
+            .privt(target_id, friendId);
     emit signalMessage(msg);
-
-    qint64 oppo_id = user_id == ac->myId ? target_id : user_id;
-    if (!ac->userMsgHistory.contains(oppo_id))
-        ac->userMsgHistory.insert(oppo_id, QList<MsgBean>());
-    ac->userMsgHistory[oppo_id].append(msg);
 
     // 图片消息：文字1\r\n[CQ:image,file=8f84df65ee005b52f7f798697765a81b.image,url=http://c2cpicdw.qpic.cn/offpic_new/1600631528//1600631528-3839913603-8F84DF65EE005B52F7F798697765A81B/0?term=3]\r\n文字二……
 }
@@ -305,18 +315,15 @@ void CqhttpService::parseGroupMessage(const MyJson &json)
         Q_UNUSED(id)
     }
 
-    qInfo() << "收到群消息：" << group_id << ac->groupNames.value(group_id)
-            << user_id << nickname << ac->friendNames.value(user_id)
+    ensureGroupExist(GroupInfo(group_id, ""));
+    qInfo() << "收到群消息：" << group_id << ac->groupList.value(group_id).name
+            << user_id << nickname << ac->friendName(user_id)
             << message << message_id;
 
     MsgBean msg = MsgBean(user_id, nickname, message, message_id, sub_type)
-            .frind(ac->friendNames.value(user_id, ""))
-            .group(group_id, ac->groupNames.value(group_id), card);
+            .frind(ac->friendList.contains(user_id) ? ac->friendList.value(user_id).remark : "")
+            .group(group_id, ac->groupList.value(group_id).name, card);
     emit signalMessage(msg);
-
-    if (!ac->groupMsgHistory.contains(group_id))
-        ac->groupMsgHistory.insert(group_id, QList<MsgBean>());
-    ac->groupMsgHistory[group_id].append(msg);
 }
 
 void CqhttpService::parseGroupUpload(const MyJson &json)
@@ -329,10 +336,11 @@ void CqhttpService::parseGroupUpload(const MyJson &json)
     JS(file, name); // 文件名
     JL(file, size); // 文件大小（字节数）
 
-    qInfo() << "收到群文件消息：" << group_id << ac->groupNames.value(group_id) << user_id << ac->friendNames.value(user_id) << name << size << id;
+    ensureGroupExist(GroupInfo(group_id, ""));
+    qInfo() << "收到群文件消息：" << group_id << ac->groupList.value(group_id).name << user_id << ac->friendName(user_id) << name << size << id;
 
-    MsgBean msg = MsgBean(user_id, ac->friendNames.value(user_id))
-                       .group(group_id, ac->groupNames.value(group_id))
+    MsgBean msg = MsgBean(user_id, ac->friendName(user_id))
+                       .group(group_id, ac->groupList.value(group_id).name)
                        .file(id, name, size);
     emit signalMessage(msg);
 }
@@ -353,17 +361,20 @@ void CqhttpService::parseOfflineFile(const MyJson &json)
     }*/
 
     JL(json, user_id);
+    JL(json, self_id);
 
     JO(json, file);
     JS(file, name);
     JL(file, size);
     JS(file, url);
 
-    qInfo() << "收到离线文件消息：" << user_id << ac->friendNames.value(user_id) << name << size;
+    ensureFriendExist(FriendInfo(user_id, "", ""));
+    qInfo() << "收到离线文件消息：" << user_id << ac->friendName(user_id) << name << size;
 
     QString fileId = name + "_" + snum(size);
-    MsgBean msg = MsgBean(user_id, ac->friendNames.value(user_id))
-                       .file(fileId, name, size, url);
+    MsgBean msg = MsgBean(user_id, ac->friendName(user_id))
+                       .file(fileId, name, size, url)
+                       .privt(self_id, user_id);
     emit signalMessage(msg);
 }
 
@@ -424,6 +435,132 @@ void CqhttpService::parseMessageSent(const MyJson &json)
         }*/
         parsePrivateMessage(json);
     }
+    else
+    {
+        qWarning() << "未处理类型的sent数据" << json;
+    }
+}
+
+void CqhttpService::parseFriendRecall(const MyJson &json)
+{
+    /* {
+        "message_id": -1001132594,
+        "notice_type": "friend_recall",
+        "post_type": "notice",
+        "self_id": 1600631528,
+        "time": 1628479912,
+        "user_id": 3308218798
+    } */
+
+    JL(json, user_id); // 这是好友消息撤回，自己撤回的接收不到
+    JL(json, message_id);
+
+    qInfo() << "用户撤回：" << user_id << ac->friendName(user_id) << message_id;
+}
+
+void CqhttpService::parseGroupRecall(const MyJson &json)
+{
+    /* {
+        "group_id": 647637553,
+        "message_id": -2062705571,
+        "notice_type": "group_recall",
+        "operator_id": 1749535518,
+        "post_type": "notice",
+        "self_id": 1600631528,
+        "time": 1628479447,
+        "user_id": 1749535518
+    } */
+
+    JL(json, group_id);
+    JL(json, message_id);
+
+    qInfo() << "群消息撤回：" << group_id << ac->groupList.value(group_id).name << message_id;
+}
+
+void CqhttpService::parseGroupIncrease(const MyJson &json)
+{
+    /* {
+        "group_id": 647637553,
+        "notice_type": "group_increase",
+        "operator_id": 0,
+        "post_type": "notice",
+        "self_id": 1600631528,
+        "sub_type": "approve",
+        "time": 1628479399,
+        "user_id": 2645311486
+    } */
+
+    JS(json, sub_type);
+    if (sub_type == "approve")
+    {
+        JL(json, group_id);
+        JL(json, user_id);
+
+        qInfo() << "用户加入群组" << group_id << ac->groupList.value(group_id).name << " --> " << user_id;
+    }
+    else
+    {
+        qWarning() << "未处理类型的数据" << json;
+    }
+}
+
+void CqhttpService::parseGroupCard(const MyJson &json)
+{
+    /* {
+        "card_new": "深圳--龙岗区-Assembly line worker",
+        "card_old": "深圳--龙岗区--嵌入式软件工程师",
+        "group_id": 647637553,
+        "notice_type": "group_card",
+        "post_type": "notice",
+        "self_id": 1600631528,
+        "time": 1628482914,
+        "user_id": 1749535518
+    } */
+
+    JS(json, card_new);
+    JS(json, card_old);
+    JL(json, group_id);
+    JL(json, user_id);
+
+    qInfo() << "禁言群成员："<< group_id << user_id << card_old << card_new;
+}
+
+void CqhttpService::parseGroupBan(const MyJson &json)
+{
+    /* {
+        "duration": 600,
+        "group_id": 647637553,
+        "notice_type": "group_ban",
+        "operator_id": 1466877104,
+        "post_type": "notice",
+        "self_id": 1600631528,
+        "sub_type": "ban",
+        "time": 1628482931,
+        "user_id": 1749535518
+    } */
+
+    JL(json, group_id);
+    JL(json, user_id);
+    JL(json, operator_id);
+    JL(json, duration); // 秒
+
+    qInfo() << "群成员禁言：" << group_id << user_id << duration << operator_id;
+}
+
+void CqhttpService::ensureFriendExist(FriendInfo user)
+{
+    if (ac->friendList.contains(user.userId))
+        return ;
+    ac->friendList.insert(user.userId, user);
+    qInfo() << "补充好友：" << user.userId << user.username();
+}
+
+void CqhttpService::ensureGroupExist(GroupInfo group)
+{
+    if (ac->groupList.contains(group.groupId))
+        return ;
+    ac->groupList.insert(group.groupId, group);
+    qInfo() << "补充群组：" << group.groupId << group.name;
 }
 
 void CqhttpService::refreshFriends()

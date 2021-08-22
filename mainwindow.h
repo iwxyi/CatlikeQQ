@@ -36,13 +36,20 @@ private:
     void initKey();
 
     void startMessageLoop();
+    void showHistoryListMenu();
+    bool canNewCardShow(const MsgBean& msg) const;
 
     QRect screenGeometry() const;
+    void adjustUnderCardsTop(int aboveIndex, int deltaHeight);
+    void adjustAboveCardsTop(int underIndex, int deltaHeight);
 
 public slots:
-    void showMessage(const MsgBean& msg, bool blockSelf = true);
-    void createNotificationBanner(const MsgBean& msg);
-    void adjustUnderCardsTop(int aboveIndex, int deltaHeight);
+    void messageReceived(const MsgBean& msg, bool blockSelf = true);
+    NotificationCard *showMessageCard(const MsgBean& msg, bool blockSelf = false);
+    NotificationCard *createNotificationCard(const MsgBean& msg);
+    void focusOrShowMessageCard(const MsgBean& msg, bool focusEdit, const QString& insertText = "");
+    void slotCardHeightChanged(NotificationCard* card, int deltaHeight);
+    void slotCardHeightChanged(int index, int deltaHeight);
     void focusCardReply();
     void closeAllCard();
 
@@ -71,5 +78,6 @@ private:
 #ifdef Q_OS_WIN32
     HWND prevWindow = nullptr;
 #endif
+    QSystemTrayIcon* tray;
 };
 #endif // MAINWINDOW_H
