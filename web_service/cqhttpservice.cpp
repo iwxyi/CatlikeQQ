@@ -172,6 +172,7 @@ void CqhttpService::parseEchoMessage(const MyJson &json)
     else if (echo == "get_friend_list")
     {
         qInfo() << "读取好友列表：" << json.a("data").size();
+        ac->friendNames.clear();
         json.each("data", [=](MyJson fri) {
             JS(fri, nickname);
             JS(fri, remark); // 备注，如果为空则默认为nickname
@@ -182,6 +183,7 @@ void CqhttpService::parseEchoMessage(const MyJson &json)
     else if (echo == "get_group_list")
     {
         qInfo() << "读取群列表：" << json.a("data").size();
+        ac->groupNames.clear();
         json.each("data", [=](MyJson group) {
             JL(group, group_id);
             JS(group, group_name);
@@ -259,8 +261,8 @@ void CqhttpService::parsePrivateMessage(const MyJson &json)
     JS(json, message); // 消息内容
     JS(json, raw_message);
     JL(json, message_id);
-
     JL(json, target_id);
+
     JO(json, sender); // 发送者，但不保证存在
     JL(sender, user_id); // 发送者用户QQ号
     JS(sender, nickname);

@@ -155,6 +155,7 @@ void MessageView::setMessage(const MsgBean& msg)
             // 图片尺寸
             int maxWidth = us->bannerContentWidth;
             int maxHeight = us->bannerContentMaxHeight - us->bannerHeaderSize;
+
 #ifdef MESSAGE_LABEL
             // 如果是单张图片，支持显示gif
             if (text.indexOf(QRegularExpression("^\\[CQ:image,file=(.+?).image,.*url=(.+)\\]$")) > -1)
@@ -197,7 +198,7 @@ void MessageView::setMessage(const MsgBean& msg)
                 delete movie;
             }
 #endif
-            // 静态图片；缩略图的伸缩、圆角
+            // 不是单张图片，或者是静态图片；缩略图的伸缩、圆角
             QString originPath = path;
             QPixmap pixmap(path, "1");
             this->filePixmap = pixmap;
@@ -299,6 +300,7 @@ void MessageView::setMessage(const MsgBean& msg)
             // 播放视频
             vw->setRadius(us->bannerBgRadius);
             vw->setMedia(path);
+            vw->player->setMuted(true); // 静音吧
             vw->show();
             this->setFixedHeight(maxHeight);
 
@@ -471,6 +473,14 @@ void MessageView::showMenu()
     });
 #else
 #endif
+
+    if (us->showWidgetBorder)
+    {
+        menu->split()->addAction(QString("size: %1x%2").arg(this->width()).arg(this->height()));
+        menu->addAction(QString("min size: %1x%2").arg(this->minimumWidth()).arg(this->minimumHeight()));
+        if (!filePixmap.isNull())
+            menu->addAction(QString("pixmap: %1x%2").arg(filePixmap.width()).arg(filePixmap.height()));
+    }
 
     menu->exec();
 
