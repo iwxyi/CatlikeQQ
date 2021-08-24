@@ -32,6 +32,14 @@ AccountWidget::AccountWidget(CqhttpService *service, QWidget *parent) :
     connect(sig, &SignalTransfer::myGroupsLoaded, this, [=] {
         ui->groupCountLabel->setText(snum(ac->groupList.count()) + "群组");
     });
+
+    connect(ui->friendCountLabel, &ClickLabel::leftClicked, this, [=]{
+        service->refreshFriends();
+    });
+
+    connect(ui->groupCountLabel, &ClickLabel::leftClicked, this, [=]{
+        service->refreshGroups();
+    });
 }
 
 AccountWidget::~AccountWidget()
