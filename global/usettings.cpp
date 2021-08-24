@@ -102,7 +102,9 @@ void USettings::restoreSettings()
     assign(countReceivePrivate, "receivePrivate");
     assign(countReceiveGroup, "receiveGroup");
     assign(countShowBanner, "showBanner");
-    assign(countMySent, "mySent");
+    assign(countSendAll, "sendAll");
+    assign(countSendPrivate, "sendPrivate");
+    assign(countSendGroup, "sendGroup");
     endGroup();
 
     beginGroup("app");

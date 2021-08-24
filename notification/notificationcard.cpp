@@ -1153,17 +1153,23 @@ void NotificationCard::sendReply(QString text)
     int h = this->height();
 
     // 回复消息
-    if (!groupId && friendId)
+    if (isPrivate())
+    {
         emit signalReplyPrivate(friendId, text);
-    else if (groupId)
+        us->addCount(us->countSendPrivate, "sendPrivate");
+    }
+    else if (isGroup())
+    {
         emit signalReplyGroup(groupId, text);
+        us->addCount(us->countSendGroup, "sendGroup");
+    }
     else
     {
         qCritical() << "回复失败，无法获取到 userId 或者 groupId";
         return ;
     }
 
-    us->addCount(us->countMySent, "mySent");
+    us->addCount(us->countSendAll, "sendAll");
 
     // 加到消息框中
     // 这是本地加的，不会进消息记录

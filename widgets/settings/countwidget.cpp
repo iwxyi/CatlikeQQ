@@ -23,7 +23,9 @@ void CountWidget::refresh()
     ui->countReceivePrivateLabel->setNum(us->countReceivePrivate);
     ui->countReceiveGroupLabel->setNum(us->countReceiveGroup);
     ui->countShowBannerLabel->setNum(us->countShowBanner);
-    ui->countMySentLabel->setNum(us->countMySent);
+    ui->countSendAllLabel->setNum(us->countSendAll);
+    ui->countSendPrivateLabel->setNum(us->countSendPrivate);
+    ui->countSendGroupLabel->setNum(us->countSendGroup);
 }
 
 void CountWidget::showEvent(QShowEvent *event)
