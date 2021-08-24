@@ -97,6 +97,14 @@ void USettings::restoreSettings()
     assign(aiReplyUsers, "aiReplyUsers");
     endGroup();
 
+    beginGroup("count");
+    assign(countReceiveAll, "receiveAll");
+    assign(countReceivePrivate, "receivePrivate");
+    assign(countReceiveGroup, "receiveGroup");
+    assign(countShowBanner, "showBanner");
+    assign(countMySent, "mySent");
+    endGroup();
+
     beginGroup("app");
     assign(startOnPowerOn, "startOnPowerOn");
     endGroup();
@@ -114,4 +122,9 @@ bool USettings::isGroupShow(qint64 groupId)
 
     // 过滤显示通知的群组
     return enabledGroups.contains(groupId);
+}
+
+void USettings::addCount(int &val, QString key)
+{
+    set("count/" + key, ++val);
 }

@@ -22,6 +22,7 @@
 #include "widgets/settings/filewidget.h"
 #include "widgets/settings/applicationwidget.h"
 #include "widgets/settings/specialwidget.h"
+#include "widgets/settings/countwidget.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -82,7 +83,7 @@ void MainWindow::initView()
 
     ui->dataTabWidget->clear();
     ui->dataTabWidget->addTab(new AboutWidget(this), QIcon("://icons/about.png"), "关于程序");
-    ui->dataTabWidget->addTab(new QWidget(this), QIcon("://icons/statistical.png"), "数据统计");
+    ui->dataTabWidget->addTab(new CountWidget(this), QIcon("://icons/statistical.png"), "数据统计");
     ui->dataTabWidget->addTab(new QWidget(this), QIcon("://icons/history_message.png"), "历史消息");
     ui->dataTabWidget->addTab(new DebugWidget(cqhttpService, this), QIcon("://icons/debug.png"), "开发调试");
 
@@ -480,6 +481,7 @@ void MainWindow::returnToPrevWindow()
 void MainWindow::messageReceived(const MsgBean &msg, bool blockSelf)
 {
     // ========== 记录消息 ==========
+    us->addCount(us->countReceiveAll, "receiveAll");
     if (msg.isPrivate())
     {
         if (ac->friendList.contains(msg.friendId))
@@ -488,6 +490,9 @@ void MainWindow::messageReceived(const MsgBean &msg, bool blockSelf)
         if (!ac->userMsgHistory.contains(msg.friendId))
             ac->userMsgHistory.insert(msg.friendId, QList<MsgBean>());
         ac->userMsgHistory[msg.friendId].append(msg);
+
+        if (msg.senderId != ac->myId)
+            us->addCount(us->countReceivePrivate, "receivePrivate");
     }
     else if (msg.isGroup())
     {
@@ -497,6 +502,9 @@ void MainWindow::messageReceived(const MsgBean &msg, bool blockSelf)
         if (!ac->groupMsgHistory.contains(msg.groupId))
             ac->groupMsgHistory.insert(msg.groupId, QList<MsgBean>());
         ac->groupMsgHistory[msg.groupId].append(msg);
+
+        if (msg.senderId != ac->myId)
+            us->addCount(us->countReceiveGroup, "receiveGroup");
     }
 
     // ========== 显示通知 ==========
@@ -622,6 +630,7 @@ NotificationCard* MainWindow::showMessageCard(const MsgBean &msg, bool blockSelf
         ac->lastReceiveShowIsUser = false;
         ac->lastReceiveShowId = msg.groupId;
     }
+    us->addCount(us->countShowBanner, "showBanner");
 
     // 判断有没有现有的卡片
     foreach (auto card, notificationCards)

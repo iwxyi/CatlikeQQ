@@ -41,6 +41,7 @@ private:
 
 public:
     bool isGroupShow(qint64 groupId);
+    void addCount(int& val, QString key);
 
 public:
     QString host;
@@ -144,6 +145,13 @@ public:
     QString aiReplySuffix = ""; // 自动回复后缀
     QString aiReplyDefault = "[自动回复] 您好，我现在有事不在，一会儿也不和您联系~"; // 自动回复默认内容（需包含前缀后缀）
     int aiReplyInterval = 3000; // 自动回复的最短间隔
+
+    // 数据统计
+    int countReceiveAll = 0; // 所有消息（包括不显示的）
+    int countReceivePrivate = 0; // 私聊消息（包括不显示的）
+    int countReceiveGroup = 0; // 群组消息（包括不显示的）
+    int countShowBanner = 0; // 显示的卡片
+    int countMySent = 0; // 使用回复发送的
 
     // 程序
     bool startOnPowerOn = false; // 开机自启

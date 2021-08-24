@@ -1163,6 +1163,8 @@ void NotificationCard::sendReply(QString text)
         return ;
     }
 
+    us->addCount(us->countMySent, "mySent");
+
     // 加到消息框中
     // 这是本地加的，不会进消息记录
     // 如果云端上报自己的消息，那么会出现两条

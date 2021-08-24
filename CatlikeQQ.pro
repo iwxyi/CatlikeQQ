@@ -59,6 +59,7 @@ SOURCES += \
     widgets/settings/accountwidget.cpp \
     widgets/settings/applicationwidget.cpp \
     widgets/settings/bannerwidget.cpp \
+    widgets/settings/countwidget.cpp \
     widgets/settings/debugwidget.cpp \
     widgets/settings/filewidget.cpp \
     widgets/settings/groupwidget.cpp \
@@ -109,6 +110,7 @@ HEADERS += \
     widgets/settings/accountwidget.h \
     widgets/settings/applicationwidget.h \
     widgets/settings/bannerwidget.h \
+    widgets/settings/countwidget.h \
     widgets/settings/debugwidget.h \
     widgets/settings/filewidget.h \
     widgets/settings/groupwidget.h \
@@ -129,6 +131,7 @@ FORMS += \
     widgets/settings/accountwidget.ui \
     widgets/settings/applicationwidget.ui \
     widgets/settings/bannerwidget.ui \
+    widgets/settings/countwidget.ui \
     widgets/settings/debugwidget.ui \
     widgets/settings/filewidget.ui \
     widgets/settings/groupwidget.ui \
