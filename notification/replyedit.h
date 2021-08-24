@@ -58,6 +58,14 @@ protected:
                 return e->accept();
             }
         }
+        else if (modifies & Qt::AltModifier)
+        {
+            if (key == Qt::Key_S)
+            {
+                emit returnPressed();
+                return e->accept();
+            }
+        }
 
         QLineEdit::keyPressEvent(e);
     }

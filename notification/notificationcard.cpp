@@ -1793,3 +1793,4 @@ void NotificationCard::dropEvent(QDropEvent *event)
 
     QWidget::dropEvent(event);
 }
+
