@@ -23,6 +23,7 @@
 #include "widgets/settings/applicationwidget.h"
 #include "widgets/settings/specialwidget.h"
 #include "widgets/settings/countwidget.h"
+#include "widgets/settings/speechwidget.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -76,6 +77,7 @@ void MainWindow::initView()
     ui->settingsTabWidget->addTab(new ApplicationWidget(this), QIcon("://icons/startup.png"), "程序启动");
 
     ui->auxiliaryTabWidget->clear();
+    ui->auxiliaryTabWidget->addTab(new SpeechWidget(this), QIcon("://icons/speech.png"), "语音识别");
     ui->auxiliaryTabWidget->addTab(new LeaveModeWidget(this), QIcon("://icons/ai.png"), "离开模式");
     ui->auxiliaryTabWidget->addTab(new RemoteControlWidget(this), QIcon("://icons/control.png"), "远程控制");
     ui->auxiliaryTabWidget->addTab(new QWidget(this), QIcon("://icons/reply.png"), "快速回复");
@@ -388,6 +390,18 @@ void MainWindow::initService()
 
     // 远程控制
     remoteControlService = new RemoteControlServie(this);
+
+    // 其他API服务
+    // 刷新百度API的token
+    if (!us->baiduSpeechAccessToken.isEmpty())
+    {
+        qint64 time = QDateTime::currentSecsSinceEpoch();
+        qint64 prevTime = us->l("baiduSpeech/tokenRefreshTime", time);
+        if (time - prevTime >= 30 * 24 * 3600)
+        {
+            SpeechWidget::refreshToken();
+        }
+    }
 }
 
 void MainWindow::initKey()

@@ -49,6 +49,11 @@ QString Runtime::videoCache(QString id) const
     return CACHE_IMAGE_PATH + id + ".mp4";
 }
 
+QString Runtime::audioCache(QString id) const
+{
+    return CACHE_IMAGE_PATH + id + ".amr";
+}
+
 QString Runtime::faceCache(QString id) const
 {
     return CACHE_FACE_PATH + id + imageSuffix;

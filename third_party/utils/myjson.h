@@ -107,7 +107,7 @@ public:
         return QJsonDocument(*this).toJson();
     }
 
-    void each(QString key, std::function<void(QJsonValue)> const valFunc) const
+    void eachVal(QString key, std::function<void(QJsonValue)> const valFunc) const
     {
         foreach (QJsonValue value, a(key))
         {

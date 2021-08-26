@@ -21,6 +21,8 @@ public:
 private slots:
     void on_sendButton_clicked();
 
+    void test();
+
     void on_showWidgetBorderCheck_clicked();
 
 private:

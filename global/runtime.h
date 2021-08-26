@@ -16,6 +16,7 @@ public:
     QString imageCache(QString id) const;
     QString imageSCache(QString id) const;
     QString videoCache(QString id) const;
+    QString audioCache(QString id) const;
     QString faceCache(QString id) const;
     QString fileCache(QString name) const;
 

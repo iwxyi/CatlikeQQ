@@ -1,6 +1,9 @@
 #include "debugwidget.h"
 #include "ui_debugwidget.h"
 #include "usettings.h"
+#include "netutil.h"
+#include "myjson.h"
+#include "accountinfo.h"
 
 DebugWidget::DebugWidget(CqhttpService *service, QWidget *parent) :
     QWidget(parent),
@@ -50,6 +53,34 @@ void DebugWidget::on_sendButton_clicked()
 
     // service-parseMsgDisplay(msg);
     emit service->signalMessage(msg);
+}
+
+void DebugWidget::test()
+{
+    QString path = "B:/Projects/CatlikeQQ_Run/release/data/cache/images/CBF1F5F43AECF94EDA67872CA9D54D41.amr";
+
+    QFile file(path);
+    file.open(QFile::ReadOnly);
+    QByteArray ba = file.readAll();
+    file.close();
+    QByteArray base64 = ba.toBase64();
+
+    MyJson json;
+    json.insert("format", "pcm");
+    json.insert("rate", 16000);
+    json.insert("channel", 1);
+    json.insert("cuid", snum(ac->myId));
+    json.insert("token", us->baiduSpeechAccessToken);
+    json.insert("dev_pid", 1537);
+    json.insert("len", file.size());
+    qDebug() << "参数：" << json;
+    json.insert("speech", QString(base64));
+
+    QByteArray rst = NetUtil::postJsonData("http://vop.baidu.com/server_api", json);
+    qDebug() << "返回：" << rst;
+
+    json = MyJson(rst);
+    qDebug() << "回复：" << json;
 }
 
 void DebugWidget::on_showWidgetBorderCheck_clicked()

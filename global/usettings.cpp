@@ -42,6 +42,9 @@ void USettings::restoreSettings()
     assign(bannerAIReply, "AIReply");
     assign(bannerPrivateKeepShowing, "privateKeepShowing");
     assign(bannerGroupKeepShowing, "groupKeepShowing");
+
+    assign(autoPlaySpeech, "autoPlaySpeech");
+    assign(autoTransSpeech, "autoTransSpeech");
     endGroup();
 
     beginGroup("group");
@@ -113,6 +116,13 @@ void USettings::restoreSettings()
 
     beginGroup("debug");
     assign(showWidgetBorder, "showWidgetBorder");
+    endGroup();
+
+    beginGroup("baiduSpeech");
+    assign(baiduSpeechApiKey, "apiKey");
+    assign(baiduSpeechSecretKey, "secretKey");
+    assign(baiduSpeechAccessToken, "accessToken");
+
     endGroup();
 }
 

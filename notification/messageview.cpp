@@ -12,6 +12,7 @@
 #include <QClipboard>
 #include <QMimeData>
 #include <QProcess>
+#include <QMediaPlaylist>
 #include "fileutil.h"
 #include "messageview.h"
 #include "defines.h"
@@ -24,6 +25,7 @@
 #include "video/videowidget.h"
 #include "facilemenu.h"
 #include "signaltransfer.h"
+#include "netutil.h"
 
 MessageView::MessageView(QWidget *parent)
 #ifdef MESSAGE_LABEL
@@ -306,8 +308,81 @@ void MessageView::setMessage(const MsgBean& msg)
         }
     }
 
+    // record
+    if (text.indexOf(QRegularExpression("\\[CQ:record,file=(.+?)(?:\\.(?:si?lk|amr))?,url=(.+)\\]"), 0, &match) > -1)
+    {
+        QString file = match.captured(1); // avsdqwezc.video
+        QString url = match.captured(2).replace("&amp;", "&"); // http://xxx.xx?ver=xxx&rkey=xx&filetype=1003&videotype=1&subvideotype=0&term=unknow
+        QString path = rt->audioCache(file);
+
+        // 需要下载语音
+        if (us->autoPlaySpeech || us->autoTransSpeech)
+        {
+            if (!isFileExist(path)) // 可能重复发送，也可能从历史消息加载，所以不重复读取
+                NetImageUtil::saveNetFile(url, path);
+
+            // 自动播放语音
+            if (us->autoPlaySpeech)
+            {
+                QMediaPlayer* player = new QMediaPlayer(nullptr);
+                QMediaPlaylist* list = new QMediaPlaylist;
+                list->addMedia(QUrl::fromLocalFile(path));
+                list->setPlaybackMode(QMediaPlaylist::CurrentItemInLoop);
+                player->setPlaylist(list);
+                player->play();
+                connect(player, &QMediaPlayer::stateChanged, player, [=](QMediaPlayer::State state) {
+                    if (state == QMediaPlayer::State::StoppedState)
+                        player->deleteLater();
+                });
+            }
+
+            // 自动转换语音
+            if (us->autoTransSpeech && !us->baiduSpeechAccessToken.isEmpty())
+            {
+                QFile file(path);
+                if (file.open(QIODevice::ReadOnly))
+                {
+                    QByteArray ba = file.readAll();
+                    file.close();
+                    QByteArray base64 = ba.toBase64();
+
+                    // 百度语音API说明：https://ai.baidu.com/ai-doc/SPEECH/ek38lxj1u
+                    MyJson json;
+                    json.insert("format", "amr");
+                    json.insert("rate", 8000);
+                    json.insert("channel", 1);
+                    json.insert("cuid", snum(ac->myId));
+                    json.insert("token", us->baiduSpeechAccessToken);
+                    json.insert("dev_pid", 1537);
+                    json.insert("speech", QString(base64));
+                    json.insert("len", file.size());
+
+                    QByteArray rst = NetUtil::postJsonData("http://vop.baidu.com/server_api", json);
+                    json = MyJson(rst);
+                    QStringList results;
+                    if (json.i("err_no") != 0)
+                        qWarning() << "获取语音失败：" << json;
+                    json.eachVal("result", [&](QJsonValue val) {
+                        results.append(val.toString());
+                    });
+
+                    text = linkText("[语音] " + results.join("\n"), path);
+                }
+                else
+                {
+                    qWarning() << "打开音频文件失败：" << path;
+                    text = linkText("[语音] ", match.captured(0));
+                }
+            }
+        }
+        else
+        {
+            text = linkText("[语音]", match.captured(0));
+        }
+    }
+
     // video
-    if (text.indexOf(QRegularExpression("\\[CQ:video,file=(.+?)(?:.video)?,url=(.+)\\]"), 0, &match) > -1)
+    if (text.indexOf(QRegularExpression("\\[CQ:video,file=(.+?)(?:\\.video)?,url=(.+)\\]"), 0, &match) > -1)
     {
         QString file = match.captured(1); // avsdqwezc.video
         QString url = match.captured(2).replace("&amp;", "&"); // http://xxx.xx?ver=xxx&rkey=xx&filetype=1003&videotype=1&subvideotype=0&term=unknow
@@ -349,7 +424,7 @@ void MessageView::setMessage(const MsgBean& msg)
         else // 不缓存视频
         {
             // text.replace(match.captured(0), "<a href='" + url + "'>[video]</a>"); // 加上超链接
-            text = linkText("[video]", match.captured(0));
+            text = linkText("[视频]", match.captured(0));
         }
     }
 
@@ -384,6 +459,9 @@ void MessageView::setMessage(const MsgBean& msg)
                 text = linkText("[文件] " + msg.fileName, msg.fileUrl);
         }
     }
+
+    // 红包
+    text.replace(QRegularExpression("\\[CQ:redbag.*\\]"), grayText("[红包]"));
 
     // 其他格式
     text.replace(QRegularExpression("\\[CQ:(\\w+),.+\\]"), grayText("[\\1]"));

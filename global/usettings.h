@@ -90,6 +90,13 @@ public:
     bool bannerGroupKeepShowing = false; // 群聊保持显示直到交互
     int bannerThumbnailProp = 2; // 缩略图最大是原图的几分之一
 
+    // 语音
+    bool autoPlaySpeech = false; // 自动播放语音
+    bool autoTransSpeech = true; // 自动语音转文字
+    QString baiduSpeechApiKey;
+    QString baiduSpeechSecretKey;
+    QString baiduSpeechAccessToken; // 30天过期
+
     // 回复
     bool bannerShowMySend = false; // 回复后，显示自己发送的消息；可能会与接收到的重复
     bool bannerAutoShowReply = false; // 自动显示回复框
