@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>StyleWidget</class>
+ <widget class="QWidget" name="StyleWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QGridLayout" name="gridLayout">
+     <property name="leftMargin">
+      <number>9</number>
+     </property>
+     <property name="rightMargin">
+      <number>9</number>
+     </property>
+     <property name="spacing">
+      <number>12</number>
+     </property>
+     <item row="0" column="1">
+      <widget class="InteractiveButtonBase" name="titleColorButton">
+       <property name="text">
+        <string>文字颜色</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QCheckBox" name="frostedGlassBgCheck">
+       <property name="toolTip">
+        <string>使用简单的毛玻璃背景效果
+注意：仅在出现时静态模糊，不会随着底部内容的修改而变化</string>
+       </property>
+       <property name="text">
+        <string>毛玻璃背景</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QCheckBox" name="useHeaderColorCheck">
+       <property name="text">
+        <string>跟随头像变色</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QSpinBox" name="frostedGlassOpacitySpin">
+       <property name="toolTip">
+        <string/>
+       </property>
+       <property name="suffix">
+        <string/>
+       </property>
+       <property name="prefix">
+        <string>不透明度</string>
+       </property>
+       <property name="minimum">
+        <number>0</number>
+       </property>
+       <property name="maximum">
+        <number>255</number>
+       </property>
+       <property name="singleStep">
+        <number>32</number>
+       </property>
+       <property name="value">
+        <number>64</number>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QCheckBox" name="useHeaderGradientCheck">
+       <property name="text">
+        <string>使用头像渐变</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="InteractiveButtonBase" name="bgColorButton">
+       <property name="text">
+        <string>背景颜色</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QCheckBox" name="colorfulGroupMemberCheck">
+       <property name="text">
+        <string>群组成员彩色昵称</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>160</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>InteractiveButtonBase</class>
+   <extends>QPushButton</extends>
+   <header>interactivebuttonbase.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

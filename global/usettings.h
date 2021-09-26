@@ -107,6 +107,10 @@ public:
     // 群组通知
     bool enableGroupNotification = true; // 群组通知总开关
     QList<qint64> enabledGroups; // 群组通知白名单
+    bool trayShowAllMessageIcon = false; // 显示所有消息的图标（包括没有横幅的）
+    bool trayShowSlientAllMessageIcon = true; // 静默模式显示本该通知的图标
+    bool trayShowSlientPrivateMessageIcon = true; // 静默模式显示所有私聊消息图标
+    bool trayShowSlientSpecialMessageIcon = true; // 静默模式显示所有特别关心（>=很重要）的消息图标
 
     // 重要性
     QHash<qint64, int> userImportance; // 用户重要性

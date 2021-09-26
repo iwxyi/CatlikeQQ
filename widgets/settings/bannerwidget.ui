@@ -25,6 +25,27 @@
      <property name="spacing">
       <number>12</number>
      </property>
+     <item row="5" column="0">
+      <widget class="QLabel" name="label_6">
+       <property name="toolTip">
+        <string>通知卡片出现的位置</string>
+       </property>
+       <property name="text">
+        <string>横幅内容高度</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="1">
+      <widget class="QCheckBox" name="groupKeepShowingCheck">
+       <property name="toolTip">
+        <string>群聊的通知出现后，不会自动隐藏（相当于未读）
+除非用户操作后超时关闭，例如回复、鼠标移入再移开</string>
+       </property>
+       <property name="text">
+        <string>群聊通知保持显示</string>
+       </property>
+      </widget>
+     </item>
      <item row="7" column="1">
       <widget class="QSpinBox" name="retentionDurationSpin">
        <property name="toolTip">
@@ -50,53 +71,49 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
-      <widget class="QSpinBox" name="fixedWidthSpin">
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_2">
        <property name="toolTip">
-        <string/>
+        <string>根据内容的长度，自动调整横幅通知显示的时长</string>
        </property>
-       <property name="suffix">
-        <string>像素</string>
-       </property>
-       <property name="prefix">
-        <string>固定</string>
-       </property>
-       <property name="minimum">
-        <number>100</number>
-       </property>
-       <property name="maximum">
-        <number>3000</number>
-       </property>
-       <property name="singleStep">
-        <number>100</number>
-       </property>
-       <property name="value">
-        <number>300</number>
+       <property name="text">
+        <string>文字阅读速度</string>
        </property>
       </widget>
      </item>
-     <item row="10" column="1">
-      <widget class="QSpinBox" name="frostedGlassOpacitySpin">
+     <item row="2" column="1">
+      <widget class="QSpinBox" name="textReadSpeedSpin">
        <property name="toolTip">
         <string/>
        </property>
        <property name="suffix">
-        <string/>
+        <string>字</string>
        </property>
        <property name="prefix">
-        <string>不透明度</string>
+        <string>每秒</string>
        </property>
        <property name="minimum">
-        <number>0</number>
+        <number>1</number>
        </property>
        <property name="maximum">
-        <number>255</number>
+        <number>60</number>
        </property>
        <property name="singleStep">
-        <number>32</number>
+        <number>1</number>
        </property>
        <property name="value">
-        <number>64</number>
+        <number>10</number>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="0">
+      <widget class="QCheckBox" name="privateKeepShowingCheck">
+       <property name="toolTip">
+        <string>私聊的通知出现后，不会自动隐藏（相当于未读）
+除非用户操作后超时关闭，例如回复、鼠标移入再移开</string>
+       </property>
+       <property name="text">
+        <string>私聊通知保持显示</string>
        </property>
       </widget>
      </item>
@@ -136,143 +153,10 @@
        </property>
       </widget>
      </item>
-     <item row="12" column="0">
-      <widget class="QCheckBox" name="colorfulGroupMemberCheck">
-       <property name="text">
-        <string>群组成员彩色昵称</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QSpinBox" name="displayDurationSpin">
-       <property name="suffix">
-        <string>秒</string>
-       </property>
-       <property name="minimum">
-        <number>1</number>
-       </property>
-       <property name="maximum">
-        <number>60</number>
-       </property>
-       <property name="singleStep">
-        <number>1</number>
-       </property>
-       <property name="value">
-        <number>7</number>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_3">
-       <property name="toolTip">
-        <string>通知卡片出现的位置</string>
-       </property>
-       <property name="text">
-        <string>横幅出现位置</string>
-       </property>
-      </widget>
-     </item>
-     <item row="11" column="1">
-      <widget class="QCheckBox" name="useHeaderGradientCheck">
-       <property name="text">
-        <string>使用头像渐变</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QSpinBox" name="textReadSpeedSpin">
-       <property name="toolTip">
-        <string/>
-       </property>
-       <property name="suffix">
-        <string>字</string>
-       </property>
-       <property name="prefix">
-        <string>每秒</string>
-       </property>
-       <property name="minimum">
-        <number>1</number>
-       </property>
-       <property name="maximum">
-        <number>60</number>
-       </property>
-       <property name="singleStep">
-        <number>1</number>
-       </property>
-       <property name="value">
-        <number>10</number>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="1">
-      <widget class="QSpinBox" name="contentMaxHeightSpin">
-       <property name="toolTip">
-        <string/>
-       </property>
-       <property name="suffix">
-        <string>像素</string>
-       </property>
-       <property name="prefix">
-        <string>最大</string>
-       </property>
-       <property name="minimum">
-        <number>0</number>
-       </property>
-       <property name="maximum">
-        <number>999999</number>
-       </property>
-       <property name="singleStep">
-        <number>100</number>
-       </property>
-       <property name="value">
-        <number>100</number>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="0">
       <widget class="QLabel" name="label">
        <property name="text">
         <string>横幅显示时长</string>
-       </property>
-      </widget>
-     </item>
-     <item row="9" column="0">
-      <widget class="InteractiveButtonBase" name="bgColorButton">
-       <property name="text">
-        <string>背景颜色</string>
-       </property>
-      </widget>
-     </item>
-     <item row="10" column="0">
-      <widget class="QCheckBox" name="frostedGlassBgCheck">
-       <property name="toolTip">
-        <string>使用简单的毛玻璃背景效果
-注意：仅在出现时静态模糊，不会随着底部内容的修改而变化</string>
-       </property>
-       <property name="text">
-        <string>毛玻璃背景</string>
-       </property>
-      </widget>
-     </item>
-     <item row="8" column="0">
-      <widget class="QCheckBox" name="privateKeepShowingCheck">
-       <property name="toolTip">
-        <string>私聊的通知出现后，不会自动隐藏（相当于未读）
-除非用户操作后超时关闭，例如回复、鼠标移入再移开</string>
-       </property>
-       <property name="text">
-        <string>私聊通知保持显示</string>
-       </property>
-      </widget>
-     </item>
-     <item row="8" column="1">
-      <widget class="QCheckBox" name="groupKeepShowingCheck">
-       <property name="toolTip">
-        <string>群聊的通知出现后，不会自动隐藏（相当于未读）
-除非用户操作后超时关闭，例如回复、鼠标移入再移开</string>
-       </property>
-       <property name="text">
-        <string>群聊通知保持显示</string>
        </property>
       </widget>
      </item>
@@ -301,58 +185,47 @@
        </property>
       </widget>
      </item>
-     <item row="7" column="0">
-      <widget class="QLabel" name="label_4">
+     <item row="4" column="1">
+      <widget class="QSpinBox" name="fixedWidthSpin">
        <property name="toolTip">
-        <string>失去焦点（鼠标移开/回复框关闭）后多久时间隐藏
-一个小技巧：慢慢移开可快速隐藏通知，快速移开则可以继续保留</string>
+        <string/>
        </property>
-       <property name="text">
-        <string>鼠标移开后再停留</string>
+       <property name="suffix">
+        <string>像素</string>
        </property>
-      </widget>
-     </item>
-     <item row="5" column="0">
-      <widget class="QLabel" name="label_6">
-       <property name="toolTip">
-        <string>通知卡片出现的位置</string>
+       <property name="prefix">
+        <string>固定</string>
        </property>
-       <property name="text">
-        <string>横幅内容高度</string>
+       <property name="minimum">
+        <number>100</number>
        </property>
-      </widget>
-     </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="label_5">
-       <property name="toolTip">
-        <string>通知卡片出现的位置</string>
+       <property name="maximum">
+        <number>3000</number>
        </property>
-       <property name="text">
-        <string>横幅显示宽度</string>
+       <property name="singleStep">
+        <number>100</number>
+       </property>
+       <property name="value">
+        <number>300</number>
        </property>
       </widget>
      </item>
-     <item row="11" column="0">
-      <widget class="QCheckBox" name="useHeaderColorCheck">
-       <property name="text">
-        <string>跟随头像变色</string>
+     <item row="1" column="1">
+      <widget class="QSpinBox" name="displayDurationSpin">
+       <property name="suffix">
+        <string>秒</string>
        </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_2">
-       <property name="toolTip">
-        <string>根据内容的长度，自动调整横幅通知显示的时长</string>
+       <property name="minimum">
+        <number>1</number>
        </property>
-       <property name="text">
-        <string>文字阅读速度</string>
+       <property name="maximum">
+        <number>60</number>
        </property>
-      </widget>
-     </item>
-     <item row="9" column="1">
-      <widget class="InteractiveButtonBase" name="titleColorButton">
-       <property name="text">
-        <string>文字颜色</string>
+       <property name="singleStep">
+        <number>1</number>
+       </property>
+       <property name="value">
+        <number>7</number>
        </property>
       </widget>
      </item>
@@ -387,6 +260,62 @@
        </item>
       </widget>
      </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="toolTip">
+        <string>通知卡片出现的位置</string>
+       </property>
+       <property name="text">
+        <string>横幅出现位置</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="label_5">
+       <property name="toolTip">
+        <string>通知卡片出现的位置</string>
+       </property>
+       <property name="text">
+        <string>横幅显示宽度</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="0">
+      <widget class="QLabel" name="label_4">
+       <property name="toolTip">
+        <string>失去焦点（鼠标移开/回复框关闭）后多久时间隐藏
+一个小技巧：慢慢移开可快速隐藏通知，快速移开则可以继续保留</string>
+       </property>
+       <property name="text">
+        <string>鼠标移开后再停留</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
+      <widget class="QSpinBox" name="contentMaxHeightSpin">
+       <property name="toolTip">
+        <string/>
+       </property>
+       <property name="suffix">
+        <string>像素</string>
+       </property>
+       <property name="prefix">
+        <string>最大</string>
+       </property>
+       <property name="minimum">
+        <number>0</number>
+       </property>
+       <property name="maximum">
+        <number>999999</number>
+       </property>
+       <property name="singleStep">
+        <number>100</number>
+       </property>
+       <property name="value">
+        <number>100</number>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
@@ -404,13 +333,6 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>InteractiveButtonBase</class>
-   <extends>QPushButton</extends>
-   <header>interactivebuttonbase.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

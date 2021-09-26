@@ -24,6 +24,7 @@
 #include "widgets/settings/specialwidget.h"
 #include "widgets/settings/countwidget.h"
 #include "widgets/settings/speechwidget.h"
+#include "widgets/settings/stylewidget.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -72,8 +73,8 @@ void MainWindow::initView()
     ui->settingsTabWidget->addTab(new ReplyWidget(this), QIcon("://icons/reply.png"), "消息回复");
     ui->settingsTabWidget->addTab(new FileWidget(this), QIcon("://icons/file.png"), "文件管理");
     ui->settingsTabWidget->addTab(new SpecialWidget(this), QIcon("://icons/care.png"), "特别关心");
-    ui->settingsTabWidget->addTab(new QWidget(this), QIcon("://icons/bubble.png"), "气泡样式");
-    ui->settingsTabWidget->addTab(new QWidget(this), QIcon("://icons/animation.png"), "动画调整");
+    ui->settingsTabWidget->addTab(new StyleWidget(this), QIcon("://icons/bubble.png"), "卡片样式");
+    // ui->settingsTabWidget->addTab(new QWidget(this), QIcon("://icons/animation.png"), "动画调整");
     ui->settingsTabWidget->addTab(new ApplicationWidget(this), QIcon("://icons/startup.png"), "程序启动");
 
     ui->auxiliaryTabWidget->clear();

@@ -68,6 +68,7 @@ SOURCES += \
     widgets/settings/replywidget.cpp \
     widgets/settings/specialwidget.cpp \
     widgets/settings/speechwidget.cpp \
+    widgets/settings/stylewidget.cpp \
     widgets/video/videolabel.cpp \
     widgets/video/videosurface.cpp \
     widgets/video/videowidget.cpp
@@ -120,6 +121,7 @@ HEADERS += \
     widgets/settings/replywidget.h \
     widgets/settings/specialwidget.h \
     widgets/settings/speechwidget.h \
+    widgets/settings/stylewidget.h \
     widgets/video/videolabel.h \
     widgets/video/videosurface.h \
     widgets/video/videowidget.h
@@ -141,7 +143,8 @@ FORMS += \
     widgets/settings/remotecontrolwidget.ui \
     widgets/settings/replywidget.ui \
     widgets/settings/specialwidget.ui \
-    widgets/settings/speechwidget.ui
+    widgets/settings/speechwidget.ui \
+    widgets/settings/stylewidget.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
