@@ -47,7 +47,7 @@ public slots:
     void messageReceived(const MsgBean& msg, bool blockSelf = true);
     NotificationCard *showMessageCard(const MsgBean& msg, bool blockSelf = false);
     NotificationCard *createNotificationCard(const MsgBean& msg);
-    void focusOrShowMessageCard(const MsgBean& msg, bool focusEdit, const QString& insertText = "");
+    NotificationCard *focusOrShowMessageCard(const MsgBean& msg, bool focusEdit, const QString& insertText = "");
     void slotCardHeightChanged(NotificationCard* card, int deltaHeight);
     void slotCardHeightChanged(int index, int deltaHeight);
     void focusCardReply();

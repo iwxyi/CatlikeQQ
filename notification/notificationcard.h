@@ -76,6 +76,7 @@ public slots:
     void triggerAIReply(int retry = 0);
     void shallToHide();
     void addReplyText(const QString& text);
+    void loadMsgHistory();
 
     void showGrougInfo(qint64 groupId, QPoint pos = QPoint(-1, -1));
     void showUserInfo(qint64 friendId, QPoint pos = QPoint(-1, -1));
@@ -97,7 +98,6 @@ private slots:
     void cardClicked();
     void cardMenu();
     void on_listWidget_itemDoubleClicked(QListWidgetItem *item);
-    void loadMsgHistory();
 
 private:
     void setPrivateMsg(const MsgBean& msg);

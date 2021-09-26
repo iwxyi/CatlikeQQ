@@ -224,13 +224,17 @@ void MainWindow::showHistoryListMenu()
         w->setDoubleClicked(true);
         connect(w, &InteractiveButtonBase::clicked, this, [=]{
             // 根据聊天信息，重新打开对应的对话框
-            focusOrShowMessageCard(msg, false);
+            auto card = focusOrShowMessageCard(msg, false);
+            if (card)
+                card->loadMsgHistory();
         });
         connect(w, &InteractiveButtonBase::doubleClicked, this, [=]{
             // 因为要聚焦，所有这个popup的菜单必须要关闭
             menu->close();
             // 根据聊天信息，重新打开对应的对话框
-            focusOrShowMessageCard(msg, true);
+            auto card = focusOrShowMessageCard(msg, true);
+            if (card)
+                card->loadMsgHistory();
         });
         if (cc.isValid() && us->bannerUseHeaderColor)
         {
@@ -765,7 +769,7 @@ NotificationCard* MainWindow::createNotificationCard(const MsgBean &msg)
 
 /// 显示或者聚焦对应的用户/群组卡片
 /// 如果没有，则新建一个
-void MainWindow::focusOrShowMessageCard(const MsgBean &msg, bool focusEdit, const QString &insertText)
+NotificationCard* MainWindow::focusOrShowMessageCard(const MsgBean &msg, bool focusEdit, const QString &insertText)
 {
     foreach (auto card, notificationCards)
     {
@@ -773,7 +777,7 @@ void MainWindow::focusOrShowMessageCard(const MsgBean &msg, bool focusEdit, cons
         {
             if (focusEdit)
                 card->showReplyEdit(true);
-            return ;
+            return card;
         }
     }
 
@@ -784,6 +788,7 @@ void MainWindow::focusOrShowMessageCard(const MsgBean &msg, bool focusEdit, cons
     }
     if (!insertText.isEmpty())
         card->addReplyText(insertText);
+    return card;
 }
 
 void MainWindow::slotCardHeightChanged(NotificationCard *card, int deltaHeight)
