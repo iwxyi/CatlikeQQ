@@ -100,8 +100,7 @@
       <string notr="true">color: gray;</string>
      </property>
      <property name="text">
-      <string>需要在&lt;a href=&quot;https://console.bce.baidu.com/ai&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;百度AI&lt;/span&gt;&lt;/a&gt;上注册账号并创建应用以获取 API Key 和 Secret Key
-接着点击“刷新 Access Token”来获取 token。</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;需要在&lt;a href=&quot;https://console.bce.baidu.com/ai&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;百度AI&lt;/span&gt;&lt;/a&gt;上注册账号并创建应用以获取 API Key 和 Secret Key，接着点击“刷新 Access Token”来获取 token。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

@@ -1713,6 +1713,7 @@ void NotificationCard::loadMsgHistory()
         return ;
 
     // 群组的话，根据同一个人的连续消息，稍微向上延伸，最多一倍
+    historyStart = qMax(0, historyStart - us->bannerMessageLoadCount);
     if (groupId && historyStart > 0)
     {
         int count = us->bannerMessageLoadCount;
