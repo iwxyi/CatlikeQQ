@@ -45,7 +45,9 @@ void ColorOctree::buildTree(QImage image, int maxCount)
         QRgb *line = (QRgb *)image.scanLine(y);
         for (int x = 0; x < w; x++)
         {
-            int r = qRed(line[x]), g = qGreen(line[x]), b = qBlue(line[x]);
+            int r = qRed(line[x]), g = qGreen(line[x]), b = qBlue(line[x]), a = qAlpha(line[x]);
+            if (a == 0) // 透明的，不清楚这个 qRgb 有没有透明
+                continue;
             RGB rgb{r, g, b};
             // 添加颜色到八叉树
             addColor(root, &rgb, 0);

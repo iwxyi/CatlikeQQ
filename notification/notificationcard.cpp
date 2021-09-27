@@ -19,6 +19,7 @@
 #include "netutil.h"
 #include "myjson.h"
 #include "httpuploader.h"
+#include "headerutil.h"
 
 NotificationCard::NotificationCard(QWidget *parent) :
     QWidget(parent),
@@ -332,19 +333,7 @@ void NotificationCard::setPrivateMsg(const MsgBean &msg)
         ui->nicknameLabel->setText(us->userLocalNames.value(msg.friendId, msg.displayNickname()));
 
     // 设置头像
-    // 用户头像API：http://q1.qlogo.cn/g?b=qq&nk=QQ号&s=100&t=
-    QPixmap headerPixmap;
-    if (isFileExist(rt->userHeader(this->friendId)))
-    {
-        headerPixmap = QPixmap(rt->userHeader(this->friendId));
-    }
-    else // 没有头像，联网获取
-    {
-        QString url = "http://q1.qlogo.cn/g?b=qq&nk=" + snum(this->friendId) + "&s=100&t=";
-        headerPixmap = NetImageUtil::loadNetPixmap(url);
-        headerPixmap.save(rt->userHeader(this->friendId));
-    }
-
+    QPixmap headerPixmap = HeaderUtil::userHeader(this->friendId);
     if (!us->bannerUseHeaderGradient)
     {
         if (!headerPixmap.isNull())
@@ -399,17 +388,7 @@ void NotificationCard::setGroupMsg(const MsgBean &msg)
 
     // 设置头像
     // 群头像API：http://p.qlogo.cn/gh/群号/群号/100
-    QPixmap headerPixmap;
-    if (isFileExist(rt->groupHeader(msg.groupId)))
-    {
-        headerPixmap = QPixmap(rt->groupHeader(msg.groupId));
-    }
-    else // 没有头像，联网获取
-    {
-        QString url = "http://p.qlogo.cn/gh/" + snum(msg.groupId) + "/" + snum(msg.groupId) + "/100";
-        headerPixmap = NetImageUtil::loadNetPixmap(url);
-        headerPixmap.save(rt->groupHeader(msg.groupId));
-    }
+    QPixmap headerPixmap = HeaderUtil::groupHeader(msg.groupId);
 
     if (!us->bannerUseHeaderGradient)
     {
@@ -632,23 +611,11 @@ void NotificationCard::createMsgBox(const MsgBean &msg, int index)
     // 设置头像
     // 用户头像API：http://q1.qlogo.cn/g?b=qq&nk=QQ号&s=100&t=
     bool headerValid = false;
-    if (isFileExist(rt->userHeader(msg.senderId)))
+    QPixmap headerPixmap = HeaderUtil::userHeader(msg.senderId);
+    if (!headerPixmap.isNull())
     {
-        headerLabel->setPixmap(NetImageUtil::toRoundedPixmap(QPixmap(rt->userHeader(msg.senderId)).scaled(headerLabel->size())));
+        headerLabel->setPixmap(NetImageUtil::toRoundedPixmap(headerPixmap.scaled(headerLabel->size())));
         headerValid = true;
-    }
-    else // 没有头像，联网获取
-    {
-        QString url = "http://q1.qlogo.cn/g?b=qq&nk=" + snum(msg.senderId) + "&s=100&t=";
-        QPixmap pixmap = NetImageUtil::loadNetPixmap(url);
-        if (!us->bannerUseHeaderColor)
-            pixmap = NetImageUtil::toRoundedPixmap(pixmap);
-        pixmap.save(rt->userHeader(msg.senderId));
-        if (!pixmap.isNull())
-        {
-            headerLabel->setPixmap(NetImageUtil::toRoundedPixmap(pixmap.scaled(headerLabel->size())));
-            headerValid = true;
-        }
     }
 
     // 彩色用户昵称
@@ -668,7 +635,7 @@ void NotificationCard::createMsgBox(const MsgBean &msg, int index)
             }
 
             AccountInfo::CardColor cc;
-            auto colors = ImageUtil::extractImageThemeColors(headerLabel->pixmap()->toImage(), 4);
+            auto colors = ImageUtil::extractImageThemeColors(headerPixmap.toImage(), 4);
             auto color = ImageUtil::getFastestColor(us->bannerUseHeaderColor ? cardColor.bg : us->bannerBgColor, colors, 1); // 获取色差最大的
             // auto color = colors.first().toColor();
             ac->groupMemberColor[groupId].insert(this->friendId, color);

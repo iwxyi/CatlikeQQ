@@ -37,6 +37,7 @@ INCLUDEPATH += third_party/color_octree/\
 
 SOURCES += \
     control_service/remotecontrolservie.cpp \
+    global/headerutil.cpp \
     global/usettings.cpp \
     notification/messageview.cpp \
     notification/smoothlistwidget.cpp \
@@ -77,6 +78,7 @@ HEADERS += \
     control_service/remotecontrolservie.h \
     global/accountinfo.h \
     global/defines.h \
+    global/headerutil.h \
     global/signaltransfer.h \
     global/usettings.h \
     notification/messageview.h \
