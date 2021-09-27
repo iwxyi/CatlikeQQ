@@ -9,6 +9,7 @@
 #include "netutil.h"
 #include "netimageutil.h"
 #include "signaltransfer.h"
+#include "headerutil.h"
 #include "windows.h"
 #include "widgets/customtabstyle.h"
 #include "widgets/settings/accountwidget.h"
@@ -286,8 +287,15 @@ void MainWindow::initTray()
     tray->setIcon(QIcon("://appicon"));
     tray->setToolTip(APPLICATION_NAME);
     tray->show();
-
     connect(tray,SIGNAL(activated(QSystemTrayIcon::ActivationReason)),this,SLOT(trayAction(QSystemTrayIcon::ActivationReason)));
+
+    trayRestoreTimer = new QTimer(this);
+    trayRestoreTimer->setInterval(us->trayFlashingDuration);
+    connect(trayRestoreTimer, &QTimer::timeout, this, [=]{
+        tray->setIcon(ac->myHeader.isNull() ? QIcon("://appicon") : QIcon(ac->myHeader));
+        currentTrayMsg = MsgBean();
+        trayFlashPixmap = QPixmap();
+    });
 }
 
 void MainWindow::trayAction(QSystemTrayIcon::ActivationReason reason)
@@ -374,6 +382,7 @@ void MainWindow::initService()
     connect(sig, &SignalTransfer::loadGroupMembers, cqhttpService, &CqhttpService::refreshGroupMembers);
 
     connect(sig, &SignalTransfer::myHeader, this, [=](const QPixmap& pixmap) {
+        ac->myHeader = NetImageUtil::toRoundedPixmap(pixmap);
         tray->setIcon(pixmap);
     });
 
@@ -388,6 +397,8 @@ void MainWindow::initService()
         msg.group(groupId, ac->groupName(groupId));
         focusOrShowMessageCard(msg, true, text);
     });
+
+    connect(sig, SIGNAL(showTrayIcon(const MsgBean&)), this, SLOT(showTrayIcon(const MsgBean&)));
 
     // 远程控制
     remoteControlService = new RemoteControlServie(this);
@@ -522,6 +533,9 @@ void MainWindow::messageReceived(const MsgBean &msg, bool blockSelf)
             us->addCount(us->countReceiveGroup, "receiveGroup");
     }
 
+    if (us->trayShowAllMessageIcon)
+        showTrayIcon(msg);
+
     // ========== 显示通知 ==========
     // 如果已经显示了卡片，那么忽略所有开关
     NotificationCard* currentCard = nullptr;
@@ -547,7 +561,13 @@ bool MainWindow::canNewCardShow(const MsgBean &msg) const
 {
     // 静默模式
     if (rt->notificationSlient)
-        return false;
+    {
+        if (us->trayShowSlientPrivateMessageIcon && msg.isPrivate())
+            showTrayIcon(msg);
+
+        if (!us->trayShowAllSlientMessageIcon && !us->trayShowSlientSpecialMessageIcon)
+            return false;
+    }
 
     // 判断群组显示开关
     if (msg.isGroup() && !us->isGroupShow(msg.groupId)) // 群组消息开关
@@ -625,10 +645,17 @@ bool MainWindow::canNewCardShow(const MsgBean &msg) const
         im++;
     }
 
+    // 托盘图标
+    if ((us->trayShowAllSlientMessageIcon && im >= us->lowestImportance)
+            || (us->trayShowSlientSpecialMessageIcon && im >= VeryImportant))
+        showTrayIcon(msg);
+
+
     if (im < us->lowestImportance)
         return false;
 
-    return true;
+
+    return !rt->notificationSlient;
 }
 
 /// 显示通知卡片，可能是新卡片，也可能需要附加上去
@@ -1035,4 +1062,25 @@ void MainWindow::triggerAiReply(const MsgBean &msg, int retry)
 
         cqhttpService->sendUserMsg(msg.senderId, answer);
     });
+}
+
+void MainWindow::showTrayIcon(const MsgBean &msg) const
+{
+    trayRestoreTimer->start();
+
+    // 还是这个消息，不做其他操作，只是延长时间
+    if (currentTrayMsg.is(msg))
+        return ;
+
+    // 切换消息
+    currentTrayMsg = msg;
+    trayFlashPixmap = msg.isPrivate() ? HeaderUtil::userHeader(msg.senderId)
+                                      : HeaderUtil::groupHeader(msg.groupId);
+    if (trayFlashPixmap.isNull())
+    {
+        qWarning() << "无法显示托盘头像：" << msg.debugString();
+        return ;
+    }
+
+    tray->setIcon(NetImageUtil::toRoundedPixmap(trayFlashPixmap));
 }

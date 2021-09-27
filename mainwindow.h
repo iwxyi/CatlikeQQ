@@ -55,6 +55,7 @@ public slots:
 
     void autoReplyMessage(const MsgBean& msg);
     void triggerAiReply(const MsgBean& msg, int retry = 0);
+    void showTrayIcon(const MsgBean& msg) const;
 
 protected:
     void showEvent(QShowEvent* e) override;
@@ -72,12 +73,17 @@ private:
 
     QList<NotificationCard*> notificationCards;
     QList<NotificationBubble*> notificationBubbles;
+
 #if defined(ENABLE_SHORTCUT)
     QxtGlobalShortcut* editShortcut;
 #endif
 #ifdef Q_OS_WIN32
     HWND prevWindow = nullptr;
 #endif
+
     QSystemTrayIcon* tray;
+    mutable MsgBean currentTrayMsg; // 当前头像
+    mutable QPixmap trayFlashPixmap; // 正在闪烁的图像
+    QTimer* trayRestoreTimer; // 显示结束后回复
 };
 #endif // MAINWINDOW_H

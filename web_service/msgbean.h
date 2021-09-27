@@ -73,6 +73,9 @@ struct MsgBean
     bool recall = false; // 消息撤回
     bool approve = false; // 用户加入
 
+    MsgBean()
+    {}
+
     MsgBean(qint64 senderId, QString nickname, QString message, qint64 messageId, QString subType)
         : senderId(senderId), nickname(nickname), message(message), rawMessage(message), messageId(messageId), subType(subType)
     {
@@ -169,6 +172,48 @@ struct MsgBean
         if (!id)
             return rawMessage.contains("[CQ:at,qq=all]");
         return rawMessage.contains("[CQ:at,qq=" + QString::number(id) + "]");
+    }
+
+    bool is(const MsgBean& o) const
+    {
+        return this->senderId == o.senderId
+                && this->targetId == o.targetId
+                && this->groupId == o.groupId;
+    }
+
+    bool operator==(const MsgBean& o) const
+    {
+        return this->senderId == o.senderId
+                && this->targetId == o.targetId
+                && this->groupId == o.groupId
+                && this->messageId == o.messageId;
+    }
+
+    QString debugString() const
+    {
+        if (isPrivate())
+        {
+            return QString("%1(%2):%3")
+                    .arg(nickname)
+                    .arg(senderId)
+                    .arg(message);
+        }
+        else if (isGroup())
+        {
+            return QString("[%4(%5)]%1(%2):%3")
+                    .arg(nickname)
+                    .arg(senderId)
+                    .arg(message)
+                    .arg(groupName)
+                    .arg(groupId);
+        }
+        else
+        {
+            return QString("%1(%2):%3")
+                    .arg(nickname)
+                    .arg(senderId)
+                    .arg(message);
+        }
     }
 };
 
