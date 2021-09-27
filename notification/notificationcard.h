@@ -77,6 +77,7 @@ public slots:
     void shallToHide();
     void addReplyText(const QString& text);
     void loadMsgHistory();
+    void scrollToBottom();
 
     void showGrougInfo(qint64 groupId, QPoint pos = QPoint(-1, -1));
     void showUserInfo(qint64 friendId, QPoint pos = QPoint(-1, -1));

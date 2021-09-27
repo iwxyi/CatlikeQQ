@@ -205,7 +205,7 @@ void NotificationCard::setMsg(const MsgBean &msg)
         setPrivateMsg(msg);
         connectUserHeader(ui->headerLabel, msg);
     }
-    else
+    else if (msg.isGroup())
     {
         setGroupMsg(msg);
         connectGroupHeader(ui->headerLabel, msg);
@@ -1756,6 +1756,11 @@ void NotificationCard::loadMsgHistory()
     if (hDelta)
         emit signalHeightChanged(hDelta);
     _loadingHistory = false;
+}
+
+void NotificationCard::scrollToBottom()
+{
+    ui->listWidget->scrollToBottom();
 }
 
 void NotificationCard::dragEnterEvent(QDragEnterEvent *event)
