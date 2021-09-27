@@ -122,7 +122,13 @@ void USettings::restoreSettings()
     assign(baiduSpeechApiKey, "apiKey");
     assign(baiduSpeechSecretKey, "secretKey");
     assign(baiduSpeechAccessToken, "accessToken");
+    endGroup();
 
+    beginGroup("tray");
+    assign(trayShowAllMessageIcon, "allMessage");
+    assign(trayShowAllSlientMessageIcon, "allSlientMessage");
+    assign(trayShowSlientPrivateMessageIcon, "slientPrivate");
+    assign(trayShowSlientSpecialMessageIcon, "slientSpecial");
     endGroup();
 }
 

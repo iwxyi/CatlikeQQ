@@ -75,7 +75,7 @@ void MainWindow::initView()
     ui->settingsTabWidget->addTab(new SpecialWidget(this), QIcon("://icons/care.png"), "特别关心");
     ui->settingsTabWidget->addTab(new StyleWidget(this), QIcon("://icons/bubble.png"), "卡片样式");
     // ui->settingsTabWidget->addTab(new QWidget(this), QIcon("://icons/animation.png"), "动画调整");
-    ui->settingsTabWidget->addTab(new ApplicationWidget(this), QIcon("://icons/startup.png"), "程序启动");
+    ui->settingsTabWidget->addTab(new ApplicationWidget(this), QIcon("://icons/startup.png"), "程序设置");
 
     ui->auxiliaryTabWidget->clear();
     ui->auxiliaryTabWidget->addTab(new SpeechWidget(this), QIcon("://icons/speech.png"), "语音识别");

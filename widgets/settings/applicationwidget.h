@@ -18,6 +18,14 @@ public:
 private slots:
     void on_startOnPowerOnCheck_clicked();
 
+    void on_trayShowAllMessageIconCheck_clicked();
+
+    void on_trayShowAllSlientMessageIconCheck_clicked();
+
+    void on_trayShowSlientPrivateMessageIconCheck_clicked();
+
+    void on_trayShowSlientSpecialMessageIconCheck_clicked();
+
 private:
     Ui::ApplicationWidget *ui;
 };

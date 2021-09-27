@@ -24,10 +24,59 @@
     <number>18</number>
    </property>
    <item>
-    <widget class="QCheckBox" name="startOnPowerOnCheck">
-     <property name="text">
-      <string>开机自启</string>
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="title">
+      <string>启动设置</string>
      </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QCheckBox" name="startOnPowerOnCheck">
+        <property name="text">
+         <string>开机自启</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>托盘图标</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item>
+       <widget class="QCheckBox" name="trayShowAllMessageIconCheck">
+        <property name="toolTip">
+         <string>包括显示与不显示横幅通知的都会显示在托盘中</string>
+        </property>
+        <property name="text">
+         <string>显示所有消息图标</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="trayShowAllSlientMessageIconCheck">
+        <property name="text">
+         <string>显示被静默的所有消息图标</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="trayShowSlientPrivateMessageIconCheck">
+        <property name="text">
+         <string>显示被静默的私聊消息图标</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="trayShowSlientSpecialMessageIconCheck">
+        <property name="text">
+         <string>显示被静默的特别关心消息图标</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>

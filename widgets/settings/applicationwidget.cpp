@@ -10,6 +10,10 @@ ApplicationWidget::ApplicationWidget(QWidget *parent) :
     ui->setupUi(this);
 
     ui->startOnPowerOnCheck->setChecked(us->startOnPowerOn);
+    ui->trayShowAllMessageIconCheck->setChecked(us->trayShowAllMessageIcon);
+    ui->trayShowAllSlientMessageIconCheck->setChecked(us->trayShowAllSlientMessageIcon);
+    ui->trayShowSlientPrivateMessageIconCheck->setChecked(us->trayShowSlientPrivateMessageIcon);
+    ui->trayShowSlientSpecialMessageIconCheck->setChecked(us->trayShowSlientSpecialMessageIcon);
 }
 
 ApplicationWidget::~ApplicationWidget()
@@ -29,4 +33,24 @@ void ApplicationWidget::on_startOnPowerOnCheck_clicked()
     else
         reg->remove(appName);
     reg->deleteLater();
+}
+
+void ApplicationWidget::on_trayShowAllMessageIconCheck_clicked()
+{
+    us->set("tray/allMessage", us->trayShowAllMessageIcon = ui->trayShowAllMessageIconCheck->isChecked());
+}
+
+void ApplicationWidget::on_trayShowAllSlientMessageIconCheck_clicked()
+{
+    us->set("tray/allSlientMessage", us->trayShowAllSlientMessageIcon = ui->trayShowAllSlientMessageIconCheck->isChecked());
+}
+
+void ApplicationWidget::on_trayShowSlientPrivateMessageIconCheck_clicked()
+{
+    us->set("tray/slientPrivate", us->trayShowSlientPrivateMessageIcon = ui->trayShowSlientPrivateMessageIconCheck->isChecked());
+}
+
+void ApplicationWidget::on_trayShowSlientSpecialMessageIconCheck_clicked()
+{
+    us->set("tray/slientSpecial", us->trayShowSlientSpecialMessageIcon = ui->trayShowSlientSpecialMessageIconCheck->isChecked());
 }
