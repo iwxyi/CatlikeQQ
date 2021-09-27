@@ -72,7 +72,7 @@
       <item>
        <widget class="QCheckBox" name="trayShowSlientSpecialMessageIconCheck">
         <property name="text">
-         <string>显示被静默的特别关心消息图标</string>
+         <string>显示被静默的很重要消息图标</string>
         </property>
        </widget>
       </item>

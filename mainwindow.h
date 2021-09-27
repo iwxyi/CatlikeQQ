@@ -84,6 +84,8 @@ private:
     QSystemTrayIcon* tray;
     mutable MsgBean currentTrayMsg; // 当前头像
     mutable QPixmap trayFlashPixmap; // 正在闪烁的图像
+    mutable bool trayHiding = false;
     QTimer* trayRestoreTimer; // 显示结束后回复
+    QTimer* trayHideTimer; // 闪烁一下表示有消息
 };
 #endif // MAINWINDOW_H

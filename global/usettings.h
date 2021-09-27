@@ -166,7 +166,8 @@ public:
     bool startOnPowerOn = false; // 开机自启
 
     // 托盘
-    int trayFlashingDuration = 3000; // 托盘显示/闪烁时长
+    int trayShowIconDuration = 5000; // 托盘显示/闪烁时长
+    int trayFlashingInterval = 200; // 托盘闪烁间隔
     bool trayShowAllMessageIcon = false; // 显示所有消息的图标（包括没有横幅的）
     bool trayShowAllSlientMessageIcon = true; // 静默模式显示本该通知的图标
     bool trayShowSlientPrivateMessageIcon = true; // 静默模式显示所有私聊消息图标

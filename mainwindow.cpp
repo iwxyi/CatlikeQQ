@@ -290,11 +290,31 @@ void MainWindow::initTray()
     connect(tray,SIGNAL(activated(QSystemTrayIcon::ActivationReason)),this,SLOT(trayAction(QSystemTrayIcon::ActivationReason)));
 
     trayRestoreTimer = new QTimer(this);
-    trayRestoreTimer->setInterval(us->trayFlashingDuration);
+    trayRestoreTimer->setInterval(us->trayShowIconDuration);
     connect(trayRestoreTimer, &QTimer::timeout, this, [=]{
         tray->setIcon(ac->myHeader.isNull() ? QIcon("://appicon") : QIcon(ac->myHeader));
         currentTrayMsg = MsgBean();
         trayFlashPixmap = QPixmap();
+        trayHiding = false;
+        trayHideTimer->stop();
+    });
+
+    trayHideTimer = new QTimer(this);
+    trayHideTimer->setInterval(us->trayFlashingInterval);
+    connect(trayHideTimer, &QTimer::timeout, this, [=]{
+        if (!trayHiding) // 隐藏图标
+        {
+            QPixmap pixmap(32, 32);
+            pixmap.fill(Qt::transparent);
+            tray->setIcon(pixmap);
+            trayHiding = true;
+        }
+        else // 显示图标
+        {
+            tray->setIcon(trayFlashPixmap.isNull() ? ac->myHeader.isNull() ? QIcon("://appicon") : QIcon(ac->myHeader) : trayFlashPixmap);
+            trayHiding = false;
+            trayHideTimer->stop();
+        }
     });
 }
 
@@ -1076,11 +1096,14 @@ void MainWindow::showTrayIcon(const MsgBean &msg) const
     currentTrayMsg = msg;
     trayFlashPixmap = msg.isPrivate() ? HeaderUtil::userHeader(msg.senderId)
                                       : HeaderUtil::groupHeader(msg.groupId);
+    trayFlashPixmap = NetImageUtil::toRoundedPixmap(trayFlashPixmap);
     if (trayFlashPixmap.isNull())
     {
         qWarning() << "无法显示托盘头像：" << msg.debugString();
         return ;
     }
 
-    tray->setIcon(NetImageUtil::toRoundedPixmap(trayFlashPixmap));
+    tray->setIcon(trayFlashPixmap);
+    trayHiding = false;
+    trayHideTimer->start();
 }
