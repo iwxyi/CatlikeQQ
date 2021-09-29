@@ -1086,6 +1086,10 @@ void MainWindow::triggerAiReply(const MsgBean &msg, int retry)
 
 void MainWindow::showTrayIcon(const MsgBean &msg) const
 {
+    // 自己发的消息，肯定是忽略掉的
+    if (msg.senderId == ac->myId)
+        return;
+
     trayRestoreTimer->start();
 
     // 还是这个消息，不做其他操作，只是延长时间
