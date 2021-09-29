@@ -78,6 +78,7 @@ public slots:
     void addReplyText(const QString& text);
     void loadMsgHistory();
     void scrollToBottom();
+    void scrollToBottomE();
 
     void showGrougInfo(qint64 groupId, QPoint pos = QPoint(-1, -1));
     void showUserInfo(qint64 friendId, QPoint pos = QPoint(-1, -1));
@@ -130,6 +131,7 @@ private:
 
     qint64 friendId = 0;
     qint64 groupId = 0;
+    qint64 fromGroupId = 0; // 群临时会话（需要群主/管理员）
     QList<MsgBean> msgs; // 可能会合并多条消息
     QList<MessageView*> msgViews;
 

@@ -839,7 +839,7 @@ NotificationCard* MainWindow::focusOrShowMessageCard(const MsgBean &msg, bool fo
     if (showHistory)
     {
         card->loadMsgHistory();
-        card->scrollToBottom();
+        card->scrollToBottomE();
     }
     return card;
 }

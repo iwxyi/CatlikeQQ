@@ -60,6 +60,7 @@ struct MsgBean
     qint64 groupId = 0;
     QString groupName;
     QString groupCard; // 群昵称
+    qint64 fromGroupId = 0; // 群私聊
 
     QString fileId;
     QString fileName;

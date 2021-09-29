@@ -1730,6 +1730,11 @@ void NotificationCard::scrollToBottom()
     ui->listWidget->scrollToBottom();
 }
 
+void NotificationCard::scrollToBottomE()
+{
+    ui->listWidget->QListWidget::scrollToBottom();
+}
+
 void NotificationCard::dragEnterEvent(QDragEnterEvent *event)
 {
     auto mime = event->mimeData();

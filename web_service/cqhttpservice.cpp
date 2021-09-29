@@ -268,7 +268,28 @@ void CqhttpService::parsePrivateMessage(const MyJson &json)
         "user_id": 3308218798
     }*/
 
-    JS(json, sub_type); // 好友：friend，群临时会话：group，群里自己发送：group_self
+    /*{
+        "font": 0,
+        "message": "。。。",
+        "message_id": -539978662,
+        "message_type": "private",
+        "post_type": "message",
+        "raw_message": "。。。",
+        "self_id": 1600631528,
+        "sender": {
+            "age": 0,
+            "group_id": 647637553, // 群号
+            "nickname": "用户昵称",
+            "sex": "unknown",
+            "user_id": 1057332539
+        },
+        "sub_type": "group", // 群私聊消息
+        "temp_source": 0,
+        "time": 1632823173,
+        "user_id": 1057332539
+    }*/
+
+    JS(json, sub_type); // 好友：friend，群临时会话：group，群里自己发送：group_self(?)
     JS(json, message); // 消息内容
     JS(json, raw_message);
     JL(json, message_id);
@@ -285,6 +306,14 @@ void CqhttpService::parsePrivateMessage(const MyJson &json)
     MsgBean msg = MsgBean(user_id, nickname, message, message_id, sub_type)
             .frind(ac->friendList.contains(friendId) ? ac->friendList[friendId].remark : "")
             .privt(target_id, friendId);
+
+    if (sub_type == "group")
+    {
+        // 群消息，带一个ID号的
+        // 如果要回复，也需要带这个ID号（还需要是管理员/群主）
+        msg.fromGroupId = sender.l("group_id");
+    }
+
     emit signalMessage(msg);
 
     // 图片消息：文字1\r\n[CQ:image,file=8f84df65ee005b52f7f798697765a81b.image,url=http://c2cpicdw.qpic.cn/offpic_new/1600631528//1600631528-3839913603-8F84DF65EE005B52F7F798697765A81B/0?term=3]\r\n文字二……
