@@ -212,7 +212,7 @@ void MainWindow::showHistoryListMenu()
         else if (msg.senderId == ac->myId)
             messageLabel->setText("你: " + mess);
         else
-            messageLabel->setText(msg.nickname + ": " + mess);
+            messageLabel->setText(msg.username() + ": " + mess);
         titleLabel->setMaximumWidth(us->bannerFixedWidth);
         messageLabel->setMaximumWidth(us->bannerFixedWidth);
         headerLabel->setScaledContents(true);
@@ -766,7 +766,7 @@ NotificationCard* MainWindow::createNotificationCard(const MsgBean &msg)
         slotCardHeightChanged(card, -(card->height() + us->bannerSpacing));
         notificationCards.removeOne(card);
     });
-    connect(card, &NotificationCard::signalReplyPrivate, cqhttpService,  &CqhttpService::sendUserMsg);
+    connect(card, &NotificationCard::signalReplyPrivate, cqhttpService,  &CqhttpService::sendPrivateMsg);
 
     connect(card, &NotificationCard::signalReplyGroup, cqhttpService, &CqhttpService::sendGroupMsg);
 
@@ -1080,7 +1080,7 @@ void MainWindow::triggerAiReply(const MsgBean &msg, int retry)
             answer = us->aiReplyPrefix + answer + us->aiReplySuffix;
         }
 
-        cqhttpService->sendUserMsg(msg.senderId, answer);
+        cqhttpService->sendPrivateMsg(msg.senderId, answer);
     });
 }
 

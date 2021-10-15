@@ -175,6 +175,24 @@ struct MsgBean
         return rawMessage.contains("[CQ:at,qq=" + QString::number(id) + "]");
     }
 
+    QString username() const
+    {
+        if (!groupCard.isEmpty())
+            return groupCard;
+        if (!remark.isEmpty())
+            return remark;
+        if (!nickname.isEmpty())
+            return nickname;
+        return QString::number(senderId);
+    }
+
+    QString titleName() const
+    {
+        if (isGroup())
+            return groupName;
+        return username();
+    }
+
     bool is(const MsgBean& o) const
     {
         return this->senderId == o.senderId

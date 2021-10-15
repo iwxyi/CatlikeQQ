@@ -32,7 +32,7 @@ public slots:
     void refreshFriends();
     void refreshGroups();
     void refreshGroupMembers(qint64 groupId);
-    void sendUserMsg(qint64 userId, const QString &message);
+    void sendPrivateMsg(qint64 userId, const QString &message);
     void sendGroupMsg(qint64 groupId, const QString &message);
 
 private:
