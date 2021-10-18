@@ -44,6 +44,7 @@ protected:
 private:
     MsgBean msg;
     int fixedWidth = 0;
+    QColor textColor = Qt::black;
 
     QString filePath;
     QPixmap filePixmap;

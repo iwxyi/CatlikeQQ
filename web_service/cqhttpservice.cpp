@@ -248,6 +248,20 @@ void CqhttpService::parseEchoMessage(const MyJson &json)
         qInfo() << "加载群成员：" << groupId << members.size();
         emit sig->groupMembersLoaded(groupId);
     }
+    else if (echo.startsWith("msg_recall_friend"))
+    {
+        QRegularExpression re("^msg_recall_friend:(\\d+)_(-?\\w+)$");
+        QRegularExpressionMatch match;
+        if (echo.indexOf(re, 0, &match) == -1)
+        {
+            qWarning() << "无法识别的撤回echo：" << echo;
+            return ;
+        }
+        qint64 friendId = match.captured(1).toLongLong();
+        qint64 messageId = match.captured(2).toLongLong();
+        MsgBean msg = MsgBean().recall(messageId, friendId, ac->myId);
+        emit signalMessage(msg);
+    }
     else
     {
         qWarning() << "未处理类型的返回：" << json;

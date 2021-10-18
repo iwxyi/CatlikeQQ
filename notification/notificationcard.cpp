@@ -255,7 +255,6 @@ bool NotificationCard::append(const MsgBean &msg)
 
     if (msg.isPrivate())
     {
-        qDebug() << "-------------------卡片消息撤回";
         appendPrivateMsg(msg);
     }
     else

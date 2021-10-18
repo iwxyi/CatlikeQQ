@@ -4,6 +4,7 @@
 #include <QString>
 #include <QPixmap>
 #include <QDateTime>
+#include <QMetaType>
 
 struct FriendInfo
 {
@@ -82,11 +83,14 @@ struct MsgBean
     qint64 timestamp = 0; // 创建时间（毫秒级）
 
     MsgBean()
-    {}
+    {
+        qRegisterMetaType<MsgBean>("MsgBean");
+    }
 
     MsgBean(qint64 senderId, QString nickname, QString message, qint64 messageId, QString subType)
         : senderId(senderId), nickname(nickname), message(message), rawMessage(message), messageId(messageId), subType(subType)
     {
+        qRegisterMetaType<MsgBean>("MsgBean");
         if (nickname.isEmpty())
             nickname = QString::number(senderId);
         timestamp = QDateTime::currentMSecsSinceEpoch();
@@ -95,6 +99,7 @@ struct MsgBean
     MsgBean(qint64 senderId, QString nickname)
         : senderId(senderId), nickname(nickname)
     {
+        qRegisterMetaType<MsgBean>("MsgBean");
         if (nickname.isEmpty())
             nickname = QString::number(senderId);
         timestamp = QDateTime::currentMSecsSinceEpoch();

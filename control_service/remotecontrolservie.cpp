@@ -25,7 +25,6 @@ bool RemoteControlServie::execCmd(QString cmd)
         {
             if (!cmd.startsWith(prefix))
                 continue ;
-            qDebug() << cmd << prefix;
             cmd.remove(0, prefix.length());
             find = true;
             break;

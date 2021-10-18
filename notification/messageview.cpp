@@ -751,7 +751,7 @@ void MessageView::showMenu()
             MyJson params;
             params.insert("message_id", msg.messageId);
             json.insert("params", params);
-            json.insert("echo", "delete_msg");
+            json.insert("echo", "msg_recall_friend:" + snum(msg.friendId) + "_" + snum(msg.messageId));
             emit sig->sendSocketText(json.toBa());
         });
     }
@@ -839,6 +839,7 @@ QSize MessageView::sizeHint() const
 
 void MessageView::setTextColor(QColor c)
 {
+    this->textColor = c;
     QPalette pa(this->palette());
     pa.setColor(QPalette::Foreground, c);
     pa.setColor(QPalette::Text, c);
@@ -855,6 +856,8 @@ void MessageView::markDeleted()
         text.append(" ");
     text.append("[已撤回]");
     setText(text);
-    setTextColor(Qt::gray);
+
+    textColor.setAlpha(128);
+    setTextColor(textColor);
 }
 
