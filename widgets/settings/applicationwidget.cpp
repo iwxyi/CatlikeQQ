@@ -14,6 +14,7 @@ ApplicationWidget::ApplicationWidget(QWidget *parent) :
     ui->trayShowAllSlientMessageIconCheck->setChecked(us->trayShowAllSlientMessageIcon);
     ui->trayShowSlientPrivateMessageIconCheck->setChecked(us->trayShowSlientPrivateMessageIcon);
     ui->trayShowSlientSpecialMessageIconCheck->setChecked(us->trayShowSlientSpecialMessageIcon);
+    ui->trayShowLowImportanceMessageIconCheck->setChecked(us->trayShowLowImportanceMessageIcon);
 }
 
 ApplicationWidget::~ApplicationWidget()
@@ -53,4 +54,9 @@ void ApplicationWidget::on_trayShowSlientPrivateMessageIconCheck_clicked()
 void ApplicationWidget::on_trayShowSlientSpecialMessageIconCheck_clicked()
 {
     us->set("tray/slientSpecial", us->trayShowSlientSpecialMessageIcon = ui->trayShowSlientSpecialMessageIconCheck->isChecked());
+}
+
+void ApplicationWidget::on_trayShowLowImportanceMessageIconCheck_clicked()
+{
+us->set("tray/lowImportance", us->trayShowLowImportanceMessageIcon = ui->trayShowLowImportanceMessageIconCheck->isChecked());
 }

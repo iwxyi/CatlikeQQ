@@ -172,6 +172,7 @@ public:
     bool trayShowAllSlientMessageIcon = true; // 静默模式显示本该通知的图标
     bool trayShowSlientPrivateMessageIcon = true; // 静默模式显示所有私聊消息图标
     bool trayShowSlientSpecialMessageIcon = true; // 静默模式显示所有特别关心（>=很重要）的消息图标
+    bool trayShowLowImportanceMessageIcon = false; // 显示不足通知优先级的消息图标
 
     // 调试
     bool showWidgetBorder = false; // 显示控件边界，调试布局

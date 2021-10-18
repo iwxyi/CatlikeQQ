@@ -586,7 +586,7 @@ bool MainWindow::canNewCardShow(const MsgBean &msg) const
             showTrayIcon(msg);
 
         // 不需要进行优先级的判断
-        if (!us->trayShowAllSlientMessageIcon && !us->trayShowSlientSpecialMessageIcon)
+        if (!us->trayShowAllSlientMessageIcon && !us->trayShowSlientSpecialMessageIcon && !us->trayShowLowImportanceMessageIcon)
             return false;
     }
 
@@ -670,8 +670,8 @@ bool MainWindow::canNewCardShow(const MsgBean &msg) const
     if (im < us->lowestImportance)
     {
         // 托盘图标
-        if ((us->trayShowAllSlientMessageIcon)
-                || (us->trayShowSlientSpecialMessageIcon && im >= VeryImportant))
+        if ((rt->notificationSlient && (us->trayShowAllSlientMessageIcon|| (us->trayShowSlientSpecialMessageIcon && im >= VeryImportant)))
+                || us->trayShowLowImportanceMessageIcon)
             showTrayIcon(msg);
         return false;
     }

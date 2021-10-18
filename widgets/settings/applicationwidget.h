@@ -26,6 +26,8 @@ private slots:
 
     void on_trayShowSlientSpecialMessageIconCheck_clicked();
 
+    void on_trayShowLowImportanceMessageIconCheck_clicked();
+
 private:
     Ui::ApplicationWidget *ui;
 };

@@ -129,6 +129,7 @@ void USettings::restoreSettings()
     assign(trayShowAllSlientMessageIcon, "allSlientMessage");
     assign(trayShowSlientPrivateMessageIcon, "slientPrivate");
     assign(trayShowSlientSpecialMessageIcon, "slientSpecial");
+    assign(trayShowSlientSpecialMessageIcon, "lowImportance");
     endGroup();
 }
 

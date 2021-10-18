@@ -56,6 +56,16 @@
        </widget>
       </item>
       <item>
+       <widget class="QCheckBox" name="trayShowLowImportanceMessageIconCheck">
+        <property name="toolTip">
+         <string>不足以显示横幅通知的低重要性图标，作为托盘提示</string>
+        </property>
+        <property name="text">
+         <string>显示低重要性的消息图标</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QCheckBox" name="trayShowAllSlientMessageIconCheck">
         <property name="text">
          <string>显示被静默的所有消息图标</string>
