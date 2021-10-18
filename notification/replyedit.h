@@ -66,6 +66,11 @@ protected:
                         return ;
                     }
                 }
+                else if (clipboard->mimeData()->hasUrls())
+                {
+                    if (insertImageUrls(clipboard->mimeData()->urls()))
+                        return ;
+                }
             }
             else if (key >= Qt::Key_0 && key <= Qt::Key_9)
             {
@@ -111,23 +116,28 @@ protected:
         }
         else if (mime->hasUrls())
         {
-            auto urls = mime->urls();
-            foreach (auto url, urls)
-            {
-                if (!url.isLocalFile())
-                    return ;
-                auto path = url.toLocalFile();
-                QPixmap pixmap;
-                if (!pixmap.load(path))
-                    return ;
-                if (pixmap.isNull())
-                    return ;
-            }
+            insertImageUrls(mime->urls());
             e->acceptProposedAction();
         }
         else
             return ;
         QLineEdit::dropEvent(e);
+    }
+
+    bool insertImageUrls(QList<QUrl> urls)
+    {
+        foreach (auto url, urls)
+        {
+            if (!url.isLocalFile())
+                return false;
+            auto path = url.toLocalFile();
+            QPixmap pixmap;
+            if (!pixmap.load(path))
+                return false;
+            if (pixmap.isNull())
+                return false;
+        }
+        return true;
     }
 };
 
