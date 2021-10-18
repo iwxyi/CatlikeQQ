@@ -1011,6 +1011,19 @@ void NotificationCard::showReplyEdit()
 {
     if (ui->messageEdit->isHidden()) // 显示消息框
     {
+        // 恢复未发送的文字
+        if (isPrivate())
+        {
+            if (ac->userLastInputUnsend.contains(friendId))
+                ui->messageEdit->setText(ac->userLastInputUnsend.value(friendId));
+        }
+        else if (isGroup())
+        {
+            if (ac->groupLastInputUnsend.contains(groupId))
+                ui->messageEdit->setText(ac->groupLastInputUnsend.value(groupId));
+        }
+
+        // 显示消息框并聚焦
         showReplyEdit(true);
     }
     else // 发送内容
@@ -1239,8 +1252,35 @@ void NotificationCard::setColors(QColor bg, QColor title, QColor content)
  */
 void NotificationCard::toHide()
 {
-    hidding = true;
+    // 保存不小心关闭的状态
+    QString text = ui->messageEdit->text();
+    if (!text.isEmpty())
+    {
+        if (isPrivate())
+        {
+            ac->userLastInputUnsend[friendId] = text;
+        }
+        else if (isGroup())
+        {
+            ac->groupLastInputUnsend[groupId] = text;
+        }
+    }
+    else
+    {
+        if (isPrivate())
+        {
+            if (ac->userLastInputUnsend.contains(friendId))
+                ac->userLastInputUnsend.remove(friendId);
+        }
+        else if (isGroup())
+        {
+            if (ac->groupLastInputUnsend.contains(groupId))
+                ac->groupLastInputUnsend.remove(groupId);
+        }
+    }
 
+    // 开始隐藏
+    hidding = true;
     QPropertyAnimation* ani = new QPropertyAnimation(this, "pos");
     ani->setStartValue(pos());
     ani->setEndValue(hidePoint);

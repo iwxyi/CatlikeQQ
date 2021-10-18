@@ -40,6 +40,9 @@ public:
     bool lastReceiveShowIsUser = false; // 最后接受到的一条消息是用户true还是群组false
     qint64 lastReceiveShowId = 0; // 最后接收到的用户ID或者群组ID
 
+    QHash<qint64, QString> userLastInputUnsend; // 私聊未发送的内容
+    QHash<qint64, QString> groupLastInputUnsend; // 群聊未发送的内容
+
     QString friendName(qint64 userId) const
     {
         return friendList.contains(userId) ? friendList[userId].username() : "";
