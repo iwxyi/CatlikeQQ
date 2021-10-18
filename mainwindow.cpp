@@ -1082,7 +1082,7 @@ void MainWindow::triggerAiReply(const MsgBean &msg, int retry)
             answer = us->aiReplyPrefix + answer + us->aiReplySuffix;
         }
 
-        cqhttpService->sendPrivateMsg(msg.senderId, answer);
+        cqhttpService->sendPrivateMsg(msg.senderId, answer, msg.fromGroupId);
     });
 }
 

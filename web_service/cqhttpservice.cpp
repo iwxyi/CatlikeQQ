@@ -617,13 +617,15 @@ void CqhttpService::refreshGroupMembers(qint64 groupId)
     sendMessage(json.toBa());
 }
 
-void CqhttpService::sendPrivateMsg(qint64 userId, const QString& message)
+void CqhttpService::sendPrivateMsg(qint64 userId, const QString& message, qint64 fromGroupId)
 {
     MyJson json;
     json.insert("action", "send_private_msg");
     MyJson params;
     params.insert("user_id", userId);
     params.insert("message", message);
+    if (fromGroupId)
+        params.insert("group_id", fromGroupId);
     json.insert("params", params);
     json.insert("echo", "send_private_msg");
     sendMessage(json.toBa());

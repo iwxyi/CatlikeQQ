@@ -60,7 +60,7 @@ signals:
     void signalHeightChanged(int delta);
     void signalToHide();
     void signalHided();
-    void signalReplyPrivate(qint64 friendId, const QString& message);
+    void signalReplyPrivate(qint64 friendId, const QString& message, qint64 fromGroupId);
     void signalReplyGroup(qint64 groupId, const QString& message);
     void signalCancelReply();
     void signalFocusPrevCard();

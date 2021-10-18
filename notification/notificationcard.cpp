@@ -333,6 +333,8 @@ void NotificationCard::setPrivateMsg(const MsgBean &msg)
                                                                            : "[未备注]")));
     else // 直接设置名字
         ui->nicknameLabel->setText(us->userLocalNames.value(msg.friendId, msg.displayNickname()));
+    if (!this->fromGroupId && msg.fromGroupId)
+        this->fromGroupId = msg.fromGroupId;
 
     // 设置头像
     QPixmap headerPixmap = HeaderUtil::userHeader(this->friendId);
@@ -1151,7 +1153,7 @@ void NotificationCard::sendReply(QString text)
     // 回复消息
     if (isPrivate())
     {
-        emit signalReplyPrivate(friendId, text);
+        emit signalReplyPrivate(friendId, text, fromGroupId);
         us->addCount(us->countSendPrivate, "sendPrivate");
     }
     else if (isGroup())
@@ -1382,9 +1384,10 @@ void NotificationCard::cardClicked()
 void NotificationCard::cardMenu()
 {
     FacileMenu* menu = new FacileMenu(this);
-    menu->addAction(QIcon("://icons/close.png"), "立即关闭", [=]{
+    /* menu->addAction(QIcon("://icons/close.png"), "立即关闭", [=]{
         this->toHide();
-    });
+    }); */
+
     menu->addAction(QIcon("://icons/fixed.png"), "固定卡片", [=]{
         fixing = !fixing;
         if (fixing)
