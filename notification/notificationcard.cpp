@@ -255,6 +255,7 @@ bool NotificationCard::append(const MsgBean &msg)
 
     if (msg.isPrivate())
     {
+        qDebug() << "-------------------卡片消息撤回";
         appendPrivateMsg(msg);
     }
     else
@@ -263,7 +264,10 @@ bool NotificationCard::append(const MsgBean &msg)
     }
 
     // 插入到自己的消息
-    msgs.append(msg);
+    if (!msg.is(ActionRecall))
+    {
+        msgs.append(msg);
+    }
 
     // 调整显示时间
     if (displayTimer->isActive())
@@ -464,14 +468,12 @@ void NotificationCard::appendPrivateMsg(const MsgBean &msg)
                                      || (us->groupImportance.contains(msg.groupId) && us->groupImportance.value(msg.groupId) >= us->keepImportantMessage)
                                      ))
         displayTimer->stop();
-    if (msg.targetId == this->friendId) // 自己发给对面的
-    {
+    if (msg.is(ActionRecall))
+        msgRecalled(msg);
+    else if (msg.targetId == this->friendId) // 自己发给对面的
         createPureMsgView(msg);
-    }
     else
-    {
         createPureMsgView(msg); // 对面发过来的
-    }
 }
 
 /// 添加一个群组消息，每条都有可能是独立的头像、昵称（二级标题）
@@ -479,6 +481,8 @@ void NotificationCard::appendGroupMsg(const MsgBean &msg)
 {
     if (displayTimer->isActive() && us->bannerGroupKeepShowing && msg.senderId != ac->myId)
         displayTimer->stop();
+    if (msg.is(ActionRecall))
+        msgRecalled(msg);
     if (!msgs.size() || msgs.last().senderId != msg.senderId)
         createMsgBox(msg);
     else
@@ -1299,6 +1303,9 @@ void NotificationCard::toHide()
 void NotificationCard::triggerAIReply(int retry)
 {
     auto msg = msgs.last();
+    if (!msg.isMsg())
+        return ;
+
     QString text = getValiableMessage(msg.message);
     if (text.isEmpty())
         return ;
@@ -1799,6 +1806,17 @@ void NotificationCard::scrollToBottom()
 void NotificationCard::scrollToBottomE()
 {
     ui->listWidget->QListWidget::scrollToBottom();
+}
+
+void NotificationCard::msgRecalled(const MsgBean &msg)
+{
+    for (int i = msgs.size() - 1; i >= 0; i--)
+    {
+        if (msgs.at(i).messageId == msg.messageId)
+        {
+            msgViews[i]->markDeleted();
+        }
+    }
 }
 
 void NotificationCard::dragEnterEvent(QDragEnterEvent *event)

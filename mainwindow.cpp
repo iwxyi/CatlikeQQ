@@ -244,6 +244,8 @@ void MainWindow::showHistoryListMenu()
 
         // 显示的时候还可以实时更新消息
         connect(cqhttpService, &CqhttpService::signalMessage, w, [=](const MsgBean& m){
+            if (!msg.isMsg())
+                return ;
             if (!msg.isSameObject(m))
                 return ;
             if (msg.isPrivate())
@@ -399,6 +401,10 @@ void MainWindow::initService()
 
     connect(cqhttpService, SIGNAL(signalMessage(const MsgBean&)), this, SLOT(autoReplyMessage(const MsgBean&)));
 
+    connect(sig, &SignalTransfer::sendSocketText, cqhttpService, &CqhttpService::sendTextMessage);
+
+    connect(sig, &SignalTransfer::sendSocketJson, cqhttpService, &CqhttpService::sendJsonMessage);
+
     connect(sig, &SignalTransfer::loadGroupMembers, cqhttpService, &CqhttpService::refreshGroupMembers);
 
     connect(sig, &SignalTransfer::myHeader, this, [=](const QPixmap& pixmap) {
@@ -527,30 +533,33 @@ void MainWindow::returnToPrevWindow()
 void MainWindow::messageReceived(const MsgBean &msg, bool blockSelf)
 {
     // ========== 记录消息 ==========
-    us->addCount(us->countReceiveAll, "receiveAll");
-    if (msg.isPrivate())
+    if (msg.isMsg())
     {
-        if (ac->friendList.contains(msg.friendId))
-            ac->friendList[msg.friendId].lastMsgTime = QDateTime::currentMSecsSinceEpoch();
+        us->addCount(us->countReceiveAll, "receiveAll");
+        if (msg.isPrivate())
+        {
+            if (ac->friendList.contains(msg.friendId))
+                ac->friendList[msg.friendId].lastMsgTime = QDateTime::currentMSecsSinceEpoch();
 
-        if (!ac->userMsgHistory.contains(msg.friendId))
-            ac->userMsgHistory.insert(msg.friendId, QList<MsgBean>());
-        ac->userMsgHistory[msg.friendId].append(msg);
+            if (!ac->userMsgHistory.contains(msg.friendId))
+                ac->userMsgHistory.insert(msg.friendId, QList<MsgBean>());
+            ac->userMsgHistory[msg.friendId].append(msg);
 
-        if (msg.senderId != ac->myId)
-            us->addCount(us->countReceivePrivate, "receivePrivate");
-    }
-    else if (msg.isGroup())
-    {
-        if (ac->groupList.contains(msg.groupId))
-            ac->groupList[msg.groupId].lastMsgTime = QDateTime::currentMSecsSinceEpoch();
+            if (msg.senderId != ac->myId)
+                us->addCount(us->countReceivePrivate, "receivePrivate");
+        }
+        else if (msg.isGroup())
+        {
+            if (ac->groupList.contains(msg.groupId))
+                ac->groupList[msg.groupId].lastMsgTime = QDateTime::currentMSecsSinceEpoch();
 
-        if (!ac->groupMsgHistory.contains(msg.groupId))
-            ac->groupMsgHistory.insert(msg.groupId, QList<MsgBean>());
-        ac->groupMsgHistory[msg.groupId].append(msg);
+            if (!ac->groupMsgHistory.contains(msg.groupId))
+                ac->groupMsgHistory.insert(msg.groupId, QList<MsgBean>());
+            ac->groupMsgHistory[msg.groupId].append(msg);
 
-        if (msg.senderId != ac->myId)
-            us->addCount(us->countReceiveGroup, "receiveGroup");
+            if (msg.senderId != ac->myId)
+                us->addCount(us->countReceiveGroup, "receiveGroup");
+        }
     }
 
     if (us->trayShowAllMessageIcon)
@@ -579,6 +588,11 @@ void MainWindow::messageReceived(const MsgBean &msg, bool blockSelf)
 
 bool MainWindow::canNewCardShow(const MsgBean &msg) const
 {
+    if (!msg.isMsg() && !msg.is(ActionJoin))
+    {
+        return false;
+    }
+
     // 静默模式
     if (rt->notificationSlient)
     {
@@ -989,6 +1003,8 @@ void MainWindow::closeAllCard()
 /// 收到消息（所有消息），判断是否需要自动回复
 void MainWindow::autoReplyMessage(const MsgBean &msg)
 {
+    if (!msg.isMsg())
+        return ;
     if (msg.senderId == ac->myId) // 自己的消息，不用管
     {
         if (msg.targetId == ac->myId) // 自己发给自己的，尝试进行远程控制
@@ -1091,6 +1107,10 @@ void MainWindow::showTrayIcon(const MsgBean &msg) const
     // 自己发的消息，肯定是忽略掉的
     if (msg.senderId == ac->myId)
         return;
+
+    // 一些操作，也要忽略掉
+    if (!msg.is(ActionMsg) && !msg.is(ActionJoin))
+        return ;
 
     trayRestoreTimer->start();
 

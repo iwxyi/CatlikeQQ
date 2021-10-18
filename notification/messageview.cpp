@@ -62,6 +62,25 @@ MessageView::MessageView(QWidget *parent)
 void MessageView::setMessage(const MsgBean& msg)
 {
     this->msg = msg;
+
+    if (!msg.isMsg())
+    {
+        if (msg.is(ActionRecall))
+        {
+            // 这个不在这里设置，不用管
+        }
+        else if (msg.is(ActionJoin))
+        {
+
+        }
+        else if (msg.is(ActionExit))
+        {
+
+        }
+
+        return ;
+    }
+
     QString text = msg.message;
     if (msg.isPrivate() && msg.senderId == ac->myId)
         text.insert(0, "你：");
@@ -723,6 +742,20 @@ void MessageView::showMenu()
         emit replyText(text);
     });
 
+    // 是自己发的消息
+    if (msg.senderId == ac->myId)
+    {
+        menu->addAction("撤回", [=]{
+            MyJson json;
+            json.insert("action", "delete_msg");
+            MyJson params;
+            params.insert("message_id", msg.messageId);
+            json.insert("params", params);
+            json.insert("echo", "delete_msg");
+            emit sig->sendSocketText(json.toBa());
+        });
+    }
+
     if (msg.isGroup())
     {
         menu->addAction("单独回复", [=]{
@@ -811,5 +844,17 @@ void MessageView::setTextColor(QColor c)
     pa.setColor(QPalette::Text, c);
     setPalette(pa);
     setStyleSheet(this->styleSheet() + "QLabel { color: " + QVariant(c).toString() + "; }");
+}
+
+void MessageView::markDeleted()
+{
+    QString text = this->text();
+    if (text.endsWith("</a>"))
+        text.append("<br/>");
+    else
+        text.append(" ");
+    text.append("[已撤回]");
+    setText(text);
+    setTextColor(Qt::gray);
 }
 

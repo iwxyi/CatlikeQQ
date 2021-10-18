@@ -4,6 +4,7 @@
 #include <QObject>
 
 class MsgBean;
+class MyJson;
 
 class SignalTransfer : public QObject
 {
@@ -17,6 +18,8 @@ signals:
     void myFriendsLoaded();
     void myGroupsLoaded();
 
+    void sendSocketText(const QString& text);
+    void sendSocketJson(const MyJson& json);
     void loadGroupMembers(qint64 groupId);
     void groupMembersLoaded(qint64 groupId);
 

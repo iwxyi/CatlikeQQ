@@ -24,6 +24,8 @@ public:
 
     void setTextColor(QColor c);
 
+    void markDeleted();
+
 signals:
     void needMemberNames();
     void keepShowing();

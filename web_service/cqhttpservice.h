@@ -26,7 +26,8 @@ signals:
 
 public slots:
     void openHost(QString host, QString token);
-    void sendMessage(const QString& text);
+    void sendTextMessage(const QString& text);
+    void sendJsonMessage(const MyJson &json);
     void messageReceived(const QString &message);
 
     void refreshFriends();

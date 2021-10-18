@@ -85,9 +85,14 @@ void CqhttpService::openHost(QString host, QString token)
     socket->open(req);
 }
 
-void CqhttpService::sendMessage(const QString &text)
+void CqhttpService::sendTextMessage(const QString &text)
 {
     socket->sendTextMessage(text);
+}
+
+void CqhttpService::sendJsonMessage(const MyJson &json)
+{
+    socket->sendTextMessage(json.toBa());
 }
 
 /// 收到消息的根入口
@@ -142,6 +147,10 @@ void CqhttpService::messageReceived(const QString &message)
         else if (notice_type == "group_recall") // 撤销群消息
         {
             parseGroupRecall(json);
+        }
+        else if (notice_type == "friend_recall") // 撤销群消息
+        {
+            parseFriendRecall(json);
         }
         else if (notice_type == "group_card") // 修改群名片
         {
@@ -340,6 +349,8 @@ void CqhttpService::parseGroupMessage(const MyJson &json)
         JS(anonymous, name); // 匿名用户名称
         JS(anonymous, flag); // 匿名用户flag，在调用禁言API时需要传入
         Q_UNUSED(id)
+        user_id = id; // 设置为匿名ID
+        card = name;  // 设置为匿名名称
     }
 
     ensureGroupExist(GroupInfo(group_id, ""));
@@ -479,10 +490,13 @@ void CqhttpService::parseFriendRecall(const MyJson &json)
         "user_id": 3308218798
     } */
 
-    JL(json, user_id); // 这是好友消息撤回，自己撤回的接收不到
+    JL(json, user_id); // 这是好友消息撤回，自己撤回的接收不到，只能监听撤回自己的撤回回调
     JL(json, message_id);
 
     qInfo() << "用户撤回：" << user_id << ac->friendName(user_id) << message_id;
+    qint64 friendId = user_id;
+    MsgBean msg = MsgBean().recall(message_id, friendId, user_id);
+    emit signalMessage(msg);
 }
 
 void CqhttpService::parseGroupRecall(const MyJson &json)
@@ -500,8 +514,12 @@ void CqhttpService::parseGroupRecall(const MyJson &json)
 
     JL(json, group_id);
     JL(json, message_id);
+    JL(json, user_id);
+    JL(json, operator_id);
 
     qInfo() << "群消息撤回：" << group_id << ac->groupList.value(group_id).name << message_id;
+    MsgBean msg = MsgBean().recall(message_id, user_id, operator_id, group_id);
+    emit signalMessage(msg);
 }
 
 void CqhttpService::parseGroupIncrease(const MyJson &json)
@@ -614,7 +632,7 @@ void CqhttpService::refreshGroupMembers(qint64 groupId)
     params.insert("group_id", groupId);
     json.insert("params", params);
     json.insert("echo", "get_group_member_list:" + snum(groupId));
-    sendMessage(json.toBa());
+    sendTextMessage(json.toBa());
 }
 
 void CqhttpService::sendPrivateMsg(qint64 userId, const QString& message, qint64 fromGroupId)
@@ -628,7 +646,7 @@ void CqhttpService::sendPrivateMsg(qint64 userId, const QString& message, qint64
         params.insert("group_id", fromGroupId);
     json.insert("params", params);
     json.insert("echo", "send_private_msg");
-    sendMessage(json.toBa());
+    sendTextMessage(json.toBa());
     emit sig->myReplyUser(userId, message);
 }
 
@@ -641,6 +659,6 @@ void CqhttpService::sendGroupMsg(qint64 groupId, const QString& message)
     params.insert("message", message);
     json.insert("params", params);
     json.insert("echo", "send_group_msg");
-    sendMessage(json.toBa());
+    sendTextMessage(json.toBa());
     emit sig->myReplyGroup(groupId, message);
 }

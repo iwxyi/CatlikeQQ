@@ -45,6 +45,14 @@ struct GroupInfo
     }
 };
 
+enum ActionType
+{
+    ActionMsg,
+    ActionRecall,
+    ActionJoin,
+    ActionExit
+};
+
 struct MsgBean
 {
     qint64 senderId = 0;
@@ -61,6 +69,7 @@ struct MsgBean
     QString groupName;
     QString groupCard; // 群昵称
     qint64 fromGroupId = 0; // 群私聊
+    ActionType action = ActionMsg;
 
     QString fileId;
     QString fileName;
@@ -71,8 +80,6 @@ struct MsgBean
     QString imageId; // 显示唯一图片（不一定有）
     QColor bgColor; // 显示的背景（不一定有，除非开启动态背景）
     qint64 timestamp = 0; // 创建时间（毫秒级）
-    bool recall = false; // 消息撤回
-    bool approve = false; // 用户加入
 
     MsgBean()
     {}
@@ -129,6 +136,26 @@ struct MsgBean
         return *this;
     }
 
+    /**
+     * @brief recall
+     * @param messageId
+     * @param userId 被撤回的发送者的ID
+     * @param operatorId 操作者的ID
+     * @param groupId
+     * @return
+     */
+    MsgBean& recall(qint64 messageId, qint64 userId, qint64 operatorId, qint64 groupId = 0)
+    {
+        this->action = ActionRecall;
+        this->messageId = messageId;
+        this->senderId = operatorId;
+        if (!groupId)
+            this->friendId = userId;
+        else
+            this->groupId = groupId;
+        return *this;
+    }
+
     QString displayNickname() const
     {
         if (isGroup() && !groupCard.trimmed().isEmpty())
@@ -155,6 +182,16 @@ struct MsgBean
     bool isGroup() const
     {
         return groupId;
+    }
+
+    bool isMsg() const
+    {
+        return action == ActionMsg;
+    }
+
+    bool is(ActionType action) const
+    {
+        return this->action == action;
     }
 
     bool isValid() const
