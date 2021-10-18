@@ -63,3 +63,8 @@ QString Runtime::fileCache(QString name) const
 {
     return CACHE_FILE_PATH + name;
 }
+
+QString Runtime::localImageCache(QString id) const
+{
+    return CACHE_FILE_PATH + "paste_" + id + ".png";
+}

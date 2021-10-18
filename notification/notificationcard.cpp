@@ -114,6 +114,8 @@ NotificationCard::NotificationCard(QWidget *parent) :
 
     connect(ui->messageEdit, &ReplyEdit::signalDropFile, this, &NotificationCard::sendFiles);
 
+    connect(ui->messageEdit, &ReplyEdit::signalPasteFile, this, &NotificationCard::pasteFile);
+
 
     // 样式表
     ui->progressBar->hide();
@@ -1069,6 +1071,20 @@ void NotificationCard::sendFiles(QList<QUrl> urls)
         uploadFilePaths.append(path);
     }
     sendNextFile();
+}
+
+void NotificationCard::pasteFile(QString *path)
+{
+    auto clipboard = QApplication::clipboard();
+    if (clipboard->mimeData()->hasImage())
+    {
+        *path = rt->localImageCache(snum(QDateTime::currentMSecsSinceEpoch()));
+        clipboard->pixmap().save(*path);
+    }
+    else
+    {
+        *path = "";
+    }
 }
 
 /**

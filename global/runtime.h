@@ -19,6 +19,7 @@ public:
     QString audioCache(QString id) const;
     QString faceCache(QString id) const;
     QString fileCache(QString name) const;
+    QString localImageCache(QString id) const;
 
 public:
     QString APP_PATH;

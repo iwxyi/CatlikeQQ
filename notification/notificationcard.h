@@ -84,6 +84,7 @@ public slots:
     void showUserInfo(qint64 friendId, QPoint pos = QPoint(-1, -1));
 
     void sendFiles(QList<QUrl> urls);
+    void pasteFile(QString* path);
 
     void blockHideByMenu(FacileMenu* menu, bool canHideAfterClose);
     void blockHideTimer();

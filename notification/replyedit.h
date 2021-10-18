@@ -4,6 +4,9 @@
 #include <QLineEdit>
 #include <QKeyEvent>
 #include <QMimeData>
+#include <QMimeData>
+#include <QApplication>
+#include <QClipboard>
 
 class ReplyEdit : public QLineEdit
 {
@@ -22,6 +25,7 @@ signals:
     void signalMove(int index);
     void signalCtrlEnter();
     void signalDropFile(QList<QUrl> urls);
+    void signalPasteFile(QString* path);
 
 protected:
     void keyPressEvent(QKeyEvent *e) override
@@ -47,7 +51,23 @@ protected:
 
         if (modifies & Qt::ControlModifier)
         {
-            if (key >= Qt::Key_0 && key <= Qt::Key_9)
+            if (key == Qt::Key_V)
+            {
+                auto clipboard = QApplication::clipboard();
+                if (clipboard->mimeData()->hasImage() && !clipboard->mimeData()->hasText())
+                {
+                    // 粘贴图片
+                    QString path = "";
+                    emit signalPasteFile(&path);
+                    if (!path.isEmpty())
+                    {
+                        // 发送图片
+                        emit signalDropFile(QList<QUrl>{QUrl::fromLocalFile(path)});
+                        return ;
+                    }
+                }
+            }
+            else if (key >= Qt::Key_0 && key <= Qt::Key_9)
             {
                 emit signalMove(key - Qt::Key_0);
                 return e->accept();
