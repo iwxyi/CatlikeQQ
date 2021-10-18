@@ -141,11 +141,11 @@ void MessageView::setMessage(const MsgBean& msg)
 
     // 图片
     // 图片格式：[CQ:image,file=e9f40e7fb43071e7471a2add0df33b32.image,url=http://gchat.qpic.cn/gchatpic_new/707049914/3934208404-2722739418-E9F40E7FB43071E7471A2ADD0DF33B32/0?term=3]
-    if (text.indexOf(QRegularExpression("\\[CQ:image,file=(.+?).image,.*url=(.+)\\]"), 0, &match) > -1)
+    if (text.indexOf(QRegularExpression("\\[CQ:image,file=(.+?).image,.*?url=(.+?)\\]"), 0, &match) > -1)
     {
         if (!us->autoCacheImage)
         {
-            text.replace(QRegularExpression("\\[CQ:image,[^\\]]+\\]"), "[图片]");
+            text.replace(QRegularExpression("\\[CQ:image,[^\\]]+?\\]"), "[图片]");
         }
         else
         {
@@ -162,7 +162,7 @@ void MessageView::setMessage(const MsgBean& msg)
             int maxHeight = us->bannerContentMaxHeight - us->bannerHeaderSize;
 #ifdef MESSAGE_LABEL
             // 如果是单张图片，支持显示gif
-            if (text.indexOf(QRegularExpression("^\\[CQ:image,file=(.+?).image,.*url=(.+)\\]$")) > -1)
+            if (text.indexOf(QRegularExpression("^\\[CQ:image,file=(.+?).image,.*url=(.+?)\\]$")) > -1)
             {
                 // 支持GIF
                 QMovie* movie = new QMovie(path, "gif", this);
@@ -219,33 +219,50 @@ void MessageView::setMessage(const MsgBean& msg)
                 delete movie;
             }
 #endif
-            // 静态图片；缩略图的伸缩、圆角
-            QString originPath = path;
-            QPixmap pixmap(path, "1");
-            this->filePixmap = pixmap;
-            maxWidth -= us->bannerBgRadius * 2; // 有个莫名的偏差
-            if (pixmap.width() < maxWidth / us->bannerThumbnailProp
-                    && pixmap.height() < maxHeight / us->bannerThumbnailProp)
+            // 多张图片、静态图片；缩略图的伸缩、圆角
+            int pos = match.capturedEnd();
+            while (true)
             {
-                // 图片过小，不压缩
+                QString originPath = path;
+                QPixmap pixmap(path, "1");
+                this->filePixmap = pixmap;
+                maxWidth -= us->bannerBgRadius * 2; // 有个莫名的偏差
+                if (pixmap.width() < maxWidth / us->bannerThumbnailProp
+                        && pixmap.height() < maxHeight / us->bannerThumbnailProp)
+                {
+                    // 图片过小，不压缩
+                }
+                else if (pixmap.width() / us->bannerThumbnailProp < maxWidth
+                        && pixmap.height() / us->bannerThumbnailProp < maxHeight)
+                {
+                    // 按固定比例压缩
+                    pixmap = pixmap.scaled(pixmap.size() / us->bannerThumbnailProp, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                }
+                else if (pixmap.width() > maxWidth || pixmap.height() > maxHeight)
+                {
+                    // 这个会缩得更小
+                    pixmap = pixmap.scaled(maxWidth, maxHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                }
+                pixmap = NetImageUtil::toRoundedPixmap(pixmap, us->bannerBgRadius);
+                path = rt->imageSCache(id);
+                pixmap.save(path);
+                // 替换为图片标签
+                text.replace(match.captured(0), "<a href=\"file:///" + originPath + "\"><img src=\"" + path + "\" /></a>");
+                this->setMinimumWidth(qMax(this->minimumWidth(),  pixmap.width()));
+
+                // 查找下一张图片
+                if (text.indexOf(QRegularExpression("\\[CQ:image,file=(.+?).image,.*?url=(.+?)\\]"), pos, &match) == -1)
+                    break;
+                id = match.captured(1);
+                url = match.captured(2);
+                path = rt->imageCache(id);
+                if (!isFileExist(path)) // 可能重复发送，也可能从历史消息加载，所以不重复读取
+                    NetImageUtil::saveNetFile(url, path);
+
+                // 图片尺寸
+                maxWidth = us->bannerContentWidth;
+                maxHeight = us->bannerContentMaxHeight - us->bannerHeaderSize;
             }
-            else if (pixmap.width() / us->bannerThumbnailProp < maxWidth
-                    && pixmap.height() / us->bannerThumbnailProp < maxHeight)
-            {
-                // 按固定比例压缩
-                pixmap = pixmap.scaled(pixmap.size() / us->bannerThumbnailProp, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-            }
-            else if (pixmap.width() > maxWidth || pixmap.height() > maxHeight)
-            {
-                // 这个会缩 得更小
-                pixmap = pixmap.scaled(maxWidth, maxHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-            }
-            pixmap = NetImageUtil::toRoundedPixmap(pixmap, us->bannerBgRadius);
-            path = rt->imageSCache(id);
-            pixmap.save(path);
-            // 替换为图片标签
-            text.replace(match.captured(0), "<a href=\"file:///" + originPath + "\"><img src=\"" + path + "\" /></a>");
-            this->setMinimumWidth(pixmap.width());
         }
     }
 
