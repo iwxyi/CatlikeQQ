@@ -79,6 +79,7 @@ void MessageView::setMessage(const MsgBean& msg)
 
     // #处理HTML
     text.replace("<", "&lt;").replace(">", "&gt;");
+    text = text.replace("\r\n", "<br/>");
 
     // #替换CQ
     // 表情
@@ -160,6 +161,7 @@ void MessageView::setMessage(const MsgBean& msg)
             // 图片尺寸
             int maxWidth = us->bannerContentWidth;
             int maxHeight = us->bannerContentMaxHeight - us->bannerHeaderSize;
+            int lineHeight = QFontMetrics(this->font()).lineSpacing() * 2;
 #ifdef MESSAGE_LABEL
             // 如果是单张图片，支持显示gif
             if (text.indexOf(QRegularExpression("^\\[CQ:image,file=(.+?).image,.*url=(.+?)\\]$")) > -1)
@@ -220,9 +222,17 @@ void MessageView::setMessage(const MsgBean& msg)
             }
 #endif
             // 多张图片、静态图片；缩略图的伸缩、圆角
-            int pos = match.capturedEnd();
+            int pos = 0;
             while (true)
             {
+                if (text.indexOf(QRegularExpression("\\[CQ:image,file=(.+?).image,.*?url=(.+?)\\]"), pos, &match) == -1)
+                    break;
+                id = match.captured(1);
+                url = match.captured(2);
+                path = rt->imageCache(id);
+                if (!isFileExist(path)) // 可能重复发送，也可能从历史消息加载，所以不重复读取
+                    NetImageUtil::saveNetFile(url, path);
+
                 QString originPath = path;
                 QPixmap pixmap(path, "1");
                 this->filePixmap = pixmap;
@@ -246,22 +256,54 @@ void MessageView::setMessage(const MsgBean& msg)
                 pixmap = NetImageUtil::toRoundedPixmap(pixmap, us->bannerBgRadius);
                 path = rt->imageSCache(id);
                 pixmap.save(path);
+
+                // 判断是否需要换行显示图片
+                bool breakLeft = false, breakRight = false;
+                if (pixmap.height() > lineHeight)
+                {
+                    // 判断前面的内容，是否需要换行
+                    int pos = match.capturedStart();
+                    while (--pos > 0)
+                    {
+                        QString c = text.at(pos);
+                        if (c == "\n" || c == ">") // 自动换行，或者标签不换行
+                            break;
+                        else if (c == " ")
+                            continue;
+                        else
+                        {
+                            // 需要换行
+                            breakLeft = true;
+                            break;
+                        }
+                    }
+
+                    // 判断后面的内容，是否需要换行
+                    pos = match.capturedEnd() - 1;
+                    while (++pos < text.length())
+                    {
+                        QString c = text.at(pos);
+                        if (c == "\n" || c == "<" || c == "[")
+                            break;
+                        else if (c == " ")
+                            continue;
+                        else
+                        {
+                            breakRight = true;
+                            break;
+                        }
+                    }
+                }
+
                 // 替换为图片标签
-                text.replace(match.captured(0), "<a href=\"file:///" + originPath + "\"><img src=\"" + path + "\" /></a>");
+                QString rep = "<a href=\"file:///" + originPath + "\"><img src=\"" + path + "\" /></a>";
+                if (breakLeft)
+                    rep = "<br/>" + rep;
+                if (breakRight)
+                    rep = rep + "<br/>";
+                text.replace(match.captured(0), rep);
+                pos = match.capturedStart() + rep.length();
                 this->setMinimumWidth(qMax(this->minimumWidth(),  pixmap.width()));
-
-                // 查找下一张图片
-                if (text.indexOf(QRegularExpression("\\[CQ:image,file=(.+?).image,.*?url=(.+?)\\]"), pos, &match) == -1)
-                    break;
-                id = match.captured(1);
-                url = match.captured(2);
-                path = rt->imageCache(id);
-                if (!isFileExist(path)) // 可能重复发送，也可能从历史消息加载，所以不重复读取
-                    NetImageUtil::saveNetFile(url, path);
-
-                // 图片尺寸
-                maxWidth = us->bannerContentWidth;
-                maxHeight = us->bannerContentMaxHeight - us->bannerHeaderSize;
             }
         }
     }
