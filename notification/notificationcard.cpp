@@ -1388,7 +1388,14 @@ void NotificationCard::cardMenu()
         this->toHide();
     }); */
 
-    menu->addAction(QIcon("://icons/fixed.png"), "固定卡片", [=]{
+    if (this->fromGroupId)
+    {
+        menu->addAction(QIcon("://icons/group"), "来自：" + ac->groupName(fromGroupId), [=]{
+            emit sig->openGroupCard(fromGroupId, "");
+        });
+    }
+
+    menu->split()->addAction(QIcon("://icons/fixed.png"), "固定卡片", [=]{
         fixing = !fixing;
         if (fixing)
             displayTimer->stop();
