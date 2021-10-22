@@ -161,6 +161,15 @@ struct MsgBean
         return *this;
     }
 
+    qint64 displayId() const
+    {
+        if (isGroup())
+            return groupId;
+        else if (isPrivate())
+            return friendId;
+        return 0;
+    }
+
     QString displayNickname() const
     {
         if (isGroup() && !groupCard.trimmed().isEmpty())

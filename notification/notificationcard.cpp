@@ -1390,6 +1390,9 @@ void NotificationCard::cardClicked()
 void NotificationCard::cardMenu()
 {
     FacileMenu* menu = new FacileMenu(this);
+
+    menu->addTitle(snum(msgs.last().displayId()), 0);
+
     /* menu->addAction(QIcon("://icons/close.png"), "立即关闭", [=]{
         this->toHide();
     }); */
@@ -1399,9 +1402,10 @@ void NotificationCard::cardMenu()
         menu->addAction(QIcon("://icons/group"), "来自：" + ac->groupName(fromGroupId), [=]{
             emit sig->openGroupCard(fromGroupId, "");
         });
+        menu->split();
     }
 
-    menu->split()->addAction(QIcon("://icons/fixed.png"), "固定卡片", [=]{
+    menu->addAction(QIcon("://icons/fixed.png"), "固定卡片", [=]{
         fixing = !fixing;
         if (fixing)
             displayTimer->stop();
