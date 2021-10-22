@@ -1177,7 +1177,7 @@ void NotificationCard::sendReply(QString text)
     // 如果云端上报自己的消息，那么会出现两条
     if (us->bannerShowMySend) // 不显示自己发送的消息（默认）
     {
-        MsgBean msg(ac->myId, ac->myNickname, "你: " + text, 0, "");
+        MsgBean msg(ac->myId, ac->myNickname, text, 0, "");
         if (isGroup())
             createBlankMsgBox(msg);
         else
