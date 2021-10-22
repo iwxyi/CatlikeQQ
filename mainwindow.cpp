@@ -207,10 +207,10 @@ void MainWindow::showHistoryListMenu()
         QString mess = MessageView::simpleMessage(msg);
         if (mess.contains("\n"))
             mess = mess.left(mess.indexOf("\n"));
-        if (msg.isPrivate())
-            messageLabel->setText(mess);
-        else if (msg.senderId == ac->myId)
+        if (msg.senderId == ac->myId)
             messageLabel->setText("你：" + mess);
+        else if (msg.isPrivate())
+            messageLabel->setText(mess);
         else
             messageLabel->setText(msg.username() + ": " + mess);
         titleLabel->setMaximumWidth(us->bannerFixedWidth);
