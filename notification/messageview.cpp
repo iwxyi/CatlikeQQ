@@ -784,10 +784,12 @@ void MessageView::showMenu()
 
 
 #ifdef MESSAGE_LABEL
+    bool hasSelect = this->hasSelectedText();
+    QString selectedText = this->selectedText();
     menu->addAction("复制", [=]{
-        if (this->hasSelectedText())
+        if (hasSelect)
         {
-            QApplication::clipboard()->setText(this->selectedText());
+            QApplication::clipboard()->setText(selectedText);
         }
         else
         {
@@ -796,6 +798,7 @@ void MessageView::showMenu()
     })->text(!this->hasSelectedText(), "复制全部");
 
     menu->addAction("全选", [=]{
+        menu->close();
         this->setSelection(0, this->text().length());
     });
 #else
