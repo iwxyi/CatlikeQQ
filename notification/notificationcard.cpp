@@ -1391,8 +1391,6 @@ void NotificationCard::cardMenu()
 {
     FacileMenu* menu = new FacileMenu(this);
 
-    menu->addTitle(snum(msgs.last().displayId()), 0);
-
     /* menu->addAction(QIcon("://icons/close.png"), "立即关闭", [=]{
         this->toHide();
     }); */
@@ -1534,6 +1532,8 @@ void NotificationCard::cardMenu()
         if (rt->notificationSlient)
             emit signalCloseAllCards();
     })->check(rt->notificationSlient)->tooltip("临时屏蔽所有消息\n重启后将恢复原来状态")->hide();
+
+    menu->addTitle(snum(msgs.last().displayId()), -1);
 
     blockHideByMenu(menu, true);
     menu->exec();

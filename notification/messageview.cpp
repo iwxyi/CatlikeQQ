@@ -804,6 +804,8 @@ void MessageView::showMenu()
 #else
 #endif
 
+    menu->split()->addTitle(QDateTime::fromMSecsSinceEpoch(msg.timestamp).toString("MM-dd hh:mm:ss"));
+
     menu->exec();
 
     menu->finished([=]{
