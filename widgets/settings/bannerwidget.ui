@@ -28,7 +28,7 @@
      <item row="5" column="0">
       <widget class="QLabel" name="label_6">
        <property name="toolTip">
-        <string>通知卡片出现的位置</string>
+        <string/>
        </property>
        <property name="text">
         <string>横幅内容高度</string>
@@ -273,7 +273,7 @@
      <item row="4" column="0">
       <widget class="QLabel" name="label_5">
        <property name="toolTip">
-        <string>通知卡片出现的位置</string>
+        <string/>
        </property>
        <property name="text">
         <string>横幅显示宽度</string>
