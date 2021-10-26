@@ -26,6 +26,8 @@ public:
 
     void markDeleted();
 
+    QSize sizeHint() const override;
+
 signals:
     void needMemberNames();
     void keepShowing();
@@ -37,9 +39,6 @@ public slots:
     void replaceGroupAt();
 
     void showMenu();
-
-protected:
-    QSize sizeHint() const override;
 
 private:
     MsgBean msg;

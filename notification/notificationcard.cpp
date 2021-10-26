@@ -665,6 +665,7 @@ void NotificationCard::createMsgBox(const MsgBean &msg, int index)
     msgView->setTextColor(cardColor.fg);
     box->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     box->adjustSize();
+    box->setFixedHeight(box->sizeHint().height());
 
     // 设置列表项
     QListWidgetItem* item;
@@ -743,6 +744,7 @@ void NotificationCard::createBlankMsgBox(const MsgBean &msg, int index)
     msgView->setTextColor(cardColor.fg);
     msgView->adjustSizeByTextWidth(us->bannerContentWidth); // 这里有个-12的，为什么呢
     box->adjustSize();
+    box->setFixedHeight(box->sizeHint().height());
 
     // 设置列表项
     QListWidgetItem* item;

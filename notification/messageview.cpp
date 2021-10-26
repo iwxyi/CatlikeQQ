@@ -539,16 +539,16 @@ void MessageView::setMessage(const MsgBean& msg)
     }
 
     // 红包
-    text.replace(QRegularExpression("\\[CQ:redbag.*\\]"), grayText("[红包]"));
+    text.replace(QRegularExpression("\\[CQ:redbag.*?\\]"), grayText("[红包]"));
 
     // 其他格式
-    text.replace(QRegularExpression("\\[CQ:(\\w+),.+\\]"), grayText("[\\1]"));
+    text.replace(QRegularExpression("\\[CQ:(\\w+),.+?\\]"), grayText("[\\1]"));
 
     // 实体
     text.replace("&#91;", "[").replace("&#93;", "]");
 
     // 超链接
-    text.replace(QRegularExpression("(?<!['\"])((http|ftp)s?://[\\w\\.]+\\.\\w{2,5}([\\?\\/][\\S]*)?)"), "<a href=\"\\1\">\\1</a>");
+    text.replace(QRegularExpression("(?<!['\"])((http|ftp)s?://[\\w\\.]+\\.\\w{2,5}([\\?\\/][\\S]*?)?)"), "<a href=\"\\1\">\\1</a>");
     text.replace(QRegularExpression("([a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+)"), "<a href=\"mailto:\\1\">\\1</a>");
 
     // #处理长度（注意要忽略各种标签）
