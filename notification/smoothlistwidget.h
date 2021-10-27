@@ -18,6 +18,8 @@ public:
 
     void scrollToBottom();
     bool isToBottoming() const;
+    void smoothScrollTo(int pos);
+    void smoothScrollToDelta(int delta);
 
 private:
     void addSmoothScrollThread(int distance, int duration);

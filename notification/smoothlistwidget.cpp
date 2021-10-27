@@ -47,6 +47,16 @@ bool SmoothListWidget::isToBottoming() const
     return toBottoming;
 }
 
+void SmoothListWidget::smoothScrollTo(int pos)
+{
+    addSmoothScrollThread(pos - verticalScrollBar()->sliderPosition(), smoothScrollDuration);
+}
+
+void SmoothListWidget::smoothScrollToDelta(int delta)
+{
+    addSmoothScrollThread(delta, smoothScrollDuration);
+}
+
 void SmoothListWidget::addSmoothScrollThread(int distance, int duration)
 {
     SmoothScrollBean* bean = new SmoothScrollBean(distance, duration);

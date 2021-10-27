@@ -1823,7 +1823,8 @@ void NotificationCard::loadMsgHistoryToMsg(qint64 messageId)
 
     // 跳转到消息
     // TODO: 显示聚焦动画
-    ui->listWidget->scrollToItem(ui->listWidget->item(targetIndex - historyStart));
+    QRect itemRect = ui->listWidget->visualItemRect(ui->listWidget->item(targetIndex - historyStart)); // 相对于viewport的位置
+    ui->listWidget->smoothScrollToDelta(itemRect.top());
 }
 
 /// 从start到end一直加载历史记录，插入到开头

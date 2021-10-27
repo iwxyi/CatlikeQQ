@@ -343,7 +343,8 @@ void MessageView::setMessage(const MsgBean& msg)
     {
         text.replace(match.captured(0), "");
         QString messageId = match.captured(1);
-        text.insert(0, "<a href=\"msg://" + messageId + "\"><span style=\"text-decoration: none; color:#8cc2d4;\">[回复]</span></a>");
+        QString displayText = "";
+        text.insert(0, "<a href=\"msg://" + messageId + "\" title=\"点击跳转到回复\"><span style=\"text-decoration: none; color:#8cc2d4;\">[回复]</span></a>");
     }
 
     // 艾特
