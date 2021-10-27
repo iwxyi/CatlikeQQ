@@ -724,7 +724,7 @@ void MessageView::showMenu()
 
     if (!filePixmap.isNull())
     {
-        menu->addAction("复制图片", [=]{
+        menu->addAction(QIcon("://icons/copy_image.png"), "复制图片", [=]{
             QApplication::clipboard()->setPixmap(filePixmap);
         });
     }
@@ -733,7 +733,16 @@ void MessageView::showMenu()
     {
         QString path = filePath;
         path.replace("/", "\\");
-        menu->addAction("打开文件夹", [=]{
+
+        menu->addAction(QIcon("://icons/copy_file.png"), "复制文件", [=]{
+            QMimeData* mime = new QMimeData();
+            mime->setText(QFileInfo(path).absoluteFilePath());
+            mime->setUrls(QList<QUrl>{QUrl::fromLocalFile(path)});
+            mime->setData("x-special/gnome-copied-files", QByteArray("copy\n") + QUrl::fromLocalFile(path).toEncoded());
+            QApplication::clipboard()->setMimeData(mime);
+        });
+
+        menu->addAction(QIcon("://icons/open_folder.png"), "打开文件夹", [=]{
             const QString explorer = "explorer";
             QStringList param;
             param << QLatin1String("/select,");
@@ -741,20 +750,12 @@ void MessageView::showMenu()
             qInfo() << "文件所在路径：" << path;
             QProcess::startDetached(explorer, param);
         });
-
-        menu->addAction("复制文件", [=]{
-            QMimeData* mime = new QMimeData();
-            mime->setText(QFileInfo(path).absoluteFilePath());
-            mime->setUrls(QList<QUrl>{QUrl::fromLocalFile(path)});
-            mime->setData("x-special/gnome-copied-files", QByteArray("copy\n") + QUrl::fromLocalFile(path).toEncoded());
-            QApplication::clipboard()->setMimeData(mime);
-        });
     }
 
     if (!filePath.isNull() || !filePath.isEmpty())
         menu->split();
 
-    menu->addAction("回复", [=]{
+    menu->addAction(QIcon("://icons/reply.png"), "回复", [=]{
         QString text = "[CQ:reply,id=" + snum(msg.messageId) + "][CQ:at,qq=" + snum(msg.senderId) + "] ";
         if (us->replyMessageContainsAt)
             text += "[CQ:at,qq=" + snum(msg.senderId) + "] ";
@@ -764,7 +765,7 @@ void MessageView::showMenu()
     // 是自己发的消息
     if (msg.senderId == ac->myId)
     {
-        menu->addAction("撤回", [=]{
+        menu->addAction(QIcon("://icons/undo.png"), "撤回", [=]{
             MyJson json;
             json.insert("action", "delete_msg");
             MyJson params;
@@ -777,21 +778,21 @@ void MessageView::showMenu()
 
     if (msg.isGroup())
     {
-        menu->addAction("单独回复", [=]{
+        menu->addAction(QIcon("://icons/single_reply.png"), "单独回复", [=]{
             QString text = "[CQ:reply,id=" + snum(msg.messageId) + "]";
             emit sig->openUserCard(msg.senderId, msg.displayNickname(), text);
         });
 
-        menu->addAction("@TA", [=]{
+        menu->addAction(QIcon("://icons/at.png"), "@TA", [=]{
             emit replyText("[CQ:at,qq=" + snum(msg.senderId) + "] ");
         })->text(msg.senderId == ac->myId, "@自己");
     }
 
-    menu->addAction("+1", [=]{
+    menu->addAction(QIcon("://icons/resay.png"), "+1", [=]{
         emit sendText(msg.rawMessage);
     });
 
-    menu->split()->addAction("CQ码", [=]{
+    menu->split()->addAction(QIcon("://icons/code.png"), "CQ码", [=]{
         // 必须要有一个拷贝的副本，因为 msg 可能因为通知超时隐藏而删除
         QString cqCode = msg.rawMessage;
         auto btn = QMessageBox::information(this->parentWidget(), "CQ码", cqCode, "取消", "复制", nullptr, 0);
@@ -805,7 +806,7 @@ void MessageView::showMenu()
 #ifdef MESSAGE_LABEL
     bool hasSelect = this->hasSelectedText();
     QString selectedText = this->selectedText();
-    menu->addAction("复制", [=]{
+    menu->addAction(QIcon("://icons/copy_image.png"), "复制", [=]{
         if (hasSelect)
         {
             QApplication::clipboard()->setText(selectedText);
@@ -816,7 +817,7 @@ void MessageView::showMenu()
         }
     })->text(!this->hasSelectedText(), "复制全部");
 
-    menu->addAction("全选", [=]{
+    menu->addAction(QIcon("://icons/copy_image.png"), "全选", [=]{
         menu->close();
         this->setSelection(0, this->text().length());
     });

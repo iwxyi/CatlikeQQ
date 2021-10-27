@@ -40,6 +40,16 @@
         <file>icons/localName.png</file>
         <file>icons/groupRemind.png</file>
         <file>icons/speech.png</file>
+        <file>icons/copy_file.png</file>
+        <file>icons/select_all.png</file>
+        <file>icons/code.png</file>
+        <file>icons/resay.png</file>
+        <file>icons/at.png</file>
+        <file>icons/single_reply.png</file>
+        <file>icons/open_folder.png</file>
+        <file>icons/copy_image.png</file>
+        <file>icons/copy_text.png</file>
+        <file>icons/undo.png</file>
     </qresource>
     <qresource prefix="/qq">
         <file>qq-face/0.gif</file>
