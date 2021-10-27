@@ -628,12 +628,12 @@ void NotificationCard::createMsgBox(const MsgBean &msg, int index)
     // 彩色用户昵称
     if (us->bannerColorfulGroupMember && headerValid)
     {
-        auto getGroupMemberColor = [=](qint64 groupId, qint64 friendId) -> QColor {
+        auto getGroupMemberColor = [=](qint64 groupId, qint64 userId) -> QColor {
             if (ac->groupMemberColor.contains(groupId))
             {
-                if (ac->groupMemberColor.value(groupId).contains(friendId))
+                if (ac->groupMemberColor.value(groupId).contains(userId))
                 {
-                    return ac->groupMemberColor.value(groupId).value(friendId);
+                    return ac->groupMemberColor.value(groupId).value(userId);
                 }
             }
             else // 连群组都没有
@@ -645,7 +645,7 @@ void NotificationCard::createMsgBox(const MsgBean &msg, int index)
             auto colors = ImageUtil::extractImageThemeColors(headerPixmap.toImage(), 4);
             auto color = ImageUtil::getFastestColor(us->bannerUseHeaderColor ? cardColor.bg : us->bannerBgColor, colors, 1); // 获取色差最大的
             // auto color = colors.first().toColor();
-            ac->groupMemberColor[groupId].insert(this->friendId, color);
+            ac->groupMemberColor[groupId].insert(msg.senderId, color);
             return color;
         };
 

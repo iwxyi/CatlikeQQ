@@ -50,7 +50,8 @@ MessageView::MessageView(QWidget *parent)
         }
         else if (link.startsWith("at://"))
         {
-            emit replyText("[CQ:at,qq=all]");
+            QString qqId = link.right(link.length() - 5);
+            emit replyText("[CQ:at,qq=" + qqId + "] ");
         }
         else
         {
@@ -379,7 +380,6 @@ void MessageView::setMessage(const MsgBean& msg)
                     c = QColor("#41a5ee");
 
                 QString newText = "<a href=\"at://" + match.captured(1) + "\"><span style=\"text-decoration: none; color:" + QVariant(c).toString() + ";\">@" + members.value(userId).username() + "</span></a>";
-                qDebug() << newText << (ac->groupMemberColor.contains(msg.groupId)) << ac->groupMemberColor.value(msg.groupId).contains(userId);
 
                 /*if (c.isValid())
                 {
