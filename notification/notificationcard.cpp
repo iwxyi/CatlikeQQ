@@ -827,11 +827,11 @@ void NotificationCard::connectGroupHeader(QLabel *label, const MsgBean& msg)
         suspendHide();
         FacileMenu* menu = new FacileMenu(this);
 
-        menu->addAction("群组信息", [=]{
+        menu->addAction(QIcon("://icons/group_info.png"), "群组信息", [=]{
 
         })->disable();
 
-        menu->addAction("群成员", [=]{
+        menu->addAction(QIcon("://icons/group_member.png"), "群成员", [=]{
 
         })->disable();
 
@@ -851,25 +851,25 @@ void NotificationCard::connectUserHeader(QLabel* label, const MsgBean& msg)
         suspendHide();
         FacileMenu* menu = new FacileMenu(this);
 
-        menu->addAction("查看资料", [=]{
+        menu->addAction(QIcon("://icons/character_data.png"), "查看资料", [=]{
 
         })->disable();
 
-        menu->split()->addAction("发送消息", [=]{
+        menu->split()->addAction(QIcon("://icons/single_reply.png"), "发送消息", [=]{
             emit sig->openUserCard(msg.senderId, msg.displayNickname(), "");
         });
 
-        menu->addAction("@ TA", [=]{
+        menu->addAction(QIcon("://icons/at.png"), "@ TA", [=]{
             QString text = "[CQ:at,qq=" + snum(msg.senderId) + "] ";
             ui->messageEdit->insert(text);
             showReplyEdit(true, false);
         });
 
-        menu->split()->addAction("特别关注", [=]{
+        menu->split()->addAction(QIcon("://icons/attention.png"), "特别关注", [=]{
 
         })->text(msg.isGroup(), "群内特别关注")->disable();
 
-        menu->addAction("屏蔽此人", [=]{
+        menu->addAction(QIcon("://icons/block.png"), "屏蔽此人", [=]{
             // 本地屏蔽
         })->disable();
 
@@ -887,21 +887,21 @@ void NotificationCard::connectUserName(QLabel *label, const MsgBean& msg)
         suspendHide();
         FacileMenu* menu = new FacileMenu(this);
 
-        auto copyMenu = menu->addMenu("复制");
+        auto copyMenu = menu->addMenu(QIcon("://icons/copy_file"), "复制");
 
-        copyMenu->addAction("昵称", [=]{
+        copyMenu->addAction(QIcon("://icons/nickname.png"), "昵称", [=]{
             QApplication::clipboard()->setText(msg.nickname);
         });
 
-        copyMenu->addAction("备注", [=]{
+        copyMenu->addAction(QIcon("://icons/remark.png"), "备注", [=]{
             QApplication::clipboard()->setText(msg.remark);
         })->disable(msg.remark.isEmpty());
 
-        copyMenu->addAction("群昵称", [=]{
+        copyMenu->addAction(QIcon("://icons/group_card.png"), "群昵称", [=]{
             QApplication::clipboard()->setText(msg.groupCard);
         })->disable(msg.groupCard.isEmpty())->hide(!msg.isGroup());
 
-        copyMenu->addAction("QQ号", [=]{
+        copyMenu->addAction(QIcon("://icons/qq_id.png"), "QQ号", [=]{
             QApplication::clipboard()->setText(snum(msg.senderId));
         });
 

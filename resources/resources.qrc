@@ -50,6 +50,15 @@
         <file>icons/copy_image.png</file>
         <file>icons/copy_text.png</file>
         <file>icons/undo.png</file>
+        <file>icons/group_card.png</file>
+        <file>icons/qq_id.png</file>
+        <file>icons/remark.png</file>
+        <file>icons/nickname.png</file>
+        <file>icons/block.png</file>
+        <file>icons/attention.png</file>
+        <file>icons/character_data.png</file>
+        <file>icons/group_info.png</file>
+        <file>icons/group_member.png</file>
     </qresource>
     <qresource prefix="/qq">
         <file>qq-face/0.gif</file>
