@@ -377,7 +377,7 @@ void MessageView::setMessage(const MsgBean& msg)
                         c = memberColor.value(userId);
                 }
                 if (!c.isValid())
-                    c = QColor("#41a5ee");
+                    c = textColor;
 
                 QString newText = "<a href=\"at://" + match.captured(1) + "\"><span style=\"text-decoration: none; color:" + QVariant(c).toString() + ";\">@" + members.value(userId).username() + "</span></a>";
 
@@ -399,8 +399,8 @@ void MessageView::setMessage(const MsgBean& msg)
             }
         }
     }
-    text.replace(QRegularExpression("\\[CQ:at,qq=(\\d+)\\]"), "@\\1"); // 万一有没有替换完的呢
-    text.replace(QRegularExpression("\\[CQ:at,qq=all\\]"), "@全体成员"); // @全体
+    text.replace(QRegularExpression("\\[CQ:at,qq=(\\d+)\\]"), "<a href=\"at://\\1\"><span style=\"text-decoration: none; color:" + QVariant(textColor).toString() + ";\">@\\1</span></a>"); // 万一有没有替换完的呢
+    text.replace(QRegularExpression("\\[CQ:at,qq=all\\]"), "<a href=\"at://all\"><span style=\"text-decoration: none; color:" + QVariant(textColor).toString() + ";\">@全体成员</span></a>"); // @全体
 
     // json
     if (text.indexOf(QRegularExpression("\\[CQ:json,data=(.+?)\\]"), 0, &match) > -1)
