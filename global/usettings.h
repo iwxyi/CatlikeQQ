@@ -55,7 +55,7 @@ public:
     int bannerFixedWidth = 300;  // 横幅的固定宽度
     int bannerContentWidthDelta = 86; // 内容和整个宽度差：左9-头像32-间距6~(实际大小)~-右9-阴影12-列表18
     int bannerContentWidth = bannerFixedWidth - bannerContentWidthDelta; // 内容的宽度
-    int bannerContentMaxHeight = 130; // 内容最大像素高度
+    int bannerContentMaxHeight = 300; // 内容最大像素高度
     int bannerHeaderSize = 32; // 头像大小
     int bannerSpacing = 10; // 横幅之间的间距
     int bannerMargin = 5; // 横幅距离边缘的margin
