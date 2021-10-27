@@ -346,7 +346,7 @@ void NotificationCard::setPrivateMsg(const MsgBean &msg)
         if (!headerPixmap.isNull())
             ui->headerLabel->setPixmap(NetImageUtil::toRoundedPixmap(headerPixmap));
     }
-    else
+    else // 彩色头像
     {
         QString path = rt->userHeader("ctg_" + snum(this->friendId));
         if (!isFileExist(path))
@@ -402,7 +402,7 @@ void NotificationCard::setGroupMsg(const MsgBean &msg)
         if (!headerPixmap.isNull())
             ui->headerLabel->setPixmap(NetImageUtil::toRoundedPixmap(headerPixmap));
     }
-    else
+    else // 彩色渐变头像，隐藏头像Label
     {
         QString path = rt->groupHeader("ctg_" + snum(msg.groupId));
         if (!isFileExist(path))
@@ -810,6 +810,10 @@ MessageView *NotificationCard::newMsgView()
 
     connect(view, &MessageView::sendText, this, [=](const QString& text){
         sendReply(text);
+    });
+
+    connect(view, &MessageView::focusMessage, this, [=](const qint64& messageId){
+        loadMsgHistoryToMsg(messageId);
     });
 
     return view;
@@ -1672,6 +1676,22 @@ QString NotificationCard::getValiableMessage(QString text)
     return text.replace(QRegularExpression("<.+?>"), "").replace(QRegularExpression("\\[CQ:.+?\\]"), "").trimmed();
 }
 
+QList<MsgBean> *NotificationCard::getAllHistories()
+{
+    if (!groupId) // 加载私聊消息
+    {
+        if (!ac->userMsgHistory.contains(this->friendId))
+            return nullptr;
+        return &ac->userMsgHistory[this->friendId];
+    }
+    else // 加载群组消息
+    {
+        if (!ac->groupMsgHistory.contains(groupId))
+            return nullptr;
+        return &ac->groupMsgHistory[groupId];
+    }
+}
+
 void NotificationCard::showEvent(QShowEvent *event)
 {
     QWidget::showEvent(event);
@@ -1727,25 +1747,10 @@ void NotificationCard::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
 /// 因为消息加载/文件下载的延时，所以很可能会是多线程调用
 void NotificationCard::loadMsgHistory()
 {
-    if (_loadingHistory)
-        return ;
-    _loadingHistory = true;
-    QList<MsgBean> *histories;
-    int h = this->height();
-
     Q_ASSERT(msgs.size());
-    if (!groupId) // 加载私聊消息
-    {
-        if (!ac->userMsgHistory.contains(this->friendId))
-            return ;
-        histories = &ac->userMsgHistory[this->friendId];
-    }
-    else // 加载群组消息
-    {
-        if (!ac->groupMsgHistory.contains(groupId))
-            return ;
-        histories = &ac->groupMsgHistory[groupId];
-    }
+    QList<MsgBean> *histories = getAllHistories();
+    if (!histories)
+        return ;
 
     auto firstMsg = msgs.first();
 
@@ -1768,6 +1773,72 @@ void NotificationCard::loadMsgHistory()
     }
 
     // 加载消息：index -> historyEnd-1
+    loadMsgHistoryByIndex(historyStart, historyEnd);
+}
+
+/// 加载历史记录到messageId这个索引
+void NotificationCard::loadMsgHistoryToMsg(qint64 messageId)
+{
+    Q_ASSERT(msgs.size());
+    QList<MsgBean> *histories = getAllHistories();
+    if (!histories)
+        return ;
+    int targetIndex = histories->length() - 1;
+    while (targetIndex > 0 && histories->at(targetIndex).messageId != messageId)
+        targetIndex--;
+    if (targetIndex < 0)
+    {
+        qWarning() << "未找到历史消息，ID =" << messageId;
+        return ;
+    }
+
+    // 获取当前消息的前一个位置（最后一条历史）
+    auto firstMsg = msgs.first();
+    qint64 timestamp = firstMsg.timestamp;
+    int historyEnd= histories->size()-1;
+    // 可能这个end是-1，即所有消息已经加载完了
+    while (--historyEnd >= 0 && histories->at(historyEnd).timestamp >= timestamp);
+
+    int historyStart = targetIndex;
+    if (historyEnd > -1)
+    {
+        // 群组的话，根据同一个人的连续消息，稍微向上延伸，最多一倍
+        historyStart = qMax(0, historyStart - us->bannerMessageLoadCount);
+        if (groupId && historyStart > 0)
+        {
+            int count = us->bannerMessageLoadCount;
+            qint64 senderId = histories->at(historyStart).senderId;
+            while (historyStart > 0 && count-- && histories->at(historyStart-1).senderId == senderId)
+                historyStart--;
+        }
+
+        // 加载消息：index -> historyEnd-1
+        loadMsgHistoryByIndex(historyStart, historyEnd);
+    }
+    else
+    {
+        // 不加载消息
+        historyStart = 0;
+    }
+
+    // 跳转到消息
+    // TODO: 显示聚焦动画
+    ui->listWidget->scrollToItem(ui->listWidget->item(targetIndex - historyStart));
+}
+
+/// 从start到end一直加载历史记录，插入到开头
+void NotificationCard::loadMsgHistoryByIndex(int historyStart, int historyEnd)
+{
+    if (_loadingHistory)
+        return ;
+    _loadingHistory = true;
+
+    Q_ASSERT(msgs.size());
+    QList<MsgBean> *histories = getAllHistories();
+    if (!histories)
+        return ;
+
+    int h = this->height();
     auto bar = ui->listWidget->verticalScrollBar();
     int disBottom = bar->maximum() - bar->sliderPosition();
     qint64 senderId = -1;
@@ -1791,6 +1862,7 @@ void NotificationCard::loadMsgHistory()
             }
         }
         senderId = msg.senderId;
+        // 插入到本地的 msgs 中
         msgs.insert(index, msg);
     }
     bar->setSliderPosition(bar->maximum() - disBottom);

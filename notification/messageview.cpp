@@ -42,7 +42,17 @@ MessageView::MessageView(QWidget *parent)
 
     connect(this, &QLabel::linkActivated, this, [=](const QString& link) {
         qInfo() << "打开链接：" << link;
-        QDesktopServices::openUrl(QUrl(link));
+        if (link.startsWith("msg://"))
+        {
+            // 聚焦到消息
+            QString messageId = link.right(link.length() - 6);
+            emit focusMessage(messageId.toLongLong());
+        }
+        else
+        {
+            // 打开网页
+            QDesktopServices::openUrl(QUrl(link));
+        }
     });
 #else
     setReadOnly(true);
@@ -328,7 +338,13 @@ void MessageView::setMessage(const MsgBean& msg)
     }
 
     // 回复
-    text.replace(QRegularExpression("\\[CQ:reply,id=-?\\d+\\](\\[CQ:at,qq=\\d+\\])?"), grayText("[回复]"));
+    // text.replace(QRegularExpression("\\[CQ:reply,id=-?\\d+\\](\\[CQ:at,qq=\\d+\\])?"), grayText("[回复]"));
+    if (text.indexOf(QRegularExpression("\\[CQ:reply,id=(-?\\d+)\\](\\[CQ:at,qq=\\d+\\])?"), 0, &match) > -1)
+    {
+        text.replace(match.captured(0), "");
+        QString messageId = match.captured(1);
+        text.insert(0, "<a href=\"msg://" + messageId + "\"><span style=\"text-decoration: none; color:#8cc2d4;\">[回复]</span></a>");
+    }
 
     // 艾特
     re = QRegularExpression("\\[CQ:at,qq=(\\d+)\\]");

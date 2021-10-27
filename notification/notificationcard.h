@@ -55,6 +55,7 @@ public:
     const QList<MsgBean> &getMsgs() const;
     int getImportance() const;
     static QString getValiableMessage(QString text);
+    QList<MsgBean>* getAllHistories();
 
 signals:
     void signalHeightChanged(int delta);
@@ -77,6 +78,8 @@ public slots:
     void shallToHide();
     void addReplyText(const QString& text);
     void loadMsgHistory();
+    void loadMsgHistoryToMsg(qint64 messageId);
+    void loadMsgHistoryByIndex(int historyStart, int historyEnd);
     void scrollToBottom();
     void scrollToBottomE();
     void msgRecalled(const MsgBean &msg);

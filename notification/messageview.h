@@ -34,6 +34,7 @@ signals:
     void restoreTimerIfNecessary();
     void replyText(const QString& text);
     void sendText(const QString& text);
+    void focusMessage(const qint64 messageId);
 
 public slots:
     void replaceGroupAt();
