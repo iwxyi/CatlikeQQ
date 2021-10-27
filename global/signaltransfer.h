@@ -29,6 +29,8 @@ signals:
 
     void openUserCard(qint64 userId, const QString& username, const QString& text);
     void openGroupCard(qint64 groupId, const QString& text);
+    void getGroupMsgHistory(qint64 groupId, qint64 messageId);
+    void groupMsgHistoryLoaded(qint64 groupId, qint64 messageId, int count);
 
     void showTrayIcon(const MsgBean& msg);
 };

@@ -43,6 +43,8 @@ public:
     QHash<qint64, QString> userLastInputUnsend; // 私聊未发送的内容
     QHash<qint64, QString> groupLastInputUnsend; // 群聊未发送的内容
 
+    QHash<qint64, bool> gettingGroupMsgHistories; // 是否正在获取群消息历史记录
+
     QString friendName(qint64 userId) const
     {
         return friendList.contains(userId) ? friendList[userId].username() : "";

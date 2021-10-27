@@ -262,6 +262,47 @@ void CqhttpService::parseEchoMessage(const MyJson &json)
         MsgBean msg = MsgBean().recall(messageId, friendId, ac->myId);
         emit signalMessage(msg);
     }
+    else if (echo.startsWith("get_msg"))
+    {
+        if (echo.startsWith("get_msg:get_group_msg_history"))
+        {
+            QRegularExpression re("^get_msg:get_group_msg_history:(\\d+)_(-?\\w+)$");
+            QRegularExpressionMatch match;
+            if (echo.indexOf(re, 0, &match) == -1)
+            {
+                qWarning() << "无法识别的获取真实消息echo：" << echo;
+                return ;
+            }
+            qint64 groupId = match.captured(1).toLongLong();
+            qint64 messageId = match.captured(2).toLongLong();
+
+            // 获取到真实ID
+            JO(json, data);
+            JL(data, real_id);
+            // qDebug() << "get_msg:" << messageId << "->" << real_id;
+
+            // 发送获取历史记录
+            getGroupMsgHistory(groupId, messageId, real_id);
+        }
+    }
+    else if (echo.startsWith("get_group_msg_history"))
+    {
+        QRegularExpression re("^get_group_msg_history:(\\d+)_(-?\\w+)$");
+        QRegularExpressionMatch match;
+        if (echo.indexOf(re, 0, &match) == -1)
+        {
+            qWarning() << "无法识别的获取群消息历史echo：" << echo;
+            return ;
+        }
+        qint64 groupId = match.captured(1).toLongLong();
+        qint64 messageId = match.captured(2).toLongLong();
+
+        // 解析列表
+        JO(json, data);
+        JA(data, messages);
+        // qDebug() << "get_group_msg_history" << messages.size();
+        parseGetGroupMsgHistory(groupId, messageId, messages);
+    }
     else
     {
         qWarning() << "未处理类型的返回：" << json;
@@ -349,6 +390,7 @@ void CqhttpService::parseGroupMessage(const MyJson &json)
     JS(json, raw_message);
     JL(json, group_id); // 群号
     JL(json, message_id);
+    JL(json, time); // 秒，要转换为毫秒
 
     JO(json, sender); // 发送者，但不保证存在
     JL(sender, user_id); // 发送者QQ号
@@ -375,7 +417,86 @@ void CqhttpService::parseGroupMessage(const MyJson &json)
     MsgBean msg = MsgBean(user_id, nickname, message, message_id, sub_type)
             .frind(ac->friendList.contains(user_id) ? ac->friendList.value(user_id).remark : "")
             .group(group_id, ac->groupList.value(group_id).name, card);
+    msg.timestamp = time * 1000;
     emit signalMessage(msg);
+}
+
+void CqhttpService::parseGetGroupMsgHistory(qint64 groupId, qint64 messageId, const QJsonArray &array)
+{
+    if (array.size() == 0)
+    {
+        qInfo() << "没有可获取的云端历史记录";
+        return ;
+    }
+
+    // 解析 QJsonArray
+    QList<MsgBean> hiss;
+    for (int i = 0; i < array.size(); i++)
+    {
+        MyJson json = array.at(i).toObject();
+
+        JS(json, sub_type); // 正常：normal，匿名：anonymous，系统：notice
+        JS(json, message);
+        JS(json, raw_message);
+        JL(json, group_id); // 群号
+        JL(json, message_id);
+        JL(json, time); // 秒，要转换为毫秒
+
+        JO(json, sender); // 发送者，但不保证存在
+        JL(sender, user_id); // 发送者QQ号
+        JS(sender, nickname);
+        JS(sender, card); // 群名片/备注，可能为空
+        JS(sender, role); // 角色：owner/admin/member
+
+        if (sub_type == "anonymous" && !json.value("anonymous").isNull()) // 是匿名消息
+        {
+            JO(json, anonymous);
+            JL(anonymous, id); // 匿名用户ID
+            JS(anonymous, name); // 匿名用户名称
+            JS(anonymous, flag); // 匿名用户flag，在调用禁言API时需要传入
+            Q_UNUSED(id)
+            user_id = id; // 设置为匿名ID
+            card = name;  // 设置为匿名名称
+        }
+
+        qInfo() << "群消息历史：" << group_id << ac->groupList.value(group_id).name
+                << user_id << nickname << ac->friendName(user_id)
+                << message << message_id << time;
+
+        MsgBean msg = MsgBean(user_id, nickname, message, message_id, sub_type)
+                .frind(ac->friendList.contains(user_id) ? ac->friendList.value(user_id).remark : "")
+                .group(group_id, ac->groupList.value(group_id).name, card);
+        msg.timestamp = time * 1000;
+        hiss.append(msg);
+    }
+
+    // 添加到历史中
+    if (!ac->groupList.contains(groupId))
+    {
+        // TODO: 刷新群聊列表
+        qWarning() << "群聊列表中未包括该群组，若新入群请刷新群聊";
+        return ;
+    }
+
+    if (!ac->groupMsgHistory.contains(groupId))
+        ac->groupMsgHistory.insert(groupId, QList<MsgBean>());
+    auto all = &(ac->groupMsgHistory[groupId]);
+
+    // 去除重复消息
+    if (hiss.last().messageId == messageId)
+    {
+        hiss.removeLast();
+    }
+
+    // 添加到开头
+    for (int i = hiss.size() - 1; i >= 0; --i)
+    {
+        all->insert(0, hiss.at(i));
+    }
+
+    // 发送信号，通知卡片控件
+    emit sig->groupMsgHistoryLoaded(groupId, messageId, hiss.size());
+    ac->gettingGroupMsgHistories.remove(groupId);
 }
 
 void CqhttpService::parseGroupUpload(const MyJson &json)
@@ -675,4 +796,33 @@ void CqhttpService::sendGroupMsg(qint64 groupId, const QString& message)
     json.insert("echo", "send_group_msg");
     sendTextMessage(json.toBa());
     emit sig->myReplyGroup(groupId, message);
+}
+
+/// 获取历史消息，这里分两步：
+/// get_message: message_id -> real_id (message_seq)
+/// get_group_msg_history: real_id -> messages[19] (最后一条是传参的，加载前面18条)
+void CqhttpService::getGroupMsgHistory(qint64 groupId, qint64 messageId, qint64 realId)
+{
+    // 正在获取，不重复获取
+    ac->gettingGroupMsgHistories[groupId] = true;
+    MyJson json;
+    if (!realId && messageId)
+    {
+        json.insert("action", "get_msg");
+        MyJson params;
+        params.insert("group_id", groupId);
+        params.insert("message_id", messageId);
+        json.insert("params", params);
+        json.insert("echo", "get_msg:get_group_msg_history:" + snum(groupId) + "_" + snum(messageId));
+    }
+    else
+    {
+        json.insert("action", "get_group_msg_history");
+        MyJson params;
+        params.insert("group_id", groupId);
+        params.insert("message_seq", realId);
+        json.insert("params", params);
+        json.insert("echo", "get_group_msg_history:" + snum(groupId) + "_" + snum(messageId));
+    }
+    sendTextMessage(json.toBa());
 }

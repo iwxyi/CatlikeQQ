@@ -407,6 +407,8 @@ void MainWindow::initService()
 
     connect(sig, &SignalTransfer::loadGroupMembers, cqhttpService, &CqhttpService::refreshGroupMembers);
 
+    connect(sig, SIGNAL(getGroupMsgHistory(qint64, qint64)), cqhttpService, SLOT(getGroupMsgHistory(qint64, qint64)));
+
     connect(sig, &SignalTransfer::myHeader, this, [=](const QPixmap& pixmap) {
         ac->myHeader = NetImageUtil::toRoundedPixmap(pixmap);
         tray->setIcon(pixmap);

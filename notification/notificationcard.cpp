@@ -452,6 +452,13 @@ void NotificationCard::setGroupMsg(const MsgBean &msg)
         }
     });
 
+    connect(sig, &SignalTransfer::groupMsgHistoryLoaded, this, [=](qint64 groupId, qint64 messageId, int count) {
+        if (groupId != this->groupId)
+            return ;
+
+        loadMsgHistoryByIndex(0, count);
+    });
+
     connect(ui->headerLabel, &ClickLabel::leftClicked, this, [=]{
         showGrougInfo(msg.groupId);
     });
@@ -1748,23 +1755,60 @@ void NotificationCard::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
 
 /// 加载消息记录
 /// 因为消息加载/文件下载的延时，所以很可能会是多线程调用
+/// 如果没有历史消息，则是会先获取历史消息
 void NotificationCard::loadMsgHistory()
 {
-    Q_ASSERT(msgs.size());
+    if (isGroup() && ac->gettingGroupMsgHistories.contains(groupId))
+    {
+        qDebug() << "正在获取历史记录中...";
+        return ;
+    }
+
+    // 没有所有历史消息
     QList<MsgBean> *histories = getAllHistories();
     if (!histories)
+    {
+        if (isGroup())
+        {
+            qInfo() << "没有历史，加载群消息历史...";
+            emit sig->getGroupMsgHistory(groupId, 0);
+        }
         return ;
+    }
 
-    auto firstMsg = msgs.first();
+    // 没有本地消息，可能是直接打开的窗口
+    if (!msgs.size())
+    {
+        // 到这里了，应该是有历史消息
+        // 加载历史消息
+        loadMsgHistoryByIndex(qMax(0, histories->size() - us->bannerMessageLoadCount), histories->size());
+        return ;
+    }
+
+    auto firstMsg = msgs.first(); // 显示的第一个消息
 
     // 获取当前消息的前一个位置（最后一条历史）
     int historyStart = histories->size()-1;
-    qint64 timestamp = firstMsg.timestamp;
-    while (--historyStart >= 0 && histories->at(historyStart).timestamp >= timestamp);
+    while (--historyStart >= 0 && histories->at(historyStart).messageId != firstMsg.messageId);
     int historyEnd = qMin(historyStart + 1, histories->size()); // 当前索引
-    if (historyEnd <= 0) // 没有历史消息
+    /* qDebug() << "获取历史：" << historyStart << historyEnd << firstMsg.username() << ":" << firstMsg.message
+             << firstMsg.messageId;
+    for (int i = 0; i < histories->size(); i++)
+    {
+        qDebug() << "    msg:" << histories->at(i).username() << ":" << histories->at(i).message
+                 << histories->at(i).messageId;
+    } */
+    if (historyStart == 0 || historyEnd <= 0) // 需要加载历史消息
+    {
+        if (isGroup())
+        {
+            qInfo() << "没有历史消息，加载群消息历史...";
+            emit sig->getGroupMsgHistory(groupId, firstMsg.messageId);
+        }
         return ;
+    }
 
+    // 加载本地消息
     // 群组的话，根据同一个人的连续消息，稍微向上延伸，最多一倍
     historyStart = qMax(0, historyStart - us->bannerMessageLoadCount);
     if (groupId && historyStart > 0)
@@ -1848,6 +1892,7 @@ void NotificationCard::loadMsgHistoryToMsg(qint64 messageId)
 }
 
 /// 从start到end一直加载历史记录，插入到开头
+/// 不包括end
 void NotificationCard::loadMsgHistoryByIndex(int historyStart, int historyEnd)
 {
     if (_loadingHistory)
