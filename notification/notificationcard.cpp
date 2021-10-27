@@ -495,7 +495,7 @@ void NotificationCard::addSingleSenderMsg(const MsgBean &msg)
 }
 
 /// 仅创建消息正文
-void NotificationCard::createPureMsgView(const MsgBean& msg, int index)
+MessageView* NotificationCard::createPureMsgView(const MsgBean& msg, int index)
 {
     // 先暂停时钟（获取图片有延迟）
     int remain = -1;
@@ -551,10 +551,11 @@ void NotificationCard::createPureMsgView(const MsgBean& msg, int index)
         displayTimer->start();
         // 显示出来后会自动增加新message需要的时间，所以只要恢复就行了
     }
+    return msgView;
 }
 
 /// 创建完整的头像、昵称、消息内容
-void NotificationCard::createMsgBox(const MsgBean &msg, int index)
+MessageView* NotificationCard::createMsgBox(const MsgBean &msg, int index)
 {
     // 先暂停时钟（获取图片有延迟）
     int remain = -1;
@@ -701,11 +702,12 @@ void NotificationCard::createMsgBox(const MsgBean &msg, int index)
         displayTimer->start();
         // 显示出来后会自动增加新message需要的时间，所以只要恢复就行了
     }
+    return msgView;
 }
 
 /// 仅显示编辑框，不显示头像
 /// 但是头像的占位还在的
-void NotificationCard::createBlankMsgBox(const MsgBean &msg, int index)
+MessageView* NotificationCard::createBlankMsgBox(const MsgBean &msg, int index)
 {
     // 先暂停时钟（获取图片有延迟）
     int remain = -1;
@@ -780,6 +782,7 @@ void NotificationCard::createBlankMsgBox(const MsgBean &msg, int index)
         displayTimer->start();
         // 显示出来后会自动增加新message需要的时间，所以只要恢复就行了
     }
+    return msgView;
 }
 
 MessageView *NotificationCard::newMsgView()
@@ -1828,7 +1831,8 @@ void NotificationCard::loadMsgHistoryToMsg(qint64 messageId)
     }
 
     // 跳转到消息
-    qDebug() << "消息索引：" << targetIndex << historyStart << historyEnd;
+    qDebug() << "回复索引：" << targetIndex << historyStart << historyEnd;
+    msgViews.at(targetIndex - historyStart)->markSelected();
     QRect itemRect = ui->listWidget->visualItemRect(ui->listWidget->item(targetIndex - historyStart)); // 相对于viewport的位置
     ui->listWidget->smoothScrollToDelta(itemRect.top());
 }
@@ -1853,24 +1857,26 @@ void NotificationCard::loadMsgHistoryByIndex(int historyStart, int historyEnd)
     {
         int index = i - historyStart;
         auto msg = histories->at(i);
+        MessageView* view = nullptr;
         if (isPrivate())
         {
-            createPureMsgView(msg, index);
+            view = createPureMsgView(msg, index);
         }
         else
         {
             if (msg.senderId != senderId)
             {
-                createMsgBox(msg, index);
+                view = createMsgBox(msg, index);
             }
             else
             {
-                createBlankMsgBox(msg, index);
+                view = createBlankMsgBox(msg, index);
             }
         }
         senderId = msg.senderId;
         // 插入到本地的 msgs 中
         msgs.insert(index, msg);
+        msgViews.insert(index, view);
     }
     bar->setSliderPosition(bar->maximum() - disBottom);
 

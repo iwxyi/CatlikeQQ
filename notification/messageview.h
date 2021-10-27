@@ -26,7 +26,12 @@ public:
 
     void markDeleted();
 
+    void markSelected();
+
     QSize sizeHint() const override;
+
+private:
+    void updateStyleSheet();
 
 signals:
     void needMemberNames();
@@ -48,6 +53,9 @@ private:
 
     QString filePath;
     QPixmap filePixmap;
+
+    bool deleted = false;
+    bool selected = false;
 };
 
 #endif // MESSAGEEDIT_H

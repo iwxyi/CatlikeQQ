@@ -865,6 +865,15 @@ QSize MessageView::sizeHint() const
 #endif
 }
 
+void MessageView::updateStyleSheet()
+{
+    QString qss = "color: " + QVariant(textColor).toString() + ";";
+    if (selected)
+        qss += "background-color: lightGray;";
+
+    setStyleSheet("QLabel { " + qss + " }");
+}
+
 void MessageView::setTextColor(QColor c)
 {
     this->textColor = c;
@@ -872,7 +881,7 @@ void MessageView::setTextColor(QColor c)
     pa.setColor(QPalette::Foreground, c);
     pa.setColor(QPalette::Text, c);
     setPalette(pa);
-    setStyleSheet(this->styleSheet() + "QLabel { color: " + QVariant(c).toString() + "; }");
+    updateStyleSheet();
 }
 
 void MessageView::markDeleted()
@@ -887,5 +896,15 @@ void MessageView::markDeleted()
 
     textColor.setAlpha(128);
     setTextColor(textColor);
+}
+
+void MessageView::markSelected()
+{
+    this->selected = true;
+    updateStyleSheet();
+    QTimer::singleShot(500, [=]{
+        this->selected = false;
+        updateStyleSheet();
+    });
 }
 

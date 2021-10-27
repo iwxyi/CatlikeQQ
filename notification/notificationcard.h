@@ -112,9 +112,9 @@ private:
     void appendPrivateMsg(const MsgBean& msg);
     void appendGroupMsg(const MsgBean& msg);
     void addSingleSenderMsg(const MsgBean& msg);
-    void createPureMsgView(const MsgBean &msg, int index = -1);
-    void createMsgBox(const MsgBean &msg, int index = -1);
-    void createBlankMsgBox(const MsgBean &msg, int index = -1);
+    MessageView *createPureMsgView(const MsgBean &msg, int index = -1);
+    MessageView *createMsgBox(const MsgBean &msg, int index = -1);
+    MessageView *createBlankMsgBox(const MsgBean &msg, int index = -1);
     MessageView* newMsgView();
     void connectGroupHeader(QLabel* label, const MsgBean &msg);
     void connectUserHeader(QLabel *label, const MsgBean &msg);
