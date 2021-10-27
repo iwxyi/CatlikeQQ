@@ -48,6 +48,10 @@ MessageView::MessageView(QWidget *parent)
             QString messageId = link.right(link.length() - 6);
             emit focusMessage(messageId.toLongLong());
         }
+        else if (link.startsWith("at://"))
+        {
+            emit replyText("[CQ:at,qq=all]");
+        }
         else
         {
             // 打开网页
@@ -344,7 +348,7 @@ void MessageView::setMessage(const MsgBean& msg)
         text.replace(match.captured(0), "");
         QString messageId = match.captured(1);
         QString displayText = "";
-        text.insert(0, "<a href=\"msg://" + messageId + "\" title=\"点击跳转到回复\"><span style=\"text-decoration: none; color:#8cc2d4;\">[回复]</span></a>");
+        text.insert(0, "<a href=\"msg://" + messageId + "\"><span style=\"text-decoration: none; color:#8cc2d4;\">[回复]</span></a>");
     }
 
     // 艾特
@@ -371,14 +375,22 @@ void MessageView::setMessage(const MsgBean& msg)
                     if (memberColor.contains(userId))
                         c = memberColor.value(userId);
                 }
-                if (c.isValid())
+                if (!c.isValid())
+                    c = QColor("#41a5ee");
+
+                QString newText = "<a href=\"at://" + match.captured(1) + "\"><span style=\"text-decoration: none; color:" + QVariant(c).toString() + ";\">@" + members.value(userId).username() + "</span></a>";
+                qDebug() << newText << (ac->groupMemberColor.contains(msg.groupId)) << ac->groupMemberColor.value(msg.groupId).contains(userId);
+
+                /*if (c.isValid())
                 {
-                    text.replace(match.captured(0), "<font color=" + QVariant(c).toString() + ">@" + members.value(userId).username() + "</font>");
+                    newText = "<font color=" + QVariant(c).toString() + ">@" + members.value(userId).username() + "</font>";
                 }
                 else
                 {
-                    text.replace(match.captured(0), "@" + members.value(userId).username());
-                }
+                    newText = "@" + members.value(userId).username();
+                }*/
+
+                text.replace(match.captured(0), newText);
             }
             else // 群组里没有这个人，刚加入？
             {
