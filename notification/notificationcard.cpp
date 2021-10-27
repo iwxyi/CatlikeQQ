@@ -1783,12 +1783,13 @@ void NotificationCard::loadMsgHistoryToMsg(qint64 messageId)
     QList<MsgBean> *histories = getAllHistories();
     if (!histories)
         return ;
-    int targetIndex = histories->length() - 1;
+
+    int targetIndex = histories->length() - 1; // 相对于所有消息的索引
     while (targetIndex > 0 && histories->at(targetIndex).messageId != messageId)
         targetIndex--;
     if (targetIndex < 0)
     {
-        qWarning() << "未找到历史消息，ID =" << messageId;
+        qInfo() << "未找到历史消息，ID =" << messageId;
         return ;
     }
 
@@ -1800,7 +1801,7 @@ void NotificationCard::loadMsgHistoryToMsg(qint64 messageId)
     while (--historyEnd >= 0 && histories->at(historyEnd).timestamp >= timestamp);
 
     int historyStart = targetIndex;
-    if (historyEnd > -1)
+    if (historyEnd > -1 && historyEnd >= targetIndex) // 目标在历史消息中
     {
         // 群组的话，根据同一个人的连续消息，稍微向上延伸，最多一倍
         historyStart = qMax(0, historyStart - us->bannerMessageLoadCount);
@@ -1815,14 +1816,19 @@ void NotificationCard::loadMsgHistoryToMsg(qint64 messageId)
         // 加载消息：index -> historyEnd-1
         loadMsgHistoryByIndex(historyStart, historyEnd);
     }
-    else
+    else if (historyEnd < targetIndex) // 不加载消息，且目标在本地消息内
     {
-        // 不加载消息
         historyStart = 0;
+        targetIndex -= (historyEnd + 1);
+    }
+    else // 不在检测范围内
+    {
+        qWarning() << "回复不在历史消息中";
+        return ;
     }
 
     // 跳转到消息
-    // TODO: 显示聚焦动画
+    qDebug() << "消息索引：" << targetIndex << historyStart << historyEnd;
     QRect itemRect = ui->listWidget->visualItemRect(ui->listWidget->item(targetIndex - historyStart)); // 相对于viewport的位置
     ui->listWidget->smoothScrollToDelta(itemRect.top());
 }
