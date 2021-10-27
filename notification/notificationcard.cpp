@@ -1830,11 +1830,21 @@ void NotificationCard::loadMsgHistoryToMsg(qint64 messageId)
         return ;
     }
 
-    // 跳转到消息
+    // 高亮消息
     qDebug() << "回复索引：" << targetIndex << historyStart << historyEnd;
-    msgViews.at(targetIndex - historyStart)->markSelected();
-    QRect itemRect = ui->listWidget->visualItemRect(ui->listWidget->item(targetIndex - historyStart)); // 相对于viewport的位置
-    ui->listWidget->smoothScrollToDelta(itemRect.top());
+    int msgIndex = targetIndex - historyStart;
+    msgViews.at(msgIndex)->markSelected();
+    QRect itemRect = ui->listWidget->visualItemRect(ui->listWidget->item(msgIndex)); // 相对于viewport的位置
+
+    // 跳转到消息
+    qint64 senderId = msgs.at(msgIndex).senderId;
+    while (msgIndex > 0 && msgs.at(msgIndex - 1).senderId == senderId)
+        msgIndex--;
+    QRect firstRect = ui->listWidget->visualItemRect(ui->listWidget->item(msgIndex));
+    if (itemRect.bottom() - firstRect.top() <= us->bannerContentMaxHeight)
+        ui->listWidget->smoothScrollToDelta(firstRect.top());
+    else
+        ui->listWidget->smoothScrollToDelta(itemRect.top());
 }
 
 /// 从start到end一直加载历史记录，插入到开头

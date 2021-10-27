@@ -571,8 +571,11 @@ void MessageView::setMessage(const MsgBean& msg)
     text.replace(QRegularExpression("([a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+)"), "<a href=\"mailto:\\1\">\\1</a>");
 
     // #处理长度（注意要忽略各种标签）
-//    if (text.length() > us->msgMaxLength)
-//        text = text.left(us->msgMaxLength) + "...";
+    // if (text.length() > us->msgMaxLength)
+    //     text = text.left(us->msgMaxLength) + "...";
+
+    // 处理换行
+    text.replace("\n", "<br/>");
 
     // #设置显示
     setText(text);
