@@ -349,7 +349,7 @@ void MessageView::setMessage(const MsgBean& msg)
         text.replace(match.captured(0), "");
         QString messageId = match.captured(1);
         QString displayText = "";
-        text.insert(0, "<a href=\"msg://" + messageId + "\"><span style=\"text-decoration: none; color:#8cc2d4;\">[回复]</span></a>");
+        text.insert(0, "<a href=\"msg://" + messageId + "\"><span style=\"text-decoration: none; color:" + QVariant(textColor).toString() + ";\">[回复]</span></a>");
     }
 
     // 艾特
@@ -380,16 +380,6 @@ void MessageView::setMessage(const MsgBean& msg)
                     c = textColor;
 
                 QString newText = "<a href=\"at://" + match.captured(1) + "\"><span style=\"text-decoration: none; color:" + QVariant(c).toString() + ";\">@" + members.value(userId).username() + "</span></a>";
-
-                /*if (c.isValid())
-                {
-                    newText = "<font color=" + QVariant(c).toString() + ">@" + members.value(userId).username() + "</font>";
-                }
-                else
-                {
-                    newText = "@" + members.value(userId).username();
-                }*/
-
                 text.replace(match.captured(0), newText);
             }
             else // 群组里没有这个人，刚加入？
@@ -833,7 +823,10 @@ void MessageView::showMenu()
 #else
 #endif
 
-    menu->split()->addTitle(QDateTime::fromMSecsSinceEpoch(msg.timestamp).toString("MM-dd hh:mm:ss"));
+    QString timeFormat = "MM-dd hh:mm";
+    if (QDateTime::currentDateTime().date().dayOfYear() == QDateTime::fromMSecsSinceEpoch(msg.timestamp).date().dayOfYear())
+        timeFormat = "hh:mm:ss";
+    menu->split()->addTitle(QDateTime::fromMSecsSinceEpoch(msg.timestamp).toString(timeFormat));
 
     menu->exec();
 
