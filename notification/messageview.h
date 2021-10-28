@@ -40,6 +40,7 @@ signals:
     void replyText(const QString& text);
     void sendText(const QString& text);
     void focusMessage(const qint64 messageId);
+    void heightChanged();
 
 public slots:
     void replaceGroupAt();

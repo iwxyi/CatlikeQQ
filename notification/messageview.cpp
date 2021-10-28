@@ -505,7 +505,7 @@ void MessageView::setMessage(const MsgBean& msg)
             vw->setRadius(us->bannerBgRadius);
             vw->setMedia(path);
             vw->show();
-            this->setFixedHeight(maxHeight);
+            this->setFixedHeight(maxHeight); // TODO: 设置成视频高度才合适
 
             vw->setCursor(Qt::PointingHandCursor);
             connect(vw, &ClickLabel::leftClicked, this, [=]{

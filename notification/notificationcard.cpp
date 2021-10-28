@@ -69,6 +69,9 @@ NotificationCard::NotificationCard(QWidget *parent) :
     connect(bg, SIGNAL(clicked()), this, SLOT(cardClicked()));
     connect(bg, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(cardMenu()));
 
+    connect(ui->listWidget, &SmoothListWidget::signalLoadTop, this, [=]{
+        qDebug() << "------------------------------------";
+    });
     connect(ui->listWidget, SIGNAL(signalLoadTop()), this, SLOT(loadMsgHistory()));
 
     connect(ui->messageEdit, &ReplyEdit::signalESC, this, [=]{
@@ -671,7 +674,7 @@ MessageView* NotificationCard::createMsgBox(const MsgBean &msg, int index)
     msgView->setTextColor(cardColor.fg);
     msgView->setMessage(msg);
     msgView->adjustSizeByTextWidth(us->bannerContentWidth); // 这里有个-12的，为什么呢
-    box->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    box->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     box->adjustSize();
     box->setFixedHeight(box->sizeHint().height());
 
@@ -1788,8 +1791,9 @@ void NotificationCard::loadMsgHistory()
     auto firstMsg = msgs.first(); // 显示的第一个消息
 
     // 获取当前消息的前一个位置（最后一条历史）
-    int historyStart = histories->size()-1;
+    int historyStart = histories->size();
     while (--historyStart >= 0 && histories->at(historyStart).messageId != firstMsg.messageId);
+    historyStart--;
     int historyEnd = qMin(historyStart + 1, histories->size()); // 当前索引
     /* qDebug() << "获取历史：" << historyStart << historyEnd << firstMsg.username() << ":" << firstMsg.message
              << firstMsg.messageId;
