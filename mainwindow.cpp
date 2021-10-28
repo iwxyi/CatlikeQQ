@@ -841,7 +841,7 @@ NotificationCard* MainWindow::focusOrShowMessageCard(const MsgBean &msg, bool fo
             {
                 card->showReplyEdit(true);
                 if (showHistory)
-                    card->loadMsgHistory();
+                    card->loadMsgHistoryByLocal();
             }
             return card;
         }
@@ -856,7 +856,7 @@ NotificationCard* MainWindow::focusOrShowMessageCard(const MsgBean &msg, bool fo
         card->addReplyText(insertText);
     if (showHistory)
     {
-        card->loadMsgHistory();
+        card->loadMsgHistoryByLocal();
         card->scrollToBottomE();
     }
     return card;

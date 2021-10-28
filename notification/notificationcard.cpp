@@ -1823,6 +1823,14 @@ void NotificationCard::loadMsgHistory()
     loadMsgHistoryByIndex(historyStart, historyEnd);
 }
 
+void NotificationCard::loadMsgHistoryByLocal()
+{
+    QList<MsgBean> *histories = getAllHistories();
+    if (!histories || msgs.size() == histories->size())
+        return ;
+    loadMsgHistory();
+}
+
 /// 加载历史记录到messageId这个索引
 void NotificationCard::loadMsgHistoryToMsg(qint64 messageId)
 {

@@ -78,6 +78,7 @@ public slots:
     void shallToHide();
     void addReplyText(const QString& text);
     void loadMsgHistory();
+    void loadMsgHistoryByLocal();
     void loadMsgHistoryToMsg(qint64 messageId);
     void loadMsgHistoryByIndex(int historyStart, int historyEnd);
     void scrollToBottom();
