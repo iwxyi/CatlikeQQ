@@ -247,6 +247,7 @@ void CqhttpService::parseEchoMessage(const MyJson &json)
         });
         qInfo() << "加载群成员：" << groupId << members.size();
         emit sig->groupMembersLoaded(groupId);
+        ac->gettingGroupMembers.remove(groupId);
     }
     else if (echo.startsWith("msg_recall_friend"))
     {
@@ -761,6 +762,9 @@ void CqhttpService::refreshGroups()
 
 void CqhttpService::refreshGroupMembers(qint64 groupId)
 {
+    if (ac->gettingGroupMembers.contains(groupId))
+        return ;
+    ac->gettingGroupMembers[groupId] = true;
     MyJson json;
     json.insert("action", "get_group_member_list");
     MyJson params;
@@ -803,8 +807,12 @@ void CqhttpService::sendGroupMsg(qint64 groupId, const QString& message)
 /// get_group_msg_history: real_id -> messages[19] (最后一条是传参的，加载前面18条)
 void CqhttpService::getGroupMsgHistory(qint64 groupId, qint64 messageId, qint64 realId)
 {
-    // 正在获取，不重复获取
-    ac->gettingGroupMsgHistories[groupId] = true;
+    if (!realId) // 第一步
+    {
+        if (ac->gettingGroupMsgHistories.contains(groupId))
+            return ;
+        ac->gettingGroupMsgHistories[groupId] = true;
+    }
     MyJson json;
     if (!realId && messageId)
     {
