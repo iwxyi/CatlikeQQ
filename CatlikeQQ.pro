@@ -36,6 +36,7 @@ INCLUDEPATH += third_party/color_octree/\
     control_service/
 
 SOURCES += \
+    contact/contactpage.cpp \
     control_service/remotecontrolservie.cpp \
     global/headerutil.cpp \
     global/usettings.cpp \
@@ -75,6 +76,7 @@ SOURCES += \
     widgets/video/videowidget.cpp
 
 HEADERS += \
+    contact/contactpage.h \
     control_service/remotecontrolservie.h \
     global/accountinfo.h \
     global/defines.h \
@@ -129,6 +131,7 @@ HEADERS += \
     widgets/video/videowidget.h
 
 FORMS += \
+    contact/contactpage.ui \
     mainwindow.ui \
     notification/notificationbubble.ui \
     notification/notificationcard.ui \

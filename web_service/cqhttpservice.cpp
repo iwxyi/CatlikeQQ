@@ -148,7 +148,7 @@ void CqhttpService::messageReceived(const QString &message)
         {
             parseGroupRecall(json);
         }
-        else if (notice_type == "friend_recall") // 撤销群消息
+        else if (notice_type == "friend_recall") // 撤销私聊消息
         {
             parseFriendRecall(json);
         }
@@ -249,9 +249,9 @@ void CqhttpService::parseEchoMessage(const MyJson &json)
         emit sig->groupMembersLoaded(groupId);
         ac->gettingGroupMembers.remove(groupId);
     }
-    else if (echo.startsWith("msg_recall_friend"))
+    else if (echo.startsWith("msg_recall_private"))
     {
-        QRegularExpression re("^msg_recall_friend:(\\d+)_(-?\\w+)$");
+        QRegularExpression re("^msg_recall_private:(\\d+)_(-?\\w+)$");
         QRegularExpressionMatch match;
         if (echo.indexOf(re, 0, &match) == -1)
         {
@@ -262,6 +262,10 @@ void CqhttpService::parseEchoMessage(const MyJson &json)
         qint64 messageId = match.captured(2).toLongLong();
         MsgBean msg = MsgBean().recall(messageId, friendId, ac->myId);
         emit signalMessage(msg);
+    }
+    else if (echo.startsWith("msg_recall_group"))
+    {
+        // 群消息撤回会从ws发过来，这里不需要处理
     }
     else if (echo.startsWith("get_msg"))
     {
@@ -626,7 +630,7 @@ void CqhttpService::parseFriendRecall(const MyJson &json)
         "user_id": 3308218798
     } */
 
-    JL(json, user_id); // 这是好友消息撤回，自己撤回的接收不到，只能监听撤回自己的撤回回调
+    JL(json, user_id); // 这是好友消息撤回，自己撤回的接收不到，只能监听撤回自己的回调
     JL(json, message_id);
 
     qInfo() << "用户撤回：" << user_id << ac->friendName(user_id) << message_id;
@@ -650,8 +654,8 @@ void CqhttpService::parseGroupRecall(const MyJson &json)
 
     JL(json, group_id);
     JL(json, message_id);
-    JL(json, user_id);
-    JL(json, operator_id);
+    JL(json, user_id); // 发送者ID
+    JL(json, operator_id); // 操作者ID（发送者或者群管理员）
 
     qInfo() << "群消息撤回：" << group_id << ac->groupList.value(group_id).name << message_id;
     MsgBean msg = MsgBean().recall(message_id, user_id, operator_id, group_id);

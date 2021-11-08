@@ -771,7 +771,12 @@ void MessageView::showMenu()
             MyJson params;
             params.insert("message_id", msg.messageId);
             json.insert("params", params);
-            json.insert("echo", "msg_recall_friend:" + snum(msg.friendId) + "_" + snum(msg.messageId));
+            if (msg.isPrivate())
+                json.insert("echo", "msg_recall_private:" + snum(msg.friendId) + "_" + snum(msg.messageId));
+            else if (msg.isGroup())
+                json.insert("echo", "msg_recall_group:" + snum(msg.groupId) + "_" + snum(msg.messageId));
+            else
+                return ;
             emit sig->sendSocketText(json.toBa());
         });
     }
