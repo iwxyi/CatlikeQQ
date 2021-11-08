@@ -564,7 +564,7 @@ void MessageView::setMessage(const MsgBean& msg)
     text.replace("&#91;", "[").replace("&#93;", "]");
 
     // 超链接
-    text.replace(QRegularExpression("(?<!['\"])((http|ftp)s?://[\\w\\.]+\\.\\w{2,5}([\\?\\/][\\S]*)?)"), "<a href=\"\\1\">\\1</a>");
+    text.replace(QRegularExpression("(?<!['\"])((http|ftp)s?://[\\w\\.]+\\.\\w{2,5}([\\?\\/][^\\s<]*)?)"), "<a href=\"\\1\">\\1</a>");
     text.replace(QRegularExpression("([a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+)"), "<a href=\"mailto:\\1\">\\1</a>");
 
     // #处理长度（注意要忽略各种标签）
@@ -674,7 +674,7 @@ QString MessageView::simpleMessage(const MsgBean &msg)
     text.replace("&#91;", "[").replace("&#93;", "]");
 
     // 超链接
-    text.replace(QRegularExpression("(?<!['\"])((http|ftp)s?://[\\w\\.]+\\.\\w{2,5}([\\?\\/][\\S]*)?)"), "<a href=\"\\1\">\\1</a>");
+    text.replace(QRegularExpression("(?<!['\"])((http|ftp)s?://[\\w\\.]+\\.\\w{2,5}([\\?\\/][^\\s<]*)?)"), "<a href=\"\\1\">\\1</a>");
     text.replace(QRegularExpression("([a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+)"), "<a href=\"mailto:\\1\">\\1</a>");
 
     // #设置显示
