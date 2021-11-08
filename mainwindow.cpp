@@ -26,6 +26,7 @@
 #include "widgets/settings/countwidget.h"
 #include "widgets/settings/speechwidget.h"
 #include "widgets/settings/stylewidget.h"
+#include "contact/contactpage.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -380,6 +381,10 @@ void MainWindow::trayAction(QSystemTrayIcon::ActivationReason reason)
             this->activateWindow();
         });
 
+        menu->addAction(QIcon("://icons/search.png"), "搜索", [=]{
+            ContactPage::getInstance()->show();
+        });
+
         menu->addAction(QIcon("://icons/quit.png"), "退出", [=]{
             qApp->quit();
         });
@@ -615,7 +620,6 @@ bool MainWindow::canNewCardShow(const MsgBean &msg) const
     // 特别关心（暂时没啥用）
     bool special = us->userSpecial.contains(msg.senderId)
             || us->groupMemberSpecial.value(msg.groupId, QList<qint64>{}).contains(msg.senderId);
-    Q_UNUSED(special)
 
     // 判断消息级别开关
     int im = NormalImportant;
@@ -637,7 +641,9 @@ bool MainWindow::canNewCardShow(const MsgBean &msg) const
 
     // 特别关心（好友/群内）
     if (special)
+    {
         im++;
+    }
 
     // 全局提醒词
     bool globalRemind = false;

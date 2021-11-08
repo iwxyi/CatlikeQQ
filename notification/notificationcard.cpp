@@ -69,9 +69,6 @@ NotificationCard::NotificationCard(QWidget *parent) :
     connect(bg, SIGNAL(clicked()), this, SLOT(cardClicked()));
     connect(bg, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(cardMenu()));
 
-    connect(ui->listWidget, &SmoothListWidget::signalLoadTop, this, [=]{
-        qDebug() << "------------------------------------";
-    });
     connect(ui->listWidget, SIGNAL(signalLoadTop()), this, SLOT(loadMsgHistory()));
 
     connect(ui->messageEdit, &ReplyEdit::signalESC, this, [=]{

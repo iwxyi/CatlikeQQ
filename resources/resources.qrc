@@ -59,6 +59,8 @@
         <file>icons/character_data.png</file>
         <file>icons/group_info.png</file>
         <file>icons/group_member.png</file>
+        <file>icons/search.png</file>
+        <file>icons/redbag.png</file>
     </qresource>
     <qresource prefix="/qq">
         <file>qq-face/0.gif</file>
