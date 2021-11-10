@@ -368,6 +368,9 @@ void CqhttpService::parsePrivateMessage(const MyJson &json)
     JL(sender, user_id); // 发送者用户QQ号
     JS(sender, nickname);
 
+    if (target_id == 0) // 非好友私聊发过来的，没有targetId
+        target_id = ac->myId;
+
     qint64 friendId = target_id == ac->myId ? user_id : target_id;
     ensureFriendExist(FriendInfo(friendId, nickname, ""));
     qInfo() << "收到私聊消息：" << user_id << "->" << target_id << nickname << message << message_id;
