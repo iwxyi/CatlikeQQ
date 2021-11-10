@@ -158,3 +158,8 @@ void ContactPage::on_lineEdit_returnPressed()
         break;
     }
 }
+
+void ContactPage::on_listView_clicked(const QModelIndex &index)
+{
+    on_lineEdit_returnPressed();
+}

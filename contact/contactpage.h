@@ -43,6 +43,8 @@ private slots:
 
     void on_lineEdit_returnPressed();
 
+    void on_listView_clicked(const QModelIndex &index);
+
 private:
     Ui::ContactPage *ui;
     static ContactPage* page;
