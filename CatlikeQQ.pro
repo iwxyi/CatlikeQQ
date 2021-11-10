@@ -43,6 +43,7 @@ SOURCES += \
     global/headerutil.cpp \
     global/usettings.cpp \
     notification/messageview.cpp \
+    notification/messageview_parser.cpp \
     notification/smoothlistwidget.cpp \
     third_party/utils/httpuploader.cpp \
     web_service/cqhttpservice.cpp \

@@ -7,6 +7,10 @@
 
 #define MESSAGE_LABEL
 
+
+/**
+  * 消息气泡类
+  */
 #ifdef MESSAGE_LABEL
 class MessageView : public QLabel
 #else
