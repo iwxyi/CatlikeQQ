@@ -11,11 +11,7 @@
 /**
   * 消息气泡类
   */
-#ifdef MESSAGE_LABEL
-class MessageView : public QLabel
-#else
-class MessageView : public QTextBrowser
-#endif
+class MessageView : public QWidget
 {
     Q_OBJECT
 public:
@@ -58,6 +54,13 @@ private:
 
     QString filePath;
     QPixmap filePixmap;
+
+    MessageView* replyView = nullptr; // 回复（不一定有）
+#ifdef MESSAGE_LABEL
+    QLabel* contentWidget = nullptr; // 内容控件
+#else
+    QTextBrowser* contentWidget = nullptr;
+#endif
 
     bool deleted = false;
     bool selected = false;

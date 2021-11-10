@@ -516,7 +516,7 @@ MessageView* NotificationCard::createPureMsgView(const MsgBean& msg, int index)
     bool ending = (scrollbar->sliderPosition() >= scrollbar->maximum() || ui->listWidget->isToBottoming());
 
     MessageView* msgView = newMsgView();
-    msgView->setTextColor(cardColor.fg);
+    msgView->setTextColor(us->bannerShowBubble ? us->bannerContentColor : cardColor.fg);
     msgView->setMessage(msg);
 
     msgView->setAttribute(Qt::WA_TransparentForMouseEvents, false);
@@ -668,7 +668,7 @@ MessageView* NotificationCard::createMsgBox(const MsgBean &msg, int index)
     nameLabel->setPalette(pa);
 
     // 设置消息
-    msgView->setTextColor(cardColor.fg);
+    msgView->setTextColor(us->bannerShowBubble ? us->bannerContentColor : cardColor.fg);
     msgView->setMessage(msg);
     msgView->adjustSizeByTextWidth(us->bannerContentWidth); // 这里有个-12的，为什么呢
     box->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -749,7 +749,7 @@ MessageView* NotificationCard::createBlankMsgBox(const MsgBean &msg, int index)
     msgView->setPalette(pa);
 
     // 设置消息
-    msgView->setTextColor(cardColor.fg);
+    msgView->setTextColor(us->bannerShowBubble ? us->bannerContentColor : cardColor.fg);
     msgView->setMessage(msg);
     msgView->adjustSizeByTextWidth(us->bannerContentWidth); // 这里有个-12的，为什么呢
     box->adjustSize();

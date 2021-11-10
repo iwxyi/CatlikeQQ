@@ -79,8 +79,8 @@ void MessageView::setMessage(const MsgBean& msg)
                 movie->jumpToFrame(0);
                 int sz = this->fontMetrics().height();
                 movie->setScaledSize(QSize(sz, sz));
-                setMaximumSize(sz, sz);
-                setMovie(movie);
+                contentWidget->setMaximumSize(sz, sz);
+                contentWidget->setMovie(movie);
                 movie->start();
                 text = "[表情]";
 
@@ -185,8 +185,8 @@ void MessageView::setMessage(const MsgBean& msg)
                         movie->setScaledSize(QSize(maxWidth, maxHeight));
                     }
 
-                    setMaximumSize(maxWidth, maxHeight);
-                    setMovie(movie);
+                    contentWidget->setMaximumSize(maxWidth, maxHeight);
+                    contentWidget->setMovie(movie);
                     movie->start();
 
                     // 设置圆角
@@ -197,7 +197,7 @@ void MessageView::setMessage(const MsgBean& msg)
                     QPainterPath path;
                     path.addRoundedRect(pixmap.rect(), us->bannerBgRadius, us->bannerBgRadius);
                     painter.fillPath(path, Qt::white);
-                    this->setMask(pixmap.mask());
+                    contentWidget->setMask(pixmap.mask());
                     return ;
                 }
                 delete movie;
@@ -285,7 +285,7 @@ void MessageView::setMessage(const MsgBean& msg)
                     rep = rep + "<br/>";
                 text.replace(match.captured(0), rep);
                 pos = match.capturedStart() + rep.length();
-                this->setMinimumWidth(qMax(this->minimumWidth(),  pixmap.width()));
+                contentWidget->setMinimumWidth(qMax(this->minimumWidth(),  pixmap.width()));
             }
         }
     }
@@ -527,5 +527,5 @@ void MessageView::setMessage(const MsgBean& msg)
     text.replace("\n", "<br/>");
 
     // #设置显示
-    setText(text);
+    contentWidget->setText(text);
 }

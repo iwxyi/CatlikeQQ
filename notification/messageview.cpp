@@ -20,19 +20,16 @@
 #include "netutil.h"
 
 MessageView::MessageView(QWidget *parent)
-#ifdef MESSAGE_LABEL
-    : QLabel(parent),
-#else
-    : QTextBrowser(parent),
-#endif
+    : QWidget(parent),
       msg(0, "")
 {
 #ifdef MESSAGE_LABEL
-    setWordWrap(true);
-    setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
-    setTextFormat(Qt::RichText);
+    contentWidget = new QLabel(this);
+    contentWidget->setWordWrap(true);
+    contentWidget->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
+    contentWidget->setTextFormat(Qt::RichText);
 
-    connect(this, &QLabel::linkActivated, this, [=](const QString& link) {
+    connect(contentWidget, &QLabel::linkActivated, this, [=](const QString& link) {
         qInfo() << "打开链接：" << link;
         if (link.startsWith("msg://"))
         {
@@ -52,13 +49,24 @@ MessageView::MessageView(QWidget *parent)
         }
     });
 #else
-    setReadOnly(true);
-    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    setWordWrapMode(QTextOption::WrapMode::WrapAnywhere);
+    contentWidget = new QTextBrowser(this);
+    contentWidget->setReadOnly(true);
+    contentWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    contentWidget->setWordWrapMode(QTextOption::WrapMode::WrapAnywhere);
 #endif
-    setContentsMargins(0, 0, 0, 0);
-    setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showMenu()));
+    contentWidget->setContentsMargins(0, 0, 0, 0);
+    contentWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+    contentWidget->connect(contentWidget, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showMenu()));
+
+    // 设置样式
+    setObjectName("MessageView");
+    contentWidget->setObjectName("ContentWidget");
+
+    // 设置布局
+    QVBoxLayout * layout = new QVBoxLayout(this);
+    layout->addWidget(contentWidget);
+    layout->setMargin(0);
+    layout->setSpacing(0);
 }
 
 /// 这个是最简单的文字替换
@@ -172,9 +180,9 @@ void MessageView::replaceGroupAt()
         return ;
 
 #ifdef MESSAGE_LABEL
-    QString text = this->text();
+    QString text = contentWidget->text();
 #else
-    QString text = this->toPlainText();
+    QString text = contentWidget->toPlainText();
 #endif
     if (text.isEmpty())
         return ;
@@ -197,7 +205,7 @@ void MessageView::replaceGroupAt()
         replaced = true;
     }
     if (replaced) // 没有替换的话，就不重新设置了（怕引起大小变化等等）
-        setText(text);
+        contentWidget->setText(text);
 }
 
 void MessageView::showMenu()
@@ -292,8 +300,8 @@ void MessageView::showMenu()
 
 
 #ifdef MESSAGE_LABEL
-    bool hasSelect = this->hasSelectedText();
-    QString selectedText = this->selectedText();
+    bool hasSelect = contentWidget->hasSelectedText();
+    QString selectedText = contentWidget->selectedText();
     menu->addAction(QIcon("://icons/copy_image.png"), "复制", [=]{
         if (hasSelect)
         {
@@ -301,13 +309,13 @@ void MessageView::showMenu()
         }
         else
         {
-            QApplication::clipboard()->setText(this->text());
+            QApplication::clipboard()->setText(contentWidget->text());
         }
-    })->text(!this->hasSelectedText(), "复制全部");
+    })->text(!contentWidget->hasSelectedText(), "复制全部");
 
     menu->addAction(QIcon("://icons/copy_image.png"), "全选", [=]{
         menu->close();
-        this->setSelection(0, this->text().length());
+        contentWidget->setSelection(0, contentWidget->text().length());
     });
 #else
 #endif
@@ -328,9 +336,17 @@ QSize MessageView::adjustSizeByTextWidth(int w)
 {
 #ifdef MESSAGE_LABEL
     this->fixedWidth = w;
-    setFixedWidth(w);
-    adjustSize();
-    setFixedHeight(this->height());
+
+    w -= us->bannerBubblePadding * 2;
+    if (us->bannerShowBubble)
+        contentWidget->setMaximumWidth(w);
+    else
+        contentWidget->setFixedWidth(w);
+    contentWidget->adjustSize();
+    contentWidget->setFixedHeight(contentWidget->height());
+
+    this->adjustSize();
+    this->setFixedHeight(contentWidget->height());
     return this->size();
 #else
 //    setMaximumWidth(w);
@@ -345,8 +361,8 @@ QSize MessageView::sizeHint() const
 {
     if (fixedWidth)
 #ifdef MESSAGE_LABEL
-        return QSize(fixedWidth, QLabel::sizeHint().height());
-    return QLabel::sizeHint();
+        return QSize(fixedWidth, QWidget::sizeHint().height());
+    return QWidget::sizeHint();
 #else
         return QSize(fixedWidth, QTextBrowser::sizeHint().height());
     return QTextBrowser::sizeHint();
@@ -355,7 +371,10 @@ QSize MessageView::sizeHint() const
 
 void MessageView::updateStyleSheet()
 {
+    // 设置内容文字颜色
     QString qss = "color: " + QVariant(textColor).toString() + ";";
+
+    // 设置背景颜色
     if (us->bannerShowBubble)
     {
         qss += "border-radius: " + snum(us->bannerBgRadius) + "px; padding: 5px;";
@@ -371,7 +390,7 @@ void MessageView::updateStyleSheet()
             qss += "background-color: lightGray;";
     }
 
-    setStyleSheet("QLabel { " + qss + " }");
+    this->setStyleSheet("#MessageView, #ContentWidget { " + qss + " }");
 }
 
 void MessageView::setTextColor(QColor c)
@@ -386,13 +405,13 @@ void MessageView::setTextColor(QColor c)
 
 void MessageView::markDeleted()
 {
-    QString text = this->text();
+    QString text = contentWidget->text();
     if (text.endsWith("</a>"))
         text.append("<br/>");
     else
         text.append(" ");
     text.append("[已撤回]");
-    setText(text);
+    contentWidget->setText(text);
 
     textColor.setAlpha(128);
     setTextColor(textColor);
