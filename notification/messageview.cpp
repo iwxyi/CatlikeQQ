@@ -377,7 +377,7 @@ void MessageView::updateStyleSheet()
     // 设置背景颜色
     if (us->bannerShowBubble)
     {
-        qss += "border-radius: " + snum(us->bannerBgRadius) + "px; padding: 5px;";
+        qss += "border-radius: " + snum(us->bannerBgRadius) + "px; padding: 2px;";
 
         if (msg.senderId == ac->myId) // 自己发的
             qss += "background-color: " + QVariant(us->bannerBubbleMime).toString() + ";";

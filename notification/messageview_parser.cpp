@@ -77,9 +77,9 @@ void MessageView::setMessage(const MsgBean& msg)
             {
                 // 调整图片大小
                 movie->jumpToFrame(0);
-                int sz = this->fontMetrics().height();
+                int sz = contentWidget->fontMetrics().height();
                 movie->setScaledSize(QSize(sz, sz));
-                contentWidget->setMaximumSize(sz, sz);
+                contentWidget->setFixedSize(sz, sz);
                 contentWidget->setMovie(movie);
                 movie->start();
                 text = "[表情]";
@@ -92,7 +92,7 @@ void MessageView::setMessage(const MsgBean& msg)
                 QPainterPath path;
                 path.addRoundedRect(pixmap.rect(), us->bannerBgRadius, us->bannerBgRadius);
                 painter.fillPath(path, Qt::white);
-                this->setMask(pixmap.mask());
+                contentWidget->setMask(pixmap.mask());
                 return ;
             }
             delete movie;
@@ -109,7 +109,7 @@ void MessageView::setMessage(const MsgBean& msg)
             QString path = rt->faceCache(id);
             if (!isFileExist(path))
             {
-                int sz = this->fontMetrics().height();
+                int sz = contentWidget->fontMetrics().height();
                 QPixmap pixmap(":/qq/qq-face/" + id + ".png");
                 pixmap = pixmap.scaled(sz, sz, Qt::KeepAspectRatio, Qt::SmoothTransformation);
                 pixmap.save(path);
@@ -141,8 +141,8 @@ void MessageView::setMessage(const MsgBean& msg)
             this->filePath = path;
 
             // 图片尺寸
-            int maxWidth = us->bannerContentWidth;
-            int maxHeight = us->bannerContentMaxHeight - us->bannerHeaderSize;
+            int maxWidth = us->bannerContentWidth - us->bannerBubblePadding * 2;
+            int maxHeight = us->bannerContentMaxHeight - us->bannerHeaderSize - us->bannerBubblePadding * 2;
             int lineHeight = QFontMetrics(this->font()).lineSpacing() * 2;
 #ifdef MESSAGE_LABEL
             // 如果是单张图片，支持显示gif
@@ -205,6 +205,7 @@ void MessageView::setMessage(const MsgBean& msg)
 #endif
             // 多张图片、静态图片；缩略图的伸缩、圆角
             int pos = 0;
+            maxWidth -= us->bannerBgRadius * 2; // 有个莫名的偏差
             while (true)
             {
                 if (text.indexOf(QRegularExpression("\\[CQ:image,file=(.+?).image,.*?url=(.+?)\\]"), pos, &match) == -1)
@@ -218,7 +219,6 @@ void MessageView::setMessage(const MsgBean& msg)
                 QString originPath = path;
                 QPixmap pixmap(path, "1");
                 this->filePixmap = pixmap;
-                maxWidth -= us->bannerBgRadius * 2; // 有个莫名的偏差
                 if (pixmap.width() < maxWidth / us->bannerThumbnailProp
                         && pixmap.height() < maxHeight / us->bannerThumbnailProp)
                 {
@@ -441,14 +441,14 @@ void MessageView::setMessage(const MsgBean& msg)
             this->filePath = path;
 
             // 图片尺寸
-            int maxWidth = us->bannerContentWidth;
-            int maxHeight = us->bannerContentMaxHeight - us->bannerHeaderSize;
+            int maxWidth = us->bannerContentWidth - us->bannerBubblePadding * 2;
+            int maxHeight = us->bannerContentMaxHeight - us->bannerHeaderSize - us->bannerBubblePadding * 2;
             Q_UNUSED(maxWidth)
 
             // 控件
-            QHBoxLayout* lay = new QHBoxLayout(this);
-            VideoLabel* vw = new VideoLabel(this);
-//            VideoWidget* vw = new VideoWidget(this); // 透明窗口不能使用 QVideoWidget，很无奈
+            QHBoxLayout* lay = new QHBoxLayout(contentWidget);
+            VideoLabel* vw = new VideoLabel(contentWidget);
+//            VideoWidget* vw = new VideoWidget(contentWidget); // 透明窗口不能使用 QVideoWidget，很无奈
             lay->addWidget(vw);
             lay->setMargin(0);
 
@@ -457,7 +457,7 @@ void MessageView::setMessage(const MsgBean& msg)
             vw->setRadius(us->bannerBgRadius);
             vw->setMedia(path);
             vw->show();
-            this->setFixedHeight(maxHeight); // TODO: 设置成视频高度才合适
+            contentWidget->setFixedHeight(maxHeight); // TODO: 设置成视频高度才合适
 
             vw->setCursor(Qt::PointingHandCursor);
             connect(vw, &ClickLabel::leftClicked, this, [=]{
