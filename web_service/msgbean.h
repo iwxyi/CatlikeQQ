@@ -12,6 +12,7 @@ struct FriendInfo
     QString nickname;
     QString remark; // 好友中就是备注，群组中是群备注
     qint64 lastMsgTime = 0;
+    bool temp = false; // 是不是临时好友
 
     FriendInfo()
     {}
@@ -27,6 +28,12 @@ struct FriendInfo
     {
         return remark.isEmpty() ? nickname : remark;
     }
+
+    FriendInfo& setTemp()
+    {
+        temp = true;
+        return *this;
+    }
 };
 
 struct GroupInfo
@@ -35,6 +42,7 @@ struct GroupInfo
     QString name;
     QHash<qint64, FriendInfo> members;
     qint64 lastMsgTime = 0;
+    bool temp = false;
 
     GroupInfo()
     {}
@@ -43,6 +51,12 @@ struct GroupInfo
     {
         this->groupId = groupId;
         this->name = name;
+    }
+
+    GroupInfo& setTemp()
+    {
+        temp = true;
+        return *this;
     }
 };
 

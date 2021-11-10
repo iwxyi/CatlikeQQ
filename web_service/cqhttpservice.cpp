@@ -100,6 +100,7 @@ void CqhttpService::sendJsonMessage(const MyJson &json)
 void CqhttpService::messageReceived(const QString &message)
 {
     MyJson json(message.toUtf8());
+    SKT_DEB << "ws.messageReceived:" << json;
 
     // 先判断是不是主动发消息过去，回复的
     if (json.contains("echo"))
@@ -217,9 +218,83 @@ void CqhttpService::parseEchoMessage(const MyJson &json)
         });
         emit sig->myGroupsLoaded();
     }
-    else if (echo == "send_private_msg" || echo == "send_group_msg")
+    else if (echo.startsWith("send_group_msg"))
     {
-        // 发送消息的回复，不做处理
+        // 发送群消息的echo，不作处理
+    }
+    else if (echo.startsWith("send_private_msg"))
+    {
+        // 发送私聊消息的echo，如果不是好友，需要获取一下
+        QRegularExpression re("^send_private_msg:(\\d+)$");
+        QRegularExpressionMatch match;
+        if (echo.indexOf(re, 0, &match) == -1)
+        {
+            qWarning() << "无法识别的发送私聊echo：" << echo;
+            return ;
+        }
+
+        qint64 userId = match.captured(1).toLongLong();
+
+        /*{
+            "data": {
+                "message_id": 1656284116
+            },
+            "echo": "send_private_msg:3308218798",
+            "retcode": 0,
+            "status": "ok"
+        }*/
+
+        // 不是好友，则重新在这里收到消息
+        if (!ac->friendList.contains(userId) || ac->friendList.value(userId).temp)
+        {
+            qint64 messageId = json.data().l("message_id");
+            // qInfo() << "获取非好友消息详情";
+
+            // 获取消息内容
+            {
+                MyJson json;
+                json.insert("action", "get_msg");
+                MyJson params;
+                params.insert("message_id", messageId);
+                json.insert("params", params);
+                json.insert("echo", "msg_private_temp_detail:" + snum(userId));
+                sendJsonMessage(json);
+            }
+        }
+    }
+    else if (echo.startsWith("msg_private_temp_detail"))
+    {
+        /*{
+            "data": {
+                "group": true,
+                "group_id": 571092110,
+                "message": "111",
+                "message_id": -492141777,
+                "message_seq": 63270,
+                "message_type": "group",
+                "raw_message": "111",
+                "real_id": 63270,
+                "sender": {
+                    "nickname": "小乂",
+                    "user_id": 1600631528
+                },
+                "time": 1636518146
+            },
+            "echo": "msg_private_temp_detail:3308218798",
+            "retcode": 0,
+            "status": "ok"
+        }*/
+        // 发送私聊消息的echo，如果不是好友，需要获取一下
+        QRegularExpression re("^msg_private_temp_detail:(\\d+)$");
+        QRegularExpressionMatch match;
+        if (echo.indexOf(re, 0, &match) == -1)
+        {
+            qWarning() << "无法识别的获取私聊消息echo：" << echo;
+            return ;
+        }
+        qint64 userId = match.captured(1).toLongLong();
+
+        parsePrivateMessageDetail(userId, json.data());
     }
     else if (echo.startsWith("get_group_member_list")) // 加载群成员
     {
@@ -332,30 +407,30 @@ void CqhttpService::parsePrivateMessage(const MyJson &json)
             "user_id": 3308218798 // 发出的，自己发给别人，或者别人发给自己，或者自己发给自己
         },
         "sub_type": "friend",
-        "target_id": 1600631528, // 发向的，同上，三种情况
+        "target_id": 1600631528, // 发向的，同上，三种情况；非好友没有
         "time": 1623898608,
         "user_id": 3308218798
     }*/
 
     /*{
         "font": 0,
-        "message": "。。。",
-        "message_id": -539978662,
+        "message": "哈哈",
+        "message_id": 934916919,
         "message_type": "private",
         "post_type": "message",
-        "raw_message": "。。。",
+        "raw_message": "哈哈",
         "self_id": 1600631528,
         "sender": {
             "age": 0,
-            "group_id": 647637553, // 群号
-            "nickname": "用户昵称",
+            "group_id": 571092110, // 群号
+            "nickname": "三界仙霖之雨",
             "sex": "unknown",
-            "user_id": 1057332539
+            "user_id": 3308218798
         },
         "sub_type": "group", // 群私聊消息
         "temp_source": 0,
-        "time": 1632823173,
-        "user_id": 1057332539
+        "time": 1636513457,
+        "user_id": 3308218798
     }*/
 
     JS(json, sub_type); // 好友：friend，群临时会话：group，群里自己发送：group_self(?)
@@ -389,6 +464,48 @@ void CqhttpService::parsePrivateMessage(const MyJson &json)
     emit signalMessage(msg);
 
     // 图片消息：文字1\r\n[CQ:image,file=8f84df65ee005b52f7f798697765a81b.image,url=http://c2cpicdw.qpic.cn/offpic_new/1600631528//1600631528-3839913603-8F84DF65EE005B52F7F798697765A81B/0?term=3]\r\n文字二……
+}
+
+/// 通过 get_msg 获取到的返回值
+/// 获取自己发送给非好友消息的回调
+void CqhttpService::parsePrivateMessageDetail(qint64 friendId, const MyJson &json)
+{
+    /*{
+        "group": true,
+        "group_id": 571092110,
+        "message": "111",
+        "message_id": -492141777,
+        "message_seq": 63270,
+        "message_type": "group",
+        "raw_message": "111",
+        "real_id": 63270,
+        "sender": {
+            "nickname": "小乂",
+            "user_id": 1600631528
+        },
+        "time": 1636518146
+    }*/
+
+    JS(json, message_type);
+    JS(json, message); // 消息内容
+    JS(json, raw_message);
+    JL(json, message_id);
+    JL(json, message_seq);
+
+    JO(json, sender); // 发送者，但不保证存在
+    JL(sender, user_id); // 发送者用户QQ号（这里一般是自己）
+    JS(sender, nickname);
+
+    ensureFriendExist(FriendInfo(friendId, nickname, ""));
+    qInfo() << "自己发送的私聊消息：" << user_id << "->" << friendId << nickname << message << message_id;
+
+    MsgBean msg = MsgBean(user_id, nickname, message, message_id, message_type)
+            .frind(ac->friendList.contains(friendId) ? ac->friendList[friendId].remark : "")
+            .privt(friendId, friendId);
+
+    msg.fromGroupId = json.l("group_id");
+
+    emit signalMessage(msg);
 }
 
 void CqhttpService::parseGroupMessage(const MyJson &json)
@@ -739,7 +856,7 @@ void CqhttpService::ensureFriendExist(FriendInfo user)
 {
     if (ac->friendList.contains(user.userId))
         return ;
-    ac->friendList.insert(user.userId, user);
+    ac->friendList.insert(user.userId, user.setTemp());
     qInfo() << "补充好友：" << user.userId << user.username();
 }
 
@@ -747,7 +864,7 @@ void CqhttpService::ensureGroupExist(GroupInfo group)
 {
     if (ac->groupList.contains(group.groupId))
         return ;
-    ac->groupList.insert(group.groupId, group);
+    ac->groupList.insert(group.groupId, group.setTemp());
     qInfo() << "补充群组：" << group.groupId << group.name;
 }
 
@@ -791,7 +908,7 @@ void CqhttpService::sendPrivateMsg(qint64 userId, const QString& message, qint64
     if (fromGroupId)
         params.insert("group_id", fromGroupId);
     json.insert("params", params);
-    json.insert("echo", "send_private_msg");
+    json.insert("echo", "send_private_msg:" + snum(userId));
     sendTextMessage(json.toBa());
     emit sig->myReplyUser(userId, message);
 }
@@ -804,7 +921,7 @@ void CqhttpService::sendGroupMsg(qint64 groupId, const QString& message)
     params.insert("group_id", groupId);
     params.insert("message", message);
     json.insert("params", params);
-    json.insert("echo", "send_group_msg");
+    json.insert("echo", "send_group_msg:" + snum(groupId));
     sendTextMessage(json.toBa());
     emit sig->myReplyGroup(groupId, message);
 }

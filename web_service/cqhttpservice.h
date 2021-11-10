@@ -7,7 +7,7 @@
 #include "defines.h"
 #include "msgbean.h"
 
-#define SKT_DEB if (1) qDebug()
+#define SKT_DEB if (0) qDebug()
 
 class MyJson;
 
@@ -40,6 +40,7 @@ public slots:
 private:
     void parseEchoMessage(const MyJson& json);
     void parsePrivateMessage(const MyJson& json);
+    void parsePrivateMessageDetail(qint64 friendId, const MyJson& json);
     void parseGroupMessage(const MyJson& json);
     void parseGroupUpload(const MyJson& json);
     void parseOfflineFile(const MyJson& json);
