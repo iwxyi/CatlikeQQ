@@ -142,8 +142,12 @@ void MessageView::setMessage(const MsgBean& msg)
 
             // 图片尺寸
             int maxWidth = us->bannerContentWidth;
-            int maxHeight = us->bannerContentMaxHeight - us->bannerHeaderSize;
+            int maxHeight = (us->bannerContentMaxHeight - us->bannerHeaderSize) * 2 / 3;
             int lineHeight = QFontMetrics(this->font()).lineSpacing() * 2;
+            int scale1Threshold = 64;
+            int scale1_5Threshold = 128;
+            int scale2Threshold = 256;
+
 #ifdef MESSAGE_LABEL
             // 如果是单张图片，支持显示gif
             if (text.indexOf(QRegularExpression("^\\[CQ:image,file=(.+?).image,.*url=(.+?)\\]$")) > -1)
@@ -442,7 +446,7 @@ void MessageView::setMessage(const MsgBean& msg)
 
             // 图片尺寸
             int maxWidth = us->bannerContentWidth;
-            int maxHeight = us->bannerContentMaxHeight - us->bannerHeaderSize;
+            int maxHeight = (us->bannerContentMaxHeight - us->bannerHeaderSize) * 2 / 3;
             Q_UNUSED(maxWidth)
 
             // 控件
@@ -516,7 +520,7 @@ void MessageView::setMessage(const MsgBean& msg)
     text.replace("&#91;", "[").replace("&#93;", "]");
 
     // 超链接
-    text.replace(QRegularExpression("(?<!['\"])((http|ftp)s?://[\\w\\.]+\\.\\w{2,5}([\\?\\/][^\\s<]*)?)"), "<a href=\"\\1\">\\1</a>");
+    text.replace(QRegularExpression("(?<!['\"])((http|ftp)s?://[\\w\\._\\-]+\\.\\w{2,5}([\\?\\/][^\\s<]*)?)"), "<a href=\"\\1\">\\1</a>");
     text.replace(QRegularExpression("([a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+)"), "<a href=\"mailto:\\1\">\\1</a>");
 
     // #处理长度（注意要忽略各种标签）
