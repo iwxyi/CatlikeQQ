@@ -3,10 +3,10 @@
 #include <QNetworkReply>
 #include <QDesktopServices>
 #include <QTimer>
-#include <QHBoxLayout>
 #include <QClipboard>
 #include <QMimeData>
 #include <QProcess>
+#include <QStyleOptionTab>
 #include "fileutil.h"
 #include "messageview.h"
 #include "defines.h"
@@ -20,19 +20,16 @@
 #include "netutil.h"
 
 MessageView::MessageView(QWidget *parent)
-#ifdef MESSAGE_LABEL
-    : QLabel(parent),
-#else
-    : QTextBrowser(parent),
-#endif
+    : QWidget(parent),
       msg(0, "")
 {
 #ifdef MESSAGE_LABEL
-    setWordWrap(true);
-    setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
-    setTextFormat(Qt::RichText);
+    contentWidget = new QLabel(this);
+    contentWidget->setWordWrap(true);
+    contentWidget->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
+    contentWidget->setTextFormat(Qt::RichText);
 
-    connect(this, &QLabel::linkActivated, this, [=](const QString& link) {
+    connect(contentWidget, &QLabel::linkActivated, this, [=](const QString& link) {
         qInfo() << "打开链接：" << link;
         if (link.startsWith("msg://"))
         {
@@ -52,13 +49,24 @@ MessageView::MessageView(QWidget *parent)
         }
     });
 #else
-    setReadOnly(true);
-    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    setWordWrapMode(QTextOption::WrapMode::WrapAnywhere);
+    contentWidget = new QTextBrowser(this);
+    contentWidget->setReadOnly(true);
+    contentWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    contentWidget->setWordWrapMode(QTextOption::WrapMode::WrapAnywhere);
 #endif
-    setContentsMargins(0, 0, 0, 0);
-    setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showMenu()));
+    contentWidget->setContentsMargins(0, 0, 0, 0);
+    contentWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+    contentWidget->connect(contentWidget, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showMenu()));
+
+    // 设置样式
+    this->setObjectName("MessageBubble");
+    contentWidget->setObjectName("ContentWidget");
+
+    // 设置布局
+    vlayout = new QVBoxLayout(this);
+    vlayout->addWidget(contentWidget);
+    vlayout->setMargin(us->bannerBubblePadding);
+    vlayout->setSpacing(us->bannerBubblePadding);
 }
 
 /// 这个是最简单的文字替换
@@ -172,9 +180,9 @@ void MessageView::replaceGroupAt()
         return ;
 
 #ifdef MESSAGE_LABEL
-    QString text = this->text();
+    QString text = contentWidget->text();
 #else
-    QString text = this->toPlainText();
+    QString text = contentWidget->toPlainText();
 #endif
     if (text.isEmpty())
         return ;
@@ -197,7 +205,7 @@ void MessageView::replaceGroupAt()
         replaced = true;
     }
     if (replaced) // 没有替换的话，就不重新设置了（怕引起大小变化等等）
-        setText(text);
+        contentWidget->setText(text);
 }
 
 void MessageView::showMenu()
@@ -292,8 +300,8 @@ void MessageView::showMenu()
 
 
 #ifdef MESSAGE_LABEL
-    bool hasSelect = this->hasSelectedText();
-    QString selectedText = this->selectedText();
+    bool hasSelect = contentWidget->hasSelectedText();
+    QString selectedText = contentWidget->selectedText();
     menu->addAction(QIcon("://icons/copy_image.png"), "复制", [=]{
         if (hasSelect)
         {
@@ -301,13 +309,13 @@ void MessageView::showMenu()
         }
         else
         {
-            QApplication::clipboard()->setText(this->text());
+            QApplication::clipboard()->setText(contentWidget->text());
         }
-    })->text(!this->hasSelectedText(), "复制全部");
+    })->text(!contentWidget->hasSelectedText(), "复制全部");
 
     menu->addAction(QIcon("://icons/copy_image.png"), "全选", [=]{
         menu->close();
-        this->setSelection(0, this->text().length());
+        contentWidget->setSelection(0, contentWidget->text().length());
     });
 #else
 #endif
@@ -317,6 +325,15 @@ void MessageView::showMenu()
         timeFormat = "hh:mm:ss";
     menu->split()->addTitle(QDateTime::fromMSecsSinceEpoch(msg.timestamp).toString(timeFormat));
 
+    if (us->showWidgetBorder)
+    {
+        menu->addAction(QString("bdr: (%1, %2) -> (%3, %4)").arg(this->sizeHint().width())
+                        .arg(this->sizeHint().height()).arg(this->width()).arg(this->height()));
+        menu->addAction(QString("bdy: (%1, %2) -> (%3, %4)").arg(contentWidget->sizeHint().width())
+                        .arg(contentWidget->sizeHint().height()).arg(contentWidget->width()).arg(contentWidget->height()));
+        menu->addAction(QString("sig: %1").arg(singleImage ? "true" : "false"));
+    }
+
     menu->exec();
 
     menu->finished([=]{
@@ -324,13 +341,66 @@ void MessageView::showMenu()
     });
 }
 
+/// 这里是为了setStyleSheet有效
+void MessageView::paintEvent(QPaintEvent *event)
+{
+    QStyleOption opt;
+    opt.init(this);
+    QPainter p(this);
+    style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
+    QWidget::paintEvent(event);
+}
+
+/// 设置内容后，自动调整大小
+/// 宽度可能是固定的，尽可能自适应高度
 QSize MessageView::adjustSizeByTextWidth(int w)
 {
+    if (replyWidget)
+    {
+        replyWidget->adjustSizeByTextWidth(w - us->bannerBubblePadding * 2);
+    }
+
 #ifdef MESSAGE_LABEL
     this->fixedWidth = w;
-    setFixedWidth(w);
-    adjustSize();
-    setFixedHeight(this->height());
+
+    if (!us->bannerShowBubble)
+    {
+        // 不显示气泡
+        contentWidget->setFixedWidth(fixedWidth);
+        contentWidget->adjustSize();
+        contentWidget->setFixedHeight(contentWidget->height());
+
+        this->adjustSize();
+        this->setFixedHeight(this->height());
+    }
+    else if (singleImage)
+    {
+        // 单张图片，不显示气泡
+        this->layout()->setMargin(0);
+        if (!useFixedSize) // 例如gif，使用解析时的固定大小
+            contentWidget->setFixedSize(contentWidget->sizeHint()); // 本来是图像大小，但是好像会有padding啥的
+        this->setFixedSize(this->sizeHint());
+    }
+    else
+    {
+        // 显示气泡
+        this->setFixedWidth(fixedWidth);
+
+        contentWidget->setFixedWidth(fixedWidth - us->bannerBubblePadding * 2); // 设置最大宽度
+        // contentWidget->setMinimumWidth(0); // 这样会导致固定宽度
+        // contentWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Ignored);
+        contentWidget->adjustSize();
+        contentWidget->setFixedHeight(contentWidget->height()); // 获取到合适高度
+
+        contentWidget->setMinimumWidth(0); // 允许调整宽度
+        contentWidget->adjustSize(); // 根据合适高度再调整宽度
+        contentWidget->setFixedWidth(contentWidget->width()); // 再自适应宽度
+
+        this->adjustSize();
+        this->setFixedWidth(contentWidget->width() + us->bannerBubblePadding * 2);
+        this->setFixedHeight(qMax(this->height(), contentWidget->height() + us->bannerBubblePadding * 2));
+    }
+
     return this->size();
 #else
 //    setMaximumWidth(w);
@@ -345,8 +415,8 @@ QSize MessageView::sizeHint() const
 {
     if (fixedWidth)
 #ifdef MESSAGE_LABEL
-        return QSize(fixedWidth, QLabel::sizeHint().height());
-    return QLabel::sizeHint();
+        return QSize(fixedWidth, QWidget::sizeHint().height());
+    return QWidget::sizeHint();
 #else
         return QSize(fixedWidth, QTextBrowser::sizeHint().height());
     return QTextBrowser::sizeHint();
@@ -355,28 +425,50 @@ QSize MessageView::sizeHint() const
 
 void MessageView::updateStyleSheet()
 {
+    // 设置内容文字颜色
     QString qss = "color: " + QVariant(textColor).toString() + ";";
-    if (us->bannerShowBubble)
-    {
-        qss += "border-radius: " + snum(us->bannerBgRadius) + "px; padding: 5px;";
+    if (us->showWidgetBorder)
+        qss += "border: 1px solid red;";
+    contentWidget->setStyleSheet(qss);
 
-        if (msg.senderId == ac->myId) // 自己发的
+    // 设置背景颜色
+    qss = "";
+    if (us->bannerShowBubble && !singleImage)
+    {
+        qss += "border-radius: " + snum(us->bannerBgRadius) + "px;";
+
+        if (replyRecursion)
+            qss += "background-color: " + QVariant(us->bannerBubbleReply).toString() + ";";
+        else if (msg.senderId == ac->myId) // 自己发的，绿色
             qss += "background-color: " + QVariant(us->bannerBubbleMime).toString() + ";";
         else // 其他人发的
             qss += "background-color: " + QVariant(us->bannerBubbleOppo).toString() + ";";
     }
     else
     {
+        // 不设置气泡，或者就单张图片
+        // 默认情况下不显示背景
         if (selected)
             qss += "background-color: lightGray;";
+        if (replyRecursion)
+            qss += "background-color: " + QVariant(us->bannerBubbleReply).toString() + ";";
     }
 
-    setStyleSheet("QLabel { " + qss + " }");
+    this->setStyleSheet("#MessageBubble { " + qss + " }");
+    // this->setStyleSheet("MessageView { background-color: red;}");
 }
 
+/// 设置前景颜色
+/// 第一次时可能还没设置相应的message
+/// 设置message后必须有一次设置
 void MessageView::setTextColor(QColor c)
 {
     this->textColor = c;
+
+    // 还没设置，不需要更改界面
+    if (!msg.isValid())
+        return ;
+
     QPalette pa(this->palette());
     pa.setColor(QPalette::Foreground, c);
     pa.setColor(QPalette::Text, c);
@@ -386,13 +478,13 @@ void MessageView::setTextColor(QColor c)
 
 void MessageView::markDeleted()
 {
-    QString text = this->text();
+    QString text = contentWidget->text();
     if (text.endsWith("</a>"))
         text.append("<br/>");
     else
         text.append(" ");
     text.append("[已撤回]");
-    setText(text);
+    contentWidget->setText(text);
 
     textColor.setAlpha(128);
     setTextColor(textColor);

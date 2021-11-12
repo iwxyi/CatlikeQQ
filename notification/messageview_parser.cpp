@@ -6,7 +6,6 @@
 #include <QMultimedia>
 #include <QMediaPlayer>
 #include <QDesktopServices>
-#include <QHBoxLayout>
 #include "video/videolabel.h"
 #include "video/videowidget.h"
 #include "messageview.h"
@@ -22,9 +21,10 @@
 
 /// 设置带有表情、图片等多种类型的Message
 /// 设置动图表情的方法：https://blog.csdn.net/qq_46495964/article/details/113795814
-void MessageView::setMessage(const MsgBean& msg)
+void MessageView::setMessage(const MsgBean& msg, int recursion)
 {
     this->msg = msg;
+    this->replyRecursion = recursion;
 
     if (!msg.isMsg())
     {
@@ -44,9 +44,19 @@ void MessageView::setMessage(const MsgBean& msg)
         return ;
     }
 
+    // 是消息了
     QString text = msg.message;
-    if (msg.isPrivate() && msg.senderId == ac->myId)
+    // 处理HTML
+    text.replace("<", "&lt;").replace(">", "&gt;");
+    text = text.replace("\r\n", "<br/>");
+    // 设置昵称前缀
+    if ((msg.isPrivate() || recursion) && msg.senderId == ac->myId)
         text.insert(0, "你：");
+    else if (recursion)
+    {
+        QString newText = "<a href=\"at://" + snum(msg.senderId) + "\"><span style=\"text-decoration: none; color:" + QVariant(us->bannerLinkColor).toString() + ";\">" + msg.username() + "</span></a>";
+        text.insert(0, newText + "：");
+    }
     QRegularExpression re;
     QRegularExpressionMatch match;
 
@@ -56,12 +66,48 @@ void MessageView::setMessage(const MsgBean& msg)
     };
 
     auto linkText = [=](QString text, QString link) {
-        return "<a href=\"" +link + "\"><span style=\"text-decoration: none; color:#8cc2d4;\">" + text + "</span></a>";
+        return "<a href=\"" +link + "\"><span style=\"text-decoration: none; color:" + QVariant(us->bannerLinkColor).toString() + ";\">" + text + "</span></a>";
     };
 
-    // #处理HTML
-    text.replace("<", "&lt;").replace(">", "&gt;");
-    text = text.replace("\r\n", "<br/>");
+    // #先判断回复
+    if (text.indexOf(QRegularExpression("\\[CQ:reply,id=(-?\\d+)\\](\\[CQ:at,qq=\\d+\\])?"), 0, &match) > -1)
+    {
+        qint64 messageId = match.captured(1).toLongLong();
+        text.replace(match.captured(0), "");
+        MsgBean replyMsg;
+
+        QList<MsgBean>* list = nullptr;
+        if (msg.isPrivate())
+        {
+            list = &ac->userMsgHistory[msg.friendId];
+        }
+        else if (msg.isGroup())
+        {
+            list = &ac->groupMsgHistory[msg.groupId];
+        }
+
+        if (list)
+        {
+            for (int i = list->size() - 1; i >= 0; --i)
+            {
+                if (list->at(i).messageId == messageId)
+                {
+                    replyMsg = list->at(i);
+                    break;
+                }
+            }
+        }
+
+        if (replyMsg.isValid()) // 找到回复
+        {
+            replyWidget = setRepyMessage(replyMsg, recursion + 1);
+            vlayout->insertWidget(0, replyWidget);
+        }
+        else // 没找到回复
+        {
+            text.insert(0, "<a href=\"msg://" + snum(messageId) + "\"><span style=\"text-decoration: none; color:" + QVariant(us->bannerLinkColor).toString() + ";\">[回复]</span></a>");
+        }
+    }
 
     // #替换CQ
     // 表情
@@ -77,22 +123,24 @@ void MessageView::setMessage(const MsgBean& msg)
             {
                 // 调整图片大小
                 movie->jumpToFrame(0);
-                int sz = this->fontMetrics().height();
+                int sz = contentWidget->fontMetrics().height();
+                sz = qMin(sz * 2, 56); // 直接显示大表情
                 movie->setScaledSize(QSize(sz, sz));
-                setMaximumSize(sz, sz);
-                setMovie(movie);
+                contentWidget->setFixedSize(sz, sz);
+                contentWidget->setMovie(movie);
                 movie->start();
                 text = "[表情]";
+                singleImage = true;
 
                 // 设置圆角
-                QPixmap pixmap(movie->currentPixmap().size());
+                /* QPixmap pixmap(movie->currentPixmap().size());
                 pixmap.fill(Qt::transparent);
                 QPainter painter(&pixmap);
                 painter.setRenderHint(QPainter::Antialiasing);
                 QPainterPath path;
                 path.addRoundedRect(pixmap.rect(), us->bannerBgRadius, us->bannerBgRadius);
                 painter.fillPath(path, Qt::white);
-                this->setMask(pixmap.mask());
+                contentWidget->setMask(pixmap.mask()); */
                 return ;
             }
             delete movie;
@@ -109,7 +157,7 @@ void MessageView::setMessage(const MsgBean& msg)
             QString path = rt->faceCache(id);
             if (!isFileExist(path))
             {
-                int sz = this->fontMetrics().height();
+                int sz = contentWidget->fontMetrics().height();
                 QPixmap pixmap(":/qq/qq-face/" + id + ".png");
                 pixmap = pixmap.scaled(sz, sz, Qt::KeepAspectRatio, Qt::SmoothTransformation);
                 pixmap.save(path);
@@ -141,16 +189,17 @@ void MessageView::setMessage(const MsgBean& msg)
             this->filePath = path;
 
             // 图片尺寸
-            int maxWidth = us->bannerContentWidth;
-            int maxHeight = (us->bannerContentMaxHeight - us->bannerHeaderSize) * 2 / 3;
+            int maxWidth = us->bannerContentWidth - us->bannerBubblePadding * 2;
+            int maxHeight = (us->bannerContentMaxHeight - us->bannerHeaderSize - us->bannerBubblePadding * 2) * 2 / 3;
             int lineHeight = QFontMetrics(this->font()).lineSpacing() * 2;
             int scale1Threshold = 64;
             int scale1_5Threshold = 128;
             int scale2Threshold = 256;
+            singleImage = text.indexOf(QRegularExpression("^\\[CQ:image,file=(.+?).image,url=(.+?)\\]$")) > -1;
 
 #ifdef MESSAGE_LABEL
             // 如果是单张图片，支持显示gif
-            if (text.indexOf(QRegularExpression("^\\[CQ:image,file=(.+?).image,.*url=(.+?)\\]$")) > -1)
+            if (singleImage)
             {
                 // 支持GIF
                 QMovie* movie = new QMovie(path, "gif", this);
@@ -159,7 +208,7 @@ void MessageView::setMessage(const MsgBean& msg)
                     // 调整图片大小
                     movie->jumpToFrame(0);
                     QSize sz = movie->frameRect().size();
-                    if (sz.height() && sz.width())
+                    if (sz.height() > 0 && sz.width() > 0)
                     {
                         if (sz.width() < maxWidth / us->bannerThumbnailProp
                                 && sz.height() < maxHeight / us->bannerThumbnailProp)
@@ -170,7 +219,8 @@ void MessageView::setMessage(const MsgBean& msg)
                                 && sz.height() / us->bannerThumbnailProp < maxHeight)
                         {
                             // 缩放，不足最大尺寸
-                            sz /= us->bannerThumbnailProp;
+                            // sz /= us->bannerThumbnailProp;
+                            sz.scaled(maxWidth / us->bannerThumbnailProp, maxHeight / us->bannerThumbnailProp, Qt::KeepAspectRatio);
                         }
                         else
                         {
@@ -183,25 +233,30 @@ void MessageView::setMessage(const MsgBean& msg)
                             sz = QSize(sz.width() * maxHeight / sz.height(), maxHeight); */
                         movie->setScaledSize(sz);
                     }
-                    else
+                    else // 空大小，也不知道多大
                     {
                         qWarning() << "无法获取到 gif 的大小" << id;
-                        movie->setScaledSize(QSize(maxWidth, maxHeight));
+                        movie->setScaledSize(sz = QSize(maxWidth, maxHeight));
                     }
 
-                    setMaximumSize(maxWidth, maxHeight);
-                    setMovie(movie);
+                    // TODO: 这个 movie->setScaledSize 有些静态gif没用，内容不缩放
+                    // movie->setScaledSize(sz = QSize(50, 50));
+
+                    contentWidget->setFixedSize(sz);
+                    // contentWidget->setMaximumSize(maxWidth, maxHeight);
+                    contentWidget->setMovie(movie);
                     movie->start();
+                    useFixedSize = true;
 
                     // 设置圆角
-                    QPixmap pixmap(movie->currentPixmap().size());
+                    QPixmap pixmap(sz);
                     pixmap.fill(Qt::transparent);
                     QPainter painter(&pixmap);
                     painter.setRenderHint(QPainter::Antialiasing);
                     QPainterPath path;
                     path.addRoundedRect(pixmap.rect(), us->bannerBgRadius, us->bannerBgRadius);
                     painter.fillPath(path, Qt::white);
-                    this->setMask(pixmap.mask());
+                    contentWidget->setMask(pixmap.mask());
                     return ;
                 }
                 delete movie;
@@ -209,6 +264,9 @@ void MessageView::setMessage(const MsgBean& msg)
 #endif
             // 多张图片、静态图片；缩略图的伸缩、圆角
             int pos = 0;
+            maxWidth -= us->bannerBgRadius * 2; // 有个莫名的偏差
+            int imageCount = 0;
+            QSize lastPixmapSize;
             while (true)
             {
                 if (text.indexOf(QRegularExpression("\\[CQ:image,file=(.+?).image,.*?url=(.+?)\\]"), pos, &match) == -1)
@@ -222,7 +280,6 @@ void MessageView::setMessage(const MsgBean& msg)
                 QString originPath = path;
                 QPixmap pixmap(path, "1");
                 this->filePixmap = pixmap;
-                maxWidth -= us->bannerBgRadius * 2; // 有个莫名的偏差
                 if (pixmap.width() < maxWidth / us->bannerThumbnailProp
                         && pixmap.height() < maxHeight / us->bannerThumbnailProp)
                 {
@@ -232,16 +289,18 @@ void MessageView::setMessage(const MsgBean& msg)
                         && pixmap.height() / us->bannerThumbnailProp < maxHeight)
                 {
                     // 按固定比例压缩
-                    pixmap = pixmap.scaled(pixmap.size() / us->bannerThumbnailProp, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                    pixmap = pixmap.scaled(QSize(maxWidth, maxHeight) / us->bannerThumbnailProp, Qt::KeepAspectRatio, Qt::SmoothTransformation);
                 }
                 else if (pixmap.width() > maxWidth || pixmap.height() > maxHeight)
                 {
                     // 这个会缩得更小
                     pixmap = pixmap.scaled(maxWidth, maxHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
                 }
+                lastPixmapSize = pixmap.size();
                 pixmap = NetImageUtil::toRoundedPixmap(pixmap, us->bannerBgRadius);
                 path = rt->imageSCache(id);
                 pixmap.save(path);
+                imageCount++;
 
                 // 判断是否需要换行显示图片
                 bool breakLeft = false, breakRight = false;
@@ -289,19 +348,24 @@ void MessageView::setMessage(const MsgBean& msg)
                     rep = rep + "<br/>";
                 text.replace(match.captured(0), rep);
                 pos = match.capturedStart() + rep.length();
-                this->setMinimumWidth(qMax(this->minimumWidth(),  pixmap.width()));
+                contentWidget->setMinimumWidth(qMax(this->minimumWidth(),  pixmap.width()));
+            }
+
+            // 只有一张图片
+            if (singleImage)
+            {
+                contentWidget->adjustSize();
+                contentWidget->setFixedSize(lastPixmapSize);
             }
         }
     }
 
     // 回复
-    // text.replace(QRegularExpression("\\[CQ:reply,id=-?\\d+\\](\\[CQ:at,qq=\\d+\\])?"), grayText("[回复]"));
     if (text.indexOf(QRegularExpression("\\[CQ:reply,id=(-?\\d+)\\](\\[CQ:at,qq=\\d+\\])?"), 0, &match) > -1)
     {
         text.replace(match.captured(0), "");
         QString messageId = match.captured(1);
-        QString displayText = "";
-        text.insert(0, "<a href=\"msg://" + messageId + "\"><span style=\"text-decoration: none; color:" + QVariant(textColor).toString() + ";\">[回复]</span></a>");
+        text.insert(0, "<a href=\"msg://" + messageId + "\"><span style=\"text-decoration: none; color:" + QVariant(us->bannerLinkColor).toString() + ";\">[回复]</span></a>");
     }
 
     // 艾特
@@ -329,7 +393,7 @@ void MessageView::setMessage(const MsgBean& msg)
                         c = memberColor.value(userId);
                 }
                 if (!c.isValid())
-                    c = textColor;
+                    c = us->bannerLinkColor;
 
                 QString newText = "<a href=\"at://" + match.captured(1) + "\"><span style=\"text-decoration: none; color:" + QVariant(c).toString() + ";\">@" + members.value(userId).username() + "</span></a>";
                 text.replace(match.captured(0), newText);
@@ -341,8 +405,8 @@ void MessageView::setMessage(const MsgBean& msg)
             }
         }
     }
-    text.replace(QRegularExpression("\\[CQ:at,qq=(\\d+)\\]"), "<a href=\"at://\\1\"><span style=\"text-decoration: none; color:" + QVariant(textColor).toString() + ";\">@\\1</span></a>"); // 万一有没有替换完的呢
-    text.replace(QRegularExpression("\\[CQ:at,qq=all\\]"), "<a href=\"at://all\"><span style=\"text-decoration: none; color:" + QVariant(textColor).toString() + ";\">@全体成员</span></a>"); // @全体
+    text.replace(QRegularExpression("\\[CQ:at,qq=(\\d+)\\]"), "<a href=\"at://\\1\"><span style=\"text-decoration: none; color:" + QVariant(us->bannerLinkColor).toString() + ";\">@\\1</span></a>"); // 万一有没有替换完的呢
+    text.replace(QRegularExpression("\\[CQ:at,qq=all\\]"), "<a href=\"at://all\"><span style=\"text-decoration: none; color:" + QVariant(us->bannerLinkColor).toString() + ";\">@全体成员</span></a>"); // @全体
 
     // json
     if (text.indexOf(QRegularExpression("\\[CQ:json,data=(.+?)\\]"), 0, &match) > -1)
@@ -445,14 +509,19 @@ void MessageView::setMessage(const MsgBean& msg)
             this->filePath = path;
 
             // 图片尺寸
+<<<<<<< HEAD
             int maxWidth = us->bannerContentWidth;
             int maxHeight = (us->bannerContentMaxHeight - us->bannerHeaderSize) * 2 / 3;
+=======
+            int maxWidth = us->bannerContentWidth - us->bannerBubblePadding * 2;
+            int maxHeight = us->bannerContentMaxHeight - us->bannerHeaderSize - us->bannerBubblePadding * 2;
+>>>>>>> ContainerStructure
             Q_UNUSED(maxWidth)
 
             // 控件
-            QHBoxLayout* lay = new QHBoxLayout(this);
-            VideoLabel* vw = new VideoLabel(this);
-//            VideoWidget* vw = new VideoWidget(this); // 透明窗口不能使用 QVideoWidget，很无奈
+            QHBoxLayout* lay = new QHBoxLayout(contentWidget);
+            VideoLabel* vw = new VideoLabel(contentWidget);
+//            VideoWidget* vw = new VideoWidget(contentWidget); // 透明窗口不能使用 QVideoWidget，很无奈
             lay->addWidget(vw);
             lay->setMargin(0);
 
@@ -461,7 +530,7 @@ void MessageView::setMessage(const MsgBean& msg)
             vw->setRadius(us->bannerBgRadius);
             vw->setMedia(path);
             vw->show();
-            this->setFixedHeight(maxHeight); // TODO: 设置成视频高度才合适
+            contentWidget->setMaximumHeight(maxHeight); // TODO: 设置成视频高度才合适
 
             vw->setCursor(Qt::PointingHandCursor);
             connect(vw, &ClickLabel::leftClicked, this, [=]{
@@ -470,6 +539,7 @@ void MessageView::setMessage(const MsgBean& msg)
 
             // 设置文字
             text = "";
+            singleImage = true;
         }
         else // 不缓存视频
         {
@@ -531,5 +601,17 @@ void MessageView::setMessage(const MsgBean& msg)
     text.replace("\n", "<br/>");
 
     // #设置显示
-    setText(text);
+    contentWidget->setText(text);
+
+    // 重新调整一下界面
+    updateStyleSheet();
+}
+
+MessageView* MessageView::setRepyMessage(const MsgBean &replyMsg, int recursion)
+{
+    replyWidget = new MessageView(this);
+    replyWidget->setMessage(replyMsg, recursion);
+    replyWidget->setTextColor(this->textColor);
+    emit connectNewMessageView(replyWidget);
+    return replyWidget;
 }

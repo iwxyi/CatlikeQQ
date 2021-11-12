@@ -67,10 +67,13 @@ public:
     QColor bannerTitleColor = QColor(0, 0, 0, 255); // 默认标题颜色
     QColor bannerContentColor = QColor(32, 32, 32, 255); // 默认昵称、消息颜色
     QColor bannerBgColor = QColor(255, 255, 255, 255); // 默认背景颜色
+    QColor bannerLinkColor = QColor("#00a4ff"); // 超链接颜色
     bool bannerShowBubble = false; // 显示消息气泡
     int bannerBubblePadding = 5; // 气泡内边距
-    QColor bannerBubbleOppo = QColor(0xDD, 0xDD, 0xDD); // 别人的气泡颜色
+    QColor bannerBubbleOppo = QColor(0xEE, 0xEE, 0xEE); // 别人的气泡颜色
     QColor bannerBubbleMime = QColor("#9ee06a"); // 自己的气泡颜色
+    QColor bannerBubbleReply = QColor(0xAA, 0xAA, 0xAA, 0x66); // 回复的气泡颜色
+    bool bannerBubbleUseHeaderColor = true; // 气泡背景和文字使用头像颜色
     bool bannerUseHeaderColor = true; // 使用头像颜色填充背景颜色
     bool bannerUseHeaderGradient = false; // 使用头像渐变
     bool bannerColorfulGroupMember = false; // 群组用户昵称使用头像颜色
@@ -93,6 +96,7 @@ public:
     bool bannerPrivateKeepShowing = false; // 私聊保持显示直到交互
     bool bannerGroupKeepShowing = false; // 群聊保持显示直到交互
     int bannerThumbnailProp = 2; // 缩略图最大是原图的几分之一
+    bool bannerReplyRecursion = true; // 显示递归的回复消息
 
     // 语音
     bool autoPlaySpeech = false; // 自动播放语音

@@ -30,6 +30,16 @@ private slots:
 
     void on_useHeaderColorCheck_clicked();
 
+    void on_showBubbleCheck_clicked();
+
+    void on_replyRecursionCheck_clicked();
+
+    void on_bubbleMimeButton_clicked();
+
+    void on_bubbleOppoButton_clicked();
+
+    void on_bubbleReplyButton_clicked();
+
 private:
     Ui::StyleWidget *ui;
 };

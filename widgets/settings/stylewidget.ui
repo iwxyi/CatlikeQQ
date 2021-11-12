@@ -25,14 +25,52 @@
      <property name="spacing">
       <number>12</number>
      </property>
+     <item row="5" column="0">
+      <widget class="QCheckBox" name="useHeaderColorCheck">
+       <property name="text">
+        <string>跟随头像变色</string>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="1">
       <widget class="InteractiveButtonBase" name="titleColorButton">
        <property name="text">
-        <string>文字颜色</string>
+        <string>卡片文字颜色</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="InteractiveButtonBase" name="bgColorButton">
+       <property name="text">
+        <string>卡片背景颜色</string>
        </property>
       </widget>
      </item>
      <item row="1" column="0">
+      <widget class="QCheckBox" name="showBubbleCheck">
+       <property name="toolTip">
+        <string>是否显示气泡</string>
+       </property>
+       <property name="text">
+        <string>显示气泡</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
+      <widget class="QCheckBox" name="useHeaderGradientCheck">
+       <property name="text">
+        <string>使用头像渐变</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="InteractiveButtonBase" name="bubbleMimeButton">
+       <property name="text">
+        <string>自己气泡颜色</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
       <widget class="QCheckBox" name="frostedGlassBgCheck">
        <property name="toolTip">
         <string>使用简单的毛玻璃背景效果
@@ -43,14 +81,7 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="0">
-      <widget class="QCheckBox" name="useHeaderColorCheck">
-       <property name="text">
-        <string>跟随头像变色</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
+     <item row="4" column="1">
       <widget class="QSpinBox" name="frostedGlassOpacitySpin">
        <property name="toolTip">
         <string/>
@@ -75,24 +106,37 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
-      <widget class="QCheckBox" name="useHeaderGradientCheck">
-       <property name="text">
-        <string>使用头像渐变</string>
+     <item row="6" column="0">
+      <widget class="QCheckBox" name="colorfulGroupMemberCheck">
+       <property name="toolTip">
+        <string>由于头像颜色相差过大，部分消息中可能难以分辨彩色昵称</string>
        </property>
-      </widget>
-     </item>
-     <item row="0" column="0">
-      <widget class="InteractiveButtonBase" name="bgColorButton">
        <property name="text">
-        <string>背景颜色</string>
+        <string>群组成员彩色昵称</string>
        </property>
       </widget>
      </item>
      <item row="3" column="0">
-      <widget class="QCheckBox" name="colorfulGroupMemberCheck">
+      <widget class="QCheckBox" name="replyRecursionCheck">
+       <property name="toolTip">
+        <string>回复的消息中显示之前回复的消息</string>
+       </property>
        <property name="text">
-        <string>群组成员彩色昵称</string>
+        <string>递归回复</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="InteractiveButtonBase" name="bubbleReplyButton">
+       <property name="text">
+        <string>回复气泡颜色</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="InteractiveButtonBase" name="bubbleOppoButton">
+       <property name="text">
+        <string>他人气泡颜色</string>
        </property>
       </widget>
      </item>

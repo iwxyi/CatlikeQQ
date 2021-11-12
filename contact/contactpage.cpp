@@ -24,6 +24,7 @@ ContactPage::ContactPage(QWidget *parent) :
     setWindowTitle("搜索");
 
     ui->setupUi(this);
+    ui->lineEdit->setText(us->value("recent/search").toString());
 
     // 上一行
     connect(ui->lineEdit, &SearchEdit::signalKeyUp, this, [=]{
@@ -136,6 +137,8 @@ void ContactPage::on_lineEdit_returnPressed()
 {
     if (!results.size())
         return ;
+
+    us->set("recent/search", ui->lineEdit->text());
 
     // 打开这个选中项
     int row = ui->listView->currentIndex().row();
