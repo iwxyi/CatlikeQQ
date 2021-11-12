@@ -78,7 +78,7 @@ void MessageView::setMessage(const MsgBean& msg)
                 // 调整图片大小
                 movie->jumpToFrame(0);
                 int sz = contentWidget->fontMetrics().height();
-                sz = qMax(sz, 56);
+                sz = qMin(sz * 2, 56); // 直接显示大表情
                 movie->setScaledSize(QSize(sz, sz));
                 contentWidget->setFixedSize(sz, sz);
                 contentWidget->setMovie(movie);
@@ -146,9 +146,10 @@ void MessageView::setMessage(const MsgBean& msg)
             int maxWidth = us->bannerContentWidth - us->bannerBubblePadding * 2;
             int maxHeight = us->bannerContentMaxHeight - us->bannerHeaderSize - us->bannerBubblePadding * 2;
             int lineHeight = QFontMetrics(this->font()).lineSpacing() * 2;
+            singleImage = text.indexOf(QRegularExpression("^\\[CQ:image,file=(.+?).image,url=(.+?)\\]$")) > -1;
 #ifdef MESSAGE_LABEL
             // 如果是单张图片，支持显示gif
-            if (text.indexOf(QRegularExpression("^\\[CQ:image,file=(.+?).image,url=(.+?)\\]$")) > -1)
+            if (singleImage)
             {
                 // 支持GIF
                 QMovie* movie = new QMovie(path, "gif", this);
@@ -191,7 +192,6 @@ void MessageView::setMessage(const MsgBean& msg)
                     // contentWidget->setMaximumSize(maxWidth, maxHeight);
                     contentWidget->setMovie(movie);
                     movie->start();
-                    singleImage = true;
 
                     // 设置圆角
                     QPixmap pixmap(sz);
@@ -205,9 +205,6 @@ void MessageView::setMessage(const MsgBean& msg)
                     return ;
                 }
                 delete movie;
-
-                // 单张静态图片
-
             }
 #endif
             // 多张图片、静态图片；缩略图的伸缩、圆角
@@ -300,9 +297,9 @@ void MessageView::setMessage(const MsgBean& msg)
             }
 
             // 只有一张图片
-            if (imageCount == 1)
+            if (singleImage)
             {
-                singleImage = true;
+                contentWidget->adjustSize();
                 contentWidget->setFixedSize(lastPixmapSize);
             }
         }

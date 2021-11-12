@@ -371,9 +371,10 @@ QSize MessageView::adjustSizeByTextWidth(int w)
     }
     else if (singleImage)
     {
-        // 单张图片
+        // 单张图片，不显示气泡
         this->layout()->setMargin(0);
-        this->setFixedSize(contentWidget->size());
+        contentWidget->setFixedSize(contentWidget->sizeHint()); // 本来是图像大小，但是好像会有padding啥的
+        this->setFixedSize(this->sizeHint());
     }
     else
     {
@@ -421,9 +422,12 @@ void MessageView::updateStyleSheet()
 {
     // 设置内容文字颜色
     QString qss = "color: " + QVariant(textColor).toString() + ";";
+    if (us->showWidgetBorder)
+        qss += "border: 1px solid red;";
     contentWidget->setStyleSheet(qss);
 
     // 设置背景颜色
+    qss = "";
     if (us->bannerShowBubble && !singleImage)
     {
         qss += "border-radius: " + snum(us->bannerBgRadius) + "px;";
