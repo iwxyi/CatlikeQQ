@@ -3,6 +3,7 @@
 
 #include <QTextBrowser>
 #include <QLabel>
+#include <QVBoxLayout>
 #include "msgbean.h"
 
 #define MESSAGE_LABEL
@@ -17,7 +18,8 @@ class MessageView : public QWidget
 public:
     explicit MessageView(QWidget *parent = nullptr);
 
-    void setMessage(const MsgBean &msg);
+    void setMessage(const MsgBean &msg, int recursion = 0);
+    MessageView *setRepyMessage(const MsgBean &msg, int recursion = 0);
     static QString simpleMessage(const MsgBean &msg);
 
     QSize adjustSizeByTextWidth(int w);
@@ -56,11 +58,13 @@ private:
     QColor textColor = Qt::black;
 
     bool singleImage = false; // 是否是单张图片/视频（不显示气泡）
+    bool useFixedSize = false;
     bool singleCard = false; // 是否是单张卡片
     QString filePath;
     QPixmap filePixmap;
 
-    MessageView* replyView = nullptr; // 回复（不一定有）
+    QVBoxLayout* vlayout = nullptr;
+    MessageView* replyWidget = nullptr; // 回复（不一定有）
 #ifdef MESSAGE_LABEL
     QLabel* contentWidget = nullptr; // 内容控件
 #else

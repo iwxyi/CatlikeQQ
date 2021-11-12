@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QStringListModel>
 #include "accountinfo.h"
+#include "usettings.h"
 
 namespace Ui {
 class ContactPage;

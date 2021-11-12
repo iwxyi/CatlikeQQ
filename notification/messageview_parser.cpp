@@ -6,7 +6,6 @@
 #include <QMultimedia>
 #include <QMediaPlayer>
 #include <QDesktopServices>
-#include <QHBoxLayout>
 #include "video/videolabel.h"
 #include "video/videowidget.h"
 #include "messageview.h"
@@ -22,7 +21,7 @@
 
 /// 设置带有表情、图片等多种类型的Message
 /// 设置动图表情的方法：https://blog.csdn.net/qq_46495964/article/details/113795814
-void MessageView::setMessage(const MsgBean& msg)
+void MessageView::setMessage(const MsgBean& msg, int recursion)
 {
     this->msg = msg;
 
@@ -44,6 +43,7 @@ void MessageView::setMessage(const MsgBean& msg)
         return ;
     }
 
+    // 是消息了
     QString text = msg.message;
     if (msg.isPrivate() && msg.senderId == ac->myId)
         text.insert(0, "你：");
@@ -58,6 +58,46 @@ void MessageView::setMessage(const MsgBean& msg)
     auto linkText = [=](QString text, QString link) {
         return "<a href=\"" +link + "\"><span style=\"text-decoration: none; color:#8cc2d4;\">" + text + "</span></a>";
     };
+
+    // #先判断回复
+    if (text.indexOf(QRegularExpression("\\[CQ:reply,id=(-?\\d+)\\](\\[CQ:at,qq=\\d+\\])?"), 0, &match) > -1)
+    {
+        qint64 messageId = match.captured(1).toLongLong();
+        MsgBean replyMsg;
+
+        QList<MsgBean>* list = nullptr;
+        if (msg.isPrivate())
+        {
+            list = &ac->userMsgHistory[msg.friendId];
+        }
+        else if (msg.isGroup())
+        {
+            list = &ac->groupMsgHistory[msg.groupId];
+        }
+
+        if (list)
+        {
+            for (int i = list->size() - 1; i >= 0; --i)
+            {
+                if (list->at(i).messageId == messageId)
+                {
+                    replyMsg = list->at(i);
+                    break;
+                }
+            }
+        }
+
+        if (msg.isValid()) // 找到回复
+        {
+            replyWidget = setRepyMessage(replyMsg, recursion + 1);
+            vlayout->insertWidget(0, replyWidget);
+        }
+        else // 没找到回复
+        {
+            text.replace(match.captured(0), "");
+            text.insert(0, "<a href=\"msg://" + snum(messageId) + "\"><span style=\"text-decoration: none; color:" + QVariant(textColor).toString() + ";\">[回复]</span></a>");
+        }
+    }
 
     // #处理HTML
     text.replace("<", "&lt;").replace(">", "&gt;");
@@ -158,7 +198,7 @@ void MessageView::setMessage(const MsgBean& msg)
                     // 调整图片大小
                     movie->jumpToFrame(0);
                     QSize sz = movie->frameRect().size();
-                    if (sz.height() && sz.width())
+                    if (sz.height() > 0 && sz.width() > 0)
                     {
                         if (sz.width() < maxWidth / us->bannerThumbnailProp
                                 && sz.height() < maxHeight / us->bannerThumbnailProp)
@@ -182,16 +222,20 @@ void MessageView::setMessage(const MsgBean& msg)
                             sz = QSize(sz.width() * maxHeight / sz.height(), maxHeight); */
                         movie->setScaledSize(sz);
                     }
-                    else
+                    else // 空大小，也不知道多大
                     {
                         qWarning() << "无法获取到 gif 的大小" << id;
-                        movie->setScaledSize(QSize(maxWidth, maxHeight));
+                        movie->setScaledSize(sz = QSize(maxWidth, maxHeight));
                     }
+
+                    // TODO: 这个 movie->setScaledSize 有些静态gif没用，内容不缩放
+                    // movie->setScaledSize(sz = QSize(50, 50));
 
                     contentWidget->setFixedSize(sz);
                     // contentWidget->setMaximumSize(maxWidth, maxHeight);
                     contentWidget->setMovie(movie);
                     movie->start();
+                    useFixedSize = true;
 
                     // 设置圆角
                     QPixmap pixmap(sz);
@@ -306,12 +350,10 @@ void MessageView::setMessage(const MsgBean& msg)
     }
 
     // 回复
-    // text.replace(QRegularExpression("\\[CQ:reply,id=-?\\d+\\](\\[CQ:at,qq=\\d+\\])?"), grayText("[回复]"));
     if (text.indexOf(QRegularExpression("\\[CQ:reply,id=(-?\\d+)\\](\\[CQ:at,qq=\\d+\\])?"), 0, &match) > -1)
     {
         text.replace(match.captured(0), "");
         QString messageId = match.captured(1);
-        QString displayText = "";
         text.insert(0, "<a href=\"msg://" + messageId + "\"><span style=\"text-decoration: none; color:" + QVariant(textColor).toString() + ";\">[回复]</span></a>");
     }
 
@@ -547,4 +589,9 @@ void MessageView::setMessage(const MsgBean& msg)
 
     // 重新调整一下界面
     updateStyleSheet();
+}
+
+MessageView* MessageView::setRepyMessage(const MsgBean &msg, int recursion)
+{
+
 }

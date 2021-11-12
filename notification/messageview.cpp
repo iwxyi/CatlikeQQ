@@ -3,7 +3,6 @@
 #include <QNetworkReply>
 #include <QDesktopServices>
 #include <QTimer>
-#include <QHBoxLayout>
 #include <QClipboard>
 #include <QMimeData>
 #include <QProcess>
@@ -64,10 +63,10 @@ MessageView::MessageView(QWidget *parent)
     contentWidget->setObjectName("ContentWidget");
 
     // 设置布局
-    QVBoxLayout * layout = new QVBoxLayout(this);
-    layout->addWidget(contentWidget);
-    layout->setMargin(us->bannerBubblePadding);
-    layout->setSpacing(us->bannerBubblePadding);
+    vlayout = new QVBoxLayout(this);
+    vlayout->addWidget(contentWidget);
+    vlayout->setMargin(us->bannerBubblePadding);
+    vlayout->setSpacing(us->bannerBubblePadding);
 }
 
 /// 这个是最简单的文字替换
@@ -356,6 +355,11 @@ void MessageView::paintEvent(QPaintEvent *event)
 /// 宽度可能是固定的，尽可能自适应高度
 QSize MessageView::adjustSizeByTextWidth(int w)
 {
+    if (replyWidget)
+    {
+        replyWidget->adjustSizeByTextWidth(w - us->bannerBubblePadding * 2);
+    }
+
 #ifdef MESSAGE_LABEL
     this->fixedWidth = w;
 
@@ -373,7 +377,8 @@ QSize MessageView::adjustSizeByTextWidth(int w)
     {
         // 单张图片，不显示气泡
         this->layout()->setMargin(0);
-        contentWidget->setFixedSize(contentWidget->sizeHint()); // 本来是图像大小，但是好像会有padding啥的
+        if (!useFixedSize) // 例如gif，使用解析时的固定大小
+            contentWidget->setFixedSize(contentWidget->sizeHint()); // 本来是图像大小，但是好像会有padding啥的
         this->setFixedSize(this->sizeHint());
     }
     else
