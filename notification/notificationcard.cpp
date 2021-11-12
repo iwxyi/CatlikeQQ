@@ -250,8 +250,6 @@ bool NotificationCard::append(const MsgBean &msg)
         return false;
     if (this->isPrivate() && this->friendId != msg.friendId)
         return false;
-    if (msg.is(ActionType::ActionRecall)) // 撤回类型，不添加
-        return true;
 
     int h = height();
 
@@ -491,7 +489,7 @@ void NotificationCard::appendGroupMsg(const MsgBean &msg)
         displayTimer->stop();
     if (msg.is(ActionRecall))
         msgRecalled(msg);
-    if (!msgs.size() || msgs.last().senderId != msg.senderId)
+    else if (!msgs.size() || msgs.last().senderId != msg.senderId)
         createMsgBox(msg);
     else
         createBlankMsgBox(msg);
