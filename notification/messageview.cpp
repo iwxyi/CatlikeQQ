@@ -437,7 +437,9 @@ void MessageView::updateStyleSheet()
     {
         qss += "border-radius: " + snum(us->bannerBgRadius) + "px;";
 
-        if (msg.senderId == ac->myId) // 自己发的，绿色
+        if (replyRecursion)
+            qss += "background-color: " + QVariant(us->bannerBubbleReply).toString() + ";";
+        else if (msg.senderId == ac->myId) // 自己发的，绿色
             qss += "background-color: " + QVariant(us->bannerBubbleMime).toString() + ";";
         else // 其他人发的
             qss += "background-color: " + QVariant(us->bannerBubbleOppo).toString() + ";";
@@ -448,6 +450,8 @@ void MessageView::updateStyleSheet()
         // 默认情况下不显示背景
         if (selected)
             qss += "background-color: lightGray;";
+        if (replyRecursion)
+            qss += "background-color: " + QVariant(us->bannerBubbleReply).toString() + ";";
     }
 
     this->setStyleSheet("#MessageBubble { " + qss + " }");

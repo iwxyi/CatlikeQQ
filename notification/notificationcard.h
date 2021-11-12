@@ -117,6 +117,7 @@ private:
     MessageView *createMsgBox(const MsgBean &msg, int index = -1);
     MessageView *createBlankMsgBox(const MsgBean &msg, int index = -1);
     MessageView* newMsgView();
+    void connectMsgViewEvent(MessageView* view);
     void connectGroupHeader(QLabel* label, const MsgBean &msg);
     void connectUserHeader(QLabel *label, const MsgBean &msg);
     void connectUserName(QLabel* label, const MsgBean &msg);

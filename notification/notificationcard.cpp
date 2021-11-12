@@ -805,6 +805,13 @@ MessageView *NotificationCard::newMsgView()
         });
     }
 
+    connectMsgViewEvent(view);
+
+    return view;
+}
+
+void NotificationCard::connectMsgViewEvent(MessageView *view)
+{
     connect(view, &MessageView::keepShowing, this, [=]{
         suspendHide();
     });
@@ -826,7 +833,9 @@ MessageView *NotificationCard::newMsgView()
         loadMsgHistoryToMsg(messageId);
     });
 
-    return view;
+    connect(view, &MessageView::connectNewMessageView, this, [=](MessageView* view){
+        connectMsgViewEvent(view);
+    });
 }
 
 /// 连接群组头像事件

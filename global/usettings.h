@@ -69,9 +69,9 @@ public:
     QColor bannerBgColor = QColor(255, 255, 255, 255); // 默认背景颜色
     bool bannerShowBubble = true; // 显示消息气泡
     int bannerBubblePadding = 5; // 气泡内边距
-    QColor bannerBubbleOppo = QColor(0xDD, 0xDD, 0xDD); // 别人的气泡颜色
+    QColor bannerBubbleOppo = QColor(0xEE, 0xEE, 0xEE); // 别人的气泡颜色
     QColor bannerBubbleMime = QColor("#9ee06a"); // 自己的气泡颜色
-    QColor bannerBubbleReply = QColor(0xAA, 0xAA, 0xAA, 0x88); // 回复的气泡颜色
+    QColor bannerBubbleReply = QColor(0xAA, 0xAA, 0xAA, 0x66); // 回复的气泡颜色
     bool bannerBubbleUseHeaderColor = true; // 气泡背景和文字使用头像颜色
     bool bannerUseHeaderColor = true; // 使用头像颜色填充背景颜色
     bool bannerUseHeaderGradient = false; // 使用头像渐变

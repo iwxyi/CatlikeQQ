@@ -24,6 +24,7 @@
 void MessageView::setMessage(const MsgBean& msg, int recursion)
 {
     this->msg = msg;
+    this->replyRecursion = recursion;
 
     if (!msg.isMsg())
     {
@@ -45,8 +46,17 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
 
     // 是消息了
     QString text = msg.message;
-    if (msg.isPrivate() && msg.senderId == ac->myId)
+    // 处理HTML
+    text.replace("<", "&lt;").replace(">", "&gt;");
+    text = text.replace("\r\n", "<br/>");
+    // 设置昵称前缀
+    if ((msg.isPrivate() || recursion) && msg.senderId == ac->myId)
         text.insert(0, "你：");
+    else if (recursion)
+    {
+        QString newText = "<a href=\"at://" + snum(msg.senderId) + "\"><span style=\"text-decoration: none; color:" + QVariant(textColor).toString() + ";\">" + msg.username() + "</span></a>";
+        text.insert(0, newText + "：");
+    }
     QRegularExpression re;
     QRegularExpressionMatch match;
 
@@ -63,6 +73,7 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
     if (text.indexOf(QRegularExpression("\\[CQ:reply,id=(-?\\d+)\\](\\[CQ:at,qq=\\d+\\])?"), 0, &match) > -1)
     {
         qint64 messageId = match.captured(1).toLongLong();
+        text.replace(match.captured(0), "");
         MsgBean replyMsg;
 
         QList<MsgBean>* list = nullptr;
@@ -87,21 +98,16 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
             }
         }
 
-        if (msg.isValid()) // 找到回复
+        if (replyMsg.isValid()) // 找到回复
         {
             replyWidget = setRepyMessage(replyMsg, recursion + 1);
             vlayout->insertWidget(0, replyWidget);
         }
         else // 没找到回复
         {
-            text.replace(match.captured(0), "");
             text.insert(0, "<a href=\"msg://" + snum(messageId) + "\"><span style=\"text-decoration: none; color:" + QVariant(textColor).toString() + ";\">[回复]</span></a>");
         }
     }
-
-    // #处理HTML
-    text.replace("<", "&lt;").replace(">", "&gt;");
-    text = text.replace("\r\n", "<br/>");
 
     // #替换CQ
     // 表情
@@ -209,7 +215,8 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
                                 && sz.height() / us->bannerThumbnailProp < maxHeight)
                         {
                             // 缩放，不足最大尺寸
-                            sz /= us->bannerThumbnailProp;
+                            // sz /= us->bannerThumbnailProp;
+                            sz.scaled(maxWidth / us->bannerThumbnailProp, maxHeight / us->bannerThumbnailProp, Qt::KeepAspectRatio);
                         }
                         else
                         {
@@ -278,7 +285,7 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
                         && pixmap.height() / us->bannerThumbnailProp < maxHeight)
                 {
                     // 按固定比例压缩
-                    pixmap = pixmap.scaled(pixmap.size() / us->bannerThumbnailProp, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                    pixmap = pixmap.scaled(QSize(maxWidth, maxHeight) / us->bannerThumbnailProp, Qt::KeepAspectRatio, Qt::SmoothTransformation);
                 }
                 else if (pixmap.width() > maxWidth || pixmap.height() > maxHeight)
                 {
@@ -591,7 +598,11 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
     updateStyleSheet();
 }
 
-MessageView* MessageView::setRepyMessage(const MsgBean &msg, int recursion)
+MessageView* MessageView::setRepyMessage(const MsgBean &replyMsg, int recursion)
 {
-
+    replyWidget = new MessageView(this);
+    replyWidget->setMessage(replyMsg, recursion);
+    replyWidget->setTextColor(this->textColor);
+    emit connectNewMessageView(replyWidget);
+    return replyWidget;
 }

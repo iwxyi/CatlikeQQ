@@ -19,7 +19,7 @@ public:
     explicit MessageView(QWidget *parent = nullptr);
 
     void setMessage(const MsgBean &msg, int recursion = 0);
-    MessageView *setRepyMessage(const MsgBean &msg, int recursion = 0);
+    MessageView *setRepyMessage(const MsgBean &replyMsg, int recursion = 0);
     static QString simpleMessage(const MsgBean &msg);
 
     QSize adjustSizeByTextWidth(int w);
@@ -43,6 +43,7 @@ signals:
     void sendText(const QString& text);
     void focusMessage(const qint64 messageId);
     void heightChanged();
+    void connectNewMessageView(MessageView* view);
 
 public slots:
     void replaceGroupAt();
@@ -56,6 +57,7 @@ private:
     MsgBean msg;
     int fixedWidth = 0;
     QColor textColor = Qt::black;
+    int replyRecursion = 0; // 回复的级别
 
     bool singleImage = false; // 是否是单张图片/视频（不显示气泡）
     bool useFixedSize = false;
