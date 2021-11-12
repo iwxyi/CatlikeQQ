@@ -332,6 +332,7 @@ void MessageView::showMenu()
                         .arg(this->sizeHint().height()).arg(this->width()).arg(this->height()));
         menu->addAction(QString("bdy: (%1, %2) -> (%3, %4)").arg(contentWidget->sizeHint().width())
                         .arg(contentWidget->sizeHint().height()).arg(contentWidget->width()).arg(contentWidget->height()));
+        menu->addAction(QString("sig: %1").arg(singleImage ? "true" : "false"));
     }
 
     menu->exec();
@@ -341,6 +342,7 @@ void MessageView::showMenu()
     });
 }
 
+/// 这里是为了setStyleSheet有效
 void MessageView::paintEvent(QPaintEvent *event)
 {
     QStyleOption opt;
@@ -350,6 +352,8 @@ void MessageView::paintEvent(QPaintEvent *event)
     QWidget::paintEvent(event);
 }
 
+/// 设置内容后，自动调整大小
+/// 宽度可能是固定的，尽可能自适应高度
 QSize MessageView::adjustSizeByTextWidth(int w)
 {
 #ifdef MESSAGE_LABEL
@@ -365,17 +369,26 @@ QSize MessageView::adjustSizeByTextWidth(int w)
         this->adjustSize();
         this->setFixedHeight(this->height());
     }
+    else if (singleImage)
+    {
+        // 单张图片
+        this->layout()->setMargin(0);
+        this->setFixedSize(contentWidget->size());
+    }
     else
     {
         // 显示气泡
         this->setFixedWidth(fixedWidth);
 
-        contentWidget->setFixedWidth(fixedWidth - us->bannerBubblePadding * 2);
-        // contentWidget->setMinimumWidth(0);
+        contentWidget->setFixedWidth(fixedWidth - us->bannerBubblePadding * 2); // 设置最大宽度
+        // contentWidget->setMinimumWidth(0); // 这样会导致固定宽度
         // contentWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Ignored);
         contentWidget->adjustSize();
         contentWidget->setFixedHeight(contentWidget->height()); // 获取到合适高度
-        // contentWidget->setFixedWidth(contentWidget->width());
+
+        contentWidget->setMinimumWidth(0); // 允许调整宽度
+        contentWidget->adjustSize(); // 根据合适高度再调整宽度
+        contentWidget->setFixedWidth(contentWidget->width()); // 再自适应宽度
 
         this->adjustSize();
         this->setFixedWidth(contentWidget->width() + us->bannerBubblePadding * 2);
@@ -415,7 +428,7 @@ void MessageView::updateStyleSheet()
     {
         qss += "border-radius: " + snum(us->bannerBgRadius) + "px;";
 
-        if (msg.senderId == ac->myId) // 自己发的
+        if (msg.senderId == ac->myId) // 自己发的，绿色
             qss += "background-color: " + QVariant(us->bannerBubbleMime).toString() + ";";
         else // 其他人发的
             qss += "background-color: " + QVariant(us->bannerBubbleOppo).toString() + ";";
@@ -423,6 +436,7 @@ void MessageView::updateStyleSheet()
     else
     {
         // 不设置气泡，或者就单张图片
+        // 默认情况下不显示背景
         if (selected)
             qss += "background-color: lightGray;";
     }
@@ -433,9 +447,15 @@ void MessageView::updateStyleSheet()
 
 /// 设置前景颜色
 /// 第一次时可能还没设置相应的message
+/// 设置message后必须有一次设置
 void MessageView::setTextColor(QColor c)
 {
     this->textColor = c;
+
+    // 还没设置，不需要更改界面
+    if (!msg.isValid())
+        return ;
+
     QPalette pa(this->palette());
     pa.setColor(QPalette::Foreground, c);
     pa.setColor(QPalette::Text, c);

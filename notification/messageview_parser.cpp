@@ -148,7 +148,7 @@ void MessageView::setMessage(const MsgBean& msg)
             int lineHeight = QFontMetrics(this->font()).lineSpacing() * 2;
 #ifdef MESSAGE_LABEL
             // 如果是单张图片，支持显示gif
-            if (text.indexOf(QRegularExpression("^\\[CQ:image,file=(.+?).image,.*url=(.+?)\\]$")) > -1)
+            if (text.indexOf(QRegularExpression("^\\[CQ:image,file=(.+?).image,url=(.+?)\\]$")) > -1)
             {
                 // 支持GIF
                 QMovie* movie = new QMovie(path, "gif", this);
@@ -187,13 +187,14 @@ void MessageView::setMessage(const MsgBean& msg)
                         movie->setScaledSize(QSize(maxWidth, maxHeight));
                     }
 
-                    contentWidget->setMaximumSize(maxWidth, maxHeight);
+                    contentWidget->setFixedSize(sz);
+                    // contentWidget->setMaximumSize(maxWidth, maxHeight);
                     contentWidget->setMovie(movie);
                     movie->start();
                     singleImage = true;
 
                     // 设置圆角
-                    QPixmap pixmap(movie->currentPixmap().size());
+                    QPixmap pixmap(sz);
                     pixmap.fill(Qt::transparent);
                     QPainter painter(&pixmap);
                     painter.setRenderHint(QPainter::Antialiasing);
@@ -532,4 +533,7 @@ void MessageView::setMessage(const MsgBean& msg)
 
     // #设置显示
     contentWidget->setText(text);
+
+    // 重新调整一下界面
+    updateStyleSheet();
 }
