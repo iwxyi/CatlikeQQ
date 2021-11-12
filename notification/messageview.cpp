@@ -7,6 +7,7 @@
 #include <QClipboard>
 #include <QMimeData>
 #include <QProcess>
+#include <QStyleOptionTab>
 #include "fileutil.h"
 #include "messageview.h"
 #include "defines.h"
@@ -59,14 +60,14 @@ MessageView::MessageView(QWidget *parent)
     contentWidget->connect(contentWidget, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showMenu()));
 
     // 设置样式
-    setObjectName("MessageView");
+    this->setObjectName("MessageBubble");
     contentWidget->setObjectName("ContentWidget");
 
     // 设置布局
     QVBoxLayout * layout = new QVBoxLayout(this);
     layout->addWidget(contentWidget);
-    layout->setMargin(0);
-    layout->setSpacing(0);
+    layout->setMargin(us->bannerBubblePadding);
+    layout->setSpacing(us->bannerBubblePadding);
 }
 
 /// 这个是最简单的文字替换
@@ -340,6 +341,15 @@ void MessageView::showMenu()
     });
 }
 
+void MessageView::paintEvent(QPaintEvent *event)
+{
+    QStyleOption opt;
+    opt.init(this);
+    QPainter p(this);
+    style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
+    QWidget::paintEvent(event);
+}
+
 QSize MessageView::adjustSizeByTextWidth(int w)
 {
 #ifdef MESSAGE_LABEL
@@ -358,17 +368,14 @@ QSize MessageView::adjustSizeByTextWidth(int w)
     else
     {
         // 显示气泡
+        this->setFixedWidth(fixedWidth);
+
         contentWidget->setFixedWidth(fixedWidth - us->bannerBubblePadding * 2);
+        // contentWidget->setMinimumWidth(0);
+        // contentWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Ignored);
         contentWidget->adjustSize();
         contentWidget->setFixedHeight(contentWidget->height()); // 获取到合适高度
-
-        // xxx
-        QSize prevSize = contentWidget->size();
-        contentWidget->setMinimumWidth(0);
-        contentWidget->setMaximumWidth(fixedWidth - us->bannerBubblePadding * 2);
-        contentWidget->adjustSize(); // 重新调整高度
-        qDebug() << prevSize << contentWidget->size();
-        contentWidget->setFixedWidth(contentWidget->width());
+        // contentWidget->setFixedWidth(contentWidget->width());
 
         this->adjustSize();
         this->setFixedWidth(contentWidget->width() + us->bannerBubblePadding * 2);
@@ -401,11 +408,12 @@ void MessageView::updateStyleSheet()
 {
     // 设置内容文字颜色
     QString qss = "color: " + QVariant(textColor).toString() + ";";
+    contentWidget->setStyleSheet(qss);
 
     // 设置背景颜色
-    if (us->bannerShowBubble)
+    if (us->bannerShowBubble && !singleImage)
     {
-        qss += "border-radius: " + snum(us->bannerBgRadius) + "px; padding: 2px;";
+        qss += "border-radius: " + snum(us->bannerBgRadius) + "px;";
 
         if (msg.senderId == ac->myId) // 自己发的
             qss += "background-color: " + QVariant(us->bannerBubbleMime).toString() + ";";
@@ -414,11 +422,13 @@ void MessageView::updateStyleSheet()
     }
     else
     {
+        // 不设置气泡，或者就单张图片
         if (selected)
             qss += "background-color: lightGray;";
     }
 
-    this->setStyleSheet("#MessageView, #ContentWidget { " + qss + " }");
+    this->setStyleSheet("#MessageBubble { " + qss + " }");
+    // this->setStyleSheet("MessageView { background-color: red;}");
 }
 
 /// 设置前景颜色

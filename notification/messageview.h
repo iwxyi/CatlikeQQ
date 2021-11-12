@@ -47,11 +47,16 @@ public slots:
 
     void showMenu();
 
+protected:
+    void paintEvent(QPaintEvent *event) override;
+
 private:
     MsgBean msg;
     int fixedWidth = 0;
     QColor textColor = Qt::black;
 
+    bool singleImage = false; // 是否是单张图片/视频（不显示气泡）
+    bool singleCard = false; // 是否是单张卡片
     QString filePath;
     QPixmap filePixmap;
 

@@ -78,21 +78,23 @@ void MessageView::setMessage(const MsgBean& msg)
                 // 调整图片大小
                 movie->jumpToFrame(0);
                 int sz = contentWidget->fontMetrics().height();
+                sz = qMax(sz, 56);
                 movie->setScaledSize(QSize(sz, sz));
                 contentWidget->setFixedSize(sz, sz);
                 contentWidget->setMovie(movie);
                 movie->start();
                 text = "[表情]";
+                singleImage = true;
 
                 // 设置圆角
-                QPixmap pixmap(movie->currentPixmap().size());
+                /* QPixmap pixmap(movie->currentPixmap().size());
                 pixmap.fill(Qt::transparent);
                 QPainter painter(&pixmap);
                 painter.setRenderHint(QPainter::Antialiasing);
                 QPainterPath path;
                 path.addRoundedRect(pixmap.rect(), us->bannerBgRadius, us->bannerBgRadius);
                 painter.fillPath(path, Qt::white);
-                contentWidget->setMask(pixmap.mask());
+                contentWidget->setMask(pixmap.mask()); */
                 return ;
             }
             delete movie;
@@ -188,6 +190,7 @@ void MessageView::setMessage(const MsgBean& msg)
                     contentWidget->setMaximumSize(maxWidth, maxHeight);
                     contentWidget->setMovie(movie);
                     movie->start();
+                    singleImage = true;
 
                     // 设置圆角
                     QPixmap pixmap(movie->currentPixmap().size());
@@ -457,7 +460,7 @@ void MessageView::setMessage(const MsgBean& msg)
             vw->setRadius(us->bannerBgRadius);
             vw->setMedia(path);
             vw->show();
-            contentWidget->setFixedHeight(maxHeight); // TODO: 设置成视频高度才合适
+            contentWidget->setMaximumHeight(maxHeight); // TODO: 设置成视频高度才合适
 
             vw->setCursor(Qt::PointingHandCursor);
             connect(vw, &ClickLabel::leftClicked, this, [=]{
@@ -466,6 +469,7 @@ void MessageView::setMessage(const MsgBean& msg)
 
             // 设置文字
             text = "";
+            singleImage = true;
         }
         else // 不缓存视频
         {
