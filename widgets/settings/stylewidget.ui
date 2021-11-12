@@ -108,6 +108,9 @@
      </item>
      <item row="6" column="0">
       <widget class="QCheckBox" name="colorfulGroupMemberCheck">
+       <property name="toolTip">
+        <string>由于头像颜色相差过大，部分消息中可能难以分辨彩色昵称</string>
+       </property>
        <property name="text">
         <string>群组成员彩色昵称</string>
        </property>
