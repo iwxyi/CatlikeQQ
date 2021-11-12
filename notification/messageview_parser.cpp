@@ -205,11 +205,16 @@ void MessageView::setMessage(const MsgBean& msg)
                     return ;
                 }
                 delete movie;
+
+                // 单张静态图片
+
             }
 #endif
             // 多张图片、静态图片；缩略图的伸缩、圆角
             int pos = 0;
             maxWidth -= us->bannerBgRadius * 2; // 有个莫名的偏差
+            int imageCount = 0;
+            QSize lastPixmapSize;
             while (true)
             {
                 if (text.indexOf(QRegularExpression("\\[CQ:image,file=(.+?).image,.*?url=(.+?)\\]"), pos, &match) == -1)
@@ -239,9 +244,11 @@ void MessageView::setMessage(const MsgBean& msg)
                     // 这个会缩得更小
                     pixmap = pixmap.scaled(maxWidth, maxHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
                 }
+                lastPixmapSize = pixmap.size();
                 pixmap = NetImageUtil::toRoundedPixmap(pixmap, us->bannerBgRadius);
                 path = rt->imageSCache(id);
                 pixmap.save(path);
+                imageCount++;
 
                 // 判断是否需要换行显示图片
                 bool breakLeft = false, breakRight = false;
@@ -290,6 +297,13 @@ void MessageView::setMessage(const MsgBean& msg)
                 text.replace(match.captured(0), rep);
                 pos = match.capturedStart() + rep.length();
                 contentWidget->setMinimumWidth(qMax(this->minimumWidth(),  pixmap.width()));
+            }
+
+            // 只有一张图片
+            if (imageCount == 1)
+            {
+                singleImage = true;
+                contentWidget->setFixedSize(lastPixmapSize);
             }
         }
     }
