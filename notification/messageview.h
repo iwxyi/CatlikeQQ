@@ -22,6 +22,7 @@ public:
     MessageView *setRepyMessage(const MsgBean &replyMsg, int recursion = 0);
     static QString simpleMessage(const MsgBean &msg);
 
+    void setPrevContentWidth(int w);
     QSize adjustSizeByTextWidth(int w);
 
     void setTextColor(QColor c);

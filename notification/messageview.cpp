@@ -172,6 +172,14 @@ QString MessageView::simpleMessage(const MsgBean &msg)
     return text;
 }
 
+/// 预先设置宽度
+/// 避免 adjustSizeByWidth 时 adjustSize 会导致宽度不对以至于后期固定为最大宽度时留下空白的问题
+void MessageView::setPrevContentWidth(int w)
+{
+    this->fixedWidth = w;
+    contentWidget->setFixedWidth(w);
+}
+
 /// 把形如 @123456 的格式统统替换为 @某某
 void MessageView::replaceGroupAt()
 {
@@ -375,7 +383,7 @@ QSize MessageView::adjustSizeByTextWidth(int w)
         this->adjustSize();
         this->setFixedHeight(this->height());
     }
-    else if (singleImage)
+    else if (singleImage && !replyRecursion)
     {
         // 单张图片，不显示气泡
         vlayout->setMargin(0);
@@ -386,19 +394,18 @@ QSize MessageView::adjustSizeByTextWidth(int w)
     else
     {
         // 显示气泡
-        this->setFixedWidth(fixedWidth);
-
         contentWidget->setFixedWidth(fixedWidth - us->bannerBubblePadding * 2); // 设置最大宽度
-        // contentWidget->setMinimumWidth(0); // 这样会导致固定宽度
-        // contentWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Ignored); //  没有效果
+//        contentWidget->setMinimumWidth(0); // 这样会导致adjustSize固定宽度
+//        contentWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Ignored); // 没有效果
         contentWidget->adjustSize();
+
         contentWidget->setFixedHeight(contentWidget->height()); // 获取到合适高度
         // contentWidget->setFixedSize(contentWidget->sizeHint()); // 已经实现自动换行了，但是换行宽度不对
 
         // 这个，针对私聊是有效的……
-        contentWidget->setMinimumWidth(0); // 允许调整宽度
-        contentWidget->adjustSize(); // 根据合适高度再调整宽度
-        contentWidget->setFixedWidth(contentWidget->width()); // 再自适应宽度
+//        contentWidget->setMinimumWidth(0); // 允许调整宽度
+//        contentWidget->adjustSize(); // 根据合适高度再调整宽度
+//        contentWidget->setFixedWidth(contentWidget->width()); // 再自适应宽度
 
         this->adjustSize();
         this->setFixedWidth(qMax(contentWidget->width(), replyWidget ? replyWidget->width() : 0) + us->bannerBubblePadding * 2);

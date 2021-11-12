@@ -518,6 +518,7 @@ MessageView* NotificationCard::createPureMsgView(const MsgBean& msg, int index)
 
     MessageView* msgView = newMsgView();
     msgView->setTextColor(us->bannerShowBubble ? us->bannerContentColor : cardColor.fg);
+    msgView->setPrevContentWidth(us->bannerContentWidth - us->bubblePadding() * 2);
     msgView->setMessage(msg);
 
     msgView->setAttribute(Qt::WA_TransparentForMouseEvents, false);
@@ -670,6 +671,7 @@ MessageView* NotificationCard::createMsgBox(const MsgBean &msg, int index)
 
     // 设置消息
     msgView->setTextColor(us->bannerShowBubble ? us->bannerContentColor : cardColor.fg);
+    msgView->setPrevContentWidth(us->bannerContentWidth - us->bubblePadding() * 2);
     msgView->setMessage(msg);
     msgView->adjustSizeByTextWidth(us->bannerContentWidth); // 这里有个-12的，为什么呢
     box->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -752,6 +754,7 @@ MessageView* NotificationCard::createBlankMsgBox(const MsgBean &msg, int index)
 
     // 设置消息
     msgView->setTextColor(us->bannerShowBubble ? us->bannerContentColor : cardColor.fg);
+    msgView->setPrevContentWidth(us->bannerContentWidth - us->bubblePadding() * 2);
     msgView->setMessage(msg);
     msgView->adjustSizeByTextWidth(us->bannerContentWidth); // 这里有个-12的，为什么呢
     box->adjustSize();
