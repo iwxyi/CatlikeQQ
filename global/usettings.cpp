@@ -45,6 +45,12 @@ void USettings::restoreSettings()
 
     assign(autoPlaySpeech, "autoPlaySpeech");
     assign(autoTransSpeech, "autoTransSpeech");
+
+    assign(bannerShowBubble, "showBubble");
+    assign(bannerReplyRecursion, "replyRecursion");
+    assign(bannerBubbleMime, "bubbleMime");
+    assign(bannerBubbleOppo, "bubbleOppo");
+    assign(bannerBubbleReply, "bubbleReply");
     endGroup();
 
     beginGroup("group");

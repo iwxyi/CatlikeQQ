@@ -15,9 +15,14 @@ StyleWidget::StyleWidget(QWidget *parent) :
     ui->colorfulGroupMemberCheck->setChecked(us->bannerColorfulGroupMember);
     ui->frostedGlassBgCheck->setChecked(us->bannerFrostedGlassBg);
     ui->frostedGlassOpacitySpin->setValue(us->bannerFrostedGlassOpacity);
+    ui->showBubbleCheck->setChecked(us->bannerShowBubble);
+    ui->replyRecursionCheck->setChecked(us->bannerReplyRecursion);
 
     ui->bgColorButton->setBorderColor(Qt::gray);
     ui->titleColorButton->setBorderColor(Qt::gray);
+    ui->bubbleMimeButton->setBorderColor(Qt::gray);
+    ui->bubbleOppoButton->setBorderColor(Qt::gray);
+    ui->bubbleReplyButton->setBorderColor(Qt::gray);
 }
 
 StyleWidget::~StyleWidget()
@@ -61,4 +66,32 @@ void StyleWidget::on_frostedGlassOpacitySpin_editingFinished()
 void StyleWidget::on_useHeaderColorCheck_clicked()
 {
     us->set("banner/useHeaderColor", us->bannerUseHeaderColor = ui->useHeaderColorCheck->isChecked());
+}
+
+void StyleWidget::on_showBubbleCheck_clicked()
+{
+    us->set("banner/showBubble", us->bannerShowBubble = ui->showBubbleCheck->isChecked());
+}
+
+void StyleWidget::on_replyRecursionCheck_clicked()
+{
+    us->set("banner/replyRecursion", us->bannerReplyRecursion = ui->replyRecursionCheck->isChecked());
+}
+
+void StyleWidget::on_bubbleMimeButton_clicked()
+{
+    QColor c = QColorDialog::getColor(us->bannerBubbleMime, this, "自己消息的气泡背景颜色", QColorDialog::ShowAlphaChannel);
+    us->set("banner/bubbleMime", us->bannerBubbleMime = c);
+}
+
+void StyleWidget::on_bubbleOppoButton_clicked()
+{
+    QColor c = QColorDialog::getColor(us->bannerBubbleOppo, this, "他人消息的气泡背景颜色", QColorDialog::ShowAlphaChannel);
+    us->set("banner/bubbleOppo", us->bannerBubbleOppo = c);
+}
+
+void StyleWidget::on_bubbleReplyButton_clicked()
+{
+    QColor c = QColorDialog::getColor(us->bannerBubbleReply, this, "回复消息的气泡背景颜色", QColorDialog::ShowAlphaChannel);
+    us->set("banner/bubbleReply", us->bannerBubbleReply = c);
 }
