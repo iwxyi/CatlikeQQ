@@ -67,6 +67,7 @@ public:
     QColor bannerTitleColor = QColor(0, 0, 0, 255); // 默认标题颜色
     QColor bannerContentColor = QColor(32, 32, 32, 255); // 默认昵称、消息颜色
     QColor bannerBgColor = QColor(255, 255, 255, 255); // 默认背景颜色
+    QColor bannerLinkColor = QColor("#00a4ff"); // 超链接颜色
     bool bannerShowBubble = false; // 显示消息气泡
     int bannerBubblePadding = 5; // 气泡内边距
     QColor bannerBubbleOppo = QColor(0xEE, 0xEE, 0xEE); // 别人的气泡颜色

@@ -54,7 +54,7 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
         text.insert(0, "你：");
     else if (recursion)
     {
-        QString newText = "<a href=\"at://" + snum(msg.senderId) + "\"><span style=\"text-decoration: none; color:" + QVariant(textColor).toString() + ";\">" + msg.username() + "</span></a>";
+        QString newText = "<a href=\"at://" + snum(msg.senderId) + "\"><span style=\"text-decoration: none; color:" + QVariant(us->bannerLinkColor).toString() + ";\">" + msg.username() + "</span></a>";
         text.insert(0, newText + "：");
     }
     QRegularExpression re;
@@ -66,7 +66,7 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
     };
 
     auto linkText = [=](QString text, QString link) {
-        return "<a href=\"" +link + "\"><span style=\"text-decoration: none; color:#8cc2d4;\">" + text + "</span></a>";
+        return "<a href=\"" +link + "\"><span style=\"text-decoration: none; color:" + QVariant(us->bannerLinkColor).toString() + ";\">" + text + "</span></a>";
     };
 
     // #先判断回复
@@ -105,7 +105,7 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
         }
         else // 没找到回复
         {
-            text.insert(0, "<a href=\"msg://" + snum(messageId) + "\"><span style=\"text-decoration: none; color:" + QVariant(textColor).toString() + ";\">[回复]</span></a>");
+            text.insert(0, "<a href=\"msg://" + snum(messageId) + "\"><span style=\"text-decoration: none; color:" + QVariant(us->bannerLinkColor).toString() + ";\">[回复]</span></a>");
         }
     }
 
@@ -361,7 +361,7 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
     {
         text.replace(match.captured(0), "");
         QString messageId = match.captured(1);
-        text.insert(0, "<a href=\"msg://" + messageId + "\"><span style=\"text-decoration: none; color:" + QVariant(textColor).toString() + ";\">[回复]</span></a>");
+        text.insert(0, "<a href=\"msg://" + messageId + "\"><span style=\"text-decoration: none; color:" + QVariant(us->bannerLinkColor).toString() + ";\">[回复]</span></a>");
     }
 
     // 艾特
@@ -389,7 +389,7 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
                         c = memberColor.value(userId);
                 }
                 if (!c.isValid())
-                    c = textColor;
+                    c = us->bannerLinkColor;
 
                 QString newText = "<a href=\"at://" + match.captured(1) + "\"><span style=\"text-decoration: none; color:" + QVariant(c).toString() + ";\">@" + members.value(userId).username() + "</span></a>";
                 text.replace(match.captured(0), newText);
@@ -401,8 +401,8 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
             }
         }
     }
-    text.replace(QRegularExpression("\\[CQ:at,qq=(\\d+)\\]"), "<a href=\"at://\\1\"><span style=\"text-decoration: none; color:" + QVariant(textColor).toString() + ";\">@\\1</span></a>"); // 万一有没有替换完的呢
-    text.replace(QRegularExpression("\\[CQ:at,qq=all\\]"), "<a href=\"at://all\"><span style=\"text-decoration: none; color:" + QVariant(textColor).toString() + ";\">@全体成员</span></a>"); // @全体
+    text.replace(QRegularExpression("\\[CQ:at,qq=(\\d+)\\]"), "<a href=\"at://\\1\"><span style=\"text-decoration: none; color:" + QVariant(us->bannerLinkColor).toString() + ";\">@\\1</span></a>"); // 万一有没有替换完的呢
+    text.replace(QRegularExpression("\\[CQ:at,qq=all\\]"), "<a href=\"at://all\"><span style=\"text-decoration: none; color:" + QVariant(us->bannerLinkColor).toString() + ";\">@全体成员</span></a>"); // @全体
 
     // json
     if (text.indexOf(QRegularExpression("\\[CQ:json,data=(.+?)\\]"), 0, &match) > -1)
