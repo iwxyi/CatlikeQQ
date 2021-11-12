@@ -192,9 +192,9 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
             int maxWidth = us->bannerContentWidth - us->bannerBubblePadding * 2;
             int maxHeight = (us->bannerContentMaxHeight - us->bannerHeaderSize - us->bannerBubblePadding * 2) * 2 / 3;
             int lineHeight = QFontMetrics(this->font()).lineSpacing() * 2;
-            int scale1Threshold = 64;
-            int scale1_5Threshold = 128;
-            int scale2Threshold = 256;
+            // int scale1Threshold = 64; // 不压缩
+            // int scale1_5Threshold = 128; // 压缩1.5
+            // int scale2Threshold = 256; // 压缩2
             singleImage = text.indexOf(QRegularExpression("^\\[CQ:image,file=(.+?).image,url=(.+?)\\]$")) > -1;
 
 #ifdef MESSAGE_LABEL
@@ -509,13 +509,8 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
             this->filePath = path;
 
             // 图片尺寸
-<<<<<<< HEAD
-            int maxWidth = us->bannerContentWidth;
-            int maxHeight = (us->bannerContentMaxHeight - us->bannerHeaderSize) * 2 / 3;
-=======
             int maxWidth = us->bannerContentWidth - us->bannerBubblePadding * 2;
-            int maxHeight = us->bannerContentMaxHeight - us->bannerHeaderSize - us->bannerBubblePadding * 2;
->>>>>>> ContainerStructure
+            int maxHeight = (us->bannerContentMaxHeight - us->bannerHeaderSize - us->bannerBubblePadding * 2) * 2 / 3;
             Q_UNUSED(maxWidth)
 
             // 控件
