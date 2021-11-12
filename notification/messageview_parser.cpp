@@ -605,8 +605,8 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
 MessageView* MessageView::setRepyMessage(const MsgBean &replyMsg, int recursion)
 {
     replyWidget = new MessageView(this);
-    replyWidget->setMessage(replyMsg, recursion);
     replyWidget->setTextColor(this->textColor);
+    replyWidget->setMessage(replyMsg, recursion);
     emit connectNewMessageView(replyWidget);
     return replyWidget;
 }

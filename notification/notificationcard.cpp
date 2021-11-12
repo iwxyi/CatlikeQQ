@@ -502,6 +502,7 @@ void NotificationCard::addSingleSenderMsg(const MsgBean &msg)
 }
 
 /// 仅创建消息正文
+/// 没有左边的头像
 MessageView* NotificationCard::createPureMsgView(const MsgBean& msg, int index)
 {
     // 先暂停时钟（获取图片有延迟）
@@ -714,6 +715,7 @@ MessageView* NotificationCard::createMsgBox(const MsgBean &msg, int index)
 
 /// 仅显示编辑框，不显示头像
 /// 但是头像的占位还在的
+/// 群组的连续消息
 MessageView* NotificationCard::createBlankMsgBox(const MsgBean &msg, int index)
 {
     // 先暂停时钟（获取图片有延迟）
