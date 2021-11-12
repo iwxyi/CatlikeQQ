@@ -42,6 +42,7 @@ private:
 public:
     bool isGroupShow(qint64 groupId);
     void addCount(int& val, QString key);
+    int bubblePadding() const;
 
 public:
     QString host;

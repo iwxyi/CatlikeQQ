@@ -366,6 +366,8 @@ QSize MessageView::adjustSizeByTextWidth(int w)
     if (!us->bannerShowBubble)
     {
         // 不显示气泡
+        if (!replyRecursion)
+            vlayout->setMargin(0);
         contentWidget->setFixedWidth(fixedWidth);
         contentWidget->adjustSize();
         contentWidget->setFixedHeight(contentWidget->height());
@@ -376,7 +378,7 @@ QSize MessageView::adjustSizeByTextWidth(int w)
     else if (singleImage)
     {
         // 单张图片，不显示气泡
-        this->layout()->setMargin(0);
+        vlayout->setMargin(0);
         if (!useFixedSize) // 例如gif，使用解析时的固定大小
             contentWidget->setFixedSize(contentWidget->sizeHint()); // 本来是图像大小，但是好像会有padding啥的
         this->setFixedSize(this->sizeHint());
@@ -451,7 +453,10 @@ void MessageView::updateStyleSheet()
         if (selected)
             qss += "background-color: lightGray;";
         if (replyRecursion)
+        {
             qss += "background-color: " + QVariant(us->bannerBubbleReply).toString() + ";";
+            qss += "border-radius: " + snum(us->bannerBgRadius) + "px;";
+        }
     }
 
     this->setStyleSheet("#MessageBubble { " + qss + " }");
@@ -499,4 +504,3 @@ void MessageView::markSelected()
         updateStyleSheet();
     });
 }
-

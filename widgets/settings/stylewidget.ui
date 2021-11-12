@@ -25,17 +25,10 @@
      <property name="spacing">
       <number>12</number>
      </property>
-     <item row="5" column="0">
-      <widget class="QCheckBox" name="useHeaderColorCheck">
+     <item row="6" column="1">
+      <widget class="QCheckBox" name="useHeaderGradientCheck">
        <property name="text">
-        <string>跟随头像变色</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="InteractiveButtonBase" name="titleColorButton">
-       <property name="text">
-        <string>卡片文字颜色</string>
+        <string>使用头像渐变</string>
        </property>
       </widget>
      </item>
@@ -43,6 +36,48 @@
       <widget class="InteractiveButtonBase" name="bgColorButton">
        <property name="text">
         <string>卡片背景颜色</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="InteractiveButtonBase" name="bubbleOppoButton">
+       <property name="text">
+        <string>他人气泡颜色</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="0">
+      <widget class="QCheckBox" name="useHeaderColorCheck">
+       <property name="text">
+        <string>跟随头像变色</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="InteractiveButtonBase" name="bubbleReplyButton">
+       <property name="text">
+        <string>回复气泡颜色</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QCheckBox" name="frostedGlassBgCheck">
+       <property name="toolTip">
+        <string>使用简单的毛玻璃背景效果
+注意：仅在出现时静态模糊，不会随着底部内容的修改而变化</string>
+       </property>
+       <property name="text">
+        <string>毛玻璃背景</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="0">
+      <widget class="QCheckBox" name="colorfulGroupMemberCheck">
+       <property name="toolTip">
+        <string>由于头像颜色相差过大，部分消息中可能难以分辨彩色昵称</string>
+       </property>
+       <property name="text">
+        <string>群组成员彩色昵称</string>
        </property>
       </widget>
      </item>
@@ -57,31 +92,6 @@
       </widget>
      </item>
      <item row="5" column="1">
-      <widget class="QCheckBox" name="useHeaderGradientCheck">
-       <property name="text">
-        <string>使用头像渐变</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="InteractiveButtonBase" name="bubbleMimeButton">
-       <property name="text">
-        <string>自己气泡颜色</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0">
-      <widget class="QCheckBox" name="frostedGlassBgCheck">
-       <property name="toolTip">
-        <string>使用简单的毛玻璃背景效果
-注意：仅在出现时静态模糊，不会随着底部内容的修改而变化</string>
-       </property>
-       <property name="text">
-        <string>毛玻璃背景</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1">
       <widget class="QSpinBox" name="frostedGlassOpacitySpin">
        <property name="toolTip">
         <string/>
@@ -106,16 +116,6 @@
        </property>
       </widget>
      </item>
-     <item row="6" column="0">
-      <widget class="QCheckBox" name="colorfulGroupMemberCheck">
-       <property name="toolTip">
-        <string>由于头像颜色相差过大，部分消息中可能难以分辨彩色昵称</string>
-       </property>
-       <property name="text">
-        <string>群组成员彩色昵称</string>
-       </property>
-      </widget>
-     </item>
      <item row="3" column="0">
       <widget class="QCheckBox" name="replyRecursionCheck">
        <property name="toolTip">
@@ -126,17 +126,24 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
-      <widget class="InteractiveButtonBase" name="bubbleReplyButton">
+     <item row="2" column="0">
+      <widget class="InteractiveButtonBase" name="bubbleMimeButton">
        <property name="text">
-        <string>回复气泡颜色</string>
+        <string>自己气泡颜色</string>
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
-      <widget class="InteractiveButtonBase" name="bubbleOppoButton">
+     <item row="0" column="1">
+      <widget class="InteractiveButtonBase" name="titleColorButton">
        <property name="text">
-        <string>他人气泡颜色</string>
+        <string>卡片文字颜色</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="InteractiveButtonBase" name="linkColorButton">
+       <property name="text">
+        <string>超链接颜色</string>
        </property>
       </widget>
      </item>

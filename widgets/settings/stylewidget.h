@@ -40,6 +40,8 @@ private slots:
 
     void on_bubbleReplyButton_clicked();
 
+    void on_linkColorButton_clicked();
+
 private:
     Ui::StyleWidget *ui;
 };

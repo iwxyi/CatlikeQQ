@@ -27,6 +27,7 @@ void USettings::restoreSettings()
     assign(bannerBgColor, "bgColor");
     assign(bannerTitleColor, "titleColor");
     assign(bannerContentColor, "contentColor");
+    assign(bannerLinkColor, "linkColor");
     assign(bannerUseHeaderColor, "useHeaderColor");
     assign(bannerUseHeaderGradient, "useHeaderGradient");
     assign(bannerColorfulGroupMember, "colorfulGroupMember");
@@ -152,4 +153,9 @@ bool USettings::isGroupShow(qint64 groupId)
 void USettings::addCount(int &val, QString key)
 {
     set("count/" + key, ++val);
+}
+
+int USettings::bubblePadding() const
+{
+    return showWidgetBorder ? bannerBubblePadding : 0;
 }

@@ -20,6 +20,7 @@ StyleWidget::StyleWidget(QWidget *parent) :
 
     ui->bgColorButton->setBorderColor(Qt::gray);
     ui->titleColorButton->setBorderColor(Qt::gray);
+    ui->linkColorButton->setBorderColor(Qt::gray);
     ui->bubbleMimeButton->setBorderColor(Qt::gray);
     ui->bubbleOppoButton->setBorderColor(Qt::gray);
     ui->bubbleReplyButton->setBorderColor(Qt::gray);
@@ -104,4 +105,12 @@ void StyleWidget::on_bubbleReplyButton_clicked()
     if (!c.isValid())
         return ;
     us->set("banner/bubbleReply", us->bannerBubbleReply = c);
+}
+
+void StyleWidget::on_linkColorButton_clicked()
+{
+    QColor c = QColorDialog::getColor(us->bannerLinkColor, this, "超链接颜色", QColorDialog::ShowAlphaChannel);
+    if (!c.isValid())
+        return ;
+    us->set("banner/linkColor", us->bannerLinkColor = c);
 }
