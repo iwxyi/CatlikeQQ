@@ -325,6 +325,14 @@ void MessageView::showMenu()
         timeFormat = "hh:mm:ss";
     menu->split()->addTitle(QDateTime::fromMSecsSinceEpoch(msg.timestamp).toString(timeFormat));
 
+    if (us->showWidgetBorder)
+    {
+        menu->addAction(QString("bdr: (%1, %2) -> (%3, %4)").arg(this->sizeHint().width())
+                        .arg(this->sizeHint().height()).arg(this->width()).arg(this->height()));
+        menu->addAction(QString("bdy: (%1, %2) -> (%3, %4)").arg(contentWidget->sizeHint().width())
+                        .arg(contentWidget->sizeHint().height()).arg(contentWidget->width()).arg(contentWidget->height()));
+    }
+
     menu->exec();
 
     menu->finished([=]{
@@ -337,16 +345,36 @@ QSize MessageView::adjustSizeByTextWidth(int w)
 #ifdef MESSAGE_LABEL
     this->fixedWidth = w;
 
-    w -= us->bannerBubblePadding * 2;
-    if (us->bannerShowBubble)
-        contentWidget->setMaximumWidth(w);
-    else
-        contentWidget->setFixedWidth(w);
-    contentWidget->adjustSize();
-    contentWidget->setFixedHeight(contentWidget->height());
+    if (!us->bannerShowBubble)
+    {
+        // 不显示气泡
+        contentWidget->setFixedWidth(fixedWidth);
+        contentWidget->adjustSize();
+        contentWidget->setFixedHeight(contentWidget->height());
 
-    this->adjustSize();
-    this->setFixedHeight(contentWidget->height());
+        this->adjustSize();
+        this->setFixedHeight(this->height());
+    }
+    else
+    {
+        // 显示气泡
+        contentWidget->setFixedWidth(fixedWidth - us->bannerBubblePadding * 2);
+        contentWidget->adjustSize();
+        contentWidget->setFixedHeight(contentWidget->height()); // 获取到合适高度
+
+        // xxx
+        QSize prevSize = contentWidget->size();
+        contentWidget->setMinimumWidth(0);
+        contentWidget->setMaximumWidth(fixedWidth - us->bannerBubblePadding * 2);
+        contentWidget->adjustSize(); // 重新调整高度
+        qDebug() << prevSize << contentWidget->size();
+        contentWidget->setFixedWidth(contentWidget->width());
+
+        this->adjustSize();
+        this->setFixedWidth(contentWidget->width() + us->bannerBubblePadding * 2);
+        this->setFixedHeight(qMax(this->height(), contentWidget->height() + us->bannerBubblePadding * 2));
+    }
+
     return this->size();
 #else
 //    setMaximumWidth(w);
@@ -393,6 +421,8 @@ void MessageView::updateStyleSheet()
     this->setStyleSheet("#MessageView, #ContentWidget { " + qss + " }");
 }
 
+/// 设置前景颜色
+/// 第一次时可能还没设置相应的message
 void MessageView::setTextColor(QColor c)
 {
     this->textColor = c;

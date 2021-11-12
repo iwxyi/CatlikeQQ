@@ -250,6 +250,8 @@ bool NotificationCard::append(const MsgBean &msg)
         return false;
     if (this->isPrivate() && this->friendId != msg.friendId)
         return false;
+    if (msg.is(ActionType::ActionRecall)) // 撤回类型，不添加
+        return true;
 
     int h = height();
 
