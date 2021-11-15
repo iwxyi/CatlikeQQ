@@ -113,7 +113,7 @@
          <bool>true</bool>
         </property>
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;根据聊天内容智能上调消息重要性&lt;/p&gt;&lt;p&gt;例如，在群组中发送疑问句后，临时提升群组消息一个级别&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;根据聊天内容智能上调消息重要性&lt;/p&gt;&lt;p&gt;例如，发送疑问句后，临时提升重要性至少一个级别；或者艾特群成员，该成员的下一条消息重要性提升&lt;/p&gt;&lt;p&gt;未启用通知的群组也因此会显示通知&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
          <string>消息动态重要性</string>

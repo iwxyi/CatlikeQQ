@@ -44,7 +44,7 @@ struct GroupInfo
     QHash<qint64, FriendInfo> members;
     qint64 lastMsgTime = 0;
     bool temp = false;
-    QSet<qint64> atMember; // 动态重要性_@群成员
+    mutable QSet<qint64> atMember; // 动态重要性_@群成员
 
     GroupInfo()
     {}

@@ -1710,6 +1710,9 @@ void NotificationCard::sendNextFile()
  */
 void NotificationCard::addDynamicImportance(QString text)
 {
+    if (!us->dynamicImportance)
+        return ;
+
     // 问号
     if (text.endsWith("?") || text.endsWith("？") || text.endsWith("吗")
             /*|| text.contains(QRegularExpression("怎么|如何|怎样|请问|请教"))*/)
@@ -1729,14 +1732,14 @@ void NotificationCard::addDynamicImportance(QString text)
     // 艾特(回复自带艾特)
     if (isGroup())
     {
-        QRegularExpression re("[CQ:at,qq=(\\d+)]");
+        QRegularExpression re("\\[CQ:at,qq=(\\d+)\\]");
         if (!ac->groupList.contains(groupId)) // 不包含这个数组
             return ;
         QSet<qint64>& atUser = ac->groupList[groupId].atMember;
         int pos = 0;
         do {
-            QRegularExpressionMatch match = re.match(text, pos);
-            if (!match.hasMatch())
+            QRegularExpressionMatch match;
+            if (text.indexOf(re, pos, &match) < 0)
                 break;
             qint64 id = match.captured(1).toLongLong();
             atUser.insert(id);

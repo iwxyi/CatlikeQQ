@@ -590,6 +590,33 @@ void MainWindow::messageReceived(const MsgBean &msg, bool blockSelf)
             return ;
     }
 
+    // 解除动态重要性
+    // 重要的必定发送，除非静默
+    if (us->dynamicImportance && msg.senderId != ac->myId)
+    {
+        if (msg.isPrivate())
+        {
+            if (ac->askUser.contains(msg.senderId))
+            {
+                ac->askUser.remove(msg.senderId);
+                qInfo() << "移除私聊疑问动态重要性：" << msg.senderId;
+            }
+        }
+        else if (msg.isGroup())
+        {
+            if (ac->askGroup.contains(msg.groupId))
+            {
+                ac->askGroup.remove(msg.groupId);
+                qInfo() << "移除群聊疑问动态重要性：" << msg.groupId << msg.senderId;
+            }
+            if (ac->groupList.value(msg.groupId).atMember.contains(msg.senderId))
+            {
+                ac->groupList[msg.groupId].atMember.remove(msg.senderId);
+                qInfo() << "移除群聊艾特动态重要性：" << msg.groupId << msg.senderId;
+            }
+        }
+    }
+
     showMessageCard(msg, blockSelf);
 }
 
@@ -612,9 +639,15 @@ bool MainWindow::canNewCardShow(const MsgBean &msg) const
     }
 
     // 判断群组显示开关
-    if (msg.isGroup() && !us->isGroupShow(msg.groupId)) // 群组消息开关
+    if (msg.isGroup()
+            && !us->isGroupShow(msg.groupId)) // 群组消息开关
     {
-        return false;
+        if (ac->askGroup.contains(msg.groupId)) // 要显示群组通知
+        {}
+        else if (ac->groupList[msg.groupId].atMember.contains(msg.senderId)) // 艾特成员的消息
+        {}
+        else // 无关紧要的群组
+            return false;
     }
 
     // 特别关心（暂时没啥用）
@@ -688,10 +721,43 @@ bool MainWindow::canNewCardShow(const MsgBean &msg) const
         im++;
     }
 
+    // 动态重要性
+    if (us->dynamicImportance)
+    {
+        if (msg.isPrivate())
+        {
+            if (ac->askUser.contains(msg.senderId))
+            {
+                // 至少要显示通知
+                if (im < us->lowestImportance - 1)
+                    im = us->lowestImportance;
+                else
+                    im++;
+            }
+        }
+        else if (msg.isGroup())
+        {
+            if (ac->askGroup.contains(msg.groupId))
+            {
+                if (im < us->lowestImportance - 1)
+                    im = us->lowestImportance;
+                else
+                    im++;
+            }
+            else if (ac->groupList.value(msg.groupId).atMember.contains(msg.senderId))
+            {
+                if (im < us->lowestImportance - 1)
+                    im = us->lowestImportance;
+                else
+                    im++;
+            }
+        }
+    }
+
     // 不足优先级，不通知
     if (im < us->lowestImportance)
     {
-        // 托盘图标
+        // 静默消息的托盘图标
         if ((rt->notificationSlient && (us->trayShowAllSlientMessageIcon|| (us->trayShowSlientSpecialMessageIcon && im >= VeryImportant)))
                 || us->trayShowLowImportanceMessageIcon)
             showTrayIcon(msg);
