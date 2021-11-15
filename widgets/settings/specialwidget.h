@@ -28,6 +28,8 @@ private slots:
 
     void on_remindOverlayCheck_clicked();
 
+    void on_dynamicImportanceCheck_clicked();
+
 private:
     Ui::SpecialWidget *ui;
 };

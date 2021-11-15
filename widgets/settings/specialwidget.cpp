@@ -54,3 +54,8 @@ void SpecialWidget::on_remindOverlayCheck_clicked()
 {
     us->set("special/remindOverlay", us->remindOverlay = ui->remindOverlayCheck->isChecked());
 }
+
+void SpecialWidget::on_dynamicImportanceCheck_clicked()
+{
+    us->set("special/dynamicImportance", us->dynamicImportance = ui->dynamicImportanceCheck->isChecked());
+}

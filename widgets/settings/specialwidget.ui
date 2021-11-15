@@ -110,7 +110,7 @@
       <item>
        <widget class="QCheckBox" name="dynamicImportanceCheck">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;根据聊天内容智能上调消息重要性&lt;/p&gt;&lt;p&gt;例如，在群组中发送疑问句后，临时提升群组消息一个级别&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>

@@ -70,7 +70,7 @@ signals:
     void signalCloseAllCards();
 
 public slots:
-    void showReplyEdit();
+    void replyButtonClicked();
     void showReplyEdit(bool focus, bool selectAll = true);
     void hideReplyEdit();
     void toHide();
@@ -125,6 +125,7 @@ private:
     void createFrostGlass();
     void suspendHide();
     void sendNextFile();
+    void addDynamicImportance(QString text);
 
 protected:
     void showEvent(QShowEvent *event) override;

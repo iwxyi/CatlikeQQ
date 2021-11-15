@@ -53,7 +53,7 @@ NotificationCard::NotificationCard(QWidget *parent) :
 //    ui->listWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     ui->listWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-    connect(ui->replyButton, SIGNAL(clicked()), this, SLOT(showReplyEdit()));
+    connect(ui->replyButton, SIGNAL(clicked()), this, SLOT(replyButtonClicked()));
 
     // 绘制背景
     bg = new InteractiveButtonBase(this);
@@ -1042,7 +1042,7 @@ void NotificationCard::focusOut()
     displayTimer->start();
 }
 
-void NotificationCard::showReplyEdit()
+void NotificationCard::replyButtonClicked()
 {
     if (ui->messageEdit->isHidden()) // 显示消息框
     {
@@ -1172,11 +1172,18 @@ void NotificationCard::restoreHideTimer()
     shallToHide();
 }
 
+/**
+ * 发送消息框中的文本
+ */
 void NotificationCard::sendReply()
 {
     sendReply(ui->messageEdit->text());
 }
 
+/**
+ * 调用回复消息的根入口
+ * 可能是自己发的，也可能是“+1”这样的调用
+ */
 void NotificationCard::sendReply(QString text)
 {
     if (text.isEmpty())
@@ -1225,6 +1232,9 @@ void NotificationCard::sendReply(QString text)
     int hDelta = this->height() - h;
     if (hDelta)
         emit signalHeightChanged(hDelta);
+
+    // 动态重要性
+    addDynamicImportance(text);
 }
 
 /**
@@ -1693,6 +1703,47 @@ void NotificationCard::sendNextFile()
 
         sendNextFile();
     });
+}
+
+/**
+ * 根据消息的内容，添加动态重要性
+ */
+void NotificationCard::addDynamicImportance(QString text)
+{
+    // 问号
+    if (text.endsWith("?") || text.endsWith("？") || text.endsWith("吗")
+            /*|| text.contains(QRegularExpression("怎么|如何|怎样|请问|请教"))*/)
+    {
+        if (isPrivate())
+        {
+            ac->askUser.insert(friendId);
+            qInfo() << "添加好友动态重要性：" << friendId;
+        }
+        else if (isGroup())
+        {
+            ac->askGroup.insert(groupId);
+            qInfo() << "添加群组动态重要性：" << groupId;
+        }
+    }
+
+    // 艾特(回复自带艾特)
+    if (isGroup())
+    {
+        QRegularExpression re("[CQ:at,qq=(\\d+)]");
+        if (!ac->groupList.contains(groupId)) // 不包含这个数组
+            return ;
+        QSet<qint64>& atUser = ac->groupList[groupId].atMember;
+        int pos = 0;
+        do {
+            QRegularExpressionMatch match = re.match(text, pos);
+            if (!match.hasMatch())
+                break;
+            qint64 id = match.captured(1).toLongLong();
+            atUser.insert(id);
+            qInfo() << "添加艾特动态重要性：" << groupId << id;
+            pos = match.capturedEnd();
+        } while (pos != -1);
+    }
 }
 
 QString NotificationCard::getValiableMessage(QString text)
