@@ -422,14 +422,14 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
     }
 
     // record
-    if (text.indexOf(QRegularExpression("\\[CQ:record,file=(.+?)(?:\\.(?:si?lk|amr))?,url=(.+)\\]"), 0, &match) > -1)
+    if (text.indexOf(QRegularExpression("\\[CQ:record,file=(.+?)(?:\\.(?:si?lk|amr))?,url=(.*)\\]"), 0, &match) > -1)
     {
         QString file = match.captured(1); // avsdqwezc.video
         QString url = match.captured(2).replace("&amp;", "&"); // http://xxx.xx?ver=xxx&rkey=xx&filetype=1003&videotype=1&subvideotype=0&term=unknow
         QString path = rt->audioCache(file);
 
         // 需要下载语音
-        if (us->autoPlaySpeech || us->autoTransSpeech)
+        if (!url.isEmpty() && (us->autoPlaySpeech || us->autoTransSpeech))
         {
             if (!isFileExist(path)) // 可能重复发送，也可能从历史消息加载，所以不重复读取
                 NetImageUtil::saveNetFile(url, path);
@@ -479,18 +479,18 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
                         results.append(val.toString());
                     });
 
-                    text = linkText("[语音] " + results.join("\n"), path);
+                    text.replace(match.captured(0), linkText("[语音] " + results.join("\n"), path));
                 }
                 else
                 {
                     qWarning() << "打开音频文件失败：" << path;
-                    text = linkText("[语音] ", match.captured(0));
+                    text.replace(match.captured(0), linkText("[语音] ", url));
                 }
             }
         }
         else
         {
-            text = linkText("[语音]", match.captured(0));
+            text.replace(match.captured(0), linkText("[语音] ", url));
         }
     }
 
@@ -533,13 +533,13 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
             });
 
             // 设置文字
-            text = "";
+            text.replace(match.captured(0), "");
             singleImage = true;
         }
         else // 不缓存视频
         {
             // text.replace(match.captured(0), "<a href='" + url + "'>[video]</a>"); // 加上超链接
-            text = linkText("[视频]", match.captured(0));
+            text.replace(match.captured(0), linkText("[视频]", match.captured(0)));
         }
     }
 
@@ -564,14 +564,14 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
                 NetImageUtil::saveNetFile(msg.fileUrl, path);
             }
             this->filePath = path;
-            text = linkText("[文件]" + msg.fileName, path);
+            text.replace(match.captured(0), linkText("[文件]" + msg.fileName, path));
         }
         else // 不下载文件
         {
             if (msg.fileUrl.isEmpty())
-                text = grayText("[文件] " + msg.fileName);
+                text.replace(match.captured(0), grayText("[文件] " + msg.fileName));
             else
-                text = linkText("[文件] " + msg.fileName, msg.fileUrl);
+                text.replace(match.captured(0), linkText("[文件] " + msg.fileName, msg.fileUrl));
         }
     }
 
