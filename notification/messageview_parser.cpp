@@ -440,7 +440,7 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
                 QMediaPlayer* player = new QMediaPlayer(nullptr);
                 QMediaPlaylist* list = new QMediaPlaylist;
                 list->addMedia(QUrl::fromLocalFile(path));
-                list->setPlaybackMode(QMediaPlaylist::CurrentItemInLoop);
+                list->setPlaybackMode(QMediaPlaylist::CurrentItemOnce);
                 player->setPlaylist(list);
                 player->play();
                 connect(player, &QMediaPlayer::stateChanged, player, [=](QMediaPlayer::State state) {
