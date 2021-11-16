@@ -220,17 +220,13 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
                         {
                             // 缩放，不足最大尺寸
                             // sz /= us->bannerThumbnailProp;
-                            sz.scaled(maxWidth / us->bannerThumbnailProp, maxHeight / us->bannerThumbnailProp, Qt::KeepAspectRatio);
+                            sz.scale(maxWidth / us->bannerThumbnailProp, maxHeight / us->bannerThumbnailProp, Qt::KeepAspectRatio);
                         }
                         else
                         {
                             // 满max缩放
                             sz.scale(maxWidth, maxHeight, Qt::KeepAspectRatio);
                         }
-                        /* if (sz.width() > maxWidth)
-                            sz = QSize(maxWidth, sz.height() * maxWidth / sz.width());
-                        if (sz.height() > maxHeight)
-                            sz = QSize(sz.width() * maxHeight / sz.height(), maxHeight); */
                         movie->setScaledSize(sz);
                     }
                     else // 空大小，也不知道多大
@@ -239,7 +235,7 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
                         movie->setScaledSize(sz = QSize(maxWidth, maxHeight));
                     }
 
-                    // TODO: 这个 movie->setScaledSize 有些静态gif没用，内容不缩放
+                    // TODO: 这个 movie->setScaledSize 有些gif没用，内容不缩放
                     // movie->setScaledSize(sz = QSize(50, 50));
 
                     contentWidget->setFixedSize(sz);
@@ -448,7 +444,7 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
                     previewUrl = detail.s("preview");
                 else if (detail.contains("icon"))
                     previewUrl = detail.s("icon");
-                if (!previewUrl.contains("://"))
+                if (!previewUrl.isEmpty() && !previewUrl.contains("://"))
                     previewUrl.insert(0, "http://");
 
                 if (detail.contains("jumpUrl"))
@@ -457,6 +453,9 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
                     jumpUrl = detail.s("qqdocurl");
                 if (!jumpUrl.contains("://"))
                     jumpUrl.insert(0, "https://");
+
+                if (detail.contains("desc"))
+                    prompt = detail.s("desc");
             }
         }
 
