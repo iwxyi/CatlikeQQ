@@ -413,12 +413,99 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
     {
         QString s = match.captured(1);
         s.replace("\\\"", "\"").replace("&#44;", ",");
+
+        // 显示文字
         MyJson json(s.toUtf8());
+        QString prompt;
         if (json.contains("prompt"))
         {
-            JS(json, prompt);
-            text.replace(match.captured(0), prompt);
+            prompt = json.s("prompt");
         }
+        else
+        {
+            // 去掉CQ码的纯文本
+            QString tmp = text;
+            tmp.replace(match.captured(0), "");
+            prompt = tmp;
+        }
+
+        QString previewUrl; // 预览图
+        QString jumpUrl; // 跳转地址
+        auto getUrlFileName = [=](QString url) -> QString {
+            QRegularExpression re("/([^/\\?]+)(\\?.+)?$");
+            QRegularExpressionMatch match;
+            if (url.indexOf(re, 0, &match) != -1)
+                return match.captured(1);
+            return url.toUtf8().toBase64();
+        };
+        if (json.contains("meta"))
+        {
+            MyJson meta = json.o("meta");
+            if (meta.keys().size())
+            {
+                MyJson detail = meta.o(meta.keys().first());
+                if (detail.contains("preview"))
+                    previewUrl = detail.s("preview");
+                else if (detail.contains("icon"))
+                    previewUrl = detail.s("icon");
+                if (!previewUrl.contains("://"))
+                    previewUrl.insert(0, "http://");
+
+                if (detail.contains("jumpUrl"))
+                    jumpUrl = detail.s("jumpUrl");
+                else if (detail.contains("qqdocurl"))
+                    jumpUrl = detail.s("qqdocurl");
+                if (!jumpUrl.contains("://"))
+                    jumpUrl.insert(0, "https://");
+            }
+        }
+
+        // 重新构造显示
+        text = "<a href='" + jumpUrl +"'>";
+        text += "<span style=\"text-decoration: none; color:" + QVariant(us->bannerLinkColor).toString() + ";\">" + prompt + "</span>";
+
+        // 下载图片
+        QString imgPath;
+        if (!previewUrl.isEmpty())
+        {
+            QString fileId = getUrlFileName(previewUrl);
+            imgPath = rt->imageSCache(fileId);
+
+            if (!isFileExist(imgPath))
+            {
+                imgPath = rt->imageCache(fileId); // 原图路径
+                NetImageUtil::saveNetFile(previewUrl, imgPath);
+
+                // 调整图片大小
+                QPixmap pixmap(imgPath, "1");
+                int maxWidth = us->bannerContentWidth - us->bannerBubblePadding * 2;
+                int maxHeight = (us->bannerContentMaxHeight - us->bannerHeaderSize - us->bannerBubblePadding * 2) * 2 / 3;
+                this->filePixmap = pixmap;
+                if (pixmap.width() < maxWidth / us->bannerThumbnailProp
+                        && pixmap.height() < maxHeight / us->bannerThumbnailProp)
+                {
+                    // 图片过小，不压缩
+                }
+                else if (pixmap.width() / us->bannerThumbnailProp < maxWidth
+                        && pixmap.height() / us->bannerThumbnailProp < maxHeight)
+                {
+                    // 按固定比例压缩
+                    pixmap = pixmap.scaled(QSize(maxWidth, maxHeight) / us->bannerThumbnailProp, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                }
+                else if (pixmap.width() > maxWidth || pixmap.height() > maxHeight)
+                {
+                    // 这个会缩得更小
+                    pixmap = pixmap.scaled(maxWidth, maxHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                }
+                pixmap = NetImageUtil::toRoundedPixmap(pixmap, us->bannerBgRadius);
+                imgPath = rt->imageSCache(fileId); //  缩略图路径
+                pixmap.save(imgPath);
+            }
+
+            text += "<br /><img src='" + imgPath + "' />";
+        }
+
+        text += "</a>";
     }
 
     // record
@@ -479,6 +566,7 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
                         results.append(val.toString());
                     });
 
+                    // 点击调用系统播放器进行播放
                     text.replace(match.captured(0), linkText("[语音] " + results.join("\n"), path));
                 }
                 else
@@ -490,6 +578,7 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
         }
         else
         {
+            // 跳到下载地址
             text.replace(match.captured(0), linkText("[语音] ", url));
         }
     }

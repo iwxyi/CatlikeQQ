@@ -40,6 +40,7 @@ MainWindow::MainWindow(QWidget *parent)
     initKey();
 
     startMessageLoop();
+    NetImageUtil::saveNetFile("http://pubminishare-30161.picsz.qpic.cn/4f404643-0499-4faf-b1c0-a07707aed182", "D:/4f404643-0499-4faf-b1c0-a07707aed182.png");
 }
 
 MainWindow::~MainWindow()

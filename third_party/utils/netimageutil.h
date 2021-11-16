@@ -40,7 +40,8 @@ public:
         loop.exec();
         QByteArray data = reply->readAll();
         QFile file(path);
-        file.open(QIODevice::WriteOnly);
+        if (!file.open(QIODevice::WriteOnly))
+            qWarning() << "打开文件失败：" << path;
         file.write(data);
         file.close();
     }
