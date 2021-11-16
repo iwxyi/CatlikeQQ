@@ -483,8 +483,8 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
                 }
                 else
                 {
-                    qWarning() << "打开音频文件失败：" << path;
-                    text.replace(match.captured(0), linkText("[语音] ", url));
+                    qWarning() << "加载音频文件失败：" << path;
+                    text.replace(match.captured(0), linkText("[语音] ", path));
                 }
             }
         }
