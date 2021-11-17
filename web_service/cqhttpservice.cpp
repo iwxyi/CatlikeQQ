@@ -635,9 +635,14 @@ void CqhttpService::parseGroupUpload(const MyJson &json)
     JL(file, size); // 文件大小（字节数）
 
     ensureGroupExist(GroupInfo(group_id, ""));
-    qInfo() << "收到群文件消息：" << group_id << ac->groupList.value(group_id).name << user_id << ac->friendName(user_id) << name << size << id;
+    QString nickname = ac->groupList.contains(group_id) && ac->groupList[group_id].members.contains(user_id)
+                        ? ac->groupList[group_id].members[user_id].username()
+                        : ac->friendName(user_id);
+    if (nickname.isEmpty())
+        nickname = snum(user_id);
+    qInfo() << "收到群文件消息：" << group_id << ac->groupList.value(group_id).name << user_id << nickname << name << size << id;
 
-    MsgBean msg = MsgBean(user_id, ac->friendName(user_id))
+    MsgBean msg = MsgBean(user_id, nickname)
                        .group(group_id, ac->groupList.value(group_id).name)
                        .file(id, name, size);
     emit signalMessage(msg);
