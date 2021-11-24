@@ -523,6 +523,7 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
         {
             if (!isFileExist(path)) // 可能重复发送，也可能从历史消息加载，所以不重复读取
                 NetImageUtil::saveNetFile(url, path);
+            this->filePath = path;
 
             // 自动播放语音
             if (us->autoPlaySpeech)
@@ -617,15 +618,36 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
             vw->setRadius(us->bannerBgRadius);
             vw->setMedia(path);
             vw->show();
+            contentWidget->setMinimumHeight(maxHeight / 2);
             contentWidget->setMaximumHeight(maxHeight); // TODO: 设置成视频高度才合适
+
+            // 设置文字
+            text.replace(match.captured(0), "");
+            if (!text.trimmed().isEmpty()) // 文字视频结合
+            {
+                QLayout* l = contentWidget->layout();
+                auto vl = new QVBoxLayout(contentWidget);
+                vl->addWidget(new QLabel(text, this));
+                vl->addStretch(1);
+                l->addItem(vl);
+                l->addWidget(vw);
+                l->setAlignment(Qt::AlignTop | Qt::AlignLeft);
+                text = "";
+                vw->setMinimumHeight(maxHeight / 2);
+                vw->setMaximumHeight(maxHeight);
+                vw->setMinimumWidth(maxWidth / 2);
+            }
+            else // 单个视频
+            {
+                // 会自适应宽高
+                contentWidget->layout()->addWidget(vw);
+            }
 
             vw->setCursor(Qt::PointingHandCursor);
             connect(vw, &ClickLabel::leftClicked, this, [=]{
                 QDesktopServices::openUrl(QUrl(path));
             });
 
-            // 设置文字
-            text.replace(match.captured(0), "");
             singleImage = true;
         }
         else // 不缓存视频
