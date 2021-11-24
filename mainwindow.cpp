@@ -180,6 +180,7 @@ void MainWindow::showHistoryListMenu()
         if (msg.isPrivate())
         {
             name = ac->friendName(msg.friendId);
+            name = us->userLocalNames.value(msg.friendId, name);
             if (isFileExist(rt->userHeader(msg.friendId)))
                 pixmap = NetImageUtil::toRoundedPixmap(QPixmap(rt->userHeader(msg.friendId)));
             cc = ac->userHeaderColor.value(msg.friendId);
@@ -187,6 +188,7 @@ void MainWindow::showHistoryListMenu()
         else if (msg.isGroup())
         {
             name = ac->groupName(msg.groupId);
+            name = us->groupLocalNames.value(msg.groupId, name);
             if (isFileExist(rt->groupHeader(msg.groupId)))
                 pixmap = NetImageUtil::toRoundedPixmap(QPixmap(rt->groupHeader(msg.groupId)));
             cc = ac->groupHeaderColor.value(msg.groupId);
