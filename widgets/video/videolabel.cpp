@@ -1,6 +1,7 @@
 #include <QMediaPlaylist>
 #include <QPainter>
 #include <QBitmap>
+#include <QVideoSurfaceFormat>
 #include "videolabel.h"
 
 VideoLabel::VideoLabel(QWidget *parent) : ClickLabel(parent)
@@ -16,12 +17,13 @@ VideoLabel::VideoLabel(QWidget *parent) : ClickLabel(parent)
     videoSurface = new VideoSurface(this);
     player->setVideoOutput(videoSurface);
     connect(videoSurface, &VideoSurface::frameAvailable, this, [=](QVideoFrame &frame){
-        QVideoFrame cloneFrame(frame);
-        cloneFrame.map(QAbstractVideoBuffer::ReadOnly);
-        videoSize = cloneFrame.size();
-        auto format = QVideoFrame::imageFormatFromPixelFormat(cloneFrame.pixelFormat());
-        QImage recvImage(cloneFrame.bits(), videoSize.width(), videoSize.height(), format);
-        cloneFrame.unmap();
+        frame.map(QAbstractVideoBuffer::ReadOnly);
+        videoSize = frame.size();
+        auto format = QVideoFrame::imageFormatFromPixelFormat(frame.pixelFormat()); // QImage::Format_RGB32
+        if (!outputed && format == QImage::Format_Invalid)
+            qWarning() << "不支持的视频格式";
+        QImage recvImage(frame.bits(), videoSize.width(), videoSize.height(), format);
+        frame.unmap();
         QPixmap pixmap = QPixmap::fromImage(recvImage);
         pixmap = pixmap.scaled(this->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
         this->setPixmap(pixmap);
@@ -40,6 +42,7 @@ VideoLabel::VideoLabel(QWidget *parent) : ClickLabel(parent)
             painter.fillPath(path, Qt::white);
             setMask(maskPix.mask());
         }
+        outputed = true;
     });
 }
 

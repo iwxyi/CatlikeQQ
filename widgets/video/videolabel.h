@@ -28,6 +28,7 @@ public:
     VideoSurface *videoSurface;
     QSize videoSize;
     int radius = 0;
+    bool outputed = false;
 };
 
 #endif // VIDEOLABEL_H

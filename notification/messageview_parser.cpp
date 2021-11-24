@@ -626,16 +626,21 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
             if (!text.trimmed().isEmpty()) // 文字视频结合
             {
                 QLayout* l = contentWidget->layout();
-                auto vl = new QVBoxLayout(contentWidget);
-                vl->addWidget(new QLabel(text, this));
+                auto vl = new QVBoxLayout;
+                vl->setParent(l);
+                QLabel* label = new QLabel(text, this);
+                label->adjustSize();
+                vl->addWidget(label);
                 vl->addStretch(1);
                 l->addItem(vl);
                 l->addWidget(vw);
                 l->setAlignment(Qt::AlignTop | Qt::AlignLeft);
                 text = "";
-                vw->setMinimumHeight(maxHeight / 2);
+                contentWidget->setMinimumHeight(maxHeight);
+                contentWidget->setMaximumHeight(maxHeight);
+                vw->setMinimumHeight(maxHeight);
                 vw->setMaximumHeight(maxHeight);
-                vw->setMinimumWidth(maxWidth / 2);
+                vw->setMinimumWidth(maxWidth - label->width() - l->margin() * 2 - l->spacing());
             }
             else // 单个视频
             {
