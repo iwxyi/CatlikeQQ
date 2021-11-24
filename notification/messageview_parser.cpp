@@ -344,7 +344,11 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
                     rep = rep + "<br/>";
                 text.replace(match.captured(0), rep);
                 pos = match.capturedStart() + rep.length();
-                contentWidget->setMinimumWidth(qMax(this->minimumWidth(),  pixmap.width()));
+                if (singleImage)
+                {
+                    int minimum = qMax(this->minimumWidth(),  pixmap.width());
+                    contentWidget->setMinimumWidth(minimum);
+                }
             }
 
             // 只有一张图片
