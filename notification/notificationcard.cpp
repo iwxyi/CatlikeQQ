@@ -1715,7 +1715,7 @@ void NotificationCard::addDynamicImportance(QString text)
 
     // 问号
     if (text.endsWith("?") || text.endsWith("？") || text.endsWith("吗")
-            /*|| text.contains(QRegularExpression("怎么|如何|怎样|请问|请教"))*/)
+            || text.contains(QRegularExpression("问|谁|何|什么|哪儿|哪里|几|多少|怎|吗|难道|岂|居然|竟然|究竟|简直|难怪|how|what|when|who|which")))
     {
         if (isPrivate())
         {
