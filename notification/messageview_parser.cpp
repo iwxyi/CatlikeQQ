@@ -172,7 +172,7 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
 
     // 图片
     // 图片格式：[CQ:image,file=e9f40e7fb43071e7471a2add0df33b32.image,url=http://gchat.qpic.cn/gchatpic_new/707049914/3934208404-2722739418-E9F40E7FB43071E7471A2ADD0DF33B32/0?term=3]
-    if (text.indexOf(QRegularExpression("\\[CQ:image,file=(.+?).image,.*?url=(.+?)\\]"), 0, &match) > -1)
+    if (text.indexOf(QRegularExpression("\\[CQ:image,file=([^\\]]+?).image,.*?url=([^\\]]+?)\\]"), 0, &match) > -1)
     {
         if (!us->autoCacheImage)
         {
@@ -195,7 +195,7 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
             // int scale1Threshold = 64; // 不压缩
             // int scale1_5Threshold = 128; // 压缩1.5
             // int scale2Threshold = 256; // 压缩2
-            singleImage = text.indexOf(QRegularExpression("^\\[CQ:image,file=(.+?).image,url=(.+?)\\]$")) > -1;
+            singleImage = text.indexOf(QRegularExpression("^\\[CQ:image,file=([^\\]]+?).image,url=([^\\]]+?)\\]$")) > -1;
 
 #ifdef MESSAGE_LABEL
             // 如果是单张图片，支持显示gif
