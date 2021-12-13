@@ -203,7 +203,7 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
             {
                 // 支持GIF
                 QMovie* movie = new QMovie(path, "gif", this);
-                if (movie->frameCount() > 0) // 有帧，表示是GIF
+                if (movie->frameCount() > 1) // 有帧，表示是GIF
                 {
                     // 调整图片大小
                     movie->jumpToFrame(0);
@@ -227,6 +227,8 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
                             // 满max缩放
                             sz.scale(maxWidth, maxHeight, Qt::KeepAspectRatio);
                         }
+
+                        // 有些gif不知道为啥没用
                         movie->setScaledSize(sz);
                     }
                     else // 空大小，也不知道多大
@@ -234,9 +236,6 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
                         qWarning() << "无法获取到 gif 的大小" << id;
                         movie->setScaledSize(sz = QSize(maxWidth, maxHeight));
                     }
-
-                    // TODO: 这个 movie->setScaledSize 有些gif没用，内容不缩放
-                    // movie->setScaledSize(sz = QSize(50, 50));
 
                     contentWidget->setFixedSize(sz);
                     // contentWidget->setMaximumSize(maxWidth, maxHeight);
