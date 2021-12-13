@@ -86,9 +86,7 @@
       <item>
        <widget class="QCheckBox" name="improveAtMeImportanceCheck">
         <property name="toolTip">
-         <string>提升群聊中的“@我”消息一个级别重要性
-例如，一般 -&gt; 重要，重要 -&gt; 很重要
-可与“@全体成员”、“群内特别关心”叠加</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;提升群聊中的“@我”消息一个级别重要性&lt;/p&gt;&lt;p&gt;例如，一般 -&amp;gt; 重要，重要 -&amp;gt; 很重要&lt;/p&gt;&lt;p&gt;可与“@全体成员”、“群内特别关心”叠加&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
          <string>提升“@我”重要性</string>
@@ -113,7 +111,7 @@
          <bool>true</bool>
         </property>
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;根据自己发送的消息动态上调消息重要性&lt;/p&gt;&lt;p&gt;针对自己发送了消息的聊天对象中，&lt;br/&gt;在1分钟内或后3条消息的重要性提升两个级别，&lt;br/&gt;3分钟内或后10条消息的重要性提升一个级别&lt;/p&gt;&lt;p&gt;会和“智能聚焦”效果叠加&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;根据自己发送的消息动态上调消息重要性&lt;/p&gt;&lt;p&gt;针对自己发送了消息的聊天对象中，&lt;br/&gt;在1分钟内或后3条消息的重要性提升两个级别，&lt;br/&gt;3分钟内或后10条消息的重要性提升一个级别&lt;/p&gt;&lt;p&gt;未开启通知的群组也会因此显示通知&lt;/p&gt;&lt;p&gt;支持和“智能聚焦”效果叠加&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
          <string>消息动态重要性</string>
@@ -126,7 +124,7 @@
          <bool>true</bool>
         </property>
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;根据聊天内容智能上调消息重要性&lt;/p&gt;&lt;p&gt;例如，发送疑问句后，临时提升重要性至少一个级别；或者艾特群成员，该成员的下一条消息重要性提升&lt;/p&gt;&lt;p&gt;未启用通知的群组也因此会显示通知&lt;/p&gt;&lt;p&gt;会和“动态重要性”效果叠加&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;根据聊天内容智能上调消息重要性&lt;/p&gt;&lt;p&gt;例如，发送疑问句后，临时提升重要性至少一个级别；或者艾特群成员，该成员的下一条消息重要性提升&lt;/p&gt;&lt;p&gt;未启用通知的群组也因此会显示通知&lt;/p&gt;&lt;p&gt;支持和“动态重要性”效果叠加&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
          <string>消息智能聚焦</string>

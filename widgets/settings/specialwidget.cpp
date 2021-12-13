@@ -64,5 +64,5 @@ void SpecialWidget::on_dynamicImportanceCheck_clicked()
 
 void SpecialWidget::on_smartFocusCheck_clicked()
 {
-    us->set("special/dynamicImportance", us->smartFocus = ui->smartFocusCheck->isChecked());
+    us->set("special/smartFocus", us->smartFocus = ui->smartFocusCheck->isChecked());
 }
