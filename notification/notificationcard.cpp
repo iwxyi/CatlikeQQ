@@ -1716,10 +1716,12 @@ void NotificationCard::addDynamicImportance()
     if (isPrivate())
     {
         ac->mySendPrivateTime[friendId] = QDateTime::currentMSecsSinceEpoch();
+        ac->receiveCountAfterMySendPrivate[friendId] = 0;
     }
     else if (isGroup())
     {
         ac->mySendGroupTime[groupId] = QDateTime::currentMSecsSinceEpoch();
+        ac->receiveCountAfterMySendGroup[groupId] = 0;
     }
 }
 

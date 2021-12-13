@@ -14,7 +14,7 @@ FacileMenu::FacileMenu(QWidget *parent) : QWidget(parent)
     setAttribute(Qt::WA_DeleteOnClose, true);
     setFocusPolicy(Qt::StrongFocus); // 获取焦点，允许按键点击
     setWindowFlag(Qt::Popup, true);
-    setWindowFlag(Qt::NoDropShadowWindowHint, true);
+    // setWindowFlag(Qt::NoDropShadowWindowHint, true);
     setAutoFillBackground(false);  //这个不设置的话就背景变黑
     setAttribute(Qt::WA_StyledBackground);
 

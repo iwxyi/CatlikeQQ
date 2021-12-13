@@ -34,13 +34,15 @@ public:
     QHash<qint64, QList<MsgBean>> userMsgHistory; // 私聊消息记录（不包括自己）
     QHash<qint64, QList<MsgBean>> groupMsgHistory; // 群聊消息记录（不包括自己）
 
-    QHash<qint64, qint64> mySendPrivateTime; // 私聊对象自己发送的最后一次消息（动态重要性）
-    QHash<qint64, qint64> mySendGroupTime; // 群组中自己发送的最后一次消息（动态重要性）
     QHash<qint64, qint64> aiReplyPrivateTime; // 私聊最近一次自动回复
     QHash<qint64, qint64> aiReplyGroupTime; // 群组最近一次自动回复
 
-    mutable QSet<qint64> askUser; // 发送疑问消息的私聊
-    mutable QSet<qint64> askGroup; // 发送疑问消息的群聊
+    QHash<qint64, qint64> mySendPrivateTime; // 私聊对象自己发送的最后一次消息（动态重要性）
+    QHash<qint64, qint64> mySendGroupTime; // 群组中自己发送的最后一次消息（动态重要性）
+    QHash<qint64, int> receiveCountAfterMySendPrivate; // 动态重要性：私聊自己发送消息后收到多少条
+    QHash<qint64, int> receiveCountAfterMySendGroup; // 动态重要性：群聊自己发送消息后收到多少条消息
+    mutable QSet<qint64> askUser; // 智能聚焦：发送疑问消息的私聊
+    mutable QSet<qint64> askGroup; // 智能聚焦：发送疑问消息的群聊
 
     bool lastReceiveShowIsUser = false; // 最后接受到的一条消息是用户true还是群组false
     qint64 lastReceiveShowId = 0; // 最后接收到的用户ID或者群组ID

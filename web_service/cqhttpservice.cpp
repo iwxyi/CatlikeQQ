@@ -185,7 +185,7 @@ void CqhttpService::parseEchoMessage(const MyJson &json)
         return ;
     }
     JS(json, echo);
-    if (echo == "get_login_info")
+    if (echo == "get_login_info") // 登录成功
     {
         JO(json, data);
         JL(data, user_id);
@@ -194,6 +194,9 @@ void CqhttpService::parseEchoMessage(const MyJson &json)
         ac->myNickname = nickname;
         qInfo() << "登录成功：" << nickname << user_id;
         emit sig->myAccount(user_id, nickname);
+
+        ac->gettingGroupMembers.clear();
+        ac->gettingGroupMsgHistories.clear();
     }
     else if (echo == "get_friend_list")
     {

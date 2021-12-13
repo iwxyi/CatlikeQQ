@@ -568,6 +568,7 @@ void MainWindow::messageReceived(const MsgBean &msg, bool blockSelf)
             if (!ac->userMsgHistory.contains(msg.friendId))
                 ac->userMsgHistory.insert(msg.friendId, QList<MsgBean>());
             ac->userMsgHistory[msg.friendId].append(msg);
+            ac->receiveCountAfterMySendPrivate[msg.friendId] = ac->receiveCountAfterMySendPrivate.value(msg.friendId) + 1;
 
             if (msg.senderId != ac->myId)
                 us->addCount(us->countReceivePrivate, "receivePrivate");
@@ -580,6 +581,7 @@ void MainWindow::messageReceived(const MsgBean &msg, bool blockSelf)
             if (!ac->groupMsgHistory.contains(msg.groupId))
                 ac->groupMsgHistory.insert(msg.groupId, QList<MsgBean>());
             ac->groupMsgHistory[msg.groupId].append(msg);
+            ac->receiveCountAfterMySendGroup[msg.groupId] = ac->receiveCountAfterMySendGroup.value(msg.groupId) + 1;
 
             if (msg.senderId != ac->myId)
                 us->addCount(us->countReceiveGroup, "receiveGroup");
@@ -664,7 +666,8 @@ bool MainWindow::canNewCardShow(const MsgBean &msg) const
         else if (ac->groupList[msg.groupId].atMember.contains(msg.senderId)) // 艾特成员的消息
         {}
         else if (ac->mySendGroupTime.contains(msg.groupId)
-                 && (cur - ac->mySendGroupTime[msg.groupId] <= 180000))
+                 && (cur - ac->mySendGroupTime[msg.groupId] <= 180000
+                     || ac->receiveCountAfterMySendGroup[msg.groupId] <= 10))
         {}
         else // 无关紧要的群组
             return false;
@@ -748,24 +751,27 @@ bool MainWindow::canNewCardShow(const MsgBean &msg) const
     if (us->dynamicImportance)
     {
         qint64 time = 0;
+        int count = 0;
         if (msg.isPrivate())
         {
             time = ac->mySendPrivateTime.value(msg.friendId, 0);
+            count = ac->receiveCountAfterMySendPrivate.value(msg.friendId);
         }
         else if (msg.isGroup())
         {
             time = ac->mySendGroupTime.value(msg.groupId, 0);
+            count = ac->receiveCountAfterMySendGroup.value(msg.groupId);
         }
-
         if (time > 0) // 自己发送过消息
         {
             qint64 delta = (cur - time) / 1000; // 距离自己发消息后过了多少秒
-            if (delta <= 60)
+            count--; // 因为自己发送的消息也在里面，所以要-1
+            if (delta <= 60 || (count >= 0 && count <= 3))
             {
                 // 一分钟内，提升两个级别
                 im += 2;
             }
-            else if (delta <= 180)
+            else if (delta <= 180 || (count >= 0 && count <= 10))
             {
                 // 三分钟内，提升一个级别
                 im += 1;

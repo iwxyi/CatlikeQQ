@@ -133,6 +133,8 @@ QString MessageView::simpleMessage(const MsgBean &msg)
         text.replace(QRegularExpression("\\[CQ:at,qq=(\\d+)\\]"), "@\\1"); // 万一有没有替换完的呢
     }
 
+    text.replace(QRegularExpression("\\[CQ:at,qq=all\\]"), "[@全体成员]");
+
     // json
     if (text.indexOf(QRegularExpression("\\[CQ:json,data=(.+?)\\]"), 0, &match) > -1)
     {
