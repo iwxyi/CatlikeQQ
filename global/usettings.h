@@ -127,6 +127,7 @@ public:
     bool improveAtMeImportance = true; // 提升艾特消息一个级别的重要性
     bool improveAtAllImportance = false; // 提升艾特全体消息一个级别重要性
     bool dynamicImportance = false; // 动态重要性
+    bool smartFocus = false; // 智能聚焦
     int keepImportantMessage = VeryImportant; // 大于等于该重要性的一直保持显示
 
     // 特别关心

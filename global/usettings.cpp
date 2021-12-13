@@ -74,6 +74,7 @@ void USettings::restoreSettings()
     assign(remindOverlay, "remindOverlay");
     assign(globalRemindWords, "globalRemindWords");
     assign(groupRemindWords, " ", "groupRemindWords");
+    assign(smartFocus, "smartFocus");
     assign(dynamicImportance, "dynamicImportance");
     endGroup();
 

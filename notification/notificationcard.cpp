@@ -1234,7 +1234,10 @@ void NotificationCard::sendReply(QString text)
         emit signalHeightChanged(hDelta);
 
     // 动态重要性
-    addDynamicImportance(text);
+    addDynamicImportance();
+
+    // 智能聚焦
+    addSmartFocus(text);
 }
 
 /**
@@ -1706,9 +1709,24 @@ void NotificationCard::sendNextFile()
 }
 
 /**
- * 根据消息的内容，添加动态重要性
+ * 添加动态重要性
  */
-void NotificationCard::addDynamicImportance(QString text)
+void NotificationCard::addDynamicImportance()
+{
+    if (isPrivate())
+    {
+        ac->mySendPrivateTime[friendId] = QDateTime::currentMSecsSinceEpoch();
+    }
+    else if (isGroup())
+    {
+        ac->mySendGroupTime[groupId] = QDateTime::currentMSecsSinceEpoch();
+    }
+}
+
+/**
+ * 根据消息的内容，添加智能聚焦
+ */
+void NotificationCard::addSmartFocus(QString text)
 {
     if (!us->dynamicImportance)
         return ;
@@ -1720,12 +1738,12 @@ void NotificationCard::addDynamicImportance(QString text)
         if (isPrivate())
         {
             ac->askUser.insert(friendId);
-            qInfo() << "添加好友动态重要性：" << friendId;
+            qInfo() << "添加好友智能聚焦：" << friendId;
         }
         else if (isGroup())
         {
             ac->askGroup.insert(groupId);
-            qInfo() << "添加群组动态重要性：" << groupId;
+            qInfo() << "添加群组智能聚焦：" << groupId;
         }
     }
 

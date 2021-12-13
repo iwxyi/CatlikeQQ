@@ -593,16 +593,16 @@ void MainWindow::messageReceived(const MsgBean &msg, bool blockSelf)
             return ;
     }
 
-    // 解除动态重要性
+    // 解除智能聚焦
     // 重要的必定发送，除非静默
-    if (us->dynamicImportance && msg.senderId != ac->myId)
+    if (us->smartFocus && msg.senderId != ac->myId)
     {
         if (msg.isPrivate())
         {
             if (ac->askUser.contains(msg.senderId))
             {
                 ac->askUser.remove(msg.senderId);
-                qInfo() << "移除私聊疑问动态重要性：" << msg.senderId;
+                qInfo() << "移除私聊疑问智能聚焦：" << msg.senderId;
             }
         }
         else if (msg.isGroup())
@@ -610,12 +610,12 @@ void MainWindow::messageReceived(const MsgBean &msg, bool blockSelf)
             if (ac->askGroup.contains(msg.groupId))
             {
                 ac->askGroup.remove(msg.groupId);
-                qInfo() << "移除群聊疑问动态重要性：" << msg.groupId << msg.senderId;
+                qInfo() << "移除群聊疑问智能聚焦：" << msg.groupId << msg.senderId;
             }
             if (ac->groupList.value(msg.groupId).atMember.contains(msg.senderId))
             {
                 ac->groupList[msg.groupId].atMember.remove(msg.senderId);
-                qInfo() << "移除群聊艾特动态重要性：" << msg.groupId << msg.senderId;
+                qInfo() << "移除群聊艾特智能聚焦：" << msg.groupId << msg.senderId;
             }
         }
     }
@@ -642,12 +642,15 @@ bool MainWindow::canNewCardShow(const MsgBean &msg) const
     }
 
     // 判断群组显示开关
-    if (msg.isGroup()
-            && !us->isGroupShow(msg.groupId)) // 群组消息开关
+    qint64 cur = QDateTime::currentMSecsSinceEpoch();
+    if (msg.isGroup() && !us->isGroupShow(msg.groupId)) // 群组消息开关
     {
         if (ac->askGroup.contains(msg.groupId)) // 要显示群组通知
         {}
         else if (ac->groupList[msg.groupId].atMember.contains(msg.senderId)) // 艾特成员的消息
+        {}
+        else if (ac->mySendGroupTime.contains(msg.groupId)
+                 && (cur - ac->mySendGroupTime[msg.groupId] <= 180000))
         {}
         else // 无关紧要的群组
             return false;
@@ -665,7 +668,10 @@ bool MainWindow::canNewCardShow(const MsgBean &msg) const
     }
     else if (msg.isGroup())
     {
-        im = us->groupImportance.value(msg.groupId, us->groupDefaultImportance);
+        if (!us->enabledGroups.contains(msg.groupId)) // 本来是不显示通知的群组
+            im = Unimportant;
+        else
+            im = us->groupImportance.value(msg.groupId, us->groupDefaultImportance);
 
         // 判断发送者的重要性，max(用户,群组)
         if (us->groupUseFriendImportance)
@@ -726,6 +732,36 @@ bool MainWindow::canNewCardShow(const MsgBean &msg) const
 
     // 动态重要性
     if (us->dynamicImportance)
+    {
+        qint64 time = 0;
+        if (msg.isPrivate())
+        {
+            time = ac->mySendPrivateTime.value(msg.friendId, 0);
+        }
+        else if (msg.isGroup())
+        {
+            time = ac->mySendGroupTime.value(msg.groupId, 0);
+        }
+
+        if (time > 0) // 自己发送过消息
+        {
+            qint64 delta = (cur - time) / 1000; // 距离自己发消息后过了多少秒
+            if (delta <= 60)
+            {
+                // 一分钟内，提升两个级别
+                im += 2;
+            }
+            else if (delta <= 180)
+            {
+                // 三分钟内，提升一个级别
+                im += 1;
+            }
+        }
+    }
+
+
+    // 智能聚焦
+    if (us->smartFocus)
     {
         if (msg.isPrivate())
         {

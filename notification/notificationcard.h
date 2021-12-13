@@ -125,7 +125,8 @@ private:
     void createFrostGlass();
     void suspendHide();
     void sendNextFile();
-    void addDynamicImportance(QString text);
+    void addDynamicImportance();
+    void addSmartFocus(QString text);
 
 protected:
     void showEvent(QShowEvent *event) override;

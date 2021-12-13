@@ -34,6 +34,8 @@ public:
     QHash<qint64, QList<MsgBean>> userMsgHistory; // 私聊消息记录（不包括自己）
     QHash<qint64, QList<MsgBean>> groupMsgHistory; // 群聊消息记录（不包括自己）
 
+    QHash<qint64, qint64> mySendPrivateTime; // 私聊对象自己发送的最后一次消息（动态重要性）
+    QHash<qint64, qint64> mySendGroupTime; // 群组中自己发送的最后一次消息（动态重要性）
     QHash<qint64, qint64> aiReplyPrivateTime; // 私聊最近一次自动回复
     QHash<qint64, qint64> aiReplyGroupTime; // 群组最近一次自动回复
 

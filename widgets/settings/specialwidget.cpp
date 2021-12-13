@@ -15,6 +15,8 @@ SpecialWidget::SpecialWidget(QWidget *parent) :
     ui->keepImportantMessageCheck->setChecked(us->keepImportantMessage == VeryImportant);
     ui->globalRemindWordsEdit->setPlainText(us->globalRemindWords.join(" "));
     ui->remindOverlayCheck->setChecked(us->remindOverlay);
+    ui->dynamicImportanceCheck->setChecked(us->dynamicImportance);
+    ui->smartFocusCheck->setChecked(us->smartFocus);
 }
 
 SpecialWidget::~SpecialWidget()
@@ -58,4 +60,9 @@ void SpecialWidget::on_remindOverlayCheck_clicked()
 void SpecialWidget::on_dynamicImportanceCheck_clicked()
 {
     us->set("special/dynamicImportance", us->dynamicImportance = ui->dynamicImportanceCheck->isChecked());
+}
+
+void SpecialWidget::on_smartFocusCheck_clicked()
+{
+    us->set("special/dynamicImportance", us->smartFocus = ui->smartFocusCheck->isChecked());
 }

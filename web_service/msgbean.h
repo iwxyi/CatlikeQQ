@@ -44,7 +44,7 @@ struct GroupInfo
     QHash<qint64, FriendInfo> members;
     qint64 lastMsgTime = 0;
     bool temp = false;
-    mutable QSet<qint64> atMember; // 动态重要性_@群成员
+    mutable QSet<qint64> atMember; // 智能聚焦：@群成员
 
     GroupInfo()
     {}
@@ -240,6 +240,22 @@ struct MsgBean
         if (!id)
             return rawMessage.contains("[CQ:at,qq=all]");
         return rawMessage.contains("[CQ:at,qq=" + QString::number(id) + "]");
+    }
+
+    qint64 keyId() const
+    {
+        if (groupId)
+            return groupId;
+        if (friendId)
+            return friendId;
+        return 0;
+    }
+
+    qint64 senderKeyId()
+    {
+        if (friendId)
+            return friendId;
+        return 0;
     }
 
     QString username() const

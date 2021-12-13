@@ -30,6 +30,8 @@ private slots:
 
     void on_dynamicImportanceCheck_clicked();
 
+    void on_smartFocusCheck_clicked();
+
 private:
     Ui::SpecialWidget *ui;
 };
