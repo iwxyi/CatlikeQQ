@@ -189,6 +189,7 @@ void MainWindow::showHistoryListMenu()
         {
             name = ac->groupName(msg.groupId);
             name = us->groupLocalNames.value(msg.groupId, name);
+
             if (isFileExist(rt->groupHeader(msg.groupId)))
                 pixmap = NetImageUtil::toRoundedPixmap(QPixmap(rt->groupHeader(msg.groupId)));
             cc = ac->groupHeaderColor.value(msg.groupId);
@@ -198,35 +199,48 @@ void MainWindow::showHistoryListMenu()
         InteractiveButtonBase *w = new InteractiveButtonBase(menu);
         QLabel* headerLabel = new QLabel(w);
         QLabel* titleLabel = new QLabel(w);
-        QLabel* messageLabel = new QLabel(w);
         QVBoxLayout* vlayout = new QVBoxLayout;
         vlayout->addWidget(titleLabel);
-        vlayout->addWidget(messageLabel);
         QHBoxLayout* hlayout = new QHBoxLayout(w);
         hlayout->addWidget(headerLabel);
         hlayout->addLayout(vlayout);
 
         headerLabel->setPixmap(pixmap.isNull() ? QPixmap("://icons/ignore") : pixmap);
         titleLabel->setText(name);
-        QString mess = MessageView::simpleMessage(msg);
-        if (mess.contains("\n"))
-            mess = mess.left(mess.indexOf("\n"));
-        if (msg.senderId == ac->myId)
-            messageLabel->setText("你：" + mess);
-        else if (msg.isPrivate())
-            messageLabel->setText(mess);
-        else
-            messageLabel->setText(msg.username() + ": " + mess);
         titleLabel->setMaximumWidth(us->bannerFixedWidth);
-        messageLabel->setMaximumWidth(us->bannerFixedWidth);
         headerLabel->setScaledContents(true);
         titleLabel->adjustSize();
-        messageLabel->adjustSize();
-        int sz = titleLabel->height() + messageLabel->height();
-        headerLabel->setMaximumSize(sz, sz);
 
-        sz += vlayout->spacing() + hlayout->margin() * 2;
-        w->setFixedSize(us->bannerFixedWidth, sz);
+        // 遍历显示消息历史
+        int hei = titleLabel->height();
+        int maxCount = us->showMultiMessageHistories ? 3 : 1;
+//        while (maxCount--)
+//        {
+            QLabel* messageLabel = new QLabel(w);
+            vlayout->addWidget(messageLabel);
+            QString mess = MessageView::simpleMessage(msg);
+            if (mess.contains("\n"))
+                mess = mess.left(mess.indexOf("\n"));
+            if (msg.senderId == ac->myId)
+                messageLabel->setText("你：" + mess);
+            else if (msg.isPrivate())
+                messageLabel->setText(mess);
+            else
+            {
+                QString s = msg.username();
+                // 昵称简化
+                s = s.replace(QRegularExpression("^(?:id|ID|Id)[：|:](.+)$"), "\\1")
+                        .replace(QRegularExpression("^(.+)\\s*[\\(（].+[\\)）]$"), "\\1");
+                messageLabel->setText(s + ": " + mess);
+            }
+            messageLabel->setMaximumWidth(us->bannerFixedWidth);
+            messageLabel->adjustSize();
+            hei += messageLabel->height() + hlayout->margin();
+//        }
+
+        headerLabel->setMaximumSize(hei, hei);
+        hei += vlayout->spacing() + hlayout->margin();
+        w->setFixedSize(us->bannerFixedWidth, hei);
         w->setDoubleClicked(true);
         connect(w, &InteractiveButtonBase::clicked, this, [=]{
             // 根据聊天信息，重新打开对应的对话框
