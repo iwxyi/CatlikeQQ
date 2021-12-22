@@ -581,7 +581,7 @@ void MainWindow::messageReceived(const MsgBean &msg, bool blockSelf)
             if (!ac->groupMsgHistory.contains(msg.groupId))
                 ac->groupMsgHistory.insert(msg.groupId, QList<MsgBean>());
             ac->groupMsgHistory[msg.groupId].append(msg);
-            ac->receiveCountAfterMySendGroup[msg.groupId] = ac->receiveCountAfterMySendGroup.value(msg.groupId) + 1;
+            ac->receivedCountAfterMySentGroup[msg.groupId] = ac->receivedCountAfterMySentGroup.value(msg.groupId) + 1;
 
             if (msg.senderId != ac->myId)
                 us->addCount(us->countReceiveGroup, "receiveGroup");
@@ -667,7 +667,7 @@ bool MainWindow::canNewCardShow(const MsgBean &msg) const
         {}
         else if (ac->mySendGroupTime.contains(msg.groupId)
                  && (cur - ac->mySendGroupTime[msg.groupId] <= 180000
-                     || ac->receiveCountAfterMySendGroup[msg.groupId] <= 10))
+                     || ac->receivedCountAfterMySentGroup[msg.groupId] <= 10))
         {}
         else // 无关紧要的群组
             return false;
@@ -760,7 +760,7 @@ bool MainWindow::canNewCardShow(const MsgBean &msg) const
         else if (msg.isGroup())
         {
             time = ac->mySendGroupTime.value(msg.groupId, 0);
-            count = ac->receiveCountAfterMySendGroup.value(msg.groupId);
+            count = ac->receivedCountAfterMySentGroup.value(msg.groupId);
         }
         if (time > 0) // 自己发送过消息
         {
@@ -770,11 +770,13 @@ bool MainWindow::canNewCardShow(const MsgBean &msg) const
             {
                 // 一分钟内，提升两个级别
                 im += 2;
+                qInfo() << "动态重要性2：" << delta << count;
             }
             else if (delta <= 180 || (count >= 0 && count <= 10))
             {
                 // 三分钟内，提升一个级别
                 im += 1;
+                qInfo() << "动态重要性1：" << delta << count;
             }
         }
     }

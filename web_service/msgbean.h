@@ -253,8 +253,8 @@ struct MsgBean
 
     qint64 senderKeyId()
     {
-        if (friendId)
-            return friendId;
+        if (senderId)
+            return senderId;
         return 0;
     }
 

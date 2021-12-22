@@ -1721,7 +1721,7 @@ void NotificationCard::addDynamicImportance()
     else if (isGroup())
     {
         ac->mySendGroupTime[groupId] = QDateTime::currentMSecsSinceEpoch();
-        ac->receiveCountAfterMySendGroup[groupId] = 0;
+        ac->receivedCountAfterMySentGroup[groupId] = 0;
     }
 }
 

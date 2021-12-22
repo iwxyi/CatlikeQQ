@@ -40,7 +40,7 @@ public:
     QHash<qint64, qint64> mySendPrivateTime; // 私聊对象自己发送的最后一次消息（动态重要性）
     QHash<qint64, qint64> mySendGroupTime; // 群组中自己发送的最后一次消息（动态重要性）
     QHash<qint64, int> receiveCountAfterMySendPrivate; // 动态重要性：私聊自己发送消息后收到多少条
-    QHash<qint64, int> receiveCountAfterMySendGroup; // 动态重要性：群聊自己发送消息后收到多少条消息
+    QHash<qint64, int> receivedCountAfterMySentGroup; // 动态重要性：群聊自己发送消息后收到多少条消息
     mutable QSet<qint64> askUser; // 智能聚焦：发送疑问消息的私聊
     mutable QSet<qint64> askGroup; // 智能聚焦：发送疑问消息的群聊
 

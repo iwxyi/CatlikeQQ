@@ -449,7 +449,7 @@ void CqhttpService::parsePrivateMessage(const MyJson &json)
     if (target_id == 0) // 非好友私聊发过来的，没有targetId
         target_id = ac->myId;
 
-    qint64 friendId = target_id == ac->myId ? user_id : target_id;
+    qint64 friendId = target_id != ac->myId ? target_id : user_id;
     ensureFriendExist(FriendInfo(friendId, nickname, ""));
     qInfo() << "收到私聊消息：" << user_id << "->" << target_id << nickname << message << message_id;
 
