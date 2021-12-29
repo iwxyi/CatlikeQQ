@@ -1432,6 +1432,8 @@ void NotificationCard::cardClicked()
 
 void NotificationCard::cardMenu()
 {
+    if (hidding)
+        return ;
     FacileMenu* menu = new FacileMenu(this);
 
     /* menu->addAction(QIcon("://icons/close.png"), "立即关闭", [=]{
