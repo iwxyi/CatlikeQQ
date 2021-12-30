@@ -1519,7 +1519,7 @@ void NotificationCard::cardMenu()
 
         bool ok;
         blockHideTimer();
-        QString newName = QInputDialog::getText(this, "设置本地昵称", "只会修改通知卡片中最上方显示的名字，不影响云端数据", QLineEdit::Normal, oldLocalName, &ok);
+        QString newName = QInputDialog::getText(this, "设置本地昵称", "只会修改通知卡片中最上方显示的名字，不影响云端数据", QLineEdit::Normal, oldLocalName.isEmpty() ? ui->nicknameLabel->text() : oldLocalName, &ok);
         restoreHideTimer();
         if (!ok || newName == oldLocalName)
             return ;
