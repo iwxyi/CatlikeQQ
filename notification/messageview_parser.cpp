@@ -657,7 +657,8 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
         else // 不缓存视频
         {
             // text.replace(match.captured(0), "<a href='" + url + "'>[video]</a>"); // 加上超链接
-            text.replace(match.captured(0), linkText("[视频]", match.captured(0)));
+            text.replace(match.captured(0), linkText("[视频]",url));
+            // TODO: 打开网络视频播放器
         }
     }
 
