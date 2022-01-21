@@ -2,6 +2,7 @@
 #include <QPainter>
 #include <QBitmap>
 #include <QVideoSurfaceFormat>
+#include <QFileInfo>
 #include "videolabel.h"
 
 VideoLabel::VideoLabel(QWidget *parent) : ClickLabel(parent)
@@ -48,10 +49,21 @@ VideoLabel::VideoLabel(QWidget *parent) : ClickLabel(parent)
 
 void VideoLabel::setMedia(QString path)
 {
+    if (!QFileInfo(path).exists())
+    {
+        qWarning() << "Video File Not Exist:" << path;
+        return ;
+    }
+    if (QFileInfo(path).size() < 1024)
+    {
+        qWarning() << "Video File Not Intact:" << path << "  size=" << QFileInfo(path).size();
+        return ;
+    }
     QMediaPlaylist* list = new QMediaPlaylist;
     list->addMedia(QUrl::fromLocalFile(path));
     list->setPlaybackMode(QMediaPlaylist::CurrentItemInLoop);
     player->setPlaylist(list);
+    qInfo() << "play video:" << path;
     player->play();
 }
 
@@ -62,7 +74,6 @@ void VideoLabel::setRadius(int r)
 
 void VideoLabel::positionChanged(qint64 position)
 {
-
 }
 
 void VideoLabel::durationChanged(qint64 duration)
@@ -71,4 +82,9 @@ void VideoLabel::durationChanged(qint64 duration)
 
 void VideoLabel::stateChanged(QMediaPlayer::State state)
 {
+    if (state == QMediaPlayer::PlayingState && player->duration() == 0)
+    {
+        qWarning() << "Force Stop Wrong Player: duration = 0";
+        player->stop();
+    }
 }
