@@ -236,6 +236,13 @@ void NotificationCard::setMsg(const MsgBean &msg)
     int hDelta = this->height() - h;
     if (hDelta)
         emit signalHeightChanged(hDelta);
+
+    QTimer::singleShot(0, [=]{
+        if (msg.isGroup() && ac->groupList.value(msg.groupId).members.empty())
+        {
+            emit sig->loadGroupMembers(msg.groupId);
+        }
+    });
 }
 
 /**
