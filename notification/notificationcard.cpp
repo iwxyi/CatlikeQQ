@@ -889,13 +889,35 @@ void NotificationCard::connectUserHeader(QLabel* label, const MsgBean& msg)
             showReplyEdit(true, false);
         });
 
-        menu->split()->addAction(QIcon("://icons/attention.png"), "特别关注", [=]{
+        menu->split();
 
-        })->text(msg.isGroup(), "群内特别关注")->disable();
+        if (msg.isPrivate())
+        {
+            menu->split()->addAction(QIcon("://icons/attention.png"), "特别关注", [=]{
+                if (us->userSpecial.contains(msg.senderId))
+                    us->userSpecial.removeOne(msg.senderId);
+                else
+                    us->userSpecial.append(msg.senderId);
+                us->set("special/user", us->userSpecial);
+                qInfo() << "特别关注数量：" << us->userSpecial.size();
+            })->check(us->userSpecial.contains(msg.senderId));
+        }
+        else if (msg.isGroup())
+        {
+            menu->split()->addAction(QIcon("://icons/attention.png"), "群内特别关注", [=]{
+                if (us->groupMemberSpecial.contains(msg.senderId))
+                    us->groupMemberSpecial.removeOne(msg.senderId);
+                else
+                    us->groupMemberSpecial.append(msg.senderId);
+                us->set("special/groupMember", us->groupMemberSpecial);
+                qInfo() << "群内特别关注数量：" << us->groupMemberSpecial.size();
+            })->check(us->groupMemberSpecial.contains(msg.senderId));
 
-        menu->addAction(QIcon("://icons/block.png"), "屏蔽此人", [=]{
-            // 本地屏蔽
-        })->disable();
+            menu->addAction(QIcon("://icons/block.png"), "屏蔽此人", [=]{
+                // 本地屏蔽
+            })->disable();
+        }
+
 
         menu->exec();
         menu->finished([=]{

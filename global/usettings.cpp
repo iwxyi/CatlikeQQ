@@ -70,6 +70,8 @@ void USettings::restoreSettings()
     endGroup();
 
     beginGroup("special");
+    assign(userSpecial, "user");
+    assign(groupMemberSpecial, "groupMember");
     assign(specialKeep, "keep");
     assign(remindOverlay, "remindOverlay");
     assign(globalRemindWords, "globalRemindWords");

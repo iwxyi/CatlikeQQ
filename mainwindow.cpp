@@ -673,9 +673,9 @@ bool MainWindow::canNewCardShow(const MsgBean &msg) const
             return false;
     }
 
-    // 特别关心（暂时没啥用）
-    bool special = us->userSpecial.contains(msg.senderId)
-            || us->groupMemberSpecial.value(msg.groupId, QList<qint64>{}).contains(msg.senderId);
+    // 特别关心（叠加）
+    int special = (us->userSpecial.contains(msg.senderId) ? 1 : 0)
+            + (us->groupMemberSpecial.contains(msg.senderId) ? 1 : 0);
 
     // 判断消息级别开关
     int im = NormalImportant;
@@ -699,10 +699,7 @@ bool MainWindow::canNewCardShow(const MsgBean &msg) const
     }
 
     // 特别关心（好友/群内）
-    if (special)
-    {
-        im++;
-    }
+    im += special;
 
     // 全局提醒词
     bool globalRemind = false;
@@ -886,7 +883,7 @@ NotificationCard* MainWindow::createNotificationCard(const MsgBean &msg)
         break;
     }
     default:
-        qCritical() << "暂不支持该位置";
+        qCritical() << "Error: Unknow position!";
         return nullptr;
     }
 
@@ -985,13 +982,16 @@ NotificationCard* MainWindow::focusOrShowMessageCard(const MsgBean &msg, bool fo
     {
         card->showReplyEdit(true);
     }
+
     if (!insertText.isEmpty())
         card->addReplyText(insertText);
+
     if (showHistory)
     {
         card->loadMsgHistoryByLocal();
         card->scrollToBottomE();
     }
+
     return card;
 }
 
