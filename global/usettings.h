@@ -151,6 +151,8 @@ public:
 
     // 远程控制
     QStringList remoteControlPrefixs;
+    bool autoPauseByOtherDevice = false;
+    bool isPausingByOtherDevice = false;
 
     // 离开模式
     bool leaveMode = false;                                                          // 离开模式（开启回复）

@@ -34,7 +34,8 @@ public:
     QString CACHE_USER_HEADER_PATH;
     QString CACHE_GROUP_HEADER_PATH;
 
-    bool notificationSlient = false;
+    bool notificationSlient = false; // 静默模式
+    int mySendCount = 0; // 自己发送消息的数量
 
 private:
     const QString imageSuffix = ".png";

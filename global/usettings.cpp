@@ -101,6 +101,10 @@ void USettings::restoreSettings()
     assign(remoteControlPrefixs, "prefixs");
     endGroup();
 
+    beginGroup("remote");
+    assign(autoPauseByOtherDevice, "autoPauseByOtherDevice");
+    endGroup();
+
     beginGroup("leave");
     assign(leaveMode, "leaveMode");
     assign(aiReplyPrivate, "aiReplyPrivate");

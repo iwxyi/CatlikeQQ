@@ -16,6 +16,7 @@ GroupWidget::GroupWidget(QWidget *parent) :
     ui->enabledGroupButton->setBorderColor(Qt::gray);
 
     ui->mainCheck->setChecked(us->enableGroupNotification);
+    ui->autoPauseCheck->setChecked(us->autoPauseByOtherDevice);
 }
 
 GroupWidget::~GroupWidget()
@@ -112,4 +113,22 @@ void GroupWidget::on_enabledGroupButton_clicked()
     us->set("group/enables", enables);
 
     dialog->deleteLater();
+}
+
+void GroupWidget::on_autoPauseCheck_clicked()
+{
+    bool enabled = ui->autoPauseCheck->isChecked();
+    us->set("remote/autoPauseByOtherDevice", us->autoPauseByOtherDevice = enabled);
+}
+
+void GroupWidget::on_isPausingCheck_clicked()
+{
+    us->isPausingByOtherDevice = ui->isPausingCheck->isChecked();
+    qInfo() << "临时暂停通知：" << us->isPausingByOtherDevice;
+}
+
+void GroupWidget::showEvent(QShowEvent *event)
+{
+    ui->isPausingCheck->setChecked(us->isPausingByOtherDevice);
+    QWidget::showEvent(event);
 }

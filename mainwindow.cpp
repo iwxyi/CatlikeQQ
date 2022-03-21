@@ -340,6 +340,11 @@ void MainWindow::initTray()
 
 void MainWindow::trayAction(QSystemTrayIcon::ActivationReason reason)
 {
+    if (us->autoPauseByOtherDevice && us->isPausingByOtherDevice)
+    {
+        qInfo() << "从暂停通知中恢复";
+        us->isPausingByOtherDevice = false;
+    }
     switch(reason)
     {
     case QSystemTrayIcon::Trigger:
@@ -473,6 +478,11 @@ void MainWindow::initKey()
     QString def_key = us->value("banner/replyKey", "shift+alt+x").toString();
     editShortcut->setShortcut(QKeySequence(def_key));
     connect(editShortcut, &QxtGlobalShortcut::activated, this, [=]() {
+        if (us->autoPauseByOtherDevice && us->isPausingByOtherDevice)
+        {
+            qInfo() << "从暂停通知中恢复";
+            us->isPausingByOtherDevice = false;
+        }
 #if defined(Q_OS_WIN32)
         auto hwnd = GetForegroundWindow();
         bool isMe = false;
@@ -586,6 +596,17 @@ void MainWindow::messageReceived(const MsgBean &msg, bool blockSelf)
             if (msg.senderId != ac->myId)
                 us->addCount(us->countReceiveGroup, "receiveGroup");
         }
+
+        // 自己发送的消息
+        if (msg.senderId == ac->myId)
+        {
+            // 判断是不是自己当前程序发送的
+            if (us->autoPauseByOtherDevice && rt->mySendCount == 0)
+            {
+                qInfo() << "其他设备发送消息，暂停通知";
+                us->isPausingByOtherDevice = true;
+            }
+        }
     }
 
     if (us->trayShowAllMessageIcon)
@@ -647,7 +668,7 @@ bool MainWindow::canNewCardShow(const MsgBean &msg) const
     }
 
     // 静默模式
-    if (rt->notificationSlient)
+    if (rt->notificationSlient || us->isPausingByOtherDevice)
     {
         if (us->trayShowSlientPrivateMessageIcon && msg.isPrivate())
             showTrayIcon(msg);
@@ -816,14 +837,13 @@ bool MainWindow::canNewCardShow(const MsgBean &msg) const
     if (im < us->lowestImportance)
     {
         // 静默消息的托盘图标
-        if ((rt->notificationSlient && (us->trayShowAllSlientMessageIcon|| (us->trayShowSlientSpecialMessageIcon && im >= VeryImportant)))
+        if (((rt->notificationSlient || us->isPausingByOtherDevice) && (us->trayShowAllSlientMessageIcon|| (us->trayShowSlientSpecialMessageIcon && im >= VeryImportant)))
                 || us->trayShowLowImportanceMessageIcon)
             showTrayIcon(msg);
         return false;
     }
 
-
-    return !rt->notificationSlient;
+    return !rt->notificationSlient && !us->isPausingByOtherDevice;
 }
 
 /// 显示通知卡片，可能是新卡片，也可能需要附加上去

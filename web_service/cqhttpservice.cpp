@@ -11,6 +11,7 @@
 #include "netimageutil.h"
 #include "signaltransfer.h"
 #include "accountinfo.h"
+#include "runtime.h"
 
 CqhttpService::CqhttpService(QObject *parent) : QObject(parent)
 {
@@ -466,6 +467,9 @@ void CqhttpService::parsePrivateMessage(const MyJson &json)
 
     emit signalMessage(msg);
 
+    if (user_id == ac->myId)
+        rt->mySendCount--;
+
     // 图片消息：文字1\r\n[CQ:image,file=8f84df65ee005b52f7f798697765a81b.image,url=http://c2cpicdw.qpic.cn/offpic_new/1600631528//1600631528-3839913603-8F84DF65EE005B52F7F798697765A81B/0?term=3]\r\n文字二……
 }
 
@@ -547,6 +551,9 @@ void CqhttpService::parseGroupMessage(const MyJson &json)
             .group(group_id, ac->groupList.value(group_id).name, card);
     msg.timestamp = time * 1000;
     emit signalMessage(msg);
+
+    if (user_id == ac->myId)
+        rt->mySendCount--;
 }
 
 void CqhttpService::parseGetGroupMsgHistory(qint64 groupId, qint64 messageId, const QJsonArray &array)
@@ -917,7 +924,8 @@ void CqhttpService::sendPrivateMsg(qint64 userId, const QString& message, qint64
         params.insert("group_id", fromGroupId);
     json.insert("params", params);
     json.insert("echo", "send_private_msg:" + snum(userId));
-    sendTextMessage(json.toBa());
+    rt->mySendCount++;
+    sendJsonMessage(json);
     emit sig->myReplyUser(userId, message);
 }
 
@@ -930,7 +938,8 @@ void CqhttpService::sendGroupMsg(qint64 groupId, const QString& message)
     params.insert("message", message);
     json.insert("params", params);
     json.insert("echo", "send_group_msg:" + snum(groupId));
-    sendTextMessage(json.toBa());
+    rt->mySendCount++;
+    sendJsonMessage(json);
     emit sig->myReplyGroup(groupId, message);
 }
 

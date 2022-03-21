@@ -21,6 +21,13 @@ private slots:
 
     void on_enabledGroupButton_clicked();
 
+    void on_autoPauseCheck_clicked();
+
+    void on_isPausingCheck_clicked();
+
+protected:
+    void showEvent(QShowEvent *event) override;
+
 private:
     Ui::GroupWidget *ui;
 };

@@ -28,17 +28,37 @@
      <property name="spacing">
       <number>12</number>
      </property>
-     <item row="0" column="0">
+     <item row="2" column="0">
       <widget class="QCheckBox" name="mainCheck">
        <property name="text">
         <string>群组通知主开关</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="0">
+     <item row="3" column="0">
       <widget class="InteractiveButtonBase" name="enabledGroupButton">
        <property name="text">
         <string>允许通知的群组</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QCheckBox" name="autoPauseCheck">
+       <property name="toolTip">
+        <string>使用其他设备/QQ程序发送消息时，自动暂停本应用的通知，直到手动打开卡片</string>
+       </property>
+       <property name="text">
+        <string>使用其他设备时自动暂停通知</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QCheckBox" name="isPausingCheck">
+       <property name="toolTip">
+        <string>暂停通知卡片，直到点击历史、快捷键等操作</string>
+       </property>
+       <property name="text">
+        <string>临时暂停通知</string>
        </property>
       </widget>
      </item>
