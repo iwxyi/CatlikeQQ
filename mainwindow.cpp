@@ -827,19 +827,11 @@ bool MainWindow::canNewCardShow(const MsgBean &msg) const
 }
 
 /// 显示通知卡片，可能是新卡片，也可能需要附加上去
-NotificationCard* MainWindow::showMessageCard(const MsgBean &msg, bool blockSelf)
+/// @param blockSelf 自己发送的消息，是否也要创建新的卡片
+NotificationCard* MainWindow::showMessageCard(const MsgBean &msg, bool blockSelf, bool showHistory)
 {
     // 保存最后显示的（接收的消息不一定会显示）
-    if (msg.isPrivate())
-    {
-        ac->lastReceiveShowIsUser = true;
-        ac->lastReceiveShowId = msg.friendId;
-    }
-    else if (msg.isGroup())
-    {
-        ac->lastReceiveShowIsUser = false;
-        ac->lastReceiveShowId = msg.groupId;
-    }
+    setLastOpenMsg(msg);
     us->addCount(us->countShowBanner, "showBanner");
 
     // 判断有没有现有的卡片
@@ -856,10 +848,10 @@ NotificationCard* MainWindow::showMessageCard(const MsgBean &msg, bool blockSelf
         return nullptr;
 
     // 没有现有的，新建一个卡片
-    return createNotificationCard(msg);
+    return createNotificationCard(msg, showHistory);
 }
 
-NotificationCard* MainWindow::createNotificationCard(const MsgBean &msg)
+NotificationCard* MainWindow::createNotificationCard(const MsgBean &msg, bool showHistory)
 {
     // 创建卡片
     NotificationCard* card = new NotificationCard(nullptr);
@@ -955,14 +947,21 @@ NotificationCard* MainWindow::createNotificationCard(const MsgBean &msg)
     card->setShowPos(startPos, showPos);
     card->move(startPos);
     card->setMsg(msg); // 这个可能是一个非常耗时的操作，引起坐标的改变
+    if (showHistory)
+    {
+        card->loadMsgHistoryByLocal();
+        card->scrollToBottomE();
+    }
     card->showFrom();
     return card;
 }
 
-/// 显示或者聚焦对应的用户/群组卡片
+/// 显示或者聚焦对应的用户/群组卡片，并带有一些特定操作
 /// 如果没有，则新建一个
+/// 双击历史消息触发
 NotificationCard* MainWindow::focusOrShowMessageCard(const MsgBean &msg, bool focusEdit, const QString &insertText, bool showHistory)
 {
+    setLastOpenMsg(msg);
     foreach (auto card, notificationCards)
     {
         if (card->is(msg))
@@ -977,8 +976,9 @@ NotificationCard* MainWindow::focusOrShowMessageCard(const MsgBean &msg, bool fo
         }
     }
 
-    auto card = createNotificationCard(msg);
-    if (card && focusEdit)
+    auto card = createNotificationCard(msg, showHistory);
+    Q_ASSERT(card);
+    if (focusEdit)
     {
         card->showReplyEdit(true);
     }
@@ -986,11 +986,11 @@ NotificationCard* MainWindow::focusOrShowMessageCard(const MsgBean &msg, bool fo
     if (!insertText.isEmpty())
         card->addReplyText(insertText);
 
-    if (showHistory)
+    /* if (showHistory)
     {
         card->loadMsgHistoryByLocal();
         card->scrollToBottomE();
-    }
+    } */
 
     return card;
 }
@@ -1055,7 +1055,6 @@ void MainWindow::adjustAboveCardsTop(int underIndex, int deltaHeight)
 }
 
 /// 聚焦到最近一次有消息的卡片的回复
-/// 会忽视短期内的擦片
 void MainWindow::focusCardReply()
 {
     qint64 current = QDateTime::currentMSecsSinceEpoch() - us->bannerReplyIgnoreWithin;
@@ -1088,11 +1087,15 @@ void MainWindow::focusCardReply()
     {
         targetCard->showReplyEdit(true);
         targetCard->setFastFocus();
+        setLastOpenMsg(targetCard->getMsgs().last());
     }
     else // 没有卡片，那么就聚焦到最后一次有消息的
     {
         if (!ac->lastReceiveShowId) // 没有最后一次消息
+        {
+            qInfo() << "没有最后一次消息";
             return ;
+        }
 
         // 显示卡片
         if (ac->lastReceiveShowIsUser)
@@ -1104,7 +1107,7 @@ void MainWindow::focusCardReply()
                 return ;
             }
 
-            showMessageCard(history.last(), false);
+            showMessageCard(history.last(), false, true);
         }
         else
         {
@@ -1115,7 +1118,7 @@ void MainWindow::focusCardReply()
                 return ;
             }
 
-            showMessageCard(history.last(), false);
+            showMessageCard(history.last(), false, true);
         }
         targetCard = notificationCards.last();
 
@@ -1132,6 +1135,20 @@ void MainWindow::closeAllCard()
         if (card->isFixing())
             continue;
         card->toHide();
+    }
+}
+
+void MainWindow::setLastOpenMsg(const MsgBean &msg)
+{
+    if (msg.isPrivate())
+    {
+        ac->lastReceiveShowIsUser = true;
+        ac->lastReceiveShowId = msg.friendId;
+    }
+    else if (msg.isGroup())
+    {
+        ac->lastReceiveShowIsUser = false;
+        ac->lastReceiveShowId = msg.groupId;
     }
 }
 

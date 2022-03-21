@@ -45,13 +45,14 @@ private:
 
 public slots:
     void messageReceived(const MsgBean& msg, bool blockSelf = true);
-    NotificationCard *showMessageCard(const MsgBean& msg, bool blockSelf = false);
-    NotificationCard *createNotificationCard(const MsgBean& msg);
+    NotificationCard *showMessageCard(const MsgBean& msg, bool blockSelf = false, bool showHistory = false);
+    NotificationCard *createNotificationCard(const MsgBean& msg, bool showHistory = false);
     NotificationCard *focusOrShowMessageCard(const MsgBean& msg, bool focusEdit, const QString& insertText = "", bool showHistory = false);
     void slotCardHeightChanged(NotificationCard* card, int deltaHeight);
     void slotCardHeightChanged(int index, int deltaHeight);
     void focusCardReply();
     void closeAllCard();
+    void setLastOpenMsg(const MsgBean& msg);
 
     void autoReplyMessage(const MsgBean& msg);
     void triggerAiReply(const MsgBean& msg, int retry = 0);
