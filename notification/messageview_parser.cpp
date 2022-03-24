@@ -111,11 +111,11 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
 
     // #替换CQ
     // 表情
-    if (text.indexOf(QRegularExpression("\\[CQ:face,id=(\\d+).*\\]"), 0, &match) > -1)
+    if (text.indexOf(QRegularExpression("\\[CQ:face,id=(\\d+)\\]"), 0, &match) > -1)
     {
 #ifdef MESSAGE_LABEL
         // 如果是单张图片，支持显示gif
-        if (text.indexOf(QRegularExpression("^\\[CQ:face,id=(\\d+).*\\]$"), 0, &match) > -1)
+        if (text.indexOf(QRegularExpression("^\\[CQ:face,id=(\\d+)\\]$"), 0, &match) > -1)
         {
             // 支持GIF
             QMovie* movie = new QMovie(":/qq/qq-face/" + match.captured(1) + ".gif", "gif", this);
@@ -148,7 +148,7 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
 #endif
         if (!isFileExist(":/qq/qq-face/" + match.captured(1) + ".png")) // 不在表情库中的表情
         {
-            text.replace(QRegularExpression("\\[CQ:face,id=(\\d+).*\\]"), grayText("[表情]"));
+            text.replace(QRegularExpression("\\[CQ:face,id=(\\d+)\\]"), grayText("[表情]"));
         }
         else
         {
@@ -162,7 +162,7 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
                 pixmap = pixmap.scaled(sz, sz, Qt::KeepAspectRatio, Qt::SmoothTransformation);
                 pixmap.save(path);
             }
-            text.replace(QRegularExpression("\\[CQ:face,id=(\\d+).*\\]"), "<img src=\"" + path + "\"/>");
+            text.replace(QRegularExpression("\\[CQ:face,id=(\\d+)\\]"), "<img src=\"" + path + "\"/>");
         }
     }
 
