@@ -1609,6 +1609,65 @@ void NotificationCard::cardMenu()
 
     menu->addTitle(snum(msgs.last().displayId()), -1);
 
+    // 不一定显示的选项
+    qint64 time = 0;
+    int count = 0;
+    if (isPrivate())
+    {
+        if (ac->askUser.contains(friendId))
+        {
+            menu->addAction(QIcon("://icons/question.png"), "疑问聚焦", [=] {
+                ac->askUser.remove(friendId);
+            })->check();
+        }
+
+        time = ac->mySendPrivateTime.value(friendId, 0);
+        count = ac->receiveCountAfterMySendPrivate.value(friendId);
+    }
+    else if (isGroup())
+    {
+        if (ac->askGroup.contains(groupId))
+        {
+            menu->addAction(QIcon("://icons/question.png"), "疑问聚焦", [=] {
+                ac->askGroup.remove(groupId);
+            })->check();
+        }
+        if (!ac->groupList.value(groupId).atMember.empty())
+        {
+            QStringList sl;
+            foreach (qint64 id, ac->groupList.value(groupId).atMember)
+            {
+                FriendInfo user = ac->groupList.value(groupId).members.value(id);
+                sl.append(user.username() + " (" + snum(user.userId) + ")");
+            }
+            menu->addAction(QIcon("://icons/at.png"), "用户聚焦", [=] {
+                ac->groupList.value(groupId).atMember.clear();
+            })->check()->tooltip(sl.join("\n"));
+        }
+
+        time = ac->mySendGroupTime.value(groupId, 0);
+        count = ac->receivedCountAfterMySentGroup.value(groupId);
+    }
+    if (time > 0) // 自己发送过消息
+    {
+        qint64 cur = QDateTime::currentMSecsSinceEpoch();
+        qint64 delta = (cur - time) / 1000; // 距离自己发消息后过了多少秒
+        count--; // 因为自己发送的消息也在里面，所以要-1
+        if (delta <= 180 || (count >= 0 && count <= 10))
+        {
+            menu->addAction(QIcon("://icons/at.png"), "动态重要性", [=] {
+                if (isPrivate())
+                {
+                    ac->mySendPrivateTime.remove(friendId);
+                }
+                else if (isGroup())
+                {
+                    ac->mySendGroupTime.remove(groupId);
+                }
+            })->check()->tooltip("消息：" + snum(count) + "/10 条\n时间：" + snum(delta) + "/180 秒");
+        }
+    }
+
     blockHideByMenu(menu, true);
     menu->exec();
 }

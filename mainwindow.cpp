@@ -788,13 +788,13 @@ bool MainWindow::canNewCardShow(const MsgBean &msg) const
             {
                 // 一分钟内，提升两个级别
                 im += 2;
-                qInfo() << "动态重要性2：" << delta << count;
+                qInfo() << "动态重要性2：" << count << delta;
             }
             else if (delta <= 180 || (count >= 0 && count <= 10))
             {
                 // 三分钟内，提升一个级别
                 im += 1;
-                qInfo() << "动态重要性1：" << delta << count;
+                qInfo() << "动态重要性1：" << count << delta;
             }
         }
     }
