@@ -1557,14 +1557,15 @@ void NotificationCard::cardMenu()
         {
             if (hash->contains(hashId))
                 hash->remove(hashId);
+            ui->nicknameLabel->setText(msgs.last().titleName());
         }
         else
         {
             (*hash)[hashId] = newName;
+            ui->nicknameLabel->setText(newName);
         }
 
         us->set(hashKey, *hash);
-        ui->nicknameLabel->setText(newName);
     })->check(!oldLocalName.isEmpty());
 
     bool hasGroupRemind = isGroup() && us->groupRemindWords.contains(groupId);

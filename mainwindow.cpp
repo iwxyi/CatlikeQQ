@@ -345,6 +345,7 @@ void MainWindow::trayAction(QSystemTrayIcon::ActivationReason reason)
         qInfo() << "从暂停通知中恢复";
         us->isPausingByOtherDevice = false;
     }
+    rt->mySendCount = 0;
     switch(reason)
     {
     case QSystemTrayIcon::Trigger:
@@ -483,6 +484,7 @@ void MainWindow::initKey()
             qInfo() << "从暂停通知中恢复";
             us->isPausingByOtherDevice = false;
         }
+        rt->mySendCount = 0;
 #if defined(Q_OS_WIN32)
         auto hwnd = GetForegroundWindow();
         bool isMe = false;
