@@ -62,6 +62,7 @@
         <file>icons/search.png</file>
         <file>icons/redbag.png</file>
         <file>icons/question.png</file>
+        <file>icons/code2.png</file>
     </qresource>
     <qresource prefix="/qq">
         <file>qq-face/0.gif</file>

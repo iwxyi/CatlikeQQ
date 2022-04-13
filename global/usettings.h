@@ -187,6 +187,10 @@ public:
 
     // 调试
     bool showWidgetBorder = false; // 显示控件边界，调试布局
+
+
+    // 可编程
+    QHash<qint64, QString> devCode; // 执行代码
 };
 
 extern USettings *us;

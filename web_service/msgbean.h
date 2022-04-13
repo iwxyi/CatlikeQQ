@@ -245,7 +245,7 @@ struct MsgBean
     qint64 keyId() const
     {
         if (groupId)
-            return groupId;
+            return -groupId;
         if (friendId)
             return friendId;
         return 0;

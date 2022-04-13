@@ -11,6 +11,7 @@
 #include "qxtglobalshortcut.h"
 #endif
 #include "remotecontrolservie.h"
+#include "devcoderunner.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -88,5 +89,7 @@ private:
     mutable bool trayHiding = false;
     QTimer* trayRestoreTimer; // 显示结束后回复
     QTimer* trayHideTimer; // 闪烁一下表示有消息
+
+    DevCodeRunner codeRunner;
 };
 #endif // MAINWINDOW_H

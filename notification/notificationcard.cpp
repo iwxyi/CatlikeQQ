@@ -20,6 +20,7 @@
 #include "myjson.h"
 #include "httpuploader.h"
 #include "headerutil.h"
+#include "textinputdialog.h"
 
 NotificationCard::NotificationCard(QWidget *parent) :
     QWidget(parent),
@@ -77,7 +78,7 @@ NotificationCard::NotificationCard(QWidget *parent) :
         emit signalCancelReply();
     });
     connect(ui->messageEdit, &ReplyEdit::signalFocusOut, this, [=]{
-        if (bg->inArea(bg->mapFromGlobal(QCursor::pos())))
+        if (bg->inArea(bg->mapFromGlobal(QCursor::pos())) || _blockingHide)
             return ;
         focusOut();
     });
@@ -1000,6 +1001,13 @@ bool NotificationCard::is(const MsgBean &msg) const
     return this->friendId == msg.friendId && this->groupId == msg.groupId;
 }
 
+qint64 NotificationCard::keyId() const
+{
+    if (msgs.size())
+        return msgs.last().keyId();
+    return 0;
+}
+
 const QList<MsgBean> &NotificationCard::getMsgs() const
 {
     return msgs;
@@ -1589,6 +1597,19 @@ void NotificationCard::cardMenu()
 
         us->set("special/groupRemindWords", us->groupRemindWords, " ");
     })->check(hasGroupRemind)->hide(!isGroup());
+
+    menu->addAction(QIcon("://icons/code2"), "事件代码", [=]{
+        blockHideTimer();
+        bool ok = false;
+        QString code = us->devCode.value(keyId());
+        code = TextInputDialog::getText(nullptr, "事件代码", "针对该好友/群组的事件代码", code, &ok);
+        restoreHideTimer();
+        if (ok)
+        {
+            us->devCode[keyId()] = code;
+            us->set("dev/code", us->devCode);
+        }
+    });
 
     menu->split()->addAction(QIcon("://icons/closeUser.png"), "不显示该群通知", [=]{
         us->enabledGroups.removeOne(groupId);

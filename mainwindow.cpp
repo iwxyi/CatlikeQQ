@@ -506,6 +506,8 @@ void MainWindow::initKey()
     connect(sig, &SignalTransfer::setReplyKey, this, [=](QString key) {
         editShortcut->setShortcut(QKeySequence(key));
     });
+
+    connect(sig, &SignalTransfer::runCode, &codeRunner, &DevCodeRunner::runCode);
 }
 
 void MainWindow::showEvent(QShowEvent *e)
@@ -611,6 +613,13 @@ void MainWindow::messageReceived(const MsgBean &msg, bool blockSelf)
         }
     }
 
+    // 执行代码
+    if (us->devCode.contains(msg.keyId()))
+    {
+        codeRunner.runCode(us->devCode.value(msg.keyId()), msg);
+    }
+
+    // 托盘通知
     if (us->trayShowAllMessageIcon)
         showTrayIcon(msg);
 

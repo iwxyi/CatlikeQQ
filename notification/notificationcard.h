@@ -51,6 +51,7 @@ public:
     bool isFixing() const;
     void setFastFocus();
     bool is(const MsgBean& msg) const;
+    qint64 keyId() const;
 
     const QList<MsgBean> &getMsgs() const;
     int getImportance() const;

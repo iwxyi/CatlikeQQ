@@ -33,6 +33,8 @@ signals:
     void groupMsgHistoryLoaded(qint64 groupId, qint64 messageId, int count);
 
     void showTrayIcon(const MsgBean& msg);
+
+    void runCode(const QString& code, const MsgBean& msg);
 };
 
 extern SignalTransfer* sig;

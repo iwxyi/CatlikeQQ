@@ -39,6 +39,7 @@ INCLUDEPATH += third_party/color_octree/\
 SOURCES += \
     contact/contactpage.cpp \
     contact/searchedit.cpp \
+    control_service/devcoderunner.cpp \
     control_service/remotecontrolservie.cpp \
     global/headerutil.cpp \
     global/usettings.cpp \
@@ -81,6 +82,7 @@ SOURCES += \
 HEADERS += \
     contact/contactpage.h \
     contact/searchedit.h \
+    control_service/devcoderunner.h \
     control_service/remotecontrolservie.h \
     global/accountinfo.h \
     global/defines.h \
