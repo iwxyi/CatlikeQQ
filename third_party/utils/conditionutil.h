@@ -16,6 +16,7 @@ public:
      */
     static bool judgeCondition(QString exprs)
     {
+        CALC_DEB << "判断表达式：" << exprs;
         QStringList orExps = exprs.split(QRegularExpression("(;|\\|\\|)"), QString::SkipEmptyParts);
         bool isTrue = false;
         QRegularExpression compRe("^\\s*([^<>=!]*?)\\s*([<>=!~]{1,2})\\s*([^<>=!]*?)\\s*$");

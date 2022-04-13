@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     us = new USettings(rt->DATA_PATH + "settings.ini");
     ac = new AccountInfo;
     sig = new SignalTransfer;
-    heaps = new MySettings(rt->DATA_PATH + "settings.ini");
+    heaps = new MySettings(rt->DATA_PATH + "heaps.ini");
 
     ensureDirExist(rt->CACHE_IMAGE_PATH);
     ensureDirExist(rt->CACHE_IMAGE_S_PATH);

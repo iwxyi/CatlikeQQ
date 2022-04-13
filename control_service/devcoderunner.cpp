@@ -52,6 +52,35 @@ void DevCodeRunner::runCode(const QString &_code, const MsgBean &msg)
         }
     }
 
+    // 替换可变内容
+    bool find = true;
+    while (find)
+    {
+        find = false;
+
+        // 读取配置文件的变量
+        re = QRegularExpression("%\\{([^(%(\\{|\\[|>))]*?)\\}%");
+        while (code.indexOf(re, 0, &match) > -1)
+        {
+            QString _var = match.captured(0);
+            QString key = match.captured(1);
+            QVariant var = heaps->value(key);
+            code.replace(_var, var.toString()); // 默认使用变量类型吧
+            find = true;
+        }
+
+        // 进行数学计算的变量
+        re = QRegularExpression("%\\[([^(%(\\{|\\[|>))]*?)\\]%");
+        while (code.indexOf(re, 0, &match) > -1)
+        {
+            QString _var = match.captured(0);
+            QString text = match.captured(1);
+            text = snum(ConditionUtil::calcIntExpression(text));
+            code.replace(_var, text); // 默认使用变量类型吧
+            find = true;
+        }
+    }
+
     // 分割行，获取每一行代码
     QStringList lines = code.split("\n", QString::SkipEmptyParts);
 
@@ -142,7 +171,7 @@ bool DevCodeRunner::runConditionLine(const QString &line, const MsgBean& msg)
     {
         // 事件判断，目前忽略
     }
-    else if (canMatch("^\\s*(.*?)\\s*-->\\s*(.*)\\s*$"))
+    else if (canMatch("^\\s*(.*?)\\s*(?:-->|=>)\\s*(.*)\\s*$"))
     {
         // 表达式 -> 回复的消息
         const QString& re = match.captured(1);
@@ -150,6 +179,11 @@ bool DevCodeRunner::runConditionLine(const QString &line, const MsgBean& msg)
         if (!msg.message.contains(QRegularExpression(re)))
             return false;
         qInfo() << "发送内容：" << code;
+        if (code.contains(QRegularExpression(re)))
+        {
+            qWarning() << "已阻止重复风险的消息：" << re << "匹配" << code;
+            return true;
+        }
         sendLine(code, msg);
         return true;
     }
@@ -211,7 +245,8 @@ bool DevCodeRunner::executeFunc(const QString &func, const QString &args)
 
     if (func == "getData")
     {
-        NetUtil::getWebData(args.trimmed());
+        QByteArray result = NetUtil::getWebData(args.trimmed());
+        qInfo() << result;
     }
 
     else if (func == "postData")
@@ -220,7 +255,8 @@ bool DevCodeRunner::executeFunc(const QString &func, const QString &args)
             return false;
         const QString& url = match.captured(1);
         const QString& data = match.captured(2);
-        NetUtil::postWebData(url, data);
+        QString result = NetUtil::postWebData(url, data);
+        qInfo() << result;
     }
 
     else if (func == "postJson")
@@ -230,21 +266,22 @@ bool DevCodeRunner::executeFunc(const QString &func, const QString &args)
         const QString& url = match.captured(1);
         const QString& data = match.captured(2);
         const MyJson json = MyJson::from(data.toLocal8Bit());
-        NetUtil::postJsonData(url, json);
+        QString result = NetUtil::postJsonData(url, json);
+        qInfo() << result;
     }
 
     else if (func == "setValue")
     {
-        if (!parseArgs("^(.+)\\s*,\\s*(.*)$"))
+        if (!parseArgs("^\\s*(\\S+?)\\s*,\\s*(.*)$"))
             return false;
         const QString& key = match.captured(1);
         const QString& val = match.captured(2);
         heaps->setValue(key, val);
+        qInfo() << "set value:" << key << "=" << val;
     }
 
     else
     {
-
         return false;
     }
     return true;
