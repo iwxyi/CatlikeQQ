@@ -32,7 +32,7 @@ enum Direction
 class USettings : public MySettings
 {
 public:
-    USettings(QString filePath, QObject *parent = nullptr);
+    USettings(const QString& filePath, QObject *parent = nullptr);
 
 private:
     void restoreSettings();
@@ -194,5 +194,6 @@ public:
 };
 
 extern USettings *us;
+extern MySettings *heaps;
 
 #endif // USERSETTINGS_H

@@ -24,8 +24,8 @@ signals:
     void groupMembersLoaded(qint64 groupId);
 
     void setReplyKey(QString key);
-    void myReplyUser(qint64 userId, QString message);
-    void myReplyGroup(qint64 groupId, QString message);
+    void myReplyUser(qint64 userId, const QString& message, qint64 fromGroupId);
+    void myReplyGroup(qint64 groupId, const QString& message);
 
     void openUserCard(qint64 userId, const QString& username, const QString& text);
     void openGroupCard(qint64 groupId, const QString& text);

@@ -1,6 +1,6 @@
 #include "usettings.h"
 
-USettings::USettings(QString filePath, QObject *parent) : MySettings(filePath, QSettings::Format::IniFormat, parent)
+USettings::USettings(const QString &filePath, QObject *parent) : MySettings(filePath, QSettings::Format::IniFormat, parent)
 {
     restoreSettings();
 }
@@ -148,7 +148,7 @@ void USettings::restoreSettings()
     endGroup();
 
     beginGroup("dev");
-    assign(devCode, "devCode");
+    assign(devCode, "code");
     endGroup();
 }
 

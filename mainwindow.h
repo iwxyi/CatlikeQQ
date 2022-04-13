@@ -90,6 +90,6 @@ private:
     QTimer* trayRestoreTimer; // 显示结束后回复
     QTimer* trayHideTimer; // 闪烁一下表示有消息
 
-    DevCodeRunner codeRunner;
+    DevCodeRunner* codeRunner = nullptr;
 };
 #endif // MAINWINDOW_H

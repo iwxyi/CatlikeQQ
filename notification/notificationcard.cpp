@@ -1598,11 +1598,11 @@ void NotificationCard::cardMenu()
         us->set("special/groupRemindWords", us->groupRemindWords, " ");
     })->check(hasGroupRemind)->hide(!isGroup());
 
-    menu->addAction(QIcon("://icons/code2"), "事件代码", [=]{
+    menu->addAction(QIcon("://icons/code2"), "编辑代码", [=]{
         blockHideTimer();
         bool ok = false;
         QString code = us->devCode.value(keyId());
-        code = TextInputDialog::getText(nullptr, "事件代码", "针对该好友/群组的事件代码", code, &ok);
+        code = TextInputDialog::getText(nullptr, "编辑代码", "针对该好友/群组的收到消息的执行代码", code, &ok);
         restoreHideTimer();
         if (ok)
         {

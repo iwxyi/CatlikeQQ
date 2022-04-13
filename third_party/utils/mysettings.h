@@ -158,10 +158,12 @@ public:
         QStringList sl = value(key).toStringList();
         foreach (auto s, sl)
         {
-            QStringList l = s.split(":");
-            if (l.size() != 2)
+            int pos = s.indexOf(":");
+            if (pos < 0)
                 continue;
-            val.insert(l.at(0).toLongLong(), l.at(1));
+            QString left = s.left(pos);
+            QString right = s.right(s.length() - pos - 1);
+            val.insert(left.toLongLong(), right);
         }
     }
 

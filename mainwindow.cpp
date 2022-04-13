@@ -470,6 +470,9 @@ void MainWindow::initService()
             SpeechWidget::refreshToken();
         }
     }
+
+    // 可编程代码
+    codeRunner = new DevCodeRunner(cqhttpService);
 }
 
 void MainWindow::initKey()
@@ -507,7 +510,7 @@ void MainWindow::initKey()
         editShortcut->setShortcut(QKeySequence(key));
     });
 
-    connect(sig, &SignalTransfer::runCode, &codeRunner, &DevCodeRunner::runCode);
+    connect(sig, &SignalTransfer::runCode, codeRunner, &DevCodeRunner::runCode);
 }
 
 void MainWindow::showEvent(QShowEvent *e)
@@ -616,7 +619,8 @@ void MainWindow::messageReceived(const MsgBean &msg, bool blockSelf)
     // 执行代码
     if (us->devCode.contains(msg.keyId()))
     {
-        codeRunner.runCode(us->devCode.value(msg.keyId()), msg);
+        QString code = us->devCode.value(msg.keyId());
+        codeRunner->runCode(code, msg);
     }
 
     // 托盘通知

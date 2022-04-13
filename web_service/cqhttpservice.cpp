@@ -926,7 +926,7 @@ void CqhttpService::sendPrivateMsg(qint64 userId, const QString& message, qint64
     json.insert("echo", "send_private_msg:" + snum(userId));
     rt->mySendCount++;
     sendJsonMessage(json);
-    emit sig->myReplyUser(userId, message);
+    emit sig->myReplyUser(userId, message, fromGroupId);
 }
 
 void CqhttpService::sendGroupMsg(qint64 groupId, const QString& message)
