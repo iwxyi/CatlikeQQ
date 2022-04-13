@@ -24,6 +24,10 @@ protected:
 
     bool executeFunc(const QString& func, const QString& args);
 
+    QString toSingleLine(QString text) const;
+    QString toMultiLine(QString text) const;
+    QString toRunableCode(QString text) const;
+
 private:
     CqhttpService* cqhttpService;
 };

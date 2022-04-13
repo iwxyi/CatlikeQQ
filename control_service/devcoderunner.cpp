@@ -102,11 +102,17 @@ QString DevCodeRunner::replaceVariants(const QString &key, const MsgBean& msg, b
     switch (shash_(key))
     {
     case "%message%"_shash:
-        return msg.message;
+        return toSingleLine(msg.message);
+    case "%message_line%"_shash:
+        return QString(msg.message).replace("\n", " ");
+    case "%pure_text%"_shash:
+        return toSingleLine(msg.message); // TODO:去掉CQ码之后的纯文字
     case "%sender_id%"_shash:
         return snum(msg.senderId);
     case "%nickname%"_shash:
         return msg.nickname;
+    case "%title%"_shash:
+        return msg.titleName();
     case "%message_id%"_shash:
         return snum(msg.messageId);
     case "%sub_type%"_shash:
@@ -222,7 +228,9 @@ void DevCodeRunner::sendLine(const QString &line, const MsgBean& msg)
     else
     {
         // 普通文字
-        if (msg.isGroup())
+        if (line.trimmed().isEmpty())
+            ; // 空文本，不做操作
+        else if (msg.isGroup())
             cqhttpService->sendGroupMsg(msg.groupId, line);
         else if (msg.isPrivate())
             cqhttpService->sendPrivateMsg(msg.friendId, line, msg.fromGroupId);
@@ -285,4 +293,26 @@ bool DevCodeRunner::executeFunc(const QString &func, const QString &args)
         return false;
     }
     return true;
+}
+
+/**
+ * 从不安全的输入方式读取到的文本，如读取txt
+ * 转换为代码中可以解析的安全的文本
+ */
+QString DevCodeRunner::toSingleLine(QString text) const
+{
+    return text.replace("\n", "%n%").replace("\\n", "%m%");
+}
+
+/**
+ * 从代码中解析到的文本，变为可以保存的文本
+ */
+QString DevCodeRunner::toMultiLine(QString text) const
+{
+    return text.replace("%n%", "\n").replace("%m%", "\\n");
+}
+
+QString DevCodeRunner::toRunableCode(QString text) const
+{
+    return text.replace("\\%", "%");
 }
