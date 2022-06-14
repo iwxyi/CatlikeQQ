@@ -943,19 +943,19 @@ void NotificationCard::connectUserName(QLabel *label, const MsgBean& msg)
 
         auto copyMenu = menu->addMenu(QIcon("://icons/copy_file"), "复制");
 
-        copyMenu->addAction(QIcon("://icons/nickname.png"), "昵称", [=]{
+        copyMenu->addAction(QIcon("://icons/nickname.png"), "昵称：" + msg.nickname, [=]{
             QApplication::clipboard()->setText(msg.nickname);
         });
 
-        copyMenu->addAction(QIcon("://icons/remark.png"), "备注", [=]{
+        copyMenu->addAction(QIcon("://icons/remark.png"), "备注：" + msg.remark, [=]{
             QApplication::clipboard()->setText(msg.remark);
         })->disable(msg.remark.isEmpty());
 
-        copyMenu->addAction(QIcon("://icons/group_card.png"), "群昵称", [=]{
+        copyMenu->addAction(QIcon("://icons/group_card.png"), "群昵称：" + msg.groupCard, [=]{
             QApplication::clipboard()->setText(msg.groupCard);
         })->disable(msg.groupCard.isEmpty())->hide(!msg.isGroup());
 
-        copyMenu->addAction(QIcon("://icons/qq_id.png"), "QQ号", [=]{
+        copyMenu->addAction(QIcon("://icons/qq_id.png"), "QQ号：" +snum(msg.senderId), [=]{
             QApplication::clipboard()->setText(snum(msg.senderId));
         });
 
@@ -1344,7 +1344,7 @@ void NotificationCard::toHide()
 {
     // 保存不小心关闭的状态
     QString text = ui->messageEdit->text();
-    if (!text.isEmpty())
+    if (!text.trimmed().isEmpty())
     {
         if (isPrivate())
         {
