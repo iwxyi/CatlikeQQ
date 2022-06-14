@@ -21,6 +21,11 @@ CqhttpService::CqhttpService(QObject *parent) : QObject(parent)
     connect(sig, SIGNAL(hostChanged(QString, QString)), this, SLOT(openHost(QString, QString)));
 }
 
+bool CqhttpService::isConnected() const
+{
+    return socket && socket->state() == QAbstractSocket::SocketState::ConnectedState;
+}
+
 void CqhttpService::initWS()
 {
     socket = new QWebSocket();

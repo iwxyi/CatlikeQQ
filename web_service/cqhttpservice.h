@@ -16,6 +16,7 @@ class CqhttpService : public QObject
     Q_OBJECT
 public:
     explicit CqhttpService(QObject *parent = nullptr);
+    bool isConnected() const;
 
 private:
     void initWS();

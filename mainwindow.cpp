@@ -227,25 +227,26 @@ void MainWindow::showHistoryListMenu()
             QLabel* messageLabel = new QLabel(w);
             lastMsgLabel = messageLabel;
             vlayout->addWidget(messageLabel);
-            QString mess = MessageView::simpleMessage(cMsg);
-            if (mess.contains("\n"))
-                mess = mess.left(mess.indexOf("\n"));
+            QString disp = MessageView::simpleMessage(cMsg);
+            if (disp.contains("\n"))
+                disp = disp.left(disp.indexOf("\n"));
             if (cMsg.senderId == ac->myId)
-                messageLabel->setText("你：" + mess);
+                messageLabel->setText("你：" + disp);
             else if (cMsg.isPrivate())
-                messageLabel->setText(mess);
+                messageLabel->setText(disp);
             else
             {
                 QString s = cMsg.username();
                 // 昵称简化
                 s = s.replace(QRegularExpression("^(?:id|ID|Id)[：|:](.+)$"), "\\1")
                         .replace(QRegularExpression("^(.+)\\s*[\\(（].+[\\)）]$"), "\\1");
-                messageLabel->setText(s + ": " + mess);
+                messageLabel->setText(s + ": " + disp);
             }
             messageLabel->setMaximumWidth(us->bannerFixedWidth);
             messageLabel->adjustSize();
             hei += messageLabel->height();
             labels.append(messageLabel);
+            messageLabel->setToolTip(disp);
         }
 
         headerLabel->setFixedSize(40, 40);
@@ -309,6 +310,7 @@ void MainWindow::showHistoryListMenu()
                 QLabel* la = new QLabel(disp, w);
                 if (cc.isValid() && us->bannerUseHeaderColor)
                     la->setStyleSheet("color:" + QVariant(cc.fg).toString());
+                la->setToolTip(disp);
                 vlayout->addWidget(la);
             }
             else
@@ -516,6 +518,19 @@ void MainWindow::initService()
 
     // 可编程代码
     codeRunner = new DevCodeRunner(cqhttpService);
+
+    // 定时刷新
+    QTimer* refreshTimer = new QTimer(this);
+    refreshTimer->setInterval(3600000);
+    refreshTimer->setSingleShot(false);
+    connect(refreshTimer, &QTimer::timeout, this, [=]{
+        if (cqhttpService->isConnected())
+        {
+            cqhttpService->refreshFriends();
+            cqhttpService->refreshGroups();
+        }
+    });
+    refreshTimer->start();
 }
 
 void MainWindow::initKey()
