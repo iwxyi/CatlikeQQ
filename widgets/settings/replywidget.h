@@ -28,6 +28,8 @@ private slots:
 
     void on_showMySendCheck_clicked();
 
+    void on_groupEmojiToImageCheck_clicked();
+
 private:
     Ui::ReplyWidget *ui;
 };

@@ -56,3 +56,8 @@ void ReplyWidget::on_showMySendCheck_clicked()
 {
     us->set("banner/showMySend", us->bannerShowMySend = ui->showMySendCheck->isChecked());
 }
+
+void ReplyWidget::on_groupEmojiToImageCheck_clicked()
+{
+    us->set("send/groupEmojiToImage", us->groupEmojiToImage = ui->groupEmojiToImageCheck->isChecked());
+}

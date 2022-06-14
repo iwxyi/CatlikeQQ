@@ -25,7 +25,26 @@
      <property name="spacing">
       <number>12</number>
      </property>
-     <item row="5" column="0">
+     <item row="2" column="0">
+      <widget class="QCheckBox" name="autoFocusReplyCheck">
+       <property name="toolTip">
+        <string>鼠标移入通知时，自动聚集焦点至回复消息的输入框。
+可能无法自动设置为输入焦点，
+但可作为“鼠标移入时自动显示回复框”的效果来使用</string>
+       </property>
+       <property name="text">
+        <string>自动聚焦回复框</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QCheckBox" name="autoShowReplyCheck">
+       <property name="text">
+        <string>自动展开回复框</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="0">
       <widget class="QLabel" name="label">
        <property name="toolTip">
         <string>快速打开最新消息的回复框
@@ -43,9 +62,6 @@
        </property>
       </widget>
      </item>
-     <item row="5" column="1">
-      <widget class="QKeySequenceEdit" name="replyKeyEdit"/>
-     </item>
      <item row="3" column="0">
       <widget class="QCheckBox" name="closeAfterReplyCheck">
        <property name="toolTip">
@@ -57,24 +73,8 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="0">
-      <widget class="QCheckBox" name="autoShowReplyCheck">
-       <property name="text">
-        <string>自动展开回复框</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QCheckBox" name="autoFocusReplyCheck">
-       <property name="toolTip">
-        <string>鼠标移入通知时，自动聚集焦点至回复消息的输入框。
-可能无法自动设置为输入焦点，
-但可作为“鼠标移入时自动显示回复框”的效果来使用</string>
-       </property>
-       <property name="text">
-        <string>自动聚焦回复框</string>
-       </property>
-      </widget>
+     <item row="6" column="1">
+      <widget class="QKeySequenceEdit" name="replyKeyEdit"/>
      </item>
      <item row="0" column="0">
       <widget class="QCheckBox" name="showMySendCheck">
@@ -84,6 +84,17 @@
        </property>
        <property name="text">
         <string>显示发送的消息</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QCheckBox" name="groupEmojiToImageCheck">
+       <property name="toolTip">
+        <string>因为风险控制，在群组发送表情包经常被屏蔽
+开启此项后发送的表情包将以图片的形式发送</string>
+       </property>
+       <property name="text">
+        <string>群表情包转图片</string>
        </property>
       </widget>
      </item>

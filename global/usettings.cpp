@@ -59,6 +59,10 @@ void USettings::restoreSettings()
     assign(enabledGroups, "enables");
     endGroup();
 
+    beginGroup("send");
+    assign(groupEmojiToImage, "groupEmojiToImage");
+    endGroup();
+
     beginGroup("importance");
     assign(userImportance, "userImportance");
     assign(groupImportance, "groupImportance");

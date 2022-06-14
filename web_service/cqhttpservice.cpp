@@ -10,8 +10,9 @@
 #include "fileutil.h"
 #include "netimageutil.h"
 #include "signaltransfer.h"
-#include "accountinfo.h"
 #include "runtime.h"
+#include "accountinfo.h"
+#include "usettings.h"
 
 CqhttpService::CqhttpService(QObject *parent) : QObject(parent)
 {
@@ -931,16 +932,22 @@ void CqhttpService::sendPrivateMsg(qint64 userId, const QString& message, qint64
 
 void CqhttpService::sendGroupMsg(qint64 groupId, const QString& message)
 {
+    QString mess = message;
+    if (us->groupEmojiToImage)
+    {
+        mess.replace(QRegularExpression("\\[CQ:image,file=.+?,url=(.+)\\]"), "[CQ:image,file=\\1]");
+    }
+
     MyJson json;
     json.insert("action", "send_group_msg");
     MyJson params;
     params.insert("group_id", groupId);
-    params.insert("message", message);
+    params.insert("message", mess);
     json.insert("params", params);
     json.insert("echo", "send_group_msg:" + snum(groupId));
     rt->mySendCount++;
     sendJsonMessage(json);
-    emit sig->myReplyGroup(groupId, message);
+    emit sig->myReplyGroup(groupId, mess);
 }
 
 /// 获取历史消息，这里分两步：
