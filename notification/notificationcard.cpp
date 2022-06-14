@@ -1083,18 +1083,6 @@ void NotificationCard::replyButtonClicked()
 {
     if (ui->messageEdit->isHidden()) // 显示消息框
     {
-        // 恢复未发送的文字
-        if (isPrivate())
-        {
-            if (ac->userLastInputUnsend.contains(friendId))
-                ui->messageEdit->setText(ac->userLastInputUnsend.value(friendId));
-        }
-        else if (isGroup())
-        {
-            if (ac->groupLastInputUnsend.contains(groupId))
-                ui->messageEdit->setText(ac->groupLastInputUnsend.value(groupId));
-        }
-
         // 显示消息框并聚焦
         showReplyEdit(true);
     }
@@ -1112,8 +1100,25 @@ void NotificationCard::showReplyEdit(bool focus, bool selectAll)
     {
         this->activateWindow(); // 只有活动中的窗口，setFocus 才有效
         ui->messageEdit->setFocus();
-        if (selectAll && !ui->messageEdit->text().isEmpty())
-            ui->messageEdit->selectAll();
+        if (!ui->messageEdit->text().isEmpty())
+        {
+            if (selectAll)
+                ui->messageEdit->selectAll();
+        }
+        else
+        {
+            // 恢复未发送的文字
+            if (isPrivate())
+            {
+                if (ac->userLastInputUnsend.contains(friendId))
+                    ui->messageEdit->setText(ac->userLastInputUnsend.value(friendId));
+            }
+            else if (isGroup())
+            {
+                if (ac->groupLastInputUnsend.contains(groupId))
+                    ui->messageEdit->setText(ac->groupLastInputUnsend.value(groupId));
+            }
+        }
     }
     ui->replyHLayout->removeItem(ui->horizontalSpacer);
     displayTimer->stop();
