@@ -241,12 +241,12 @@ void MainWindow::showHistoryListMenu()
         headerLabel->setMaximumSize(hei, hei);
         hei += vlayout->spacing() + hlayout->margin();
         w->setFixedSize(us->bannerFixedWidth, hei);
-        w->setDoubleClicked(true);
-        connect(w, &InteractiveButtonBase::clicked, this, [=]{
+        /* w->setDoubleClicked(true);
+        connect(w, &InteractiveButtonBase::click, this, [=]{
             // 根据聊天信息，重新打开对应的对话框
             focusOrShowMessageCard(msg, false, "", true);
-        });
-        connect(w, &InteractiveButtonBase::doubleClicked, this, [=]{
+        }); */
+        connect(w, &InteractiveButtonBase::clicked, this, [=]{
             // 因为要聚焦，所有这个popup的菜单必须要关闭
             menu->close();
             // 根据聊天信息，重新打开对应的对话框
