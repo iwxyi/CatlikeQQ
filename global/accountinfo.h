@@ -55,6 +55,7 @@ public:
 
     QHash<qint64, int> userUnreadCount;  // 私聊未读消息数量
     QHash<qint64, int> groupUnreadCount; // 群组未读消息数量
+    qint64 lastUnreadId = 0; // 最后一个未读消息
 
     QString friendName(qint64 userId) const
     {

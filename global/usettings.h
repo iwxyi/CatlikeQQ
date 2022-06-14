@@ -161,9 +161,9 @@ public:
     bool leaveMode = false;                                                          // 离开模式（开启回复）
     bool aiReplyPrivate = false;                                                     // 自动回复私聊
     QList<qint64> aiReplyUsers;                                                      // AI回复的用户的白名单
-    QString aiReplyPrefix = "[AI回复] ";                                             // 自动回复前缀
+    QString aiReplyPrefix = "[AI回复] ";                                              // 自动回复前缀
     QString aiReplySuffix = "";                                                      // 自动回复后缀
-    QString aiReplyDefault = "[自动回复] 您好，我现在有事不在，一会儿也不和您联系~"; // 自动回复默认内容（需包含前缀后缀）
+    QString aiReplyDefault = "[自动回复] 您好，我现在有事不在，一会儿也不和您联系~";        // 自动回复默认内容（需包含前缀后缀）
     int aiReplyInterval = 3000;                                                      // 自动回复的最短间隔
 
     // 数据统计
@@ -179,10 +179,11 @@ public:
     bool startOnPowerOn = false; // 开机自启
 
     // 托盘
-    int trayShowIconDuration = 5000;               // 托盘显示/闪烁时长
+    int trayShowIconDuration = 2000;               // 托盘显示/闪烁时长
     int trayFlashingInterval = 200;                // 托盘闪烁间隔
+    int trayFlickerInterval = 5000;                // 托盘未读消息闪烁间隔
     bool trayShowAllMessageIcon = false;           // 显示所有消息的图标（包括没有横幅的）
-    bool trayShowAllSlientMessageIcon = true;      // 静默模式显示本该通知的图标
+    bool trayShowAllSlientMessageIcon = false;     // 静默模式显示本该通知的图标
     bool trayShowSlientPrivateMessageIcon = true;  // 静默模式显示所有私聊消息图标
     bool trayShowSlientSpecialMessageIcon = true;  // 静默模式显示所有特别关心（>=很重要）的消息图标
     bool trayShowLowImportanceMessageIcon = false; // 显示不足通知优先级的消息图标

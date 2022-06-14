@@ -67,6 +67,10 @@
       </item>
       <item>
        <widget class="QCheckBox" name="trayShowAllSlientMessageIconCheck">
+        <property name="toolTip">
+         <string>静默状态下显示所有消息（除了关闭通知的群组）的图标
+关闭此项则只显示本该显示横幅通知的图标</string>
+        </property>
         <property name="text">
          <string>显示被静默的所有消息图标</string>
         </property>
@@ -88,6 +92,9 @@
       </item>
       <item>
        <widget class="QCheckBox" name="unreadFlickerCheck">
+        <property name="toolTip">
+         <string>有未读的高优先级消息时，在托盘处持续显示闪烁动画</string>
+        </property>
         <property name="text">
          <string>未读消息闪烁</string>
         </property>

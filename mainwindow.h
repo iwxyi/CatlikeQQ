@@ -39,6 +39,7 @@ private:
     void startMessageLoop();
     void showHistoryListMenu();
     bool canNewCardShow(const MsgBean& msg) const;
+    int getMsgImportance(const MsgBean& msg) const;
 
     QRect screenGeometry() const;
     void adjustUnderCardsTop(int aboveIndex, int deltaHeight);
@@ -89,6 +90,7 @@ private:
     mutable bool trayHiding = false;
     QTimer* trayRestoreTimer; // 显示结束后回复
     QTimer* trayHideTimer; // 闪烁一下表示有消息
+    QTimer* trayUnreadTimer; // 未读消息
 
     DevCodeRunner* codeRunner = nullptr;
 };

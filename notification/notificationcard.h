@@ -57,6 +57,7 @@ public:
     int getImportance() const;
     static QString getValiableMessage(QString text);
     QList<MsgBean>* getAllHistories();
+    void removeUnread();
 
 signals:
     void signalHeightChanged(int delta);

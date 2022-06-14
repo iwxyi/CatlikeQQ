@@ -1038,10 +1038,7 @@ void NotificationCard::mouseEnter()
         }
     }
 
-    if (isPrivate())
-        ac->userUnreadCount.remove(friendId);
-    else if (isGroup())
-        ac->groupUnreadCount.remove(groupId);
+    removeUnread();
 }
 
 void NotificationCard::mouseLeave()
@@ -1059,10 +1056,7 @@ void NotificationCard::mouseLeave()
     }
     focusOut();
 
-    if (isPrivate())
-        ac->userUnreadCount.remove(friendId);
-    else if (isGroup())
-        ac->groupUnreadCount.remove(groupId);
+    removeUnread();
 }
 
 void NotificationCard::displayTimeout()
@@ -1087,6 +1081,7 @@ void NotificationCard::focusOut()
         return ;
     displayTimer->setInterval(us->bannerRetentionDuration);
     displayTimer->start();
+    removeUnread();
 }
 
 void NotificationCard::replyButtonClicked()
@@ -1915,6 +1910,14 @@ QList<MsgBean> *NotificationCard::getAllHistories()
             return nullptr;
         return &ac->groupMsgHistory[groupId];
     }
+}
+
+void NotificationCard::removeUnread()
+{
+    if (isPrivate())
+        ac->userUnreadCount.remove(friendId);
+    else if (isGroup())
+        ac->groupUnreadCount.remove(groupId);
 }
 
 void NotificationCard::showEvent(QShowEvent *event)

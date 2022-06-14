@@ -147,7 +147,7 @@ void MainWindow::startMessageLoop()
 void MainWindow::showHistoryListMenu()
 {
     // 显示最多十个好友/群组
-    qint64 time = QDateTime::currentMSecsSinceEpoch() - 60 * 60 * 1000; // 只显示最近一小时的
+    qint64 time = QDateTime::currentMSecsSinceEpoch() - 6 * 60 * 60 * 1000; // 只显示最近六小时的
     QList<QList<MsgBean>> msgss = ac->userMsgHistory.values() + ac->groupMsgHistory.values();
     QList<QList<MsgBean>> msgsl;
     for (int i = 0; i < msgss.size(); i++)
@@ -285,6 +285,24 @@ void MainWindow::showHistoryListMenu()
         {
             unreadLabel = new QLabel(snum(unreadCount), w);
             hlayout->addWidget(unreadLabel);
+
+            // TODO: 根据重要性等级显示不同颜色的未读数字气泡
+            /* int im = getMsgImportance(msg);
+            QColor c = Qt::red;
+            if (im == VeryImportant && im >= us->lowestImportance)
+                c = Qt::red;
+            else if (im == LittleImportant && im >= us->lowestImportance)
+                c = Qt::blue;
+            else if (im == NormalImportant && im >= us->lowestImportance)
+                c = Qt::gray;
+            else
+                c = QColor();
+            qDebug() << "优先级：" << im << us->lowestImportance << c.isValid();
+            if (c.isValid())
+            {
+                unreadLabel->setFixedSize(24, 24);
+                unreadLabel->setStyleSheet("color: white; background-color: " + QVariant(c).toString() + "; border-radius: 8");
+            } */
         }
         hlayout->setStretch(1, 1);
 
@@ -346,6 +364,9 @@ void MainWindow::showHistoryListMenu()
     menu->adjustSize();
     menu->setAppearAnimation(false);
     menu->exec();
+
+    ac->userUnreadCount.clear();
+    ac->groupUnreadCount.clear();
 }
 
 QRect MainWindow::screenGeometry() const
@@ -392,6 +413,33 @@ void MainWindow::initTray()
             tray->setIcon(trayFlashPixmap.isNull() ? ac->myHeader.isNull() ? QIcon("://appicon") : QIcon(ac->myHeader) : trayFlashPixmap);
             trayHiding = false;
             trayHideTimer->stop();
+        }
+    });
+
+    trayUnreadTimer = new QTimer(this);
+    trayUnreadTimer->setInterval(us->trayFlickerInterval);
+    connect(trayUnreadTimer, &QTimer::timeout, this, [=]{
+        // 判断有没有未读消息
+        if ((ac->userUnreadCount.isEmpty() && ac->groupUnreadCount.isEmpty()))
+        {
+            trayUnreadTimer->stop();
+            return ;
+        }
+
+        if (ac->userUnreadCount.contains(ac->lastUnreadId))
+        {
+            if (ac->userMsgHistory.value(ac->lastUnreadId).size())
+                showTrayIcon(ac->userMsgHistory.value(ac->lastUnreadId).last());
+        }
+        else if (ac->groupUnreadCount.contains(ac->lastUnreadId))
+        {
+            if (ac->groupMsgHistory.value(ac->lastUnreadId).size())
+                showTrayIcon(ac->groupMsgHistory.value(ac->lastUnreadId).last());
+        }
+        else
+        {
+            trayUnreadTimer->stop();
+            return ;
         }
     });
 }
@@ -774,6 +822,8 @@ void MainWindow::messageReceived(const MsgBean &msg, bool blockSelf)
     showMessageCard(msg, blockSelf);
 }
 
+/// 是否需要显示新卡片
+/// 就收到消息优先级不够
 bool MainWindow::canNewCardShow(const MsgBean &msg) const
 {
     if (!msg.isMsg() && !msg.is(ActionJoin))
@@ -788,13 +838,13 @@ bool MainWindow::canNewCardShow(const MsgBean &msg) const
             showTrayIcon(msg);
 
         // 不需要进行优先级的判断
-        if (!us->trayShowAllSlientMessageIcon && !us->trayShowSlientSpecialMessageIcon && !us->trayShowLowImportanceMessageIcon)
-            return false;
+        /* if (!us->trayShowAllSlientMessageIcon && !us->trayShowSlientSpecialMessageIcon && !us->trayShowLowImportanceMessageIcon)
+            return false; */
     }
 
     // 判断群组显示开关
     qint64 cur = QDateTime::currentMSecsSinceEpoch();
-    if (msg.isGroup() && !us->isGroupShow(msg.groupId)) // 群组消息开关
+    if (msg.isGroup() && !us->isGroupShow(msg.groupId)) // 未打开群组消息开关
     {
         if (ac->askGroup.contains(msg.groupId)) // 要显示群组通知
         {}
@@ -808,6 +858,33 @@ bool MainWindow::canNewCardShow(const MsgBean &msg) const
             return false;
     }
 
+    int im = getMsgImportance(msg);
+
+    // 不足优先级，不通知
+    if (im < us->lowestImportance)
+    {
+        // 静默消息的托盘图标
+        if (((rt->notificationSlient || us->isPausingByOtherDevice) && (us->trayShowAllSlientMessageIcon|| (us->trayShowSlientSpecialMessageIcon && im >= VeryImportant)))
+                || us->trayShowLowImportanceMessageIcon)
+            showTrayIcon(msg);
+        return false;
+    }
+    else
+    {
+        // 显示未读消息
+        if (msg.senderId != ac->myId)
+        {
+            ac->lastUnreadId = msg.isPrivate() ? msg.friendId : msg.groupId;
+            if (us->unreadFlicker)
+                trayUnreadTimer->start();
+        }
+    }
+
+    return !rt->notificationSlient && !us->isPausingByOtherDevice;
+}
+
+int MainWindow::getMsgImportance(const MsgBean &msg) const
+{
     // 特别关心（叠加）
     int special = (us->userSpecial.contains(msg.senderId) ? 1 : 0)
             + (us->groupMemberSpecial.contains(msg.senderId) ? 1 : 0);
@@ -882,6 +959,7 @@ bool MainWindow::canNewCardShow(const MsgBean &msg) const
     // 动态重要性
     if (us->dynamicImportance)
     {
+        qint64 cur = QDateTime::currentMSecsSinceEpoch();
         qint64 time = 0;
         int count = 0;
         if (msg.isPrivate())
@@ -912,7 +990,6 @@ bool MainWindow::canNewCardShow(const MsgBean &msg) const
             }
         }
     }
-
 
     // 智能聚焦
     if (us->smartFocus)
@@ -946,18 +1023,7 @@ bool MainWindow::canNewCardShow(const MsgBean &msg) const
             }
         }
     }
-
-    // 不足优先级，不通知
-    if (im < us->lowestImportance)
-    {
-        // 静默消息的托盘图标
-        if (((rt->notificationSlient || us->isPausingByOtherDevice) && (us->trayShowAllSlientMessageIcon|| (us->trayShowSlientSpecialMessageIcon && im >= VeryImportant)))
-                || us->trayShowLowImportanceMessageIcon)
-            showTrayIcon(msg);
-        return false;
-    }
-
-    return !rt->notificationSlient && !us->isPausingByOtherDevice;
+    return im;
 }
 
 /// 显示通知卡片，可能是新卡片，也可能需要附加上去
@@ -1399,6 +1465,8 @@ void MainWindow::showTrayIcon(const MsgBean &msg) const
         return ;
 
     trayRestoreTimer->start();
+    if (trayUnreadTimer->isActive()) // 未读消息闪烁的时间重置
+        trayUnreadTimer->start();
 
     // 还是这个消息，不做其他操作，只是延长时间
     if (currentTrayMsg.is(msg))
