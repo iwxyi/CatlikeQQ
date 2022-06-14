@@ -17,6 +17,7 @@ ReplyWidget::ReplyWidget(QWidget *parent) :
     ui->replyKeyEdit->setKeySequence(QKeySequence(us->s("banner/replyKey", "shift+alt+x")));
     ui->AIReplyCheck->setChecked(us->bannerAIReply);
     ui->showMySendCheck->setChecked(us->bannerShowMySend);
+    ui->groupEmojiToImageCheck->setChecked(us->groupEmojiToImage);
 }
 
 ReplyWidget::~ReplyWidget()
