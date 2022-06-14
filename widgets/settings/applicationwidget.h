@@ -28,6 +28,8 @@ private slots:
 
     void on_trayShowLowImportanceMessageIconCheck_clicked();
 
+    void on_unreadFlickerCheck_clicked();
+
 private:
     Ui::ApplicationWidget *ui;
 };

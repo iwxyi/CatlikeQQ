@@ -1037,6 +1037,11 @@ void NotificationCard::mouseEnter()
             showReplyEdit(true);
         }
     }
+
+    if (isPrivate())
+        ac->userUnreadCount.remove(friendId);
+    else if (isGroup())
+        ac->groupUnreadCount.remove(groupId);
 }
 
 void NotificationCard::mouseLeave()
@@ -1053,6 +1058,11 @@ void NotificationCard::mouseLeave()
         return ;
     }
     focusOut();
+
+    if (isPrivate())
+        ac->userUnreadCount.remove(friendId);
+    else if (isGroup())
+        ac->groupUnreadCount.remove(groupId);
 }
 
 void NotificationCard::displayTimeout()

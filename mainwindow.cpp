@@ -278,6 +278,16 @@ void MainWindow::showHistoryListMenu()
         }
         menu->addWidget(w);
 
+        // 添加显示未读消息
+        int unreadCount = msg.isGroup() ? ac->groupUnreadCount.value(msg.groupId) : ac->userUnreadCount.value(msg.friendId);
+        QLabel* unreadLabel = nullptr;
+        if (unreadCount > 0)
+        {
+            unreadLabel = new QLabel(snum(unreadCount), w);
+            hlayout->addWidget(unreadLabel);
+        }
+        hlayout->setStretch(1, 1);
+
         // 显示的时候还可以实时更新消息
         // 但是只能修改最新一条
         connect(cqhttpService, &CqhttpService::signalMessage, w, [=](const MsgBean& m){
@@ -317,6 +327,9 @@ void MainWindow::showHistoryListMenu()
             {
                 lastMsgLabel->setText(disp);
             }
+
+            if (unreadLabel)
+                unreadLabel->setText(snum(unreadLabel->text().toInt() + 1));
         });
 
         // 使用默认的菜单机制（太朴素了）
@@ -637,13 +650,14 @@ void MainWindow::messageReceived(const MsgBean &msg, bool blockSelf)
         us->addCount(us->countReceiveAll, "receiveAll");
         if (msg.isPrivate())
         {
-            if (ac->friendList.contains(msg.friendId))
-                ac->friendList[msg.friendId].lastMsgTime = QDateTime::currentMSecsSinceEpoch();
+            qint64 friendId = msg.friendId;
+            if (ac->friendList.contains(friendId))
+                ac->friendList[friendId].lastMsgTime = QDateTime::currentMSecsSinceEpoch();
 
             // 判断私聊是否是重复接收了
-            if (ac->userMsgHistory.contains(msg.friendId))
+            if (ac->userMsgHistory.contains(friendId))
             {
-                const auto& msgs = ac->userMsgHistory.value(msg.friendId);
+                const auto& msgs = ac->userMsgHistory.value(friendId);
                 if (msgs.size() && msgs.last().messageId == msg.messageId)
                 {
                     qInfo() << "忽略自己发送给非好友的重复消息：" << msg.messageId << msg.message;
@@ -651,25 +665,42 @@ void MainWindow::messageReceived(const MsgBean &msg, bool blockSelf)
                 }
             }
             else
-                ac->userMsgHistory.insert(msg.friendId, QList<MsgBean>());
-            ac->userMsgHistory[msg.friendId].append(msg);
-            ac->receiveCountAfterMySendPrivate[msg.friendId] = ac->receiveCountAfterMySendPrivate.value(msg.friendId) + 1;
+                ac->userMsgHistory.insert(friendId, QList<MsgBean>());
+            ac->userMsgHistory[friendId].append(msg);
+            ac->receiveCountAfterMySendPrivate[friendId] = ac->receiveCountAfterMySendPrivate.value(friendId) + 1;
 
+            // 判断自己发的还是接收的
             if (msg.senderId != ac->myId)
+            {
                 us->addCount(us->countReceivePrivate, "receivePrivate");
+                ac->userUnreadCount[friendId]++;
+            }
+            else
+            {
+                ac->userUnreadCount.remove(friendId);
+            }
         }
         else if (msg.isGroup())
         {
-            if (ac->groupList.contains(msg.groupId))
-                ac->groupList[msg.groupId].lastMsgTime = QDateTime::currentMSecsSinceEpoch();
+            qint64 groupId = msg.groupId;
+            if (ac->groupList.contains(groupId))
+                ac->groupList[groupId].lastMsgTime = QDateTime::currentMSecsSinceEpoch();
 
-            if (!ac->groupMsgHistory.contains(msg.groupId))
-                ac->groupMsgHistory.insert(msg.groupId, QList<MsgBean>());
-            ac->groupMsgHistory[msg.groupId].append(msg);
-            ac->receivedCountAfterMySentGroup[msg.groupId] = ac->receivedCountAfterMySentGroup.value(msg.groupId) + 1;
+            if (!ac->groupMsgHistory.contains(groupId))
+                ac->groupMsgHistory.insert(groupId, QList<MsgBean>());
+            ac->groupMsgHistory[groupId].append(msg);
+            ac->receivedCountAfterMySentGroup[groupId] = ac->receivedCountAfterMySentGroup.value(groupId) + 1;
 
+            // 判断自己发的还是接收的
             if (msg.senderId != ac->myId)
+            {
                 us->addCount(us->countReceiveGroup, "receiveGroup");
+                ac->groupUnreadCount[groupId]++;
+            }
+            else
+            {
+                ac->groupUnreadCount.remove(groupId);
+            }
         }
 
         // 自己发送的消息

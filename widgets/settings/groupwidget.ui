@@ -15,54 +15,56 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QGridLayout" name="gridLayout">
-     <property name="leftMargin">
-      <number>9</number>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>自动暂停</string>
      </property>
-     <property name="topMargin">
-      <number>0</number>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QCheckBox" name="autoPauseCheck">
+        <property name="toolTip">
+         <string>使用其他设备/QQ程序发送消息时，自动暂停本应用的通知，直到手动打开卡片</string>
+        </property>
+        <property name="text">
+         <string>使用其他设备时自动暂停通知</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="isPausingCheck">
+        <property name="toolTip">
+         <string>暂停通知卡片，直到点击历史、快捷键等操作</string>
+        </property>
+        <property name="text">
+         <string>临时暂停通知</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="title">
+      <string>群组通知</string>
      </property>
-     <property name="rightMargin">
-      <number>9</number>
-     </property>
-     <property name="spacing">
-      <number>12</number>
-     </property>
-     <item row="2" column="0">
-      <widget class="QCheckBox" name="mainCheck">
-       <property name="text">
-        <string>群组通知主开关</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="InteractiveButtonBase" name="enabledGroupButton">
-       <property name="text">
-        <string>允许通知的群组</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0">
-      <widget class="QCheckBox" name="autoPauseCheck">
-       <property name="toolTip">
-        <string>使用其他设备/QQ程序发送消息时，自动暂停本应用的通知，直到手动打开卡片</string>
-       </property>
-       <property name="text">
-        <string>使用其他设备时自动暂停通知</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QCheckBox" name="isPausingCheck">
-       <property name="toolTip">
-        <string>暂停通知卡片，直到点击历史、快捷键等操作</string>
-       </property>
-       <property name="text">
-        <string>临时暂停通知</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item>
+       <widget class="QCheckBox" name="mainCheck">
+        <property name="text">
+         <string>群组通知主开关</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="InteractiveButtonBase" name="enabledGroupButton">
+        <property name="text">
+         <string>允许通知的群组</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item>
     <spacer name="verticalSpacer">
@@ -72,7 +74,7 @@
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>257</height>
+       <height>40</height>
       </size>
      </property>
     </spacer>

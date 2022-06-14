@@ -153,6 +153,7 @@ void USettings::restoreSettings()
     assign(trayShowSlientPrivateMessageIcon, "slientPrivate");
     assign(trayShowSlientSpecialMessageIcon, "slientSpecial");
     assign(trayShowSlientSpecialMessageIcon, "lowImportance");
+    assign(unreadFlicker, "unreadFlicker");
     endGroup();
 
     beginGroup("dev");

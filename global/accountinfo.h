@@ -53,6 +53,9 @@ public:
     QHash<qint64, bool> gettingGroupMembers; // 是否正在获取群成员
     QHash<qint64, bool> gettingGroupMsgHistories; // 是否正在获取群消息历史记录
 
+    QHash<qint64, int> userUnreadCount;  // 私聊未读消息数量
+    QHash<qint64, int> groupUnreadCount; // 群组未读消息数量
+
     QString friendName(qint64 userId) const
     {
         return friendList.contains(userId) ? friendList[userId].username() : "";

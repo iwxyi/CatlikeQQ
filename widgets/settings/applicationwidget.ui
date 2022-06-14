@@ -86,6 +86,13 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QCheckBox" name="unreadFlickerCheck">
+        <property name="text">
+         <string>未读消息闪烁</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>

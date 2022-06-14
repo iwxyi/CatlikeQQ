@@ -15,6 +15,7 @@ ApplicationWidget::ApplicationWidget(QWidget *parent) :
     ui->trayShowSlientPrivateMessageIconCheck->setChecked(us->trayShowSlientPrivateMessageIcon);
     ui->trayShowSlientSpecialMessageIconCheck->setChecked(us->trayShowSlientSpecialMessageIcon);
     ui->trayShowLowImportanceMessageIconCheck->setChecked(us->trayShowLowImportanceMessageIcon);
+    ui->unreadFlickerCheck->setChecked(us->unreadFlicker);
 }
 
 ApplicationWidget::~ApplicationWidget()
@@ -58,5 +59,10 @@ void ApplicationWidget::on_trayShowSlientSpecialMessageIconCheck_clicked()
 
 void ApplicationWidget::on_trayShowLowImportanceMessageIconCheck_clicked()
 {
-us->set("tray/lowImportance", us->trayShowLowImportanceMessageIcon = ui->trayShowLowImportanceMessageIconCheck->isChecked());
+    us->set("tray/lowImportance", us->trayShowLowImportanceMessageIcon = ui->trayShowLowImportanceMessageIconCheck->isChecked());
+}
+
+void ApplicationWidget::on_unreadFlickerCheck_clicked()
+{
+    us->set("tray/unreadFlicker", us->unreadFlicker = ui->unreadFlickerCheck->isChecked());
 }
