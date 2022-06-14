@@ -17,6 +17,7 @@ StyleWidget::StyleWidget(QWidget *parent) :
     ui->frostedGlassOpacitySpin->setValue(us->bannerFrostedGlassOpacity);
     ui->showBubbleCheck->setChecked(us->bannerShowBubble);
     ui->replyRecursionCheck->setChecked(us->bannerReplyRecursion);
+    ui->historyMultiLineCheck->setChecked(us->showMultiMessageHistories);
 
     ui->bgColorButton->setBorderColor(Qt::gray);
     ui->titleColorButton->setBorderColor(Qt::gray);
@@ -113,4 +114,14 @@ void StyleWidget::on_linkColorButton_clicked()
     if (!c.isValid())
         return ;
     us->set("banner/linkColor", us->bannerLinkColor = c);
+}
+
+void StyleWidget::on_openLinkCheck_clicked()
+{
+
+}
+
+void StyleWidget::on_historyMultiLineCheck_clicked()
+{
+    us->set("history/showMultiMessageHistories", us->showMultiMessageHistories = ui->historyMultiLineCheck->isChecked());
 }

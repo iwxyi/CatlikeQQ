@@ -42,6 +42,10 @@ private slots:
 
     void on_linkColorButton_clicked();
 
+    void on_openLinkCheck_clicked();
+
+    void on_historyMultiLineCheck_clicked();
+
 private:
     Ui::StyleWidget *ui;
 };

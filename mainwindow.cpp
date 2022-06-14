@@ -149,31 +149,33 @@ void MainWindow::showHistoryListMenu()
     // 显示最多十个好友/群组
     qint64 time = QDateTime::currentMSecsSinceEpoch() - 60 * 60 * 1000; // 只显示最近一小时的
     QList<QList<MsgBean>> msgss = ac->userMsgHistory.values() + ac->groupMsgHistory.values();
-    QList<MsgBean> msgs;
+    QList<QList<MsgBean>> msgsl;
     for (int i = 0; i < msgss.size(); i++)
     {
         if (msgss.at(i).count() == 0 || msgss.at(i).last().timestamp < time)
             msgss.removeAt(i--);
         else
-            msgs.append(msgss.at(i).last());
+            msgsl.append(msgss.at(i));
     }
 
-    std::sort(msgs.begin(), msgs.end(), [=](MsgBean a, MsgBean b) {
-        return a.timestamp > b.timestamp;
+    // 按最后一条消息时间排序
+    std::sort(msgsl.begin(), msgsl.end(), [=](const QList<MsgBean>& a, const QList<MsgBean>& b) {
+        return a.last().timestamp > b.last().timestamp;
     });
 
     // 如果没有消息，就不做操作了吧
-    if (!msgs.size())
+    if (!msgsl.size())
         return ;
 
     newFacileMenu;
-    int maxIndex = msgs.size() - 1;
+    int maxIndex = msgsl.size() - 1;
     if (maxIndex > 10)
         maxIndex = 10;
     for (int i = 0; i <= maxIndex; i++) // 正序（最新消息在上面，符合习惯）
     // for (int i = maxIndex; i >= 0; i--) // 倒序（最新消息在下面，交互方便）
     {
-        MsgBean msg = msgs.at(i);
+        const QList<MsgBean>& msgs = msgsl.at(i);
+        const MsgBean& msg = msgs.last();
         QString name;
         QPixmap pixmap;
         AccountInfo::CardColor cc;
@@ -214,20 +216,26 @@ void MainWindow::showHistoryListMenu()
         // 遍历显示消息历史
         int hei = titleLabel->height();
         int maxCount = us->showMultiMessageHistories ? 3 : 1;
-//        while (maxCount--)
-//        {
+        maxCount = qMin(maxCount, msgs.size());
+        QList<QLabel*> labels;
+        int loopCount = maxCount;
+        QLabel* lastMsgLabel = nullptr;
+        while (--loopCount >= 0)
+        {
+            const MsgBean& cMsg = msgs.at(msgs.count() - loopCount - 1);
             QLabel* messageLabel = new QLabel(w);
+            lastMsgLabel = messageLabel;
             vlayout->addWidget(messageLabel);
-            QString mess = MessageView::simpleMessage(msg);
+            QString mess = MessageView::simpleMessage(cMsg);
             if (mess.contains("\n"))
                 mess = mess.left(mess.indexOf("\n"));
-            if (msg.senderId == ac->myId)
+            if (cMsg.senderId == ac->myId)
                 messageLabel->setText("你：" + mess);
-            else if (msg.isPrivate())
+            else if (cMsg.isPrivate())
                 messageLabel->setText(mess);
             else
             {
-                QString s = msg.username();
+                QString s = cMsg.username();
                 // 昵称简化
                 s = s.replace(QRegularExpression("^(?:id|ID|Id)[：|:](.+)$"), "\\1")
                         .replace(QRegularExpression("^(.+)\\s*[\\(（].+[\\)）]$"), "\\1");
@@ -236,9 +244,10 @@ void MainWindow::showHistoryListMenu()
             messageLabel->setMaximumWidth(us->bannerFixedWidth);
             messageLabel->adjustSize();
             hei += messageLabel->height() + hlayout->margin();
-//        }
+            labels.append(messageLabel);
+        }
 
-        headerLabel->setMaximumSize(hei, hei);
+        headerLabel->setFixedSize(40, 40);
         hei += vlayout->spacing() + hlayout->margin();
         w->setFixedSize(us->bannerFixedWidth, hei);
         /* w->setDoubleClicked(true);
@@ -255,23 +264,52 @@ void MainWindow::showHistoryListMenu()
         if (cc.isValid() && us->bannerUseHeaderColor)
         {
             w->setBgColor(cc.bg);
-            titleLabel->setStyleSheet("color:" + QVariant(cc.fg).toString());
-            messageLabel->setStyleSheet("color:" + QVariant(cc.fg).toString());
+            titleLabel->setStyleSheet("font-weight: 600; color:" + QVariant(cc.fg).toString());
+            for (QLabel* la: labels)
+            {
+                la->setStyleSheet("color:" + QVariant(cc.fg).toString());
+            }
         }
         menu->addWidget(w);
 
         // 显示的时候还可以实时更新消息
+        // 但是只能修改最新一条
         connect(cqhttpService, &CqhttpService::signalMessage, w, [=](const MsgBean& m){
             if (!msg.isMsg())
                 return ;
             if (!msg.isSameObject(m))
                 return ;
+            QString disp;
             if (msg.isPrivate())
-                messageLabel->setText(MessageView::simpleMessage(m));
+                disp = MessageView::simpleMessage(m);
             else if (msg.senderId == ac->myId)
-                messageLabel->setText("你：" + mess);
+                disp = "你：" + MessageView::simpleMessage(m);
             else
-                messageLabel->setText(m.nickname + ": " + MessageView::simpleMessage(m));
+                disp = m.nickname + ": " + MessageView::simpleMessage(m);
+
+            if (us->showMultiMessageHistories)
+            {
+                // 取消过期消息
+                int count = vlayout->count();
+                if (count >= maxCount + 1)
+                {
+                    auto item = vlayout->itemAt(1);
+                    auto widget = item->widget();
+                    vlayout->removeItem(item);
+                    delete item;
+                    widget->deleteLater();
+                }
+
+                // 添加最新消息
+                QLabel* la = new QLabel(disp, w);
+                if (cc.isValid() && us->bannerUseHeaderColor)
+                    la->setStyleSheet("color:" + QVariant(cc.fg).toString());
+                vlayout->addWidget(la);
+            }
+            else
+            {
+                lastMsgLabel->setText(disp);
+            }
         });
 
         // 使用默认的菜单机制（太朴素了）
@@ -582,7 +620,17 @@ void MainWindow::messageReceived(const MsgBean &msg, bool blockSelf)
             if (ac->friendList.contains(msg.friendId))
                 ac->friendList[msg.friendId].lastMsgTime = QDateTime::currentMSecsSinceEpoch();
 
-            if (!ac->userMsgHistory.contains(msg.friendId))
+            // 判断私聊是否是重复接收了
+            if (ac->userMsgHistory.contains(msg.friendId))
+            {
+                const auto& msgs = ac->userMsgHistory.value(msg.friendId);
+                if (msgs.size() && msgs.last().messageId == msg.messageId)
+                {
+                    qInfo() << "忽略自己发送给非好友的重复消息：" << msg.messageId << msg.message;
+                    return ;
+                }
+            }
+            else
                 ac->userMsgHistory.insert(msg.friendId, QList<MsgBean>());
             ac->userMsgHistory[msg.friendId].append(msg);
             ac->receiveCountAfterMySendPrivate[msg.friendId] = ac->receiveCountAfterMySendPrivate.value(msg.friendId) + 1;

@@ -63,6 +63,10 @@ void USettings::restoreSettings()
     assign(groupEmojiToImage, "groupEmojiToImage");
     endGroup();
 
+    beginGroup("history");
+    assign(showMultiMessageHistories, "showMultiMessageHistories");
+    endGroup();
+
     beginGroup("importance");
     assign(userImportance, "userImportance");
     assign(groupImportance, "groupImportance");

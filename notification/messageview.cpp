@@ -73,7 +73,7 @@ MessageView::MessageView(QWidget *parent)
 /// 不涉及到富文本、文件下载等等
 QString MessageView::simpleMessage(const MsgBean &msg)
 {
-    QString text = msg.message;
+    QString text = msg.message.trimmed();
     QRegularExpression re;
     QRegularExpressionMatch match;
 
