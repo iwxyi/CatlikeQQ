@@ -206,6 +206,7 @@ void MainWindow::showHistoryListMenu()
         QHBoxLayout* hlayout = new QHBoxLayout(w);
         hlayout->addWidget(headerLabel);
         hlayout->addLayout(vlayout);
+        hlayout->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 
         headerLabel->setPixmap(pixmap.isNull() ? QPixmap("://icons/ignore") : pixmap);
         titleLabel->setText(name);
@@ -243,12 +244,12 @@ void MainWindow::showHistoryListMenu()
             }
             messageLabel->setMaximumWidth(us->bannerFixedWidth);
             messageLabel->adjustSize();
-            hei += messageLabel->height() + hlayout->margin();
+            hei += messageLabel->height();
             labels.append(messageLabel);
         }
 
         headerLabel->setFixedSize(40, 40);
-        hei += vlayout->spacing() + hlayout->margin();
+        hei += vlayout->spacing() * maxCount + hlayout->margin() * 2;
         w->setFixedSize(us->bannerFixedWidth, hei);
         /* w->setDoubleClicked(true);
         connect(w, &InteractiveButtonBase::click, this, [=]{
@@ -264,11 +265,15 @@ void MainWindow::showHistoryListMenu()
         if (cc.isValid() && us->bannerUseHeaderColor)
         {
             w->setBgColor(cc.bg);
-            titleLabel->setStyleSheet("font-weight: 600; color:" + QVariant(cc.fg).toString());
+            titleLabel->setStyleSheet("font-weight: 500; color:" + QVariant(cc.fg).toString());
             for (QLabel* la: labels)
             {
                 la->setStyleSheet("color:" + QVariant(cc.fg).toString());
             }
+        }
+        else
+        {
+            titleLabel->setStyleSheet("font-weight: 500;");
         }
         menu->addWidget(w);
 
