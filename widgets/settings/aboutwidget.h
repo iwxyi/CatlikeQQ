@@ -20,6 +20,10 @@ private slots:
 
     void on_githubButton_clicked();
 
+    void on_qqButton_clicked();
+
+    void on_label_linkActivated(const QString &link);
+
 private:
     Ui::AboutWidget *ui;
 };

@@ -38,7 +38,9 @@
       <item>
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>猫样QQ（CatlikeQQ）是杭州懒一夕智能科技有限公司随手开发的效率产品之一，旨在通过方便快捷的交互方式，提高用户的办公效率。</string>
+         <string>&lt;p&gt;猫样QQ（CatlikeQQ）是杭州懒一夕智能科技有限公司随手开发的效率产品之一，旨在通过方便快捷的交互方式，提高用户的办公效率。&lt;/p&gt;
+
+&lt;p&gt;交流群：&lt;a target=&quot;_blank&quot; href=&quot;https://qm.qq.com/cgi-bin/qm/qr?k=L0lcp-KvdNkJDUqEVi6j5hBpGdD77lK5&amp;jump_from=webapi&quot;&gt;&lt;span style=&quot;text-decoration: none; color:#8cc2d4;&quot;&gt;557544797&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
@@ -59,6 +61,13 @@
            </size>
           </property>
          </spacer>
+        </item>
+        <item>
+         <widget class="InteractiveButtonBase" name="qqButton">
+          <property name="text">
+           <string>QQ群</string>
+          </property>
+         </widget>
         </item>
         <item>
          <widget class="InteractiveButtonBase" name="officialButton">

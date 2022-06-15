@@ -16,8 +16,12 @@ AboutWidget::AboutWidget(QWidget *parent) :
     ui->githubButton->adjustSize();
     ui->githubButton->setBorderWidth(1);
     ui->githubButton->setBorderColor(Qt::gray);
-
     ui->githubButton->setFixedForeSize();
+
+    ui->qqButton->adjustSize();
+    ui->qqButton->setBorderWidth(1);
+    ui->qqButton->setBorderColor(Qt::gray);
+    ui->qqButton->setFixedForeSize();
 }
 
 AboutWidget::~AboutWidget()
@@ -33,4 +37,14 @@ void AboutWidget::on_officialButton_clicked()
 void AboutWidget::on_githubButton_clicked()
 {
     QDesktopServices::openUrl(QUrl("https://github.com/iwxyi/CatlikeQQ"));
+}
+
+void AboutWidget::on_qqButton_clicked()
+{
+    QDesktopServices::openUrl(QUrl("https://qm.qq.com/cgi-bin/qm/qr?k=L0lcp-KvdNkJDUqEVi6j5hBpGdD77lK5&jump_from=webapi"));
+}
+
+void AboutWidget::on_label_linkActivated(const QString &link)
+{
+    QDesktopServices::openUrl(QUrl(link));
 }

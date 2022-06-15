@@ -11,8 +11,9 @@
 
 随手开发的聊天辅助工具，通过方便快捷的交互方式，提高用户的办公效率。
 
-> 本程序旨在通知悬浮窗，并非完全替代 QQ/TIM，建议结合使用。
+QQ交流群：[557544797](https://qm.qq.com/cgi-bin/qm/qr?k=L0lcp-KvdNkJDUqEVi6j5hBpGdD77lK5&jump_from=webapi)
 
+> 本程序旨在通知悬浮窗，并非完全替代 QQ/TIM，建议结合使用。
 
 
 ## 功能
