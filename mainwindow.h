@@ -39,7 +39,7 @@ private:
     void startMessageLoop();
     void showHistoryListMenu();
     bool canNewCardShow(const MsgBean& msg) const;
-    int getMsgImportance(const MsgBean& msg) const;
+    int getMsgImportance(const MsgBean& msg, bool dynamic = true) const;
 
     QRect screenGeometry() const;
     void adjustUnderCardsTop(int aboveIndex, int deltaHeight);

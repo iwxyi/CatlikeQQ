@@ -874,16 +874,22 @@ bool MainWindow::canNewCardShow(const MsgBean &msg) const
         // 显示未读消息
         if (msg.senderId != ac->myId)
         {
-            ac->lastUnreadId = msg.isPrivate() ? msg.friendId : msg.groupId;
-            if (us->unreadFlicker)
-                trayUnreadTimer->start();
+            im = getMsgImportance(msg, false); // 不包括动态重要性的原始重要性，以及智能聚焦
+            if (im < us->lowestImportance)
+            {
+                ac->lastUnreadId = msg.isPrivate() ? msg.friendId : msg.groupId;
+                if (us->unreadFlicker)
+                    trayUnreadTimer->start();
+            }
         }
     }
 
     return !rt->notificationSlient && !us->isPausingByOtherDevice;
 }
 
-int MainWindow::getMsgImportance(const MsgBean &msg) const
+/// 获取一个聊天对象的重要性
+/// @param dynamic 是否根据智能聚焦和动态重要性来自动调整
+int MainWindow::getMsgImportance(const MsgBean &msg, bool dynamic) const
 {
     // 特别关心（叠加）
     int special = (us->userSpecial.contains(msg.senderId) ? 1 : 0)
@@ -957,7 +963,7 @@ int MainWindow::getMsgImportance(const MsgBean &msg) const
     }
 
     // 动态重要性
-    if (us->dynamicImportance)
+    if (us->dynamicImportance && dynamic)
     {
         qint64 cur = QDateTime::currentMSecsSinceEpoch();
         qint64 time = 0;
