@@ -93,7 +93,8 @@
       <item>
        <widget class="QCheckBox" name="unreadFlickerCheck">
         <property name="toolTip">
-         <string>有未读的高优先级消息时，在托盘处持续显示闪烁动画</string>
+         <string>有未读的高优先级消息时，在托盘处持续显示闪烁动画
+不包括通过“动态重要性”才显示通知的对象</string>
         </property>
         <property name="text">
          <string>未读消息闪烁</string>

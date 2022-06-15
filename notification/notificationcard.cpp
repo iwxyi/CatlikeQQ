@@ -1673,7 +1673,7 @@ void NotificationCard::cardMenu()
                 sl.append(user.username() + " (" + snum(user.userId) + ")");
             }
             menu->addAction(QIcon("://icons/at.png"), "用户聚焦", [=] {
-                ac->groupList.value(groupId).atMember.clear();
+                ac->groupList[groupId].atMember.clear();
             })->check()->tooltip(sl.join("\n"));
         }
 
