@@ -208,11 +208,21 @@ void NotificationCard::setMsg(const MsgBean &msg)
     {
         setPrivateMsg(msg);
         connectUserHeader(ui->headerLabel, msg);
+        connect(sig, &SignalTransfer::userLocalNameChanged, this, [=](qint64 id, QString newName){
+            if (msg.friendId != id)
+                return ;
+            ui->nicknameLabel->setText(newName);
+        });
     }
     else if (msg.isGroup())
     {
         setGroupMsg(msg);
         connectGroupHeader(ui->headerLabel, msg);
+        connect(sig, &SignalTransfer::groupLocalNameChanged, this, [=](qint64 id, QString newName){
+            if (msg.groupId != id)
+                return ;
+            ui->nicknameLabel->setText(newName);
+        });
     }
 
     // 设置大小
@@ -623,6 +633,11 @@ MessageView* NotificationCard::createMsgBox(const MsgBean &msg, int index)
     QFont font;
     font.setPointSize(font.pointSize() + us->bannerSubTitleLarger);
     nameLabel->setFont(font);
+    connect(sig, &SignalTransfer::userLocalNameChanged, nameLabel, [=](qint64 id, QString newName) {
+        if (msg.senderId != id)
+            return ;
+        nameLabel->setText(newName);
+    });
 
     // 设置颜色
     QPalette pa(ui->nicknameLabel->palette());
@@ -920,6 +935,39 @@ void NotificationCard::connectUserHeader(QLabel* label, const MsgBean& msg)
                 us->set("special/groupMember", us->groupMemberSpecial);
                 qInfo() << "群内特别关注数量：" << us->groupMemberSpecial.size();
             })->check(us->groupMemberSpecial.contains(msg.senderId));
+
+            qint64 hashId = msg.senderId;
+            QHash<qint64, QString>*hash = &us->userLocalNames;
+            QString hashKey = "local/userLocalName";
+            QString oldLocalName = hash->value(hashId, "");
+            menu->addAction(QIcon("://icons/localName.png"), "本地昵称", [=]{
+                if (!hashId)
+                {
+                    qWarning() << "错误的昵称ID：" << this->friendId << this->groupId;
+                    return ;
+                }
+
+                bool ok;
+                blockHideTimer();
+                QString newName = QInputDialog::getText(this, "设置本地昵称", "只会修改通知卡片中最上方显示的名字，不影响云端数据\n修改该用户的所有显示昵称，包括私聊、其他群", QLineEdit::Normal, oldLocalName.isEmpty() ? msg.username() : oldLocalName, &ok);
+                restoreHideTimer();
+                if (!ok || newName == oldLocalName)
+                    return ;
+
+                if (newName.isEmpty())
+                {
+                    if (hash->contains(hashId))
+                        hash->remove(hashId);
+                    emit sig->userLocalNameChanged(msg.senderId, msg.username());
+                }
+                else
+                {
+                    (*hash)[hashId] = newName;
+                    emit sig->userLocalNameChanged(msg.senderId, newName);
+                }
+
+                us->set(hashKey, *hash);
+            })->check(!oldLocalName.isEmpty());
 
             menu->addAction(QIcon("://icons/block.png"), "屏蔽此人", [=]{
                 // 本地屏蔽
@@ -1575,13 +1623,17 @@ void NotificationCard::cardMenu()
         {
             if (hash->contains(hashId))
                 hash->remove(hashId);
-            ui->nicknameLabel->setText(msgs.last().titleName());
+            newName = msgs.last().titleName();
         }
         else
         {
             (*hash)[hashId] = newName;
-            ui->nicknameLabel->setText(newName);
         }
+
+        if (isPrivate())
+            emit sig->userLocalNameChanged(hashId, newName);
+        else if (isGroup())
+            emit sig->groupLocalNameChanged(hashId, newName);
 
         us->set(hashKey, *hash);
     })->check(!oldLocalName.isEmpty());

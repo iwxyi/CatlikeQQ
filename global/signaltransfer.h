@@ -17,6 +17,8 @@ signals:
     void myHeader(const QPixmap& pixmap);
     void myFriendsLoaded();
     void myGroupsLoaded();
+    void userLocalNameChanged(qint64 id, QString newName);
+    void groupLocalNameChanged(qint64 id, QString newName);
 
     void sendSocketText(const QString& text);
     void sendSocketJson(const MyJson& json);

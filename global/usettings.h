@@ -140,7 +140,7 @@ public:
     QHash<qint64, QStringList> groupRemindWords; // 群组关键词提醒
 
     // 本地昵称
-    QHash<qint64, QString> userLocalNames;  // 用户本地昵称
+    QHash<qint64, QString> userLocalNames;  // 用户本地昵称：好友/群成员
     QHash<qint64, QString> groupLocalNames; // 群组本地昵称
 
     // 文件管理
