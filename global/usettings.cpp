@@ -86,6 +86,7 @@ void USettings::restoreSettings()
     assign(groupRemindWords, " ", "groupRemindWords");
     assign(smartFocus, "smartFocus");
     assign(dynamicImportance, "dynamicImportance");
+    assign(userBlocklist, "blocklist");
     endGroup();
 
     beginGroup("local");

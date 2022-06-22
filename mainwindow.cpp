@@ -893,6 +893,8 @@ int MainWindow::getMsgImportance(const MsgBean &msg, bool dynamic) const
     // 特别关心（叠加）
     int special = (us->userSpecial.contains(msg.senderId) ? 1 : 0)
             + (us->groupMemberSpecial.contains(msg.senderId) ? 1 : 0);
+    if (us->userBlocklist.contains(msg.senderId))
+        special = -1;
 
     // 判断消息级别开关
     int im = NormalImportant;
@@ -917,6 +919,9 @@ int MainWindow::getMsgImportance(const MsgBean &msg, bool dynamic) const
 
     // 特别关心（好友/群内）
     im += special;
+
+    if (special < 0)
+        im = BlockImportant;
 
     // 全局提醒词
     bool globalRemind = false;
@@ -977,7 +982,8 @@ int MainWindow::getMsgImportance(const MsgBean &msg, bool dynamic) const
             time = ac->mySendGroupTime.value(msg.groupId, 0);
             count = ac->receivedCountAfterMySentGroup.value(msg.groupId);
         }
-        if (time > 0) // 自己发送过消息
+
+        if (special >= 0 && time > 0) // 自己发送过消息
         {
             qint64 delta = (cur - time) / 1000; // 距离自己发消息后过了多少秒
             count--; // 因为自己发送的消息也在里面，所以要-1
@@ -1028,6 +1034,7 @@ int MainWindow::getMsgImportance(const MsgBean &msg, bool dynamic) const
             }
         }
     }
+
     return im;
 }
 

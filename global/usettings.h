@@ -20,6 +20,8 @@ enum Direction
     BottomToTop
 };
 
+#define BlockImportant -2
+#define BlockImportantText "屏蔽"
 #define Unimportant -1
 #define UnimportantText "不重要"
 #define NormalImportant 0
@@ -138,6 +140,7 @@ public:
     bool remindOverlay = true;                   // 提醒词（相同或者不同）效果叠加
     QStringList globalRemindWords;               // 全局关键词提醒
     QHash<qint64, QStringList> groupRemindWords; // 群组关键词提醒
+    QList<qint64> userBlocklist;                 // 用户黑名单，将不会提醒
 
     // 本地昵称
     QHash<qint64, QString> userLocalNames;  // 用户本地昵称：好友/群成员

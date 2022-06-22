@@ -969,11 +969,16 @@ void NotificationCard::connectUserHeader(QLabel* label, const MsgBean& msg)
                 us->set(hashKey, *hash);
             })->check(!oldLocalName.isEmpty());
 
-            menu->addAction(QIcon("://icons/block.png"), "屏蔽此人", [=]{
-                // 本地屏蔽
-            })->disable();
+            menu->addAction(QIcon("://icons/block.png"), "屏蔽通知", [=]{
+                if (us->userBlocklist.contains(msg.senderId))
+                    us->userBlocklist.removeOne(msg.senderId);
+                else
+                    us->userBlocklist.append(msg.senderId);
+                us->set("special/blocklist", us->userBlocklist);
+                qInfo() << "屏蔽用户数量：" << us->userBlocklist.size();
+            })->check(us->userBlocklist.contains(msg.senderId))
+                    ->tooltip("屏蔽该用户的通知弹窗\n若包含提醒词、@我、智能聚焦等，会适当进行通知");
         }
-
 
         menu->exec();
         menu->finished([=]{
