@@ -266,7 +266,7 @@ void MessageView::showMenu()
     });
 
     // 是自己发的消息
-    if (msg.senderId == ac->myId)
+    if (msg.senderId == ac->myId || (msg.isGroup() && ac->getGroupAdminLevel(msg.groupId, ac->myId) > ac->getGroupAdminLevel(msg.groupId, msg.senderId)))
     {
         menu->addAction(QIcon("://icons/undo.png"), "撤回", [=]{
             MyJson json;

@@ -201,7 +201,8 @@ void NotificationCard::setMsg(const MsgBean &msg)
 {
     this->friendId = msg.friendId;
     this->groupId = msg.groupId;
-    msgs.append(msg);
+    if (msg.isValid()) // msg 不一定有效，可能只是个空的
+        msgs.append(msg);
     int h = height();
 
     if (msg.isPrivate())
@@ -900,8 +901,27 @@ void NotificationCard::connectUserHeader(QLabel* label, const MsgBean& msg)
         FacileMenu* menu = new FacileMenu(this);
 
         menu->addAction(QIcon("://icons/character_data.png"), "查看资料", [=]{
-
         })->disable();
+
+        if (isGroup())
+        {
+            QString roleText, roleIcon;
+            if (ac->groupList.value(groupId).ownerId == msg.senderId)
+            {
+                roleText = "群主";
+                roleIcon = "group_owner";
+            }
+            else if (ac->groupList.value(groupId).adminIds.contains(msg.senderId))
+            {
+                roleText = "管理员";
+                roleIcon = "group_admin";
+            }
+            if (!roleText.isEmpty())
+            {
+                menu->addAction(QIcon("://icons/" + roleIcon + ".png"), roleText, [=]{
+                })->disable();
+            }
+        }
 
         menu->split()->addAction(QIcon("://icons/single_reply.png"), "发送消息", [=]{
             emit sig->openUserCard(msg.senderId, msg.displayNickname(), "");
@@ -995,21 +1015,19 @@ void NotificationCard::connectUserName(QLabel *label, const MsgBean& msg)
         suspendHide();
         FacileMenu* menu = new FacileMenu(this);
 
-        auto copyMenu = menu->addMenu(QIcon("://icons/copy_file"), "复制");
-
-        copyMenu->addAction(QIcon("://icons/nickname.png"), "昵称：" + msg.nickname, [=]{
+        menu->addAction(QIcon("://icons/nickname.png"), "昵称：" + msg.nickname, [=]{
             QApplication::clipboard()->setText(msg.nickname);
         });
 
-        copyMenu->addAction(QIcon("://icons/remark.png"), "备注：" + msg.remark, [=]{
+        menu->addAction(QIcon("://icons/remark.png"), "备注：" + msg.remark, [=]{
             QApplication::clipboard()->setText(msg.remark);
         })->disable(msg.remark.isEmpty());
 
-        copyMenu->addAction(QIcon("://icons/group_card.png"), "群昵称：" + msg.groupCard, [=]{
+        menu->addAction(QIcon("://icons/group_card.png"), "群昵称：" + msg.groupCard, [=]{
             QApplication::clipboard()->setText(msg.groupCard);
         })->disable(msg.groupCard.isEmpty())->hide(!msg.isGroup());
 
-        copyMenu->addAction(QIcon("://icons/qq_id.png"), "QQ号：" +snum(msg.senderId), [=]{
+        menu->addAction(QIcon("://icons/qq_id.png"), "QQ号：" +snum(msg.senderId), [=]{
             QApplication::clipboard()->setText(snum(msg.senderId));
         });
 
@@ -1701,9 +1719,16 @@ void NotificationCard::cardMenu()
             emit signalCloseAllCards();
     })->check(rt->notificationSlient)->tooltip("临时屏蔽所有消息\n重启后将恢复原来状态")->hide();
 
-    menu->addTitle(snum(msgs.last().displayId()), -1);
+    QString idText = snum(msgs.last().displayId());
+    if (isGroup() && ac->groupList.value(groupId).isAdmin)
+    {
+        bool isOwner = ac->groupList.value(groupId).ownerId == ac->myId;
+        const QString roleText = isOwner ? "群主" : "管理员";
+        idText += "  " + roleText;
+    }
+    menu->addTitle(idText, -1);
 
-    // 不一定显示的选项
+    // 动态显示的选项
     qint64 time = 0;
     int count = 0;
     if (isPrivate())
@@ -1986,7 +2011,17 @@ void NotificationCard::showEvent(QShowEvent *event)
 {
     QWidget::showEvent(event);
 
-    auto msg = msgs.last();
+    MsgBean msg;
+    if (msgs.size())
+    {
+        msg = msgs.last();
+    }
+    else // 显示了一个空卡片，等待操作
+    {
+        msg.friendId = this->friendId;
+        msg.groupId = this->groupId;
+    }
+    // 要一直显示的情况：保持显示/保持重要消息的显示
     if ((msg.isPrivate() && (us->bannerPrivateKeepShowing || (us->userImportance.contains(msg.senderId) && us->userImportance.value(msg.senderId) >= us->keepImportantMessage)))
             || (msg.isGroup() && (us->bannerGroupKeepShowing || (us->groupImportance.contains(msg.groupId) && us->groupImportance.value(msg.groupId) >= us->keepImportantMessage))))
     {
@@ -2188,9 +2223,8 @@ void NotificationCard::loadMsgHistoryByIndex(int historyStart, int historyEnd)
         return ;
     _loadingHistory = true;
 
-    Q_ASSERT(msgs.size());
     QList<MsgBean> *histories = getAllHistories();
-    if (!histories)
+    if (!histories) // 没有本地消息记录
         return ;
 
     int h = this->height();

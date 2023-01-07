@@ -6,6 +6,10 @@
 #include <QColor>
 #include "msgbean.h"
 
+#define GROUP_MEMBER 0
+#define GROUP_ADMIN 1
+#define GROUP_OWNER 2
+
 class AccountInfo
 {
 public:
@@ -74,6 +78,21 @@ public:
         if (!groupList.value(groupId).members.contains(userId))
             return "";
         return groupList.value(groupId).members.value(userId).username();
+    }
+
+    /// 获取管理员等级
+    /// 成员0，管理员1，群主2
+    int getGroupAdminLevel(qint64 groupId, qint64 userId)
+    {
+        if (!groupList.contains(groupId))
+            return GROUP_MEMBER;
+        if (!groupList.value(groupId).members.contains(userId))
+            return GROUP_MEMBER;
+        if (groupList.value(groupId).ownerId == userId)
+            return GROUP_OWNER;
+        if (groupList.value(groupId).adminIds.contains(userId))
+            return GROUP_ADMIN;
+        return GROUP_MEMBER;
     }
 
 };
