@@ -332,6 +332,7 @@ void MessageView::showMenu()
 #else
 #endif
 
+    // 显示消息时间
     QString timeFormat = "MM-dd hh:mm";
     if (QDateTime::currentDateTime().date().dayOfYear() == QDateTime::fromMSecsSinceEpoch(msg.timestamp).date().dayOfYear())
         timeFormat = "hh:mm:ss";

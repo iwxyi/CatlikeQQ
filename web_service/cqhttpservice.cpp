@@ -255,6 +255,7 @@ void CqhttpService::parseEchoMessage(const MyJson &json)
         }*/
 
         // 不是好友，则重新在这里收到消息
+        // 如果是好友，则会有回调
         if (!ac->friendList.contains(userId) || ac->friendList.value(userId).temp)
         {
             qint64 messageId = json.data().l("message_id");
@@ -272,7 +273,7 @@ void CqhttpService::parseEchoMessage(const MyJson &json)
             }
         }
     }
-    else if (echo.startsWith("msg_private_temp_detail"))
+    else if (echo.startsWith("msg_private_temp_detail")) // 获取非好友消息的信息
     {
         /*{
             "data": {
@@ -321,16 +322,33 @@ void CqhttpService::parseEchoMessage(const MyJson &json)
         if (!ac->groupList.contains(groupId))
             ac->groupList.insert(groupId, GroupInfo());
 
-        auto& members = ac->groupList[groupId].members;
-        members.clear();
+        auto& groupInfo = ac->groupList[groupId];
+        groupInfo.members.clear();
+        groupInfo.adminIds.clear();
         json.each("data", [&](MyJson member) {
             JL(member, user_id);
             JS(member, card);
             JS(member, nickname);
+            JS(member, role);
             QString name = card;
-            members[user_id] = FriendInfo(user_id, nickname, card);
+            groupInfo.members[user_id] = FriendInfo(user_id, nickname, card);
+            if (role == "owner")
+            {
+                groupInfo.ownerId = user_id;
+            }
+            else if (role == "admin")
+            {
+                groupInfo.adminIds.insert(user_id);
+            }
+            else if (role == "member")
+            {}
+            else
+            {
+                qWarning() << "位置的群成员身份：" << echo << role;
+            }
+            groupInfo.isAdmin = (groupInfo.ownerId == ac->myId || groupInfo.adminIds.contains(ac->myId));
         });
-        qInfo() << "加载群成员：" << groupId << members.size();
+        qInfo() << "加载群成员：" << groupId << groupInfo.members.size();
         emit sig->groupMembersLoaded(groupId);
         ac->gettingGroupMembers.remove(groupId);
     }

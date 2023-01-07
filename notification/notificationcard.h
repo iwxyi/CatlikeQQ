@@ -38,7 +38,7 @@ public:
     ~NotificationCard() override;
 
     void setShowPos(QPoint startPos, QPoint showPos);
-    void showFrom();
+    void showCard();
     void setColors(QColor bg, QColor title, QColor content);
     void setMsg(const MsgBean& msg);
     bool append(const MsgBean& msg);

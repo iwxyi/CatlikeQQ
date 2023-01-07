@@ -247,13 +247,6 @@ void NotificationCard::setMsg(const MsgBean &msg)
     int hDelta = this->height() - h;
     if (hDelta)
         emit signalHeightChanged(hDelta);
-
-    QTimer::singleShot(0, [=]{
-        if (msg.isGroup() && ac->groupList.value(msg.groupId).members.empty())
-        {
-            emit sig->loadGroupMembers(msg.groupId);
-        }
-    });
 }
 
 /**
@@ -410,6 +403,14 @@ void NotificationCard::setGroupMsg(const MsgBean &msg)
 {
     // 设置标题
     ui->nicknameLabel->setText(us->groupLocalNames.value(msg.groupId, msg.groupName));
+
+    // 如果没有信息，则先获取群消息
+    if (!ac->groupList.contains(msg.groupId) || ac->groupList.value(msg.groupId).members.empty())
+    {
+        QTimer::singleShot(0, this, [=]{
+            emit sig->loadGroupMembers(msg.groupId);
+        });
+    }
 
     // 设置头像
     // 群头像API：http://p.qlogo.cn/gh/群号/群号/100
@@ -1352,9 +1353,10 @@ void NotificationCard::setShowPos(QPoint startPos, QPoint showPos)
 }
 
 /**
+ * 显示卡片的入口方法
  * 从某一个点开始出现，直到完全展示出来
  */
-void NotificationCard::showFrom()
+void NotificationCard::showCard()
 {
     createFrostGlass();
     hidding = false;

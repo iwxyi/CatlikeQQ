@@ -1164,7 +1164,7 @@ NotificationCard* MainWindow::createNotificationCard(const MsgBean &msg, bool sh
         card->loadMsgHistoryByLocal();
         card->scrollToBottomE();
     }
-    card->showFrom();
+    card->showCard();
     return card;
 }
 

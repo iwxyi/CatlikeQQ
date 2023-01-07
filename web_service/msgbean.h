@@ -42,6 +42,10 @@ struct GroupInfo
     qint64 groupId;
     QString name;
     QHash<qint64, FriendInfo> members;
+    QSet<qint64> adminIds;
+    qint64 ownerId;
+    bool isAdmin = false;
+
     qint64 lastMsgTime = 0;
     bool temp = false;
     mutable QSet<qint64> atMember; // 智能聚焦：@群成员
