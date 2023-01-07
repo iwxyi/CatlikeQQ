@@ -23,6 +23,7 @@ void DevCodeRunner::runCode(const QString &_code, const MsgBean &msg)
     QRegularExpression re;
 
     // 最前面的标记 :-a全部执行
+    bool arg_executeAll = false; // 符合条件的代码行是全部执行还是只执行第一个
     if (code.startsWith(":"))
     {
         int pos = code.indexOf("\n");
@@ -33,6 +34,8 @@ void DevCodeRunner::runCode(const QString &_code, const MsgBean &msg)
 
         // 判断参数
         QStringList args = argLine.split(" ", QString::SkipEmptyParts);
+        if (args.contains("-a"))
+            arg_executeAll = true;
     }
 
     // 去掉注释
@@ -111,7 +114,7 @@ void DevCodeRunner::runCode(const QString &_code, const MsgBean &msg)
     {
         // 判断每一行，从上到下
         // 要么执行全部符合条件的，要么直到第一条能执行的
-        if (runConditionLine(lines[i], msg) && (!us->executeAllCodes || lines[i].contains(">break()")))
+        if (runConditionLine(lines[i], msg) && (!arg_executeAll || lines[i].contains(">break()")))
             return ;
     }
 }

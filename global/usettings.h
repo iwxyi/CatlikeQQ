@@ -198,7 +198,6 @@ public:
 
     // 可编程
     QHash<qint64, QString> devCode; // 执行代码
-    bool executeAllCodes = true;    // 符合条件的代码行是全部执行还是只执行第一个
 };
 
 extern USettings *us;
