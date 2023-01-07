@@ -521,7 +521,7 @@ void CqhttpService::parsePrivateMessage(const MyJson &json)
 
     if (user_id == ac->myId)
         rt->mySendCount--;
-
+    heaps->add("private_msg_count/" + snum(user_id));
     // 图片消息：文字1\r\n[CQ:image,file=8f84df65ee005b52f7f798697765a81b.image,url=http://c2cpicdw.qpic.cn/offpic_new/1600631528//1600631528-3839913603-8F84DF65EE005B52F7F798697765A81B/0?term=3]\r\n文字二……
 }
 
@@ -606,6 +606,8 @@ void CqhttpService::parseGroupMessage(const MyJson &json)
 
     if (user_id == ac->myId)
         rt->mySendCount--;
+    heaps->add("group_msg_count/" + snum(group_id));
+    heaps->add("group_member_msg_count/" + snum(group_id) + "_" + snum(user_id));
 }
 
 void CqhttpService::parseGetGroupMsgHistory(qint64 groupId, qint64 messageId, const QJsonArray &array)
@@ -1099,6 +1101,7 @@ void CqhttpService::recallMessage(qint64 userId, qint64 groupId, qint64 messageI
     else
         json.insert("echo", "msg_recall_group:" + snum(groupId) + "_" + snum(messageId));
     sendJsonMessage(json);
+    qInfo() << "尝试撤回消息：" << messageId;
 }
 
 void CqhttpService::setGroupBan(qint64 groupId, qint64 userId, qint64 duration)

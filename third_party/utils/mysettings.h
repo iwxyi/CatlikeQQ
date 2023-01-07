@@ -32,12 +32,12 @@ public:
         : QSettings(organization, application, parent)
     {}
 
-    void set(QString key, QVariant var)
+    void set(const QString& key, QVariant var)
     {
         QSettings::setValue(key, var);
     }
 
-    void set(QString key, QList<qint64> list)
+    void set(const QString& key, QList<qint64> list)
     {
         QStringList sl;
         foreach (auto i, list)
@@ -45,7 +45,7 @@ public:
         set(key, sl);
     }
 
-    void set(QString key, QHash<qint64, int> hash)
+    void set(const QString& key, QHash<qint64, int> hash)
     {
         QStringList sl;
         for (auto it = hash.begin(); it != hash.end(); it++)
@@ -53,7 +53,7 @@ public:
         set(key, sl);
     }
 
-    void set(QString key, QHash<qint64, QStringList> hash, QString split)
+    void set(const QString& key, QHash<qint64, QStringList> hash, QString split)
     {
         QStringList sl;
         for (auto it = hash.begin(); it != hash.end(); it++)
@@ -61,7 +61,7 @@ public:
         set(key, sl);
     }
 
-    void set(QString key, QHash<qint64, QString> hash)
+    void set(const QString& key, QHash<qint64, QString> hash)
     {
         QStringList sl;
         for (auto it = hash.begin(); it != hash.end(); it++)
@@ -69,32 +69,38 @@ public:
         set(key, sl);
     }
 
-    bool b(QString key, QVariant def = QVariant())
+    void add(const QString& key)
+    {
+        int val = QSettings::value(key).toInt();
+        QSettings::setValue(key, ++val);
+    }
+
+    bool b(const QString& key, QVariant def = QVariant())
     {
         return QSettings::value(key, def).toBool();
     }
 
-    QColor c(QString key, QVariant def = QVariant())
+    QColor c(const QString& key, QVariant def = QVariant())
     {
         return QSettings::value(key, def).toString();
     }
 
-    double d(QString key, QVariant def = QVariant())
+    double d(const QString& key, QVariant def = QVariant())
     {
         return QSettings::value(key, def).toDouble();
     }
 
-    int i(QString key, QVariant def = QVariant())
+    int i(const QString& key, QVariant def = QVariant())
     {
         return QSettings::value(key, def).toInt();
     }
 
-    qint64 l(QString key, QVariant def = QVariant())
+    qint64 l(const QString& key, QVariant def = QVariant())
     {
         return QSettings::value(key, def).toLongLong();
     }
 
-    QString s(QString key, QVariant def = QVariant())
+    QString s(const QString& key, QVariant def = QVariant())
     {
         return QSettings::value(key, def).toString();
     }

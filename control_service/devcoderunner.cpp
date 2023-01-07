@@ -22,6 +22,19 @@ void DevCodeRunner::runCode(const QString &_code, const MsgBean &msg)
     QRegularExpressionMatch match;
     QRegularExpression re;
 
+    // 最前面的标记 :-a全部执行
+    if (code.startsWith(":"))
+    {
+        int pos = code.indexOf("\n");
+        if (pos == -1)
+            pos = code.length();
+        QString argLine = code.left(pos);
+        code = code.right(code.length() - pos - 1);
+
+        // 判断参数
+        QStringList args = argLine.split(" ", QString::SkipEmptyParts);
+    }
+
     // 去掉注释
     re = QRegularExpression("(?<!:)//.*?(?=\\n|$|\\\\n)");
     code.replace(re, "");
@@ -79,14 +92,26 @@ void DevCodeRunner::runCode(const QString &_code, const MsgBean &msg)
             code.replace(_var, text); // 默认使用变量类型吧
             find = true;
         }
+
+        // 函数替换
+        /* re = QRegularExpression("%>(\\w+)\\s*\\(([^(%(\\{|\\[|>))]*?)\\)%");
+        matchPos = 0;
+        while ((matchPos = code.indexOf(re, matchPos, &match)) > -1)
+        {
+            QString rpls = replaceDynamicFunctions(match.captured(1), match.captured(2), msg);
+            code.replace(match.captured(0), rpls);
+            matchPos += rpls.length();
+            find = true;
+        } */
     }
 
     // 分割行，获取每一行代码
     QStringList lines = code.split("\n", QString::SkipEmptyParts);
     for (int i = 0; i < lines.size(); i++)
     {
-        // 判断每一行，从上到下，直到第一条能执行的
-        if (runConditionLine(lines[i], msg))
+        // 判断每一行，从上到下
+        // 要么执行全部符合条件的，要么直到第一条能执行的
+        if (runConditionLine(lines[i], msg) && (!us->executeAllCodes || lines[i].contains(">break()")))
             return ;
     }
 }
@@ -100,6 +125,8 @@ QString DevCodeRunner::replaceVariants(const QString &key, const MsgBean& msg, b
 
     switch (shash_(key))
     {
+    case "%is_me%"_shash:
+        return ac->myId == msg.senderId ? "1" : "0";
     case "%message%"_shash:
         return toSingleLine(msg.message);
     case "%message_line%"_shash:
@@ -154,12 +181,62 @@ QString DevCodeRunner::replaceVariants(const QString &key, const MsgBean& msg, b
         return snum(ac->myId);
     case "%my_nickname%"_shash:
         return ac->myNickname;
-    case "%send_msg_count%"_shash: // 发送总数量
-        return "0";
-    case "%repeat_msg_count%"_shash: // 连续重复消息数量
-        return "0";
-    case "%brush_msg_count%"_shash: // 连续消息数量
-        return "0";
+    case "%send_msg_count%"_shash: // 用户发送总数量
+    case "%msg_count%"_shash:
+        if (msg.isPrivate())
+            return snum(heaps->i("private_msg_count/" + snum(msg.senderId)));
+        else if (msg.isGroup())
+            return snum(heaps->i("group_member_msg_count/" + snum(msg.groupId) + "_" + snum(msg.senderId)));
+        else
+            return "0";
+    case "%repeat_msg_count%"_shash: // 该用户上面连续重复消息数量，包括这一次
+    case "%repeat%"_shash:
+    {
+        QList<MsgBean>* pList = nullptr;
+        if (msg.isPrivate())
+        {
+            pList = &ac->userMsgHistory[msg.senderId];
+        }
+        else if (msg.isGroup())
+        {
+            pList = &ac->groupMsgHistory[msg.groupId];
+        }
+        else
+            return "0";
+        int count = 0;
+        for (int i = pList->size() - 1; i >= 0; i--)
+        {
+            if (pList->at(i).senderId != msg.senderId || pList->at(i).message != msg.message)
+                break;
+            else
+                count++;
+        }
+        return snum(count);
+    }
+    case "%brush_msg_count%"_shash: // 该用户本次连续消息数量，包括这一次
+    case "%brush%"_shash:
+    {
+        QList<MsgBean>* pList = nullptr;
+        if (msg.isPrivate())
+        {
+            pList = &ac->userMsgHistory[msg.senderId];
+        }
+        else if (msg.isGroup())
+        {
+            pList = &ac->groupMsgHistory[msg.groupId];
+        }
+        else
+            return "0";
+        int count = 0;
+        for (int i = pList->size() - 1; i >= 0; i--)
+        {
+            if (pList->at(i).senderId != msg.senderId)
+                break;
+            else
+                count++;
+        }
+        return snum(count);
+    }
 
     default:
         *ok = false;
@@ -171,11 +248,17 @@ QString DevCodeRunner::replaceVariants(const QString &key, const MsgBean& msg, b
  * 执行带有先行条件的命令
  * 从上往下的优先级来执行
  */
-bool DevCodeRunner::runConditionLine(const QString &line, const MsgBean& msg)
+bool DevCodeRunner::runConditionLine(const QString &_line, const MsgBean& msg)
 {
+    QString line = _line;
     QRegularExpressionMatch match;
     auto canMatch = [&](const QString& re) -> bool {
         return line.contains(QRegularExpression(re), &match);
+    };
+    auto hasCondition = [&]() -> bool { // 带有条件的判断：[condition]操作
+        return canMatch("^\\s*\\[\\[\\[(.*)\\]\\]\\]\\s*(.+)")
+                         || canMatch("^\\s*\\[\\[(.*)\\]\\]\\s*(.+)")
+                         || canMatch("^\\s*\\[(.*)\\]\\s*(.+)");
     };
     if (canMatch("^\\[.*\\]$"))
     {
@@ -186,29 +269,42 @@ bool DevCodeRunner::runConditionLine(const QString &line, const MsgBean& msg)
         // 表达式 -> 回复的消息
         const QString& re = match.captured(1);
         const QString& code = match.captured(2);
-        if (!msg.message.contains(QRegularExpression(re)))
+        if (!msg.message.contains(QRegularExpression(re))) // 字符包含情况
             return false;
-        qInfo() << "发送内容：" << code;
+        qInfo() << "文字条件执行：" << code;
         if (code.contains(QRegularExpression(re)))
         {
             qWarning() << "已阻止重复风险的消息：" << re << "匹配" << code;
             return true;
         }
-        executeMultiOperation(code, msg);
+
+        line = code;
+        if (hasCondition()) // 正则 => [条件] 操作
+        {
+            qDebug() << "跳转到条件1" << match.capturedTexts();
+            goto CONTAINS_CONDITION_CODE;
+        }
+        else // 正则 => 操作
+        {
+            executeMultiOperation(code, msg);
+        }
         return true;
     }
-    else if (canMatch("^\\s*\\[\\[\\[(.*)\\]\\]\\]\\s*(.+)") // 带有条件的判断：[condition]操作
-             || canMatch("^\\s*\\[\\[(.*)\\]\\]\\s*(.+)")
-             || canMatch("^\\s*\\[(.*)\\]\\s*(.+)"))
+    else if (hasCondition())
     {
+CONTAINS_CONDITION_CODE:
         // [条件1,条件2,...] 回复的消息
         const QString& conditionStr = match.captured(1);
         const QString& content = match.captured(2);
         if (!ConditionUtil::judgeCondition(conditionStr))
             return false;
-        qInfo() << "发送内容：" << content;
+        qInfo() << "符合条件执行：" << content;
         executeMultiOperation(content, msg);
         return true;
+    }
+    else
+    {
+        qWarning() << "无法执行的代码";
     }
     return false;
 }
@@ -324,16 +420,50 @@ bool DevCodeRunner::executeFunc(const QString &func, const QString &args, const 
             return false;
     }
 
-    // 撤销用户自程序启动以来所有消息（不包括云端历史）
+    // 撤销该用户自程序启动以来所有消息（不包括云端历史）
     else if (func == "recallMessage_UserAll")
     {
-
+        QList<MsgBean>* pList = nullptr;
+        if (msg.isPrivate())
+        {
+            pList = &ac->userMsgHistory[msg.senderId];
+        }
+        else if (msg.isGroup())
+        {
+            pList = &ac->groupMsgHistory[msg.groupId];
+        }
+        else
+            return false;
+        for (int i = pList->size() - 1; i >= 0; i--)
+        {
+            if (pList->at(i).senderId == msg.senderId)
+            {
+                emit sig->recallMessage(msg.senderId, msg.groupId, pList->at(i).messageId);
+            }
+        }
     }
 
-    // 撤销该消息上下所有连续的该用户消息
+    // 撤销该消息及上面所有连续的该用户消息
     else if (func == "recallMessage_UserNear")
     {
-
+        QList<MsgBean>* pList = nullptr;
+        if (msg.isPrivate())
+        {
+            pList = &ac->userMsgHistory[msg.senderId];
+        }
+        else if (msg.isGroup())
+        {
+            pList = &ac->groupMsgHistory[msg.groupId];
+        }
+        else
+            return false;
+        for (int i = pList->size() - 1; i >= 0; i--)
+        {
+            if (pList->at(i).senderId != msg.senderId || pList->at(i).message != msg.message)
+                break;
+            else
+                emit sig->recallMessage(msg.senderId, msg.groupId, pList->at(i).messageId);
+        }
     }
 
     else if (func == "setGroupBan" || func == "banUser")
@@ -341,26 +471,43 @@ bool DevCodeRunner::executeFunc(const QString &func, const QString &args, const 
         if (!parseArgs("^(\\d+)\\s*(.*?)$"))
             return false;
         qint64 val = match.captured(1).toLongLong();
-        QString unit = match.captured(2);
         qint64 duration = val;
+        QString unit = match.captured(2);
+        if (unit.length() >= 2)
+            unit = unit.toLower();
+        if (unit.length() > 2 && unit.endsWith("s"))
+            unit = unit.left(unit.length() - 1);
         if (unit == "") // 默认是分钟
             duration = val * 60;
-        else if (unit == "ms" || unit == "毫秒")
+        else if (unit == "ms" || unit == "msecond" || unit == "millisecond" || unit == "毫秒")
             duration /= 1000;
-        else if (unit == "s" || unit == "秒")
+        else if (unit == "s" || unit == "second" || unit == "秒")
             duration = val;
-        else if (unit == "m" || unit == "分" || unit == "分钟")
+        else if (unit == "m" || unit == "minute" || unit == "分" || unit == "分钟")
             duration = val * 60;
-        else if (unit == "h" || unit == "时" || unit == "小时")
+        else if (unit == "h" || unit == "hour" || unit == "时" || unit == "小时")
             duration = val * 60 * 60;
-        else if (unit == "d" || unit == "天")
+        else if (unit == "d" || unit == "day" || unit == "天")
             duration = val * 60 * 60 * 24;
-        else if (unit == "w" || unit == "周" || unit == "星期")
+        else if (unit == "w" || unit == "week" || unit == "weekend" || unit == "周" || unit == "星期")
             duration = val * 60 * 60 * 24;
-        else if (unit == "M" || unit == "月")
+        else if (unit == "M" || unit == "month" || unit == "月")
             duration = val * 60 * 60 * 24 * 30;
 
         emit sig->setGroupBan(msg.groupId, msg.senderId, duration);
+    }
+
+    else if (func == "log")
+    {
+        if (!parseArgs("^(.+?)$"))
+            return false;
+
+        qInfo() << match.captured(1);
+    }
+
+    else if (func == "break" || func == "continue")
+    {
+        // 这里什么都不操作，只是标记
     }
 
     else

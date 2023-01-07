@@ -1698,6 +1698,7 @@ void NotificationCard::cardMenu()
         {
             us->devCode[keyId()] = code;
             us->set("dev/code", us->devCode);
+            qInfo() << "保存代码";
         }
     });
 
