@@ -1434,10 +1434,13 @@ void NotificationCard::toHide()
     ani->setEndValue(hidePoint);
     ani->setEasingCurve(QEasingCurve::Type(us->bannerShowEasingCurve));
     ani->setDuration(us->bannerAnimationDuration);
-    connect(ani, &QPropertyAnimation::finished, this, [=]{
-        emit signalHided();
-        ani->deleteLater();
-        this->deleteLater();
+    connect(ani, &QPropertyAnimation::stateChanged, this, [=](QAbstractAnimation::State newState, QAbstractAnimation::State oldState){
+        if (newState != QAbstractAnimation::Running)
+        {
+            emit signalHided();
+            ani->deleteLater();
+            this->deleteLater();
+        }
     });
     ani->start();
 }
