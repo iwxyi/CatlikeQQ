@@ -20,9 +20,11 @@ protected:
 
     bool runConditionLine(const QString& line, const MsgBean &msg);
 
+    void executeMultiOperation(const QString& lineSeq, const MsgBean &msg);
+
     void sendLine(const QString& line, const MsgBean &msg);
 
-    bool executeFunc(const QString& func, const QString& args);
+    bool executeFunc(const QString& func, const QString& args, const MsgBean &msg);
 
     QString toSingleLine(QString text) const;
     QString toMultiLine(QString text) const;

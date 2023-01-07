@@ -265,23 +265,33 @@ void MessageView::showMenu()
         emit replyText(text);
     });
 
-    // 是自己发的消息
+    // 管理员权限的操作
     if (msg.senderId == ac->myId || (msg.isGroup() && ac->getGroupAdminLevel(msg.groupId, ac->myId) > ac->getGroupAdminLevel(msg.groupId, msg.senderId)))
     {
         menu->addAction(QIcon("://icons/undo.png"), "撤回", [=]{
-            MyJson json;
-            json.insert("action", "delete_msg");
-            MyJson params;
-            params.insert("message_id", msg.messageId);
-            json.insert("params", params);
-            if (msg.isPrivate())
-                json.insert("echo", "msg_recall_private:" + snum(msg.friendId) + "_" + snum(msg.messageId));
-            else if (msg.isGroup())
-                json.insert("echo", "msg_recall_group:" + snum(msg.groupId) + "_" + snum(msg.messageId));
-            else
-                return ;
-            emit sig->sendSocketText(json.toBa());
+            emit sig->recallMessage(msg.friendId, msg.groupId, msg.messageId);
         });
+
+        auto banMenu = menu->addMenu(QIcon("://icons/group_ban.png"), "禁言");
+        banMenu->addAction("10分钟", [=]{
+            emit sig->setGroupBan(msg.groupId, msg.senderId, 10 * 60);
+        });
+
+        banMenu->addAction("1小时", [=]{
+            emit sig->setGroupBan(msg.groupId, msg.senderId, 60 * 60);
+        });
+
+        banMenu->addAction("1天", [=]{
+            emit sig->setGroupBan(msg.groupId, msg.senderId, 24* 60 * 60);
+        });
+
+        banMenu->addAction("30天", [=]{
+            emit sig->setGroupBan(msg.groupId, msg.senderId, 30 * 24* 60 * 60ll);
+        });
+
+        banMenu->split()->addAction("解除禁言", [=]{
+            emit sig->setGroupBan(msg.groupId, msg.senderId, 0);
+        })->disable();
     }
 
     if (msg.isGroup())

@@ -1719,7 +1719,11 @@ void NotificationCard::cardMenu()
             emit signalCloseAllCards();
     })->check(rt->notificationSlient)->tooltip("临时屏蔽所有消息\n重启后将恢复原来状态")->hide();
 
-    QString idText = snum(msgs.last().displayId());
+    QString idText;
+    if (msgs.size())
+        idText = snum(msgs.last().displayId());
+    else
+        idText = groupId ? snum(groupId) : snum(friendId);
     if (isGroup() && ac->groupList.value(groupId).isAdmin)
     {
         bool isOwner = ac->groupList.value(groupId).ownerId == ac->myId;

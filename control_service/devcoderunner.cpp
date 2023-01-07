@@ -83,10 +83,9 @@ void DevCodeRunner::runCode(const QString &_code, const MsgBean &msg)
 
     // 分割行，获取每一行代码
     QStringList lines = code.split("\n", QString::SkipEmptyParts);
-
     for (int i = 0; i < lines.size(); i++)
     {
-        // 判断每一行
+        // 判断每一行，从上到下，直到第一条能执行的
         if (runConditionLine(lines[i], msg))
             return ;
     }
@@ -151,11 +150,16 @@ QString DevCodeRunner::replaceVariants(const QString &key, const MsgBean& msg, b
         return snum(msg.keyId());
     case "%time%"_shash:
         return QDateTime::fromMSecsSinceEpoch(msg.timestamp).toString("yyyy-MM-dd hh:mm:ss");
-
     case "%my_id%"_shash:
         return snum(ac->myId);
     case "%my_nickname%"_shash:
         return ac->myNickname;
+    case "%send_msg_count%"_shash: // 发送总数量
+        return "0";
+    case "%repeat_msg_count%"_shash: // 连续重复消息数量
+        return "0";
+    case "%brush_msg_count%"_shash: // 连续消息数量
+        return "0";
 
     default:
         *ok = false;
@@ -177,7 +181,7 @@ bool DevCodeRunner::runConditionLine(const QString &line, const MsgBean& msg)
     {
         // 事件判断，目前忽略
     }
-    else if (canMatch("^\\s*(.*?)\\s*(?:-->|=>)\\s*(.*)\\s*$"))
+    else if (canMatch("^\\s*(.*?)\\s*(?:-->|=>)\\s*(.*)\\s*$")) // 简略消息：正则 => 操作
     {
         // 表达式 -> 回复的消息
         const QString& re = match.captured(1);
@@ -190,10 +194,10 @@ bool DevCodeRunner::runConditionLine(const QString &line, const MsgBean& msg)
             qWarning() << "已阻止重复风险的消息：" << re << "匹配" << code;
             return true;
         }
-        sendLine(code, msg);
+        executeMultiOperation(code, msg);
         return true;
     }
-    else if (canMatch("^\\s*\\[\\[\\[(.*)\\]\\]\\]\\s*(.+)")
+    else if (canMatch("^\\s*\\[\\[\\[(.*)\\]\\]\\]\\s*(.+)") // 带有条件的判断：[condition]操作
              || canMatch("^\\s*\\[\\[(.*)\\]\\]\\s*(.+)")
              || canMatch("^\\s*\\[(.*)\\]\\s*(.+)"))
     {
@@ -203,12 +207,21 @@ bool DevCodeRunner::runConditionLine(const QString &line, const MsgBean& msg)
         if (!ConditionUtil::judgeCondition(conditionStr))
             return false;
         qInfo() << "发送内容：" << content;
-        QStringList codes = content.split("\\n");
-        for (auto code: codes)
-            sendLine(code, msg);
+        executeMultiOperation(content, msg);
         return true;
     }
     return false;
+}
+
+/**
+ * 执行多行的代码命令
+ * 按顺序依次执行
+ */
+void DevCodeRunner::executeMultiOperation(const QString &lineSeq, const MsgBean &msg)
+{
+    QStringList codes = lineSeq.split("\\n");
+    for (auto code: codes)
+        sendLine(code, msg);
 }
 
 /**
@@ -222,7 +235,7 @@ void DevCodeRunner::sendLine(const QString &line, const MsgBean& msg)
         // 执行命令
         const QString& func = match.captured(1);
         const QString& args = match.captured(2);
-        if (!executeFunc(func, args))
+        if (!executeFunc(func, args, msg))
             qWarning() << "无法解析的命令：" << func << args;
     }
     else
@@ -243,7 +256,7 @@ void DevCodeRunner::sendLine(const QString &line, const MsgBean& msg)
  * @param args 参数字符串
  * @param msg  消息对象
  */
-bool DevCodeRunner::executeFunc(const QString &func, const QString &args)
+bool DevCodeRunner::executeFunc(const QString &func, const QString &args, const MsgBean& msg)
 {
     qInfo() << "执行代码：" << func << args;
     QRegularExpressionMatch match;
@@ -259,7 +272,7 @@ bool DevCodeRunner::executeFunc(const QString &func, const QString &args)
 
     else if (func == "postData")
     {
-        if (!parseArgs("^(.+)\\s*,\\s*(.*)$"))
+        if (!parseArgs("^(.+?)\\s*,\\s*(.*)$"))
             return false;
         const QString& url = match.captured(1);
         const QString& data = match.captured(2);
@@ -269,7 +282,7 @@ bool DevCodeRunner::executeFunc(const QString &func, const QString &args)
 
     else if (func == "postJson")
     {
-        if (!parseArgs("^(.+)\\s*,\\s*(.*)$"))
+        if (!parseArgs("^(.+?)\\s*,\\s*(.*)$"))
             return false;
         const QString& url = match.captured(1);
         const QString& data = match.captured(2);
@@ -286,6 +299,68 @@ bool DevCodeRunner::executeFunc(const QString &func, const QString &args)
         const QString& val = match.captured(2);
         heaps->setValue(key, val);
         qInfo() << "set value:" << key << "=" << val;
+    }
+
+    else if (func == "sendCqWs")
+    {
+        if (!parseArgs("^(.*)$"))
+            return false;
+        const QString& text = match.captured(1);
+        emit sig->sendSocketText(text);
+    }
+
+    else if (func == "recallMessage" || func == "recallGroupMessage")
+    {
+        if (parseArgs("^(\\s*)$"))
+        {
+            emit sig->recallMessage(msg.senderId, msg.groupId, msg.messageId);
+        }
+        else if (parseArgs("^(\\d+)$"))
+        {
+            qint64 messageId = match.captured(1).toLongLong();
+            emit sig->recallMessage(msg.senderId, msg.groupId, messageId);
+        }
+        else
+            return false;
+    }
+
+    // 撤销用户自程序启动以来所有消息（不包括云端历史）
+    else if (func == "recallMessage_UserAll")
+    {
+
+    }
+
+    // 撤销该消息上下所有连续的该用户消息
+    else if (func == "recallMessage_UserNear")
+    {
+
+    }
+
+    else if (func == "setGroupBan" || func == "banUser")
+    {
+        if (!parseArgs("^(\\d+)\\s*(.*?)$"))
+            return false;
+        qint64 val = match.captured(1).toLongLong();
+        QString unit = match.captured(2);
+        qint64 duration = val;
+        if (unit == "") // 默认是分钟
+            duration = val * 60;
+        else if (unit == "ms" || unit == "毫秒")
+            duration /= 1000;
+        else if (unit == "s" || unit == "秒")
+            duration = val;
+        else if (unit == "m" || unit == "分" || unit == "分钟")
+            duration = val * 60;
+        else if (unit == "h" || unit == "时" || unit == "小时")
+            duration = val * 60 * 60;
+        else if (unit == "d" || unit == "天")
+            duration = val * 60 * 60 * 24;
+        else if (unit == "w" || unit == "周" || unit == "星期")
+            duration = val * 60 * 60 * 24;
+        else if (unit == "M" || unit == "月")
+            duration = val * 60 * 60 * 24 * 30;
+
+        emit sig->setGroupBan(msg.groupId, msg.senderId, duration);
     }
 
     else

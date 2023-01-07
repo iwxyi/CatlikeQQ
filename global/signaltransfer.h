@@ -22,12 +22,15 @@ signals:
 
     void sendSocketText(const QString& text);
     void sendSocketJson(const MyJson& json);
+
     void loadGroupMembers(qint64 groupId);
     void groupMembersLoaded(qint64 groupId);
 
     void setReplyKey(QString key);
     void myReplyUser(qint64 userId, const QString& message, qint64 fromGroupId);
     void myReplyGroup(qint64 groupId, const QString& message);
+    void recallMessage(qint64 friendId, qint64 groupId, qint64 messageId);
+    void setGroupBan(qint64 groupId, qint64 userId, qint64 duration);
 
     void openUserCard(qint64 userId, const QString& username, const QString& text);
     void openGroupCard(qint64 groupId, const QString& text);

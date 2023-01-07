@@ -37,6 +37,9 @@ public slots:
     void sendPrivateMsg(qint64 userId, const QString &message, qint64 fromGroupId);
     void sendGroupMsg(qint64 groupId, const QString &message);
     void getGroupMsgHistory(qint64 groupId, qint64 messageId, qint64 realId = 0);
+    void recallMessage(qint64 userId, qint64 groupId, qint64 messageId);
+    void setGroupBan(qint64 groupId, qint64 userId, qint64 duration);
+    void removeGroupUser(qint64 groupId, qint64 userId);
 
 private:
     void parseEchoMessage(const MyJson& json);
@@ -49,9 +52,11 @@ private:
     void parseFriendRecall(const MyJson& json);
     void parseGroupRecall(const MyJson& json);
     void parseGroupIncrease(const MyJson& json);
+    void parseGroupDecrease(const MyJson& json);
     void parseGroupCard(const MyJson& json);
     void parseGroupBan(const MyJson& json);
     void parseGetGroupMsgHistory(qint64 groupId, qint64 messageId, const QJsonArray &array);
+    void parseGroupRequest(const MyJson& json);
 
     void ensureFriendExist(FriendInfo user);
     void ensureGroupExist(GroupInfo group);

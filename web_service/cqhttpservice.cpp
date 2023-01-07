@@ -17,8 +17,6 @@
 CqhttpService::CqhttpService(QObject *parent) : QObject(parent)
 {
     initWS();
-
-    connect(sig, SIGNAL(hostChanged(QString, QString)), this, SLOT(openHost(QString, QString)));
 }
 
 bool CqhttpService::isConnected() const
@@ -152,6 +150,10 @@ void CqhttpService::messageReceived(const QString &message)
         {
             parseGroupIncrease(json);
         }
+        else if (notice_type == "group_decrease") // 群成员退出
+        {
+            parseGroupDecrease(json);
+        }
         else if (notice_type == "group_recall") // 撤销群消息
         {
             parseGroupRecall(json);
@@ -171,6 +173,18 @@ void CqhttpService::messageReceived(const QString &message)
         else
         {
             qWarning() << "未处理类型的通知：" << json;
+        }
+    }
+    else if (post_type == "request")
+    {
+        JS(json, request_type);
+        if (request_type == "group")
+        {
+            parseGroupRequest(json);
+        }
+        else
+        {
+            qWarning() << "未处理类型的请求" << json;
         }
     }
     else if (post_type == "message_sent") // 自己发送的
@@ -410,6 +424,20 @@ void CqhttpService::parseEchoMessage(const MyJson &json)
         JA(data, messages);
         // qDebug() << "get_group_msg_history" << messages.size();
         parseGetGroupMsgHistory(groupId, messageId, messages);
+    }
+    else if (echo.startsWith("set_group_ban"))
+    {
+        QRegularExpression re("^set_group_ban:(\\d+)_(\\d+)_(\\d+)$");
+        QRegularExpressionMatch match;
+        if (echo.indexOf(re, 0, &match) == -1)
+        {
+            qWarning() << "无法识别的获取群消息历史echo：" << echo;
+            return ;
+        }
+        qint64 groupId = match.captured(1).toLongLong();
+        qint64 userId = match.captured(2).toLongLong();
+        qint64 duration = match.captured(3).toLongLong();
+        qInfo() << "禁言群成员：" << groupId << ac->groupName(groupId) << userId << ac->groupMemberName(groupId, userId) << duration << "秒";
     }
     else
     {
@@ -658,6 +686,30 @@ void CqhttpService::parseGetGroupMsgHistory(qint64 groupId, qint64 messageId, co
     ac->gettingGroupMsgHistories.remove(groupId);
 }
 
+void CqhttpService::parseGroupRequest(const MyJson &json)
+{
+    /*{
+        "comment": "",
+        "flag": "1673070986428258",
+        "group_id": 1170287024,
+        "post_type": "request",
+        "request_type": "group",
+        "self_id": 1600631528,
+        "sub_type": "add",
+        "time": 1673070986,
+        "user_id": 2718795332
+    }*/
+
+    JS(json, sub_type);
+    JL(json, group_id); // QQ群号
+    JL(json, user_id); // 发送者QQ号
+
+    if (sub_type == "add")
+    {
+        qInfo() << "申请入群消息：" << group_id << ac->groupList.value(group_id).name << user_id;
+    }
+}
+
 void CqhttpService::parseGroupUpload(const MyJson &json)
 {
     JL(json, group_id); // QQ群号
@@ -841,6 +893,35 @@ void CqhttpService::parseGroupIncrease(const MyJson &json)
         JL(json, user_id);
 
         qInfo() << "用户加入群组" << group_id << ac->groupList.value(group_id).name << " --> " << user_id;
+        refreshGroupMembers(group_id);
+    }
+    else
+    {
+        qWarning() << "未处理类型的数据" << json;
+    }
+}
+
+void CqhttpService::parseGroupDecrease(const MyJson &json)
+{
+    /* {
+        "group_id": 1170287024,
+        "notice_type": "group_decrease",
+        "operator_id": 3218604719,
+        "post_type": "notice",
+        "self_id": 1600631528,
+        "sub_type": "leave",
+        "time": 1673074779,
+        "user_id": 3218604719
+    } */
+
+    JS(json, sub_type);
+    if (sub_type == "leave")
+    {
+        JL(json, group_id);
+        JL(json, user_id);
+
+        qInfo() << "用户离开群组" << group_id << ac->groupList.value(group_id).name << " --> " << user_id;
+        refreshGroupMembers(group_id);
     }
     else
     {
@@ -1003,5 +1084,44 @@ void CqhttpService::getGroupMsgHistory(qint64 groupId, qint64 messageId, qint64 
         json.insert("params", params);
         json.insert("echo", "get_group_msg_history:" + snum(groupId) + "_" + snum(messageId));
     }
-    sendTextMessage(json.toBa());
+    sendJsonMessage(json);
+}
+
+void CqhttpService::recallMessage(qint64 userId, qint64 groupId, qint64 messageId)
+{
+    MyJson json;
+    json.insert("action", "delete_msg");
+    MyJson params;
+    params.insert("message_id", messageId);
+    json.insert("params", params);
+    if (!groupId)
+        json.insert("echo", "msg_recall_private:" + snum(userId) + "_" + snum(messageId));
+    else
+        json.insert("echo", "msg_recall_group:" + snum(groupId) + "_" + snum(messageId));
+    sendJsonMessage(json);
+}
+
+void CqhttpService::setGroupBan(qint64 groupId, qint64 userId, qint64 duration)
+{
+    if (duration > 0) // 禁言
+    {
+        MyJson json;
+        json.insert("action", "set_group_ban");
+        MyJson params;
+        params.insert("group_id", groupId);
+        params.insert("user_id", userId);
+        params.insert("duration", duration);
+        json.insert("params", params);
+        json.insert("echo", "set_group_ban:" + snum(groupId) + "_" + snum(userId) + "_" + snum(duration));
+        sendJsonMessage(json);
+    }
+    else // 解除禁言
+    {
+
+    }
+}
+
+void CqhttpService::removeGroupUser(qint64 groupId, qint64 userId)
+{
+
 }

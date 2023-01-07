@@ -534,11 +534,17 @@ void MainWindow::initService()
 
     connect(cqhttpService, SIGNAL(signalMessage(const MsgBean&)), this, SLOT(autoReplyMessage(const MsgBean&)));
 
+    connect(sig, SIGNAL(hostChanged(QString, QString)), cqhttpService, SLOT(openHost(QString, QString)));
+
     connect(sig, &SignalTransfer::sendSocketText, cqhttpService, &CqhttpService::sendTextMessage);
 
     connect(sig, &SignalTransfer::sendSocketJson, cqhttpService, &CqhttpService::sendJsonMessage);
 
     connect(sig, &SignalTransfer::loadGroupMembers, cqhttpService, &CqhttpService::refreshGroupMembers);
+
+    connect(sig, &SignalTransfer::recallMessage, cqhttpService, &CqhttpService::recallMessage);
+
+    connect(sig, &SignalTransfer::setGroupBan, cqhttpService, &CqhttpService::setGroupBan);
 
     connect(sig, SIGNAL(getGroupMsgHistory(qint64, qint64)), cqhttpService, SLOT(getGroupMsgHistory(qint64, qint64)));
 
