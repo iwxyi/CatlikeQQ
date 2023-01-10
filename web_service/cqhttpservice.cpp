@@ -97,12 +97,16 @@ void CqhttpService::openHost(QString host, QString token)
 
 void CqhttpService::sendTextMessage(const QString &text)
 {
-    socket->sendTextMessage(text);
+    QTimer::singleShot(0, this, [=]{
+        socket->sendTextMessage(text);
+    });
 }
 
 void CqhttpService::sendJsonMessage(const MyJson &json)
 {
-    socket->sendTextMessage(json.toBa());
+    QTimer::singleShot(0, this, [=]{
+        socket->sendTextMessage(json.toBa());
+    });
 }
 
 /// 收到消息的根入口
