@@ -45,6 +45,7 @@ signals:
     void focusMessage(const qint64 messageId);
     void heightChanged();
     void connectNewMessageView(MessageView* view);
+    void signalOpenOut();
 
 public slots:
     void replaceGroupAt();

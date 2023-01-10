@@ -45,6 +45,7 @@ MessageView::MessageView(QWidget *parent)
         else
         {
             // 打开网页
+            emit signalOpenOut();
             QDesktopServices::openUrl(QUrl(link));
         }
     });

@@ -649,6 +649,7 @@ void MessageView::setMessage(const MsgBean& msg, int recursion)
 
             vw->setCursor(Qt::PointingHandCursor);
             connect(vw, &ClickLabel::leftClicked, this, [=]{
+                emit signalOpenOut();
                 QDesktopServices::openUrl(QUrl(path));
             });
 

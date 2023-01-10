@@ -100,6 +100,8 @@ public slots:
 private slots:
     void mouseEnter();
     void mouseLeave();
+    void allowLeaveOnce();
+    void continueDisplayTimeout();
     void displayTimeout();
     void focusIn();
     void focusOut();
@@ -152,9 +154,11 @@ private:
     QTimer* displayTimer;
     bool focusing = false;
     bool hidding = false;
+    bool hovering = false;
     bool fastFocus = false;
     bool fixing = false; // 固定不自动隐藏
     bool _loadingHistory = false;
+    bool onceLeave = false; // 允许离开一次（如点击打开图片）
     FacileMenu* currentMenu = nullptr;
     int _blockingHide = 0;
     AccountInfo::CardColor cardColor;

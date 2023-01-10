@@ -866,6 +866,10 @@ void NotificationCard::connectMsgViewEvent(MessageView *view)
     connect(view, &MessageView::connectNewMessageView, this, [=](MessageView* view){
         connectMsgViewEvent(view);
     });
+
+    connect(view, &MessageView::signalOpenOut, this, [=]{
+        allowLeaveOnce();
+    });
 }
 
 /// 连接群组头像事件
@@ -1077,6 +1081,10 @@ qint64 NotificationCard::keyId() const
 {
     if (msgs.size())
         return msgs.last().keyId();
+    if (groupId)
+        return groupId;
+    if (friendId)
+        return friendId;
     return 0;
 }
 
@@ -1097,8 +1105,15 @@ int NotificationCard::getImportance() const
     return NormalImportant;
 }
 
+/**
+ * 鼠标移入卡片bg时
+ * 但是从消息到边缘的bg也会算
+ */
 void NotificationCard::mouseEnter()
 {
+    if (hovering)
+        return ;
+    hovering = true;
     focusIn();
 
     if (us->bannerAutoFocusReply)
@@ -1115,6 +1130,9 @@ void NotificationCard::mouseEnter()
 
 void NotificationCard::mouseLeave()
 {
+    if (bg->inArea(bg->mapFromGlobal(QCursor::pos())))
+        return ;
+    hovering = false;
     if (currentMenu)
         return ;
     if (fastFocus && us->bannerAutoFocusReply)
@@ -1131,9 +1149,43 @@ void NotificationCard::mouseLeave()
     removeUnread();
 }
 
+/**
+ * 在打开外部链接/图片的情况，允许依次离开，并且保持卡片不消失
+ */
+void NotificationCard::allowLeaveOnce()
+{
+    onceLeave = true;
+    displayTimer->stop();
+}
+
+void NotificationCard::continueDisplayTimeout()
+{
+    MsgBean msg;
+    if (msgs.size())
+    {
+        msg = msgs.last();
+    }
+    else // 显示了一个空卡片，等待操作
+    {
+        msg.friendId = this->friendId;
+        msg.groupId = this->groupId;
+    }
+
+    // 要一直显示的情况：保持显示/保持重要消息的显示
+    if ((msg.isPrivate() && (us->bannerPrivateKeepShowing || (us->userImportance.contains(msg.senderId) && us->userImportance.value(msg.senderId) >= us->keepImportantMessage)))
+            || (msg.isGroup() && (us->bannerGroupKeepShowing || (us->groupImportance.contains(msg.groupId) && us->groupImportance.value(msg.groupId) >= us->keepImportantMessage))))
+    {
+        displayTimer->stop();
+    }
+    else
+    {
+        displayTimer->start();
+    }
+}
+
 void NotificationCard::displayTimeout()
 {
-    if (bg->inArea(bg->mapFromGlobal(QCursor::pos())))
+    if (bg->inArea(bg->mapFromGlobal(QCursor::pos())) || onceLeave)
     {
         displayTimer->setInterval(us->bannerDisplayDuration);
         return ; // 会等待下一波的timeout
@@ -1145,6 +1197,13 @@ void NotificationCard::displayTimeout()
 void NotificationCard::focusIn()
 {
     displayTimer->stop();
+
+    if (onceLeave)
+    {
+        onceLeave = false;
+        continueDisplayTimeout();
+        qInfo() << "结束临时保持显示";
+    }
 }
 
 void NotificationCard::focusOut()
@@ -2016,26 +2075,7 @@ void NotificationCard::showEvent(QShowEvent *event)
 {
     QWidget::showEvent(event);
 
-    MsgBean msg;
-    if (msgs.size())
-    {
-        msg = msgs.last();
-    }
-    else // 显示了一个空卡片，等待操作
-    {
-        msg.friendId = this->friendId;
-        msg.groupId = this->groupId;
-    }
-    // 要一直显示的情况：保持显示/保持重要消息的显示
-    if ((msg.isPrivate() && (us->bannerPrivateKeepShowing || (us->userImportance.contains(msg.senderId) && us->userImportance.value(msg.senderId) >= us->keepImportantMessage)))
-            || (msg.isGroup() && (us->bannerGroupKeepShowing || (us->groupImportance.contains(msg.groupId) && us->groupImportance.value(msg.groupId) >= us->keepImportantMessage))))
-    {
-        displayTimer->stop();
-    }
-    else
-    {
-        displayTimer->start();
-    }
+    continueDisplayTimeout();
 }
 
 void NotificationCard::paintEvent(QPaintEvent *)
@@ -2080,7 +2120,7 @@ void NotificationCard::loadMsgHistory()
 {
     if (isGroup() && ac->gettingGroupMsgHistories.contains(groupId))
     {
-        qDebug() << "正在获取历史记录中...";
+        qInfo() << "正在获取历史记录中...";
         return ;
     }
 
