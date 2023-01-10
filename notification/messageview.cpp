@@ -339,7 +339,7 @@ void MessageView::showMenu()
     menu->addAction(QIcon("://icons/copy_image.png"), "全选", [=]{
         menu->close();
         contentWidget->setSelection(0, contentWidget->text().length());
-    });
+    })->hide();
 #else
 #endif
 
