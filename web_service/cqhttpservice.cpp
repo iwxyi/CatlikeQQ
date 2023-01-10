@@ -1,3 +1,4 @@
+#include <QCoreApplication>
 #include <QSslConfiguration>
 #include <QRegularExpression>
 #include <QNetworkAccessManager>
@@ -50,6 +51,10 @@ void CqhttpService::initWS()
         }
         retryTimer->setInterval(30000);
         retryTimer->start();
+    });
+
+    connect(socket, static_cast<void (QWebSocket::*)(QAbstractSocket::SocketError)>(&QWebSocket::error), this, [=](QAbstractSocket::SocketError error) {
+        qWarning() << "WebSocket.error:" << error;
     });
 }
 
@@ -1061,32 +1066,37 @@ void CqhttpService::sendGroupMsg(qint64 groupId, const QString& message)
 /// get_group_msg_history: real_id -> messages[19] (最后一条是传参的，加载前面18条)
 void CqhttpService::getGroupMsgHistory(qint64 groupId, qint64 messageId, qint64 realId)
 {
-    if (!realId) // 第一步
-    {
-        if (ac->gettingGroupMsgHistories.contains(groupId))
-            return ;
-        ac->gettingGroupMsgHistories[groupId] = true;
-    }
-    MyJson json;
-    if (!realId && messageId)
-    {
-        json.insert("action", "get_msg");
-        MyJson params;
-        params.insert("group_id", groupId);
-        params.insert("message_id", messageId);
-        json.insert("params", params);
-        json.insert("echo", "get_msg:get_group_msg_history:" + snum(groupId) + "_" + snum(messageId));
-    }
-    else
-    {
-        json.insert("action", "get_group_msg_history");
-        MyJson params;
-        params.insert("group_id", groupId);
-        params.insert("message_seq", realId);
-        json.insert("params", params);
-        json.insert("echo", "get_group_msg_history:" + snum(groupId) + "_" + snum(messageId));
-    }
-    sendJsonMessage(json);
+    // 如果从 WheelEvent 的事件里进来，UI 线程跨到 WS 线程，会出现下面这个错误：
+    // QSocketNotifier: Socket notifiers cannot be enabled or disabled from another thread
+    // 使用定时器0等待UI线程结束（这个真的好用）
+    QTimer::singleShot(0, this, [=]{
+        if (!realId) // 先获取id，再重新调用这个接口
+        {
+            if (ac->gettingGroupMsgHistories.contains(groupId))
+                return ;
+            ac->gettingGroupMsgHistories[groupId] = true;
+        }
+        MyJson json;
+        if (!realId && messageId)
+        {
+            json.insert("action", "get_msg");
+            MyJson params;
+            params.insert("group_id", groupId);
+            params.insert("message_id", messageId);
+            json.insert("params", params);
+            json.insert("echo", "get_msg:get_group_msg_history:" + snum(groupId) + "_" + snum(messageId));
+        }
+        else
+        {
+            json.insert("action", "get_group_msg_history");
+            MyJson params;
+            params.insert("group_id", groupId);
+            params.insert("message_seq", realId);
+            json.insert("params", params);
+            json.insert("echo", "get_group_msg_history:" + snum(groupId) + "_" + snum(messageId));
+        }
+        sendJsonMessage(json);
+    });
 }
 
 void CqhttpService::recallMessage(qint64 userId, qint64 groupId, qint64 messageId)
