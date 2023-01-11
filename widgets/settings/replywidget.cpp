@@ -18,6 +18,7 @@ ReplyWidget::ReplyWidget(QWidget *parent) :
     ui->AIReplyCheck->setChecked(us->bannerAIReply);
     ui->showMySendCheck->setChecked(us->bannerShowMySend);
     ui->groupEmojiToImageCheck->setChecked(us->groupEmojiToImage);
+    ui->sendImagesDirectlyCheck->setChecked(us->sendImagesDirectly);
 }
 
 ReplyWidget::~ReplyWidget()
@@ -61,4 +62,9 @@ void ReplyWidget::on_showMySendCheck_clicked()
 void ReplyWidget::on_groupEmojiToImageCheck_clicked()
 {
     us->set("send/groupEmojiToImage", us->groupEmojiToImage = ui->groupEmojiToImageCheck->isChecked());
+}
+
+void ReplyWidget::on_sendImagesDirectlyCheck_clicked()
+{
+    us->set("send/sendImagesDirectly", us->sendImagesDirectly = ui->sendImagesDirectlyCheck->isChecked());
 }

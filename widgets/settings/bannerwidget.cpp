@@ -1,3 +1,4 @@
+#include <QDesktopWidget>
 #include "bannerwidget.h"
 #include "ui_bannerwidget.h"
 #include "defines.h"
@@ -9,6 +10,7 @@ BannerWidget::BannerWidget(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    ui->bannerScreenIndexSpin->setValue(us->bannerScreenIndex);
     ui->displayDurationSpin->setValue(us->bannerDisplayDuration / 1000);
     ui->textReadSpeedSpin->setValue(us->bannerTextReadSpeed);
     ui->floatPixelSpin->setValue(us->bannerFloatPixel);
@@ -34,6 +36,13 @@ BannerWidget::BannerWidget(QWidget *parent) :
         else
             ui->positionCombo->setCurrentIndex(3);
     }
+
+    // 多显示器
+    auto screens = QGuiApplication::screens();
+    int screenNum = screens.size();
+    ui->bannerScreenIndexSpin->setMaximum(screenNum - 1);
+    if (us->bannerScreenIndex > screens.size())
+        us->bannerScreenIndex = 0;
 }
 
 BannerWidget::~BannerWidget()
@@ -112,4 +121,9 @@ void BannerWidget::on_positionCombo_activated(int index)
 
     us->set("banner/floatSide", us->bannerFloatSide);
     us->set("banner/floatDirection", us->bannerFloatDirection);
+}
+
+void BannerWidget::on_bannerScreenIndexSpin_editingFinished()
+{
+    us->set("banner/screenIndex", us->bannerScreenIndex = ui->bannerScreenIndexSpin->value());
 }

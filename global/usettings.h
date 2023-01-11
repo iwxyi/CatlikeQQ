@@ -50,6 +50,7 @@ public:
     QString fileHost; // 文件上传服务器，不带/
 
     // 横幅通知位置
+    int bannerScreenIndex = 0;                                           // 使用哪个显示器屏幕
     Side bannerFloatSide = SideRight;                                    // 边：0上，1左，2右，3下，-1任意
     Direction bannerFloatDirection = TopToBottom;                        // 方向：0从左到右，1从右到左，2从上到下，3从下到上
     int bannerFloatPixel = 150;                                          // 按照这条边的绝对像素高度
@@ -82,7 +83,6 @@ public:
     int bannerFrostedGlassOpacity = 32;                                  // 毛玻璃不透明度
     int bannerBgRadius = 5;                                              // 圆角大小
     int bannerBgShadow = 12;                                             // 阴影大小，右下角会空出这么多的margin
-    int bannerScreenIndex = 0;                                           // 使用哪一个屏幕
     int bannerTitleLarger = 3;                                           // 大标题（发送者/群名）变大
     int bannerSubTitleLarger = 2;                                        // 二级标题（群聊的发送者）字体
     int bannerMessageAlpha = 255;                                        // 消息透明度
@@ -119,6 +119,7 @@ public:
 
     // 群组通知
     bool enableGroupNotification = true; // 群组通知总开关
+    bool showDisabledGroup = true;       // 历史记录显示不通知的群组
     QList<qint64> enabledGroups;         // 群组通知白名单
 
     // 重要性

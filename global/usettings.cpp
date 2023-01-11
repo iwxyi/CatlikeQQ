@@ -12,6 +12,7 @@ void USettings::restoreSettings()
     fileHost = s("net/fileHost");
 
     beginGroup("banner");
+    assign(bannerScreenIndex, "screenIndex");
     bannerFloatSide = Side(i("floatSide", bannerFloatSide));
     bannerFloatDirection = Direction(i("floatDirection", bannerFloatDirection));
     assign(bannerFloatPixel, "floatPixel");
@@ -56,11 +57,13 @@ void USettings::restoreSettings()
 
     beginGroup("group");
     assign(enableGroupNotification, "enabled");
+    assign(showDisabledGroup, "showDisabled");
     assign(enabledGroups, "enables");
     endGroup();
 
     beginGroup("send");
     assign(groupEmojiToImage, "groupEmojiToImage");
+    assign(sendImagesDirectly, "sendImagesDirectly");
     endGroup();
 
     beginGroup("history");

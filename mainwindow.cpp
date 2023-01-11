@@ -1081,7 +1081,7 @@ NotificationCard* MainWindow::createNotificationCard(const MsgBean &msg, bool sh
     {
     case SideRight: // 右
     {
-        int rightest = screenGeometry().width();
+        int rightest = screenGeometry().right();
         startPos.setX(rightest - us->bannerMargin);
         showPos.setX(rightest - us->bannerFixedWidth - us->bannerSpacing);
         break;
@@ -1101,7 +1101,7 @@ NotificationCard* MainWindow::createNotificationCard(const MsgBean &msg, bool sh
     {
     case TopToBottom:
     {
-        int top = us->bannerFloatPixel;
+        int top = screenGeometry().top() + us->bannerFloatPixel;
         if (notificationCards.size())
             top = notificationCards.last()->geometry().bottom() + us->bannerSpacing;
         startPos.setY(top);

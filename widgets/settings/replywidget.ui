@@ -25,6 +25,17 @@
      <property name="spacing">
       <number>12</number>
      </property>
+     <item row="0" column="0">
+      <widget class="QCheckBox" name="showMySendCheck">
+       <property name="toolTip">
+        <string>回复后，显示自己发送的消息
+如果在cqhttp的配置中开启了上报自身消息（report-self-message），则会显示两条，此时不建议开启</string>
+       </property>
+       <property name="text">
+        <string>显示发送的消息</string>
+       </property>
+      </widget>
+     </item>
      <item row="2" column="0">
       <widget class="QCheckBox" name="autoFocusReplyCheck">
        <property name="toolTip">
@@ -34,31 +45,6 @@
        </property>
        <property name="text">
         <string>自动聚焦回复框</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QCheckBox" name="autoShowReplyCheck">
-       <property name="text">
-        <string>自动展开回复框</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="0">
-      <widget class="QLabel" name="label">
-       <property name="toolTip">
-        <string>快速打开最新消息的回复框
-注意：会忽略按下快捷键前一瞬间收到的消息，回复x毫秒之前的最新消息</string>
-       </property>
-       <property name="text">
-        <string>回复快捷键</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0">
-      <widget class="QCheckBox" name="AIReplyCheck">
-       <property name="text">
-        <string>AI回复参考</string>
        </property>
       </widget>
      </item>
@@ -73,17 +59,31 @@
        </property>
       </widget>
      </item>
-     <item row="6" column="1">
-      <widget class="QKeySequenceEdit" name="replyKeyEdit"/>
+     <item row="1" column="0">
+      <widget class="QCheckBox" name="autoShowReplyCheck">
+       <property name="text">
+        <string>自动展开回复框</string>
+       </property>
+      </widget>
      </item>
-     <item row="0" column="0">
-      <widget class="QCheckBox" name="showMySendCheck">
+     <item row="7" column="0">
+      <widget class="QLabel" name="label">
        <property name="toolTip">
-        <string>回复后，显示自己发送的消息
-如果在cqhttp的配置中开启了上报自身消息（report-self-message），则会显示两条，此时不建议开启</string>
+        <string>快速打开最新消息的回复框
+注意：会忽略按下快捷键前一瞬间收到的消息，回复x毫秒之前的最新消息</string>
        </property>
        <property name="text">
-        <string>显示发送的消息</string>
+        <string>回复快捷键</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="1">
+      <widget class="QKeySequenceEdit" name="replyKeyEdit"/>
+     </item>
+     <item row="4" column="0">
+      <widget class="QCheckBox" name="AIReplyCheck">
+       <property name="text">
+        <string>AI回复参考</string>
        </property>
       </widget>
      </item>
@@ -95,6 +95,16 @@
        </property>
        <property name="text">
         <string>群表情包转图片</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="0">
+      <widget class="QCheckBox" name="sendImagesDirectlyCheck">
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;粘贴图片后，是直接发送图片还是插入到回复框&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="text">
+        <string>直接发送图片</string>
        </property>
       </widget>
      </item>

@@ -57,6 +57,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QCheckBox" name="showDisabledGroupsCheck">
+        <property name="text">
+         <string>历史记录显示不通知的群组</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="InteractiveButtonBase" name="enabledGroupButton">
         <property name="text">
          <string>允许通知的群组</string>

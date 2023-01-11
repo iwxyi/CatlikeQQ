@@ -16,6 +16,7 @@ GroupWidget::GroupWidget(QWidget *parent) :
     ui->enabledGroupButton->setBorderColor(Qt::gray);
 
     ui->mainCheck->setChecked(us->enableGroupNotification);
+    ui->showDisabledGroupsCheck->setChecked(us->showDisabledGroup);
     ui->autoPauseCheck->setChecked(us->autoPauseByOtherDevice);
 }
 
@@ -131,4 +132,9 @@ void GroupWidget::showEvent(QShowEvent *event)
 {
     ui->isPausingCheck->setChecked(us->isPausingByOtherDevice);
     QWidget::showEvent(event);
+}
+
+void GroupWidget::on_showDisabledGroupsCheck_clicked()
+{
+    us->set("group/showDisabled", us->showDisabledGroup = ui->showDisabledGroupsCheck->isChecked());
 }

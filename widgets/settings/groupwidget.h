@@ -25,6 +25,8 @@ private slots:
 
     void on_isPausingCheck_clicked();
 
+    void on_showDisabledGroupsCheck_clicked();
+
 protected:
     void showEvent(QShowEvent *event) override;
 

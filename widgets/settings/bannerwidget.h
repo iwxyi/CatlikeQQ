@@ -36,6 +36,8 @@ private slots:
 
     void on_positionCombo_activated(int index);
 
+    void on_bannerScreenIndexSpin_editingFinished();
+
 private:
     Ui::BannerWidget *ui;
 };
