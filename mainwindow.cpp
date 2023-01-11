@@ -175,6 +175,10 @@ void MainWindow::showHistoryListMenu()
     {
         const QList<MsgBean>& msgs = msgsl.at(i);
         const MsgBean& msg = msgs.last();
+
+        if (!us->showDisabledGroup && msg.isGroup() && !us->enabledGroups.contains(msg.groupId))
+            continue;
+
         QString name;
         QPixmap pixmap;
         AccountInfo::CardColor cc;
