@@ -1975,7 +1975,11 @@ void NotificationCard::sendNextFile()
         qInfo() << "文件上传结束：" << path << hash;
         ui->progressBar->hide();
 
-        sendReply("[CQ:image,file=" + us->fileHost + "/files/" + hash + "]");
+        QString cqCode = "[CQ:image,file=" + us->fileHost + "/files/" + hash + "]";
+        if (us->sendImagesDirectly)
+            sendReply(cqCode);
+        else
+            ui->messageEdit->setText(ui->messageEdit->text() + cqCode);
 
         sendNextFile();
     });

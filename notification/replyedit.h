@@ -7,6 +7,7 @@
 #include <QMimeData>
 #include <QApplication>
 #include <QClipboard>
+#include <QDebug>
 
 class ReplyEdit : public QLineEdit
 {
@@ -68,7 +69,7 @@ protected:
                 }
                 else if (clipboard->mimeData()->hasUrls())
                 {
-                    if (insertImageUrls(clipboard->mimeData()->urls()))
+                    if (uploadImageUrls(clipboard->mimeData()->urls()))
                         return ;
                 }
             }
@@ -116,7 +117,8 @@ protected:
         }
         else if (mime->hasUrls())
         {
-            insertImageUrls(mime->urls());
+            if (uploadImageUrls(mime->urls()))
+                return ;
             e->acceptProposedAction();
         }
         else
@@ -124,7 +126,7 @@ protected:
         QLineEdit::dropEvent(e);
     }
 
-    bool insertImageUrls(QList<QUrl> urls)
+    bool uploadImageUrls(QList<QUrl> urls)
     {
         foreach (auto url, urls)
         {
@@ -133,12 +135,20 @@ protected:
             auto path = url.toLocalFile();
             QPixmap pixmap;
             if (!pixmap.load(path))
+            {
+                qWarning() << "加载图片失败：" << path;
                 return false;
+            }
             if (pixmap.isNull())
+            {
+                qWarning() << "图片为空：" << path;
                 return false;
+            }
         }
+        emit signalDropFile(urls);
         return true;
     }
+
 };
 
 #endif // REPLYEDIT_H

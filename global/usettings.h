@@ -112,6 +112,7 @@ public:
     bool bannerAutoFocusReply = false;   // hover的时候自动聚焦回复框
     bool bannerCloseAfterReply = true;   // 回复后关闭对话框（Ctrl+Enter切换）
     bool replyMessageContainsAt = false; // 回复的时候@TA
+    bool sendImagesDirectly = true;      // 直接发送图片还是插入CQ码
 
     // 发送
     bool groupEmojiToImage = true;       // 群组表情包转图片
