@@ -1082,7 +1082,7 @@ qint64 NotificationCard::keyId() const
     if (msgs.size())
         return msgs.last().keyId();
     if (groupId)
-        return groupId;
+        return -groupId;
     if (friendId)
         return friendId;
     return 0;
@@ -1751,6 +1751,7 @@ void NotificationCard::cardMenu()
         blockHideTimer();
         bool ok = false;
         QString code = us->devCode.value(keyId());
+        qInfo() << "代码keyId:" << keyId();
         code = TextInputDialog::getText(nullptr, "编辑代码", "针对该好友/群组的收到消息的执行代码", code, &ok);
         restoreHideTimer();
         if (ok)

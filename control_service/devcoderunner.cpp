@@ -438,6 +438,8 @@ bool DevCodeRunner::executeFunc(const QString &func, const QString &args, const 
         }
         else
             return false;
+
+        // 把TA发的所有消息都撤回
         for (int i = pList->size() - 1; i >= 0; i--)
         {
             if (pList->at(i).senderId == msg.senderId)
@@ -447,7 +449,7 @@ bool DevCodeRunner::executeFunc(const QString &func, const QString &args, const 
         }
     }
 
-    // 撤销该消息及上面所有连续的该用户消息
+    // 撤销该消息及上面所有连续的该用户消息，以及TA发送的与这些一样的
     else if (func == "recallMessage_UserNear")
     {
         QList<MsgBean>* pList = nullptr;
@@ -461,11 +463,50 @@ bool DevCodeRunner::executeFunc(const QString &func, const QString &args, const 
         }
         else
             return false;
+
+        // 最后几条连续的撤回
         for (int i = pList->size() - 1; i >= 0; i--)
         {
             if (pList->at(i).senderId != msg.senderId || pList->at(i).message != msg.message)
                 break;
             else
+                emit sig->recallMessage(msg.senderId, msg.groupId, pList->at(i).messageId);
+        }
+    }
+    else if (func == "recallMessage_UserNearOrSame")
+    {
+        QList<MsgBean>* pList = nullptr;
+        QSet<QString> recalledMsgs;
+        if (msg.isPrivate())
+        {
+            pList = &ac->userMsgHistory[msg.senderId];
+        }
+        else if (msg.isGroup())
+        {
+            pList = &ac->groupMsgHistory[msg.groupId];
+        }
+        else
+            return false;
+
+        // 先查找连续的
+        int i = pList->size() - 1;
+        for (; i >= 0; i--)
+        {
+            if (pList->at(i).senderId != msg.senderId)
+                break;
+
+            if (!pList->at(i).message.isEmpty())
+                recalledMsgs.insert(pList->at(i).message);
+            emit sig->recallMessage(msg.senderId, msg.groupId, pList->at(i).messageId);
+        }
+
+        // 不连续的，但是有可能相同的
+        for (; i >= 0; i--)
+        {
+            if (pList->at(i).senderId != msg.senderId)
+                continue;
+
+            if (recalledMsgs.contains(pList->at(i).message))
                 emit sig->recallMessage(msg.senderId, msg.groupId, pList->at(i).messageId);
         }
     }
