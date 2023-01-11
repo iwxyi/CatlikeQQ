@@ -390,6 +390,12 @@ void NotificationCard::setPrivateMsg(const MsgBean &msg)
     {
         createPureMsgView(msg);
     }
+    else
+    {
+        int lineHeight = QFontMetrics(ui->listWidget->font()).height();
+        ui->listWidget->setFixedHeight(lineHeight);
+        this->adjustSize();
+    }
 
     connect(ui->headerLabel, &ClickLabel::leftClicked, this, [=]{
         showUserInfo(this->friendId);
@@ -457,6 +463,12 @@ void NotificationCard::setGroupMsg(const MsgBean &msg)
     if (msg.isValid())
     {
         createMsgBox(msg);
+    }
+    else
+    {
+        int lineHeight = QFontMetrics(ui->listWidget->font()).height();
+        ui->listWidget->setFixedHeight(lineHeight);
+        this->adjustSize();
     }
 
     connect(sig, &SignalTransfer::groupMembersLoaded, this, [=](qint64 groupId) {
