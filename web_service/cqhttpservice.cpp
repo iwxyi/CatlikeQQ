@@ -882,6 +882,8 @@ void CqhttpService::parseGroupRecall(const MyJson &json)
     qInfo() << "群消息撤回：" << group_id << ac->groupList.value(group_id).name << message_id;
     MsgBean msg = MsgBean().recall(message_id, user_id, operator_id, group_id);
     emit signalMessage(msg);
+
+    heaps->cut("group_member_msg_count/" + snum(group_id) + "_" + snum(user_id));
 }
 
 void CqhttpService::parseGroupIncrease(const MyJson &json)

@@ -39,7 +39,7 @@ void DevCodeRunner::runCode(const QString &_code, const MsgBean &msg)
     }
 
     // 去掉注释
-    re = QRegularExpression("(?<!:)//.*?(?=\\n|$|\\\\n)");
+    re = QRegularExpression("(?<!:)//.*?(?=\\n|$)");
     code.replace(re, "");
 
     // 软换行符
@@ -307,7 +307,8 @@ CONTAINS_CONDITION_CODE:
     }
     else
     {
-        qWarning() << "无法执行的代码";
+        // 可能是没加前面的条件，强制执行也要加个[1]，不能直接执行命令
+        qWarning() << "无法执行的代码" << _line;
     }
     return false;
 }

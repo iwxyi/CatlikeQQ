@@ -75,6 +75,12 @@ public:
         QSettings::setValue(key, ++val);
     }
 
+    void cut(const QString& key)
+    {
+        int val = QSettings::value(key).toInt();
+        QSettings::setValue(key, --val);
+    }
+
     bool b(const QString& key, QVariant def = QVariant())
     {
         return QSettings::value(key, def).toBool();
