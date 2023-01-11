@@ -14,7 +14,6 @@ FacileMenu::FacileMenu(QWidget *parent) : QWidget(parent)
     setAttribute(Qt::WA_DeleteOnClose, true);
     setFocusPolicy(Qt::StrongFocus); // 获取焦点，允许按键点击
     setWindowFlag(Qt::Popup, true);
-    // setWindowFlag(Qt::NoDropShadowWindowHint, true);
     setAutoFillBackground(false);  //这个不设置的话就背景变黑
     setAttribute(Qt::WA_StyledBackground);
 
@@ -30,7 +29,7 @@ FacileMenu::FacileMenu(QWidget *parent) : QWidget(parent)
     setMouseTracking(true);
 
     // 获取窗口尺寸
-    window_rect = QApplication::desktop()->availableGeometry();
+    window_rect = QApplication::screenAt(QCursor::pos())->geometry();
     window_height = window_rect.height();
 }
 
