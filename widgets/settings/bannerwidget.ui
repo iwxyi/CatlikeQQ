@@ -53,10 +53,10 @@
      <item row="0" column="0">
       <widget class="QLabel" name="label_8">
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;横幅通知出现的显示器ID，1/2/3...&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;横幅通知出现的显示器ID，0/1/2/3...&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="text">
-        <string>出现显示器</string>
+        <string>目前显示器</string>
        </property>
       </widget>
      </item>
@@ -298,7 +298,7 @@
      <item row="1" column="0">
       <widget class="QLabel" name="label_9">
        <property name="text">
-        <string>横幅显示时长</string>
+        <string>横幅显示边缘</string>
        </property>
       </widget>
      </item>
@@ -341,7 +341,7 @@
         <number>1</number>
        </property>
        <property name="value">
-        <number>1</number>
+        <number>0</number>
        </property>
       </widget>
      </item>
