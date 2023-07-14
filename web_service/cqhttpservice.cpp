@@ -89,6 +89,7 @@ void CqhttpService::openHost(QString host, QString token)
     this->host = host;
     this->accessToken = token;
 
+    qInfo() << "开始连接";
     QNetworkRequest req(host);
     if (!token.isEmpty())
         req.setRawHeader("Authorization", ("Bearer " + token).toUtf8());

@@ -84,13 +84,13 @@ private:
     HWND prevWindow = nullptr;
 #endif
 
-    QSystemTrayIcon* tray;
+    QSystemTrayIcon* tray = nullptr;
     mutable MsgBean currentTrayMsg; // 当前头像
     mutable QPixmap trayFlashPixmap; // 正在闪烁的图像
     mutable bool trayHiding = false;
-    QTimer* trayRestoreTimer; // 显示结束后回复
-    QTimer* trayHideTimer; // 闪烁一下表示有消息
-    QTimer* trayUnreadTimer; // 未读消息
+    QTimer* trayRestoreTimer = nullptr; // 显示结束后回复
+    QTimer* trayHideTimer = nullptr; // 闪烁一下表示有消息
+    QTimer* trayUnreadTimer = nullptr; // 未读消息
 
     DevCodeRunner* codeRunner = nullptr;
 };

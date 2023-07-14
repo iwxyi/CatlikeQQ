@@ -29,6 +29,9 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationVersion(VERSION_CODE);
     a.setQuitOnLastWindowClosed(false); // 关闭最后一个窗口的时候程序不退出（菜单也算窗口）
 
+    // Mac窗口
+    qputenv("QT_MAC_WANTS_LAYER", "1");
+
     QFont font(a.font());
     font.setFamily("微软雅黑");
     a.setFont(font);

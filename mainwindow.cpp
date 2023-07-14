@@ -10,7 +10,9 @@
 #include "netimageutil.h"
 #include "signaltransfer.h"
 #include "headerutil.h"
+#ifdef Q_OS_WIN
 #include "windows.h"
+#endif
 #include "widgets/customtabstyle.h"
 #include "widgets/settings/accountwidget.h"
 #include "widgets/settings/debugwidget.h"
@@ -385,6 +387,7 @@ QRect MainWindow::screenGeometry() const
 
 void MainWindow::initTray()
 {
+#if defined(ENABLE_TRAY)
     tray = new QSystemTrayIcon(this);
     tray->setIcon(QIcon("://appicon"));
     tray->setToolTip(APPLICATION_NAME);
@@ -445,6 +448,7 @@ void MainWindow::initTray()
             return ;
         }
     });
+#endif
 }
 
 void MainWindow::trayAction(QSystemTrayIcon::ActivationReason reason)
@@ -554,7 +558,8 @@ void MainWindow::initService()
 
     connect(sig, &SignalTransfer::myHeader, this, [=](const QPixmap& pixmap) {
         ac->myHeader = NetImageUtil::toRoundedPixmap(pixmap);
-        tray->setIcon(pixmap);
+        if (tray)
+            tray->setIcon(pixmap);
     });
 
     connect(sig, &SignalTransfer::openUserCard, this, [=](qint64 userId, const QString& username, const QString& text) {
@@ -632,11 +637,11 @@ void MainWindow::initKey()
         // this->activateWindow();
         focusCardReply();
     });
-#endif
 
     connect(sig, &SignalTransfer::setReplyKey, this, [=](QString key) {
         editShortcut->setShortcut(QKeySequence(key));
     });
+#endif
 
     connect(sig, &SignalTransfer::runCode, codeRunner, &DevCodeRunner::runCode);
 }
@@ -887,7 +892,7 @@ bool MainWindow::canNewCardShow(const MsgBean &msg) const
             if (im < us->lowestImportance)
             {
                 ac->lastUnreadId = msg.isPrivate() ? msg.friendId : msg.groupId;
-                if (us->unreadFlicker)
+                if (us->unreadFlicker && trayUnreadTimer)
                     trayUnreadTimer->start();
             }
         }
@@ -1478,6 +1483,9 @@ void MainWindow::triggerAiReply(const MsgBean &msg, int retry)
 
 void MainWindow::showTrayIcon(const MsgBean &msg) const
 {
+    if (!tray)
+        return;
+
     // 自己发的消息，肯定是忽略掉的
     if (msg.senderId == ac->myId)
         return;
